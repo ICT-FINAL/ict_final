@@ -1,12 +1,12 @@
 package com.ict.serv.dto;
 
-import com.ict.serv.entity.Account;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-@Data
+@Getter
+@AllArgsConstructor
 public class LoginResponseDto {
-
-    public boolean loginSuccess;
-    public Account account;
-    public String kakaoAccessToken;
+    private String token;
+    private String message;
+    private UserResponseDto user;
 }

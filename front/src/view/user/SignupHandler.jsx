@@ -1,24 +1,26 @@
 import React, { useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";  // useNavigate로 페이지 이동 관리
+import { useNavigate } from "react-router-dom";
 
 const SignupHandler = () => {
-    const code = new URL(window.location.href).searchParams.get('code');  // URL에서 code 추출
-    const serverIP = useSelector((state) => state.serverIP);  // Redux에서 서버 IP를 가져옵니다.
-    const navigate = useNavigate();  // useNavigate를 사용하여 리다이렉트
+    const code = new URL(window.location.href).searchParams.get('code');
+    const serverIP = useSelector((state) => state.serverIP);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (code) {
-            // 서버로 code 전달하여 로그인 처리
             axios.get(`${serverIP.ip}/signup/kakao?code=${code}`)
                 .then((res) => {
-                    console.log(res.data);
-                    navigate("/signup/info",{state:res.data});
+                    if(res.data=='' || res.data==undefined || res.data==null) {
+                        alert('이미 가입한 회원입니다.');
+                        navigate('/');
+                    }
+                    else navigate("/signup/info",{state:res.data});
                 })
                 .catch((err) => {
                     console.log(err);
-                    alert("로그인에 실패했습니다. 다시 시도해주세요.");
+                    alert("회원가입에 실패했습니다. 다시 시도해주세요.");
                     navigate("/"); 
                 });
         }

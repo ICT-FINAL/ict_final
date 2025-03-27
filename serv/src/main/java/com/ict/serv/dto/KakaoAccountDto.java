@@ -15,8 +15,8 @@ public class KakaoAccountDto {
     public KakaoAccount kakao_account;
 
     @Data
-    @JsonIgnoreProperties(ignoreUnknown = true) // 예상치 못한 필드를 무시
-    public static class KakaoAccount { // static으로 변경
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class KakaoAccount {
         public Boolean profile_nickname_needs_agreement;
         public Boolean email_needs_agreement;
         public Boolean is_email_valid;
@@ -24,19 +24,19 @@ public class KakaoAccountDto {
         public Boolean has_email;
 
         public String email;
-        public KakaoProfile profile;  // KakaoProfile을 static class로 사용
+        public KakaoProfile profile;
 
         // 추가된 필드들
         public Boolean profile_image_needs_agreement;
     }
 
     @Data
-    @JsonIgnoreProperties(ignoreUnknown = true) // 예상치 못한 필드를 무시
-    public static class KakaoProfile { // static으로 변경
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class KakaoProfile {
         public String nickname;
-        public String profile_image_url;  // 추가된 필드
-        public String thumbnail_image_url;  // 추가된 필드
-        public Boolean is_default_image;   // 추가된 필드
-        public Boolean is_default_nickname; // 추가된 필드
+        public String profile_image_url;
+        public String thumbnail_image_url;
+        public Boolean is_default_image;
+        public Boolean is_default_nickname;
     }
 }

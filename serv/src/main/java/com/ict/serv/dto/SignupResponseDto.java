@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 public class SignupResponseDto {
 
-    Account account;
-    String result;
+    public boolean loginSuccess;
+    public Account account;
+    public String kakaoAccessToken;
 }
