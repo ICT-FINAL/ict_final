@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 import java.io.File;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -113,6 +114,35 @@ public class AuthController {
 
         Account account = authService.kakaoSignup(kakaoAccessToken);
         return account;
+    }
+    @GetMapping("/signup/google")
+    public Account googleSignup(HttpServletRequest request) {
+        String code = request.getParameter("code");
+        System.out.println(code);
+        String accessToken = authService.getGoogleAccessToken(code);
+        Map<String, Object> googleUserInfo = authService.getGoogleUserInfo(accessToken);
+        System.out.println("Google 사용자 정보: " + googleUserInfo);
+
+        String googleId = googleUserInfo.get("id").toString();
+        String email = googleUserInfo.get("email").toString();
+        String name = googleUserInfo.get("name").toString();
+        String profileImage = googleUserInfo.get("picture").toString();
+        if(authService.findUserByEmail(email) != null) return null;
+        Account account = new Account();
+        account.setNickname(name);
+        account.setPicture(profileImage);
+        account.setEmail(email);
+        // 3. DB에 회원 정보 저장 or 로그인 처리
+       // Account account = userService.googleSignup(googleId, email, name, profileImage);
+        return account;
+        /*
+        KakaoTokenDto kakaoTokenDto = authService.getKakaoAccessToken(code);
+        System.out.println("kakaoTokenDto: " + kakaoTokenDto);
+        String kakaoAccessToken = kakaoTokenDto.getAccess_token();
+        System.out.println("kakaoAccessToken: " + kakaoAccessToken);
+
+        Account account = authService.kakaoSignup(kakaoAccessToken);
+        return account;*/
     }
 
     @PostMapping("/signup/doSignUp")

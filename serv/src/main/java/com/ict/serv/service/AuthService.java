@@ -8,14 +8,14 @@ import com.ict.serv.entity.User;
 import com.ict.serv.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -27,9 +27,56 @@ public class AuthService {
     @Value("${kakao.redirect-uri}")
     String KAKAO_REDIRECT_URI;
 
+    @Value("${google.client-id}")
+    String GOOGLE_CLIENT_ID;
+
+    @Value("${google.client-secret}")
+    String GOOGLE_CLIENT_SECRET;
+
     public User findByUserid(String userid) {
         return (User) userRepository.findByUserid(userid)
                 .orElse(null);
+    }
+
+    public Map<String, Object> getGoogleUserInfo(String accessToken) {
+        String userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo";
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(accessToken); // Authorization: Bearer {access_token} 설정
+
+        HttpEntity<String> request = new HttpEntity<>(headers);
+        ResponseEntity<Map> response = restTemplate.exchange(userInfoUrl, HttpMethod.GET, request, Map.class);
+
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return response.getBody();
+        } else {
+            throw new RuntimeException("Failed to get Google user info");
+        }
+    }
+
+    public String getGoogleAccessToken(String code) {
+        String tokenUrl = "https://oauth2.googleapis.com/token";
+
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, String> body = new HashMap<>();
+        body.put("code", code);
+        body.put("client_id", GOOGLE_CLIENT_ID);
+        body.put("client_secret", GOOGLE_CLIENT_SECRET);
+        body.put("redirect_uri", "http://localhost:3000/login/oauth2/code/google");
+        body.put("grant_type", "authorization_code");
+
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
+        ResponseEntity<Map> response = restTemplate.postForEntity(tokenUrl, request, Map.class);
+
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return response.getBody().get("access_token").toString();
+        } else {
+            throw new RuntimeException("Failed to get Google access token");
+        }
     }
 
     public KakaoTokenDto getKakaoAccessToken(String code) {
@@ -142,7 +189,9 @@ public class AuthService {
 
         return selectedAccount;
     }
-
+    public User findUserByEmail(String email){
+        return userRepository.findByEmail(email);
+    }
     public void saveUser(User user) {
         userRepository.save(user);
     }

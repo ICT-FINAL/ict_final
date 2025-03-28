@@ -94,6 +94,7 @@ function SignupInfo() {
             <img 
                 src={user.uploadedProfilePreview || user.kakaoProfileUrl} 
                 alt="프로필 이미지" 
+                referrerPolicy="no-referrer"
                 style={{ width: "100px", height: "100px", objectFit: "cover", marginTop: "10px" }} 
             />
             <button onClick={()=>doSignUp()}>ㄱㄱ</button>

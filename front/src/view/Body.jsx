@@ -6,6 +6,7 @@ import Login from "./user/Login";
 import SignupHandler from "./user/SignupHandler";
 import Signup from "./user/Signup";
 import SignupInfo from './user/SignupInfo';
+import GoogleSignupHandler from './user/GoogleSignupHandler';
 function Body() {
   return (
     <Routes>
@@ -14,6 +15,7 @@ function Body() {
       <Route path="/signup" element={<Signup/>} />
       <Route path="/signup/info" element={<SignupInfo/>} />
       <Route exact path="/login/oauth2/code/kakao" element={<SignupHandler/>}/>
+      <Route exact path="/login/oauth2/code/google" element={<GoogleSignupHandler/>}/>
     </Routes>
   );
 }
