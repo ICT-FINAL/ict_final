@@ -1,3 +1,4 @@
 # Ignore application.properties file
 serv/src/main/resources/application.properties
 front/package-lock.json
+serv/uploads
