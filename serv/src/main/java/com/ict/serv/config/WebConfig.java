@@ -7,8 +7,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
     @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry) { // 유저 프로필 이미지
-        registry.addResourceHandler("/uploads/user/profile/**")
-                .addResourceLocations("file:src/main/webapp/uploads/user/profile/");
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:./uploads/") // 업로드된 파일이 올바르게 제공되도록 설정
+                .setCachePeriod(0);
     }
 }

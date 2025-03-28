@@ -9,4 +9,5 @@ public class UserResponseDto {
     private String userid;
     private String username;
     private String email;
+    private String imgUrl;
 }

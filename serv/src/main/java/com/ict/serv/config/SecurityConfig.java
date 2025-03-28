@@ -32,7 +32,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // CSRF 비활성화
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용 안 함
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/signup/**", "/auth/login").permitAll() // 회원가입, 로그인은 인증 없이 허용
+                        .requestMatchers("/signup/**", "/auth/login").permitAll()
+                        .requestMatchers("/uploads/**").permitAll() //파일
+                        .requestMatchers("/static/**", "/resources/**").permitAll()
                         .anyRequest().authenticated() // 나머지는 인증 필요
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가

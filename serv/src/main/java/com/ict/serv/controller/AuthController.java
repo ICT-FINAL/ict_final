@@ -53,7 +53,7 @@ public class AuthController {
         }
 
         // 유저 정보 반환 (비밀번호 제외)
-        return ResponseEntity.ok(new UserResponseDto(user.getUserid(), user.getUsername(), user.getEmail()));
+        return ResponseEntity.ok(new UserResponseDto(user.getUserid(), user.getUsername(), user.getEmail(), user.getUploadedProfileUrl()));
     }
 
     @PostMapping("/auth/login")
@@ -76,7 +76,8 @@ public class AuthController {
         UserResponseDto userResponse = new UserResponseDto(
                 user.getUserid(),
                 user.getUsername(),
-                user.getEmail()
+                user.getEmail(),
+                user.getUploadedProfileUrl()
         );
         return ResponseEntity.ok(new LoginResponseDto(token, "로그인 성공", userResponse));
     }
@@ -120,7 +121,7 @@ public class AuthController {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             String encryptedPassword = passwordEncoder.encode(userpw);
 
-            String uploadDir = new File("src/main/webapp/uploads/user/profile").getAbsolutePath();
+            String uploadDir = System.getProperty("user.dir") + "/uploads/user/profile";
             File dir = new File(uploadDir);
             if (!dir.exists()) {
                 dir.mkdirs();

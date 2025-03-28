@@ -30,6 +30,7 @@ function Main() {
         <div>  
             {user ? (
                 <>
+                    <img src = {user.user.imgUrl.indexOf('http') !=-1 ? `${user.user.imgUrl}`:`${serverIP.ip}${user.user.imgUrl}`} width={100}/>
                     <h2>환영합니다, {user.user.username}님!</h2>
                     <button onClick={handleLogout}>로그아웃</button>
                 </>
