@@ -8,8 +8,6 @@ function Main() {
     let serverIP = useSelector((state) => state.serverIP);
     let dispatch = useDispatch();
     const user = useSelector((state) => state.auth.user);
-    const test = useSelector((state) => state.test);
-    const modal = useSelector((state) => state.modal);
     function testfunc() {
         if(user)
             axios.get(`${serverIP.ip}/test`, {
@@ -36,8 +34,9 @@ function Main() {
                     <button onClick={handleLogout}>로그아웃</button>
                 </>
             ) : (<>
-                <Link to="/login">로그인</Link>
-            <Link to="/signup">회원가입</Link></>
+                <Link to="/login">로그인</Link><br/>
+            <Link to="/signup">회원가입</Link><br/>
+            <Link to="/test">테스트</Link><br/></>
             )}
             <button onClick={testfunc}>jwt 슛</button>
         </div>

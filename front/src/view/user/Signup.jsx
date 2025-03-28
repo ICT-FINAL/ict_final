@@ -15,6 +15,7 @@ function Signup() {
             redirect_uri: process.env.REACT_APP_GOOGLE_REDIRECT_URL,
             response_type: "code",
             scope: "openid email profile",
+            prompt: "select_account",
         });
     
         console.log("Google Login URL:", `https://accounts.google.com/o/oauth2/auth?${params.toString()}`); // 디버깅용
