@@ -1,9 +1,5 @@
 package com.ict.serv.service;
 
-import com.ict.serv.dto.SignupRequestDto;
-import com.ict.serv.dto.TokenDto;
-import com.ict.serv.entity.Account;
-import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

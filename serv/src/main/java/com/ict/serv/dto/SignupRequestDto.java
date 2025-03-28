@@ -1,6 +1,6 @@
 package com.ict.serv.dto;
 
-import com.ict.serv.entity.Account;
+import com.ict.serv.entity.user.Account;
 import lombok.Data;
 
 @Data

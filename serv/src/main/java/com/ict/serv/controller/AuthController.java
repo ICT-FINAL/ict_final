@@ -1,9 +1,9 @@
 package com.ict.serv.controller;
 
 import com.ict.serv.dto.*;
-import com.ict.serv.entity.Account;
+import com.ict.serv.entity.user.Account;
 import com.ict.serv.entity.Authority;
-import com.ict.serv.entity.User;
+import com.ict.serv.entity.user.User;
 import com.ict.serv.service.AuthService;
 import com.ict.serv.util.JwtProvider;
 import jakarta.servlet.http.Cookie;

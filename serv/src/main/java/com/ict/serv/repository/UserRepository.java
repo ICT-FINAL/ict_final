@@ -1,6 +1,6 @@
 package com.ict.serv.repository;
 
-import com.ict.serv.entity.User;
+import com.ict.serv.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

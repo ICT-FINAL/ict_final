@@ -1,5 +1,6 @@
-package com.ict.serv.entity;
+package com.ict.serv.entity.user;
 
+import com.ict.serv.entity.Authority;
 import jakarta.persistence.*;
 import lombok.*;
 
