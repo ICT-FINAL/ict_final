@@ -106,11 +106,8 @@ public class AuthController {
     @GetMapping("/signup/kakao")
     public Account kakaoSignup(HttpServletRequest request) {
         String code = request.getParameter("code");
-        System.out.println(code);
         KakaoTokenDto kakaoTokenDto = authService.getKakaoAccessToken(code);
-        System.out.println("kakaoTokenDto: " + kakaoTokenDto);
         String kakaoAccessToken = kakaoTokenDto.getAccess_token();
-        System.out.println("kakaoAccessToken: " + kakaoAccessToken);
 
         Account account = authService.kakaoSignup(kakaoAccessToken);
         return account;
@@ -118,10 +115,8 @@ public class AuthController {
     @GetMapping("/signup/google")
     public Account googleSignup(HttpServletRequest request) {
         String code = request.getParameter("code");
-        System.out.println(code);
         String accessToken = authService.getGoogleAccessToken(code);
         Map<String, Object> googleUserInfo = authService.getGoogleUserInfo(accessToken);
-        System.out.println("Google 사용자 정보: " + googleUserInfo);
 
         String googleId = googleUserInfo.get("id").toString();
         String email = googleUserInfo.get("email").toString();
@@ -132,17 +127,7 @@ public class AuthController {
         account.setNickname(name);
         account.setPicture(profileImage);
         account.setEmail(email);
-        // 3. DB에 회원 정보 저장 or 로그인 처리
-       // Account account = userService.googleSignup(googleId, email, name, profileImage);
         return account;
-        /*
-        KakaoTokenDto kakaoTokenDto = authService.getKakaoAccessToken(code);
-        System.out.println("kakaoTokenDto: " + kakaoTokenDto);
-        String kakaoAccessToken = kakaoTokenDto.getAccess_token();
-        System.out.println("kakaoAccessToken: " + kakaoAccessToken);
-
-        Account account = authService.kakaoSignup(kakaoAccessToken);
-        return account;*/
     }
 
     @PostMapping("/signup/doSignUp")

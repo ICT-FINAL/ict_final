@@ -1,6 +1,6 @@
 import { configureStore, createSlice } from "@reduxjs/toolkit";
 import authReducer from "./authSlice"; // JWT 세션 관리
-
+import modalReducer from './modalSlice';
 let serverIP = createSlice({
   name: "serverIP",
   initialState: { ip: "http://localhost:9977" }, // 서버 IP 전역 관리
@@ -24,5 +24,6 @@ export default configureStore({
     serverIP: serverIP.reducer,
     test: test.reducer,
     auth: authReducer,
+    modal: modalReducer
   },
 });

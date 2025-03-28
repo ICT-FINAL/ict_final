@@ -8,20 +8,21 @@ function Main() {
     let serverIP = useSelector((state) => state.serverIP);
     let dispatch = useDispatch();
     const user = useSelector((state) => state.auth.user);
-
+    const test = useSelector((state) => state.test);
+    const modal = useSelector((state) => state.modal);
     function testfunc() {
-        axios.get(`${serverIP.ip}/test`, {
-            headers: { Authorization: `Bearer ${user.token}` }, //유저 정보 백에서 쓰고싶으면 이거 넘기기
-        })
-        .then((res) => console.log(res.data))
-        .catch((err) => console.log(err));
+        if(user)
+            axios.get(`${serverIP.ip}/test`, {
+                headers: { Authorization: `Bearer ${user.token}` }, //유저 정보 백에서 쓰고싶으면 이거 넘기기
+            })
+            .then((res) => console.log(res.data))
+            .catch((err) => console.log(err));
     }
 
     function handleLogout() {
         localStorage.removeItem("token");
         dispatch(clearUser());
     }
-
     useEffect(() => {
         console.log("현재 로그인된 사용자:", user);
     }, [user]);
@@ -38,7 +39,7 @@ function Main() {
                 <Link to="/login">로그인</Link>
             <Link to="/signup">회원가입</Link></>
             )}
-            <button onClick={testfunc}>JWT 토큰 백엔드 테스트</button>
+            <button onClick={testfunc}>jwt 슛</button>
         </div>
     );
 }
