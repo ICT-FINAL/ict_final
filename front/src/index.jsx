@@ -3,9 +3,8 @@ import ReactDOM from 'react-dom/client';
 
 import { BrowserRouter, Route, Routes} from 'react-router-dom';
 import Body from './view/Body';
-import Modal from './item/Modal';
 import store from './store';
-import {Provider,useSelector} from 'react-redux';
+import {Provider} from 'react-redux';
 
 const App = () => {
   return (

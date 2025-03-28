@@ -9,8 +9,8 @@ import SignupHandler from "./user/SignupHandler";
 import Signup from "./user/Signup";
 import SignupInfo from './user/SignupInfo';
 import GoogleSignupHandler from './user/GoogleSignupHandler';
-import Modal from '../item/Modal';
-import Modal2 from '../item/Modal2';
+import Modal from '../modal/Modal';
+import Modal2 from '../modal/Modal2';
 import { useSelector } from 'react-redux';
 function Body() {
   const modal = useSelector((state) => state.modal);
