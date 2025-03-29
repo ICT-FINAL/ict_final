@@ -4,8 +4,8 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const GoogleSignupHandler = () => {
-    const code = new URL(window.location.href).searchParams.get('code'); // Google OAuth 인증 코드 가져오기
-    const serverIP = useSelector((state) => state.serverIP); // Redux에서 서버 주소 가져오기
+    const code = new URL(window.location.href).searchParams.get('code');
+    const serverIP = useSelector((state) => state.serverIP);
     const navigate = useNavigate();
 
     useEffect(() => {

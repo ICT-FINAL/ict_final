@@ -1,0 +1,162 @@
+.login-wrapper {
+    position: fixed;
+    top: 0;
+    right: -380px;
+    width: 360px;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.9);
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: right 0.3s ease-in-out;
+}
+
+.login-wrapper.show {
+    right: 0;
+}
+
+.login-container {
+    padding: 20px;
+    text-align: center;
+    width: 80%;
+    margin-top:-50px;
+}
+
+.input-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.input-wrapper input {
+    width: 80%;
+    padding: 10px 13px 10px 35px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid white;
+    color: white;
+    font-size: 14px;
+    outline: none;
+}
+
+.input-wrapper input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+}
+
+.input-icon {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 16px;
+}
+
+.login-container button {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid white;
+    background: transparent;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.login-container button:hover {
+    background: white;
+    color: black;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 33px;
+    cursor: pointer;
+    color: white;
+}
+
+.login-logo {
+    width: 180px;
+    margin-bottom: 20px;
+}
+
+.social-login {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 40px;
+}
+
+.kakao-login {
+    background-color: #FEE500;
+    color: #3C1E1E;
+    border: none;
+    font-size: 14px;
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.kakao-login:hover {
+    background-color: #FAD400;
+}
+
+.google-login {
+    background-color: white;
+    color: #333;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.google-login:hover {
+    background-color: #f1f1f1;
+}
+
+.login-links {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin: 10px 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+}
+
+.login-links span {
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.login-links span:hover {
+    color: white;
+}
+
+.input-status {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    transform: translateY(-50%);
+    font-size: 18px;
+}
+
+.valid {
+    color: #4CAF50;
+}
+
+.invalid {
+    color: #FF3D00;
+}
