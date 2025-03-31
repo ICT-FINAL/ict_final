@@ -11,6 +11,7 @@ import GoogleSignupHandler from './user/GoogleSignupHandler';
 import ModalIndex from '../modal/ModalIndex';
 import Modal2 from '../modal/Modal2';
 import Message from '../interact/Message';
+import MessageBox from '../interact/MessageBox';
 
 import { setInteract } from '../store/interactSlice';
 import Interact from '../interact/Interact';
@@ -66,8 +67,9 @@ function Body() {
     {modal.isOpen && modal.selected=='1' && <ModalIndex/>}
     {modal.isOpen && modal.selected=='2' && <Modal2/>}
     {modal.isOpen && modal.selected=='message' && <Message/>}
+    {modal.isOpen && modal.selected=='message-box' && <MessageBox/>}
 
-    {!modal.isOpen && interact.isOpen && <Interact/>}
+    {interact.isOpen && <Interact/>}
 
     <Routes>
       <Route path="/" element={<Main/>} />

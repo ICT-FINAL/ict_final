@@ -3,6 +3,8 @@ import { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { clearUser } from "../store/authSlice";
 import { setLoginView } from "../store/loginSlice";
+import { setModal } from "../store/modalSlice";
+
 import axios from "axios";
 
 import { motion } from "framer-motion";
@@ -126,7 +128,7 @@ function Header() {
                         <span>장바구니</span>
                     </div>
 
-                    <div className="menu-item">
+                    <div className="menu-item" onClick={()=> {dispatch(setModal({isOpen:true, selected:'message-box'}))}}>
                     <div className="icon-container">
                         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M4 4h16v14H4z" stroke="white" strokeWidth="2"/>

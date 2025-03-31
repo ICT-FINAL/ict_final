@@ -13,6 +13,7 @@ import UpButton from './effect/UpButton';
 import './css/view/header.css';
 import './css/view/public.css';
 import './css/view/user.css';
+import './css/view/modal.css';
 
 const App = () => {
   return (
