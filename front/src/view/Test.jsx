@@ -36,7 +36,7 @@ function Test() {
     }, [user]);
 
     return (
-        <div>  
+        <div style={{padding:'200px'}}>  
             <button onClick={testfunc2}>리덕스 테스트</button>
             <button onClick={modalTest}>1번 모달 테스트</button>
             <button onClick={modalTest2}>2번 모달 테스트</button>

@@ -8,8 +8,6 @@ function Main() {
     let serverIP = useSelector((state) => state.serverIP);
     let dispatch = useDispatch();
     const user = useSelector((state) => state.auth.user);
-    const test = useSelector((state) => state.test);
-    const modal = useSelector((state) => state.modal);
     function testfunc() {
         if(user)
             axios.get(`${serverIP.ip}/test`, {
@@ -28,16 +26,14 @@ function Main() {
     }, [user]);
 
     return (
-        <div>  
+        <div style={{height:'1000px',paddingTop:'100px'}}>  
             {user ? (
                 <>
                     <img src = {user.user.imgUrl.indexOf('http') !==-1 ? `${user.user.imgUrl}`:`${serverIP.ip}${user.user.imgUrl}`} alt='' width={100}/>
-                    <h2>환영합니다, {user.user.username}님!</h2>
-                    <button onClick={handleLogout}>로그아웃</button>
+                    <h5>환영합니다, {user.user.username}님!</h5>
                 </>
             ) : (<>
-                <Link to="/login">로그인</Link>
-            <Link to="/signup">회원가입</Link></>
+            <Link to="/test">테스트</Link><br/></>
             )}
             <button onClick={testfunc}>jwt 슛</button>
         </div>

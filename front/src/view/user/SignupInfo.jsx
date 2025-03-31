@@ -78,7 +78,7 @@ function SignupInfo() {
     };
 
     return (
-        <div>
+        <div style={{padding:'150px'}}>
             <label>아이디</label>
             <input type="text" name="userid" onChange={changeUser}/><br/>
 
