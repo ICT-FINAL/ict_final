@@ -36,10 +36,11 @@ function Test() {
     }, [user]);
 
     return (
-        <div style={{padding:'200px'}}>  
+        <div style={{padding:'200px', height:'1000px'}}>  
             <button onClick={testfunc2}>리덕스 테스트</button>
             <button onClick={modalTest}>1번 모달 테스트</button>
             <button onClick={modalTest2}>2번 모달 테스트</button>
+            <span className='message-who' id='mgx-11' style={{cursor:'pointer'}}>이름 클릭 테스트 To.모모모</span>
         </div>
     );
 }

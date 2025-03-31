@@ -2,13 +2,23 @@ import { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setModal } from "../store/modalSlice";
 
-function ModalIndex() {
+import axios from "axios";
+
+function MessageBox() {
+    let serverIP = useSelector((state) => state.serverIP);
+
     const [modalOpen, setModalOpen] = useState(false);
     const [modalTransform, setModalTransform] = useState('scale(0.8)'); 
     const mount = useRef(true);
-    const modal_name = useRef('index-modal');
+    const modal_name = useRef('message-box-modal');
     const modalSel = useSelector((state) => state.modal);
     const dispatch = useDispatch();
+    const user = useSelector((state) => state.auth.user);
+    const [messageList, setMessageList] = useState([]);
+
+    const interact = useSelector((state) => state.interact);
+
+    const [to_user, setTo_user] = useState({});
 
     const modalClose = () => {
         dispatch(setModal({...modalSel, isOpen:false}));
@@ -20,8 +30,17 @@ function ModalIndex() {
         if (modalSel.isOpen) {
             setModalOpen(true);
             setModalTransform('scale(1)');
+            if(user)
+              axios.get(`${serverIP.ip}/interact/getMessageList`, {
+                  headers: { Authorization: `Bearer ${user.token}`}
+              })
+              .then(res => {
+                  setMessageList(res.data);
+              })
+              .catch(err => console.log(err))
         }
     }, [modalSel.isOpen]);
+
 
     useEffect(() => {
       if (!mount.current) mount.current = false;
@@ -144,10 +163,43 @@ function ModalIndex() {
         <div id="modal-background" style={modalBackStyle}></div>
   
         <div id={`${modal_name.current}`} style={modalStyle}>
-          <div style={exitStyle} onClick={modalClose}>X</div>
+          <div style={exitStyle} onClick={modalClose}>x</div>
+          <span>쪽지 보관함</span><br/>
+          <ul>
+            <li>
+              보낸이
+            </li>
+            <li>
+              제목
+            </li>
+            <li>
+              날짜
+            </li>
+            <li></li>
+          </ul>
+          {
+            messageList.map((item,idx) => {
+              return (
+                <ul key={idx}>
+                <li className='message-who' id={`msg-${item.userFrom.id}`} style={{cursor:'pointer'}}>
+                  {item.userFrom.username}
+                </li>
+                <li>
+                  {item.subject}
+                </li>
+                <li>
+                  {item.writedate.substring(0,10)}
+                </li>
+                <li>
+                  x
+                </li>
+                </ul>
+              )
+            })
+          }
         </div>
       </>
     );
   }
   
-  export default ModalIndex;
+  export default MessageBox;

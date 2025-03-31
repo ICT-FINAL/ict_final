@@ -1,0 +1,11 @@
+#message-box-modal > ul{
+    list-style-type: none;
+    padding:0;
+    margin:0;
+    display:flex;
+}
+#message-box-modal > ul > li{
+    width:30%;
+    padding:5px;
+    text-align: center;
+}
