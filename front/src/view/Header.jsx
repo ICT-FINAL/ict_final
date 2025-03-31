@@ -10,10 +10,12 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import Logo from '../img/mimyo_logo-removebg.png';
 import Login from "./user/Login";
+import { setMenuModal } from "../store/menuSlice";
 
 function Header() {
-    const [isMenuOpen, setMenuOpen] = useState(false);
     const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+
+    const menuModal = useSelector((state)=> state.menuModal);
 
     const user = useSelector((state) => state.auth.user);
     const loginView = useSelector((state)=> state.loginView);
@@ -54,7 +56,7 @@ function Header() {
             }
         }
     
-        if (isMenuOpen) {
+        if (menuModal) {
             updateMenuPosition();
             window.addEventListener("resize", updateMenuPosition);
         }
@@ -62,7 +64,7 @@ function Header() {
         return () => {
             window.removeEventListener("resize", updateMenuPosition);
         };
-    }, [isMenuOpen]);
+    }, [menuModal]);
 
     return (
         <div className='header-container'>
@@ -85,7 +87,7 @@ function Header() {
                 <li className='header-right'>
                     {user ? (
                         <>
-                            <div ref={menuButtonRef} className="menu-icon" onClick={() => setMenuOpen(!isMenuOpen)}>
+                            <div ref={menuButtonRef} className="menu-icon" onClick={() => dispatch(setMenuModal(!menuModal))}>
                                 <img src = {user.user.imgUrl.indexOf('http') !==-1 ? `${user.user.imgUrl}`:`${serverIP.ip}${user.user.imgUrl}`} alt='' width={40} height={40} style={{borderRadius:'100%', backgroundColor:'white'}}/>
                                 <div style={{color:'white', paddingLeft:'10px', textAlign:'center', width:'120px', fontSize:'14px',textOverflow:'ellipsis',overflow:'hidden',whiteSpace:'nowrap'}}>{user.user.username}<br/><div style={{paddingTop:'5px'}}>P:1000p / G:👑</div></div>
                             </div>
@@ -105,9 +107,9 @@ function Header() {
 
             <motion.div
                 ref={menuRef}
-                className={`dropdown-menu ${isMenuOpen ? "show" : ""}`}
+                className={`dropdown-menu ${menuModal ? "show" : ""}`}
                 initial={{ opacity: 0 }}
-                animate={{ opacity: isMenuOpen ? 1 : 0 }}
+                animate={{ opacity: menuModal ? 1 : 0 }}
                 style={{ top: `${menuPosition.top+10}px`, left: `${menuPosition.left}px` }}
             >
                 <div className="menu-grid">

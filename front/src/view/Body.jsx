@@ -14,6 +14,8 @@ import Message from '../interact/Message';
 import MessageBox from '../interact/MessageBox';
 
 import { setInteract } from '../store/interactSlice';
+import { setMenuModal } from '../store/menuSlice';
+
 import Interact from '../interact/Interact';
 
 import { useSelector, useDispatch } from 'react-redux';
@@ -27,7 +29,10 @@ function Body() {
   const dispatch = useDispatch();
 
   useEffect(()=>{
-    dispatch(setInteract({...interact, isOpen:false}));
+    if(al_mount.current) {
+      dispatch(setInteract({...interact, isOpen:false}));
+      dispatch(setMenuModal(false));
+    }
   },[modal]); //모달 열리면 상호작용 그거 닫힘
 
   useEffect(() => {
