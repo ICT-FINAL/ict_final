@@ -2,6 +2,7 @@ import { configureStore, createSlice } from "@reduxjs/toolkit";
 import authReducer from "./authSlice"; // JWT 세션 관리
 import modalReducer from './modalSlice';
 import loginViewReducer from './loginSlice'; //로그인 뷰 관리
+import interactReducer from './interactSlice';
 
 let serverIP = createSlice({
   name: "serverIP",
@@ -27,6 +28,7 @@ export default configureStore({
     test: test.reducer,
     auth: authReducer,
     modal: modalReducer,
-    loginView: loginViewReducer
+    loginView: loginViewReducer,
+    interact: interactReducer
   },
 });

@@ -2,13 +2,24 @@ import { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setModal } from "../store/modalSlice";
 
-function ModalIndex() {
+import axios from "axios";
+
+function Message() {
+    let serverIP = useSelector((state) => state.serverIP);
+
     const [modalOpen, setModalOpen] = useState(false);
     const [modalTransform, setModalTransform] = useState('scale(0.8)'); 
     const mount = useRef(true);
-    const modal_name = useRef('index-modal');
+    const modal_name = useRef('message-modal');
     const modalSel = useSelector((state) => state.modal);
     const dispatch = useDispatch();
+    const user = useSelector((state) => state.auth.user);
+    const interact = useSelector((state) => state.interact);
+
+    const [subject, setSubject] = useState('');
+    const [comment, setComment] = useState('');
+
+    const [to_user, setTo_user] = useState({});
 
     const modalClose = () => {
         dispatch(setModal({...modalSel, isOpen:false}));
@@ -20,8 +31,35 @@ function ModalIndex() {
         if (modalSel.isOpen) {
             setModalOpen(true);
             setModalTransform('scale(1)');
+            if(user)
+              axios.get(`${serverIP.ip}/interact/getToUser?toId=${interact.selected}`,{
+                headers: { Authorization: `Bearer ${user.token}`}, 
+              })
+              .then(res => {
+                setTo_user(res.data);
+              })
+              .catch(err => console.log(err))
         }
     }, [modalSel.isOpen]);
+
+    const changeSubject = (e) =>{
+      setSubject(e.target.value);
+    }
+
+    const changeComment = (e) =>{
+      setComment(e.target.value);
+    }
+
+    const sendMessage = () => {
+      if(user)
+        axios.get(`${serverIP.ip}/interact/sendMessage?toId=${interact.selected}&subject=${subject}&comment=${comment}`,{
+          headers: { Authorization: `Bearer ${user.token}`}, 
+        })
+        .then(res => {
+          console.log(res.data);
+        })
+        .catch(err => console.log(err))
+    }
 
     useEffect(() => {
       if (!mount.current) mount.current = false;
@@ -144,10 +182,16 @@ function ModalIndex() {
         <div id="modal-background" style={modalBackStyle}></div>
   
         <div id={`${modal_name.current}`} style={modalStyle}>
-          <div style={exitStyle} onClick={modalClose}>X</div>
+          <div style={exitStyle} onClick={modalClose}>x</div>
+          { to_user.imgUrl &&
+          <><img src={to_user.imgUrl.indexOf('http') !==-1 ? `${to_user.imgUrl}`:`${serverIP.ip}${to_user.imgUrl}`} width='40'/><span>To. {to_user.username}</span><br/></>
+          }
+          제목 <input type='text' onChange={changeSubject}/><br/>
+          내용 <textarea onChange={changeComment}/><br/>
+          <button onClick={()=>sendMessage()}>보내기</button>
         </div>
       </>
     );
   }
   
-  export default ModalIndex;
+  export default Message;

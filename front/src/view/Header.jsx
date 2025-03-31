@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { clearUser } from "../store/authSlice";
 import { setLoginView } from "../store/loginSlice";
+import axios from "axios";
 
 import { motion } from "framer-motion";
 import Logo from '../img/mimyo_logo-removebg.png';
@@ -18,8 +19,8 @@ function Header() {
     const menuButtonRef = useRef(null);
     const menuRef = useRef(null);
     let serverIP = useSelector((state) => state.serverIP);
-    const [messageCount, setMessageCount] = useState(3);
-
+    const [messageCount, setMessageCount] = useState(0);
+    const [messageList, setMessageList] = useState([]);
     function handleLogout() {
         localStorage.removeItem("token");
         dispatch(clearUser());
@@ -27,6 +28,20 @@ function Header() {
     }
 
     useEffect(() => {
+        if(user)
+            axios.get(`${serverIP.ip}/interact/getMessageList`, {
+                headers: { Authorization: `Bearer ${user.token}`}
+            })
+            .then(res => {
+                setMessageList(res.data);
+                let cnt = 0;
+                res.data.forEach((item) => {
+                    if(item.state=='READABLE') cnt++;
+                })
+                setMessageCount(cnt);
+            })
+            .catch(err => console.log(err))
+
         function updateMenuPosition() {
             if (menuButtonRef.current) {
                 const rect = menuButtonRef.current.getBoundingClientRect();

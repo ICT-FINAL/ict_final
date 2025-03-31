@@ -36,6 +36,7 @@ function Main() {
             <Link to="/test">테스트</Link><br/></>
             )}
             <button onClick={testfunc}>jwt 슛</button>
+            <Link to="/test">테스트</Link><br/>
         </div>
     );
 }

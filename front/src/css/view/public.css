@@ -38,3 +38,54 @@ body{
 .scroll-to-top:hover {
     background: rgba(80, 80, 80, 0.9);
 }
+
+.interact-popup {
+    position: absolute;
+    background-color: #1b1b1b;
+    color:white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 12px;
+    z-index:10;
+    width: 108px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.interact-exit {
+    font-size: 22px;
+    font-weight: bold;
+    color: #ebebeb;
+    cursor: pointer;
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    transition: color 0.2s;
+}
+
+.interact-exit:hover {
+    color: #cfcfcf;
+}
+
+.interact-list {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.interact-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.interact-item:hover {
+    background-color: #f1f1f1;
+    color:#1b1b1b;
+}
+
+.interact-item:active {
+    background-color: #e0e0e0;
+    color:#1b1b1b;
+}
