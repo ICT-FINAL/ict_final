@@ -10,6 +10,7 @@ function MyIndex(){
     const [path, setPath] = useState({f_name:'',l_name:''});
     
     useEffect(() => {
+        window.scrollTo({top:0,left:0,behavior:'smooth'});
         let pathname = location.pathname.split("/");
         let page = pathname[2];
 
