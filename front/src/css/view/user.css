@@ -185,34 +185,40 @@
 }
 
 .sign-up-form {
-    height: 450px;
+    max-width: 800px;
+    min-width: 600px;
+    height: 650px;
+    margin: 0 auto;
 }
 .sign-up-form label, .sign-up-form input {
     display: inline-block;
-    width: 20%;
-    height: 35px;
-    line-height: 35px;
+    width: 30%;
+    height: 30px;
+    line-height: 30px;
     margin: 5px;
     padding: 5px;
 }
 .sign-up-form label {
     font-weight: bold;
-    text-align: center;
 }
 .sign-up-form input {
-    width: 60%;
+    width: 63%;
     border: 1px solid #555;
     border-radius: 10px;
 }
 .sign-up-form input:first-of-type {
-    width: calc(60% - 160px);
+    width: calc(63% - 160px);
 }
 #duplicate-check-btn {
     width: 150px;
-    height: 47px;
+    height: 42px;
     background-color: #222;
     color: #fff;
     font-size: 11pt;
+    cursor: pointer;
+}
+input.tel {
+    width: 100px;
 }
 #profile-img {
     position: absolute;
@@ -228,11 +234,13 @@
     left: 120px;
     top: 60px;
 }
-::-webkit-file-upload-button {
+#postcode, ::-webkit-file-upload-button {
+    margin-left: 10px;
     height: 30px;
     background-color: #222;
     color: #fff;
     border-radius: 10px;
+    cursor: pointer;
 }
 #signup-btn {
     display: block;
@@ -243,4 +251,5 @@
     background-color: #222;
     border-radius: 10px;
     font-size: 14pt;
+    cursor: pointer;
 }

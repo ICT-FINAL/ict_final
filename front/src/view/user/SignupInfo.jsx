@@ -1,30 +1,63 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setModal } from "../../store/modalSlice";
 
 import axios from "axios";
 
 function SignupInfo() {
     const loc = useLocation();
     const serverIP = useSelector((state) => {return state.serverIP});
+    const modal = useSelector((state)=>{return state.modal});
     const navigate = useNavigate();
     const [isTermsChecked, setIsTermsChecked] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
+    const dispatch = useDispatch();
 
+    const handleComplete = () => {
+        dispatch(setModal({isOpen: !modal.isOpen, selected: "DaumPost"}));
+    }
+
+    const [alert, setAlert] = useState({
+        userid: "",
+        username: "",
+        email: "",
+        userpw: "",
+        tel: "",
+        address: "",
+    });
     const [user, setUser] = useState({
         userid: "",
         username: loc.state.nickname,
-        kakaoProfileUrl: loc.state.picture,
         email: loc.state.email,
+        userpw: "",
+        tel1: "",
+        tel2: "",
+        tel3: "",
+        address: "",
+        addressDetail: "",
+        kakaoProfileUrl: loc.state.picture,
         uploadedProfile: null,
-        uploadedProfilePreview: null, 
-        userpw: ""
+        uploadedProfilePreview: null
     });
 
     const changeUser = (e) => {
-        console.log(loc.state)
-        console.log(user);
+        // console.log(loc.state)
+        // console.log(user);
+        console.log(user.userid);
+        user.length === 0 ? setAlert({...alert, userid: "아이디 입력하삼"}) : setAlert({...alert, userid: ""});
         setUser({ ...user, [e.target.name]: e.target.value });
+        if (e.target.name === "userid") {
+            if (e.target.value.length > 12 || e.target.value.length < 6) {
+                setAlert({
+                    ...alert, userid: "아이디는 6자 이상 12자 이하로 입력하세요"
+                })
+            } else {
+                setAlert (
+                    {...alert, userid: ""}
+                )
+            }
+        }
     };
 
     const handleImageChange = (e) => {
@@ -91,14 +124,32 @@ function SignupInfo() {
     }
 
     const formCheck = ()=>{
-        // if (/^[a-z]{6,12}$/.test(user.userid))
+        console.log(user);
+        console.log(modal.info.address);
+        
+    }
+
+    const modalBackStyle = {    //모달 배경
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        backdropFilter: 'blur(5px)',
+        zIndex: 2000,
+        display: modal.isOpen ? 'block' : 'none',
+        transition: 'opacity 0.3s ease'
     }
 
     return (
+        <>
+        <div id="modal-background" style={modalBackStyle}></div>
         <div className="sign-up-container">
             <h3>회원가입</h3>
+            <button onClick={formCheck}>check</button>
             <div className="terms">
-                <pre style={{overflowY: 'scroll', height: '500px', border: '1px solid #ddd', padding: '10px'}}>
+                <pre style={{overflowY: 'scroll', height: '300px', border: '1px solid #ddd', padding: '10px'}}>
                 {`1. 목적
 이 약관은 회원이 본 사이트를 통해 수제품을 제작, 판매, 구매하는 과정에서의 권리, 의무 및 책임을 규정합니다.
 
@@ -180,20 +231,36 @@ function SignupInfo() {
                     <label>아이디</label>
                     <input type="text" name="userid" onChange={changeUser}/>
                     <input type="button" id="duplicate-check-btn" value="아이디 중복 확인"/><br/>
+                    <span>{alert.userid}</span><br/>
 
                     <label>이름</label>
                     <input type="text" name="username" value={user.username} onChange={changeUser}/><br/>
 
                     <label>이메일</label>
-                    <input type="text" name="email" readOnly value={user.email} /><br/>
+                    <input type="text" name="email" disabled value={user.email} onChange={changeUser}/><br/>
 
                     <label>비밀번호</label>
-                    <input type='password' name="userpw" onChange={changeUser}/><br/>
+                    <input type='password' id="pw1" name="userpw" onChange={changeUser}/><br/>
                     
                     <label>비밀번호 확인</label>
-                    <input type='password' name="userpw" onChange={changeUser}/><br/>
+                    <input type='password' id="pw2" name="userpw" onChange={changeUser}/><br/>
 
-                    <label>프로필 사진 업로드</label>
+                    <label>휴대폰 번호</label>
+                    <input type="text" name="tel1" className="tel" value={user.tel1} onChange={changeUser}/>-
+                    <input type="text" name="tel2" className="tel" value={user.tel2} onChange={changeUser}/>-
+                    <input type="text" name="tel3" className="tel" value={user.tel3} onChange={changeUser}/><br/>
+
+                    <label>우편번호</label>
+                    <input type="text" style={{width: '100px'}} name="zipcode" value={modal.info && modal.info.zonecode} disabled/>
+                    <button id="postcode" onClick={handleComplete}>주소찾기</button><br/>
+
+                    <label>주소</label>
+                    <input type="text" name="address" readOnly value={modal.info && modal.info.address} onChange={changeUser}/><br/>
+                    
+                    <label>상세주소</label>
+                    <input type='text' name="addressDetail" onChange={changeUser}/><br/>
+
+                    <label>프로필 사진</label>
                     <img
                         id="profile-img" 
                         src={user.uploadedProfilePreview || user.kakaoProfileUrl} 
@@ -206,10 +273,8 @@ function SignupInfo() {
                 <button id="signup-btn" onClick={()=>doSignUp()}>회원가입</button>
                 </div>
             }
-            
-
-            
         </div>
+        </>
     );
 }
 

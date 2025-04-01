@@ -15,10 +15,11 @@ import Message from '../interact/Message';
 import MessageBox from '../interact/MessageBox';
 
 import MyIndex from './user/mypage/MyIndex';
+import Post from '../modal/Post';
 
 import { setInteract } from '../store/interactSlice';
 import { setMenuModal } from '../store/menuSlice';
-
+import { setModal } from '../store/modalSlice';
 import Interact from '../interact/Interact';
 
 import { useSelector, useDispatch } from 'react-redux';
@@ -86,7 +87,12 @@ function Body() {
     {modal.isOpen && modal.selected=='2' && <Modal2/>}
     {modal.isOpen && modal.selected=='message' && <Message/>}
     {modal.isOpen && modal.selected=='message-box' && <MessageBox/>}
-
+    {modal.isOpen && modal.selected=="DaumPost" && 
+      <div className='daumpost'>
+          <button title="X" className="post-close-btn" onClick={() => dispatch(setModal({...modal, isOpen: false}))} >X</button> 
+          <Post/>
+      </div>}
+    
     {interact.isOpen && <Interact/>}
 
     <Routes>
