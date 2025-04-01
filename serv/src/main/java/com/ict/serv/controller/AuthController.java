@@ -126,7 +126,7 @@ public class AuthController {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             String encryptedPassword = passwordEncoder.encode(userpw);
 
-            String uploadDir = System.getProperty("user.dir") + "/uploads/user/profile";
+            String uploadDir = System.getProperty("user.dir") + "/uploads/user/profile";    //path는 무조건 이 경로
             File dir = new File(uploadDir);
             if (!dir.exists()) {
                 dir.mkdirs();
