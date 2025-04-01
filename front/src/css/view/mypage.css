@@ -1,5 +1,6 @@
 .mypage-container{
-    position: absolute;
+    z-index: -1;
+    position: fixed;
     width:100%;
     background-color: #e9e9e9;
     height:100%;
@@ -38,14 +39,33 @@
 }
 .mypage-nav > ul {
     list-style-type: none;
+    padding:0;
 }
 .mypage-nav > ul > li {
-    padding: 5px 0 5px ;
-    padding-left: 8px;
+    padding: 10px 0 10px;
+    transition: all 0.3s;
+}
+.mypage-nav > ul > li > span {
+    padding-left: 30px;
+}
+.mypage-nav > ul > li:not(:first-child):hover {
+    color:#fff;
+    background-color: #555;
+    font-weight: 700;
+    cursor: pointer;
 }
 .mypage-nav > ul > li:first-child {
     padding-top:20px;
-    padding-left: 0px;
     font-size: 18px;
     font-weight: 700;
+    padding-left: 20px;
+}
+
+.mypage-wrap{
+    padding-top:160px;
+    padding-left:330px;
+}
+
+.mypage-box{
+    height:1000px;
 }
