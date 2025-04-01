@@ -117,7 +117,7 @@ function Header() {
                 className={`dropdown-menu ${menuModal ? "show" : ""}`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: menuModal ? 1 : 0 }}
-                style={{ top: `${menuPosition.top+10}px`, left: `${menuPosition.left}px` }}
+                style={{ top: `${menuPosition.top+10}px`, left: `${menuPosition.left-30}px` }}
             >
                     <div className="menu-grid">
                     <div className="menu-item" onClick={()=> movePage('/mypage/profile')}>
@@ -147,7 +147,21 @@ function Header() {
                     </div>
                         <span>쪽지</span>
                     </div>
-
+                    <div className="menu-item">
+                        <svg transform="translate(0,-5)" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 9V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v3a2 2 0 1 0 0 6v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a2 2 0 1 0 0-6Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M12 6v12" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                        </svg>
+                        <span>쿠폰등록</span>
+                    </div>
+                    <div className="menu-item">
+                        <svg transform="translate(0,-4)" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 12V11a8 8 0 0 1 16 0v1" stroke="white" strokeWidth="2"/>
+                            <path d="M2 15a2 2 0 1 0 4 0v-2H2v2ZM18 13v2a2 2 0 1 0 4 0v-2h-4Z" stroke="white" strokeWidth="2"/>
+             
+                        </svg>
+                        <span>고객센터</span>
+                    </div>
                     <div className="menu-item" onClick={handleLogout}>
                         <svg transform="translate(2,-4)" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M3 3h10v18H3" stroke="white" strokeWidth="2"/>
