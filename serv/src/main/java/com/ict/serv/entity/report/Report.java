@@ -28,7 +28,7 @@ public class Report {
 
     @Column(name = "report_status")
     @Enumerated(EnumType.STRING)
-    private ReportState state;
+    private ReportState state = ReportState.READABLE;
 
     @Column(name = "report_type")
     private String reportType;

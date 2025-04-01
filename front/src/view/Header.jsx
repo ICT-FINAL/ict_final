@@ -90,7 +90,11 @@ function Header() {
                         <Link to='/'><li>메뉴 3</li></Link>
                         <Link to='/'><li>메뉴임 1</li></Link>
                     </ul>
-                </li> : <></>
+                </li> : <li className='header-center'>
+                    <ul>
+                        <Link to='/admin'><li>관리자 페이지</li></Link>
+                    </ul>
+                </li>
                 }
                 <li className='header-right'>
                     {user ? (
