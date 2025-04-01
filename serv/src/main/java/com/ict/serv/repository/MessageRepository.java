@@ -9,4 +9,7 @@ import java.util.Optional;
 
 public interface MessageRepository extends JpaRepository<Message, Long> {
     List<Message> findAllByUserTo(User user);
+    Message findMessageById(Long id);
+
+    List<Message> findAllByUserToOrderByIdDesc(User user);
 }

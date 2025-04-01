@@ -25,6 +25,12 @@ public class InteractService {
         message_repo.save(msg);
     }
     public List<Message> getMessageList(User user) {
-        return message_repo.findAllByUserTo(user);
+        return message_repo.findAllByUserToOrderByIdDesc(user);
+    }
+    public Message selectMessage(Long id) {
+        return message_repo.findMessageById(id);
+    }
+    public void deleteMessage(Long id) {
+        message_repo.deleteById(id);
     }
 }

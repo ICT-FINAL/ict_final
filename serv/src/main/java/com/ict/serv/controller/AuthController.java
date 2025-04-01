@@ -5,6 +5,7 @@ import com.ict.serv.entity.user.Account;
 import com.ict.serv.entity.Authority;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.AuthService;
+import com.ict.serv.service.InteractService;
 import com.ict.serv.util.JwtProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +14,9 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -31,30 +34,16 @@ import java.util.UUID;
 public class AuthController {
 
     private final AuthService authService;
+    private final InteractService interactService;
+
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
     @GetMapping("/auth/me")
-    public ResponseEntity<?> getCurrentUser(HttpSession session) {
-        // 세션에서 JWT 가져오기
-        String token = (String) session.getAttribute("JWT");
-
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 필요");
-        }
-
-        // JWT에서 사용자 아이디 추출
-        String userid = jwtProvider.getUseridFromToken(token);
-
-        // 유저 정보 조회
-        User user = authService.findByUserid(userid);
-
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("유저 정보 없음");
-        }
-
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = interactService.selectUserByName(userDetails.getUsername());
         // 유저 정보 반환 (비밀번호 제외)
-        return ResponseEntity.ok(new UserResponseDto(user.getUserid(), user.getUsername(), user.getEmail(), user.getUploadedProfileUrl()));
+        return ResponseEntity.ok(new UserResponseDto(user.getId(),user.getUserid(), user.getUsername(), user.getEmail(), user.getUploadedProfileUrl()));
     }
 
     @PostMapping("/auth/login")
@@ -75,6 +64,7 @@ public class AuthController {
         session.setAttribute("JWT", token);
 
         UserResponseDto userResponse = new UserResponseDto(
+                user.getId(),
                 user.getUserid(),
                 user.getUsername(),
                 user.getEmail(),
