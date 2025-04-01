@@ -160,3 +160,87 @@
 .invalid {
     color: #FF3D00;
 }
+
+/* ===== sign up ===== */
+.sign-up-container {
+    width: 80%;
+    margin: 0 auto;
+    padding-top: 120px;
+}
+.terms {
+    margin: 20px auto;
+}
+#terms-content {
+    width: 100%;
+    height: 300px;
+    margin-bottom: 30px;
+    padding: 10px;
+    font-size: 12pt;
+    white-space: pre-wrap !important;
+}
+#terms-alert {
+    color: #f44;
+    padding: 10px;
+    transition: all 0.5s;
+}
+
+.sign-up-form {
+    height: 450px;
+}
+.sign-up-form label, .sign-up-form input {
+    display: inline-block;
+    width: 20%;
+    height: 35px;
+    line-height: 35px;
+    margin: 5px;
+    padding: 5px;
+}
+.sign-up-form label {
+    font-weight: bold;
+    text-align: center;
+}
+.sign-up-form input {
+    width: 60%;
+    border: 1px solid #555;
+    border-radius: 10px;
+}
+.sign-up-form input:first-of-type {
+    width: calc(60% - 160px);
+}
+#duplicate-check-btn {
+    width: 150px;
+    height: 47px;
+    background-color: #222;
+    color: #fff;
+    font-size: 11pt;
+}
+#profile-img {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    padding: 10px;
+}
+.sign-up-form input:last-of-type {
+    position: relative;
+    width: 40%;
+    border: none;
+    left: 120px;
+    top: 60px;
+}
+::-webkit-file-upload-button {
+    height: 30px;
+    background-color: #222;
+    color: #fff;
+    border-radius: 10px;
+}
+#signup-btn {
+    display: block;
+    width: 150px;
+    height: 40px;
+    margin: auto;
+    color: #fff;
+    background-color: #222;
+    border-radius: 10px;
+    font-size: 14pt;
+}
