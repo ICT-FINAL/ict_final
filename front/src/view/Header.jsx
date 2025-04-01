@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { clearUser } from "../store/authSlice";
@@ -14,6 +14,8 @@ import { setMenuModal } from "../store/menuSlice";
 
 function Header() {
     const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+
+    const navigate = useNavigate();
 
     const menuModal = useSelector((state)=> state.menuModal);
 
@@ -66,6 +68,11 @@ function Header() {
         };
     }, [menuModal]);
 
+    const movePage = (where) => {
+        dispatch(setMenuModal(false));
+        navigate(where);
+    }
+
     return (
         <div className='header-container'>
             <ul className='header-nav'>
@@ -112,8 +119,8 @@ function Header() {
                 animate={{ opacity: menuModal ? 1 : 0 }}
                 style={{ top: `${menuPosition.top+10}px`, left: `${menuPosition.left}px` }}
             >
-                <div className="menu-grid">
-                    <div className="menu-item">
+                    <div className="menu-grid">
+                    <div className="menu-item" onClick={()=> movePage('/mypage/profile')}>
                         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="12" cy="8" r="4" stroke="white" strokeWidth="2"/>
                             <path d="M4 20c0-4 4-7 8-7s8 3 8 7" stroke="white" strokeWidth="2"/>
@@ -121,7 +128,7 @@ function Header() {
                         <span>내 정보</span>
                     </div>
 
-                    <div className="menu-item">
+                    <div className="menu-item" onClick={()=> movePage('/mypage/wish')}>
                         <svg transform="translate(-3,0)" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M6 6h15l-2 9H8L6 6z" stroke="white" strokeWidth="2"/>
                             <circle cx="9" cy="20" r="1.5" fill="white"/>

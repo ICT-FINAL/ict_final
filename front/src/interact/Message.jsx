@@ -21,6 +21,11 @@ function Message() {
 
     const [to_user, setTo_user] = useState({});
 
+    const [isRegex, setIsRegex] = useState({
+      isOpen:false,
+      msg:'제목을 입력해주세요'
+    });
+
     const modalClose = () => {
         dispatch(setModal({...modalSel, isOpen:false}));
         setModalOpen(false);
@@ -51,12 +56,28 @@ function Message() {
     }
 
     const sendMessage = () => {
+      if(subject.length === 0){
+        setIsRegex({isOpen:true, msg:'제목을 입력해주세요'});
+        return;
+      }
+      if(comment.length === 0) {
+        setIsRegex({isOpen:true, msg:'내용을 입력해주세요'});
+        return;
+      }
+      if(subject.length > 20){
+        setIsRegex({isOpen:true, msg:'제목이 너무 깁니다'});
+        return;
+      }
+      if(comment.length > 200) {
+        setIsRegex({isOpen:true, msg:'내용이 너무 깁니다'});
+        return;
+      }
       if(user)
         axios.get(`${serverIP.ip}/interact/sendMessage?toId=${interact.selected}&subject=${subject}&comment=${comment}`,{
           headers: { Authorization: `Bearer ${user.token}`}, 
         })
         .then(res => {
-          console.log(res.data);
+          modalClose();
         })
         .catch(err => console.log(err))
     }
@@ -159,8 +180,8 @@ function Message() {
     
     const modalStyle = {    //모달 스타일은 이런 양식으로 plz 마음대로 커스텀
       position: 'fixed',
-      width: '500px', // 모달 너비
-      height: '330px', // 모달 높이
+      width: '500px', 
+      height: '360px', 
       backgroundColor: 'white',
       zIndex: 2001,
       opacity: modalOpen ? 1 : 0,
@@ -181,24 +202,11 @@ function Message() {
       color: '#555',
     };
     
-    const profileStyle = {
-      display: 'flex',
-      alignItems: 'center',
-      marginBottom: '10px',  // 여백 조정
-    };
-    
-    const profileImgStyle = {
-      width: '40px',
-      height: '40px',
-      borderRadius: '50%',
-      marginRight: '10px',
-    };
-    
     const labelStyle = {
-      fontSize: '16px',  // 글씨 크기 살짝 줄임
+      fontSize: '16px',
       fontWeight: 'bold',
-      marginBottom: '8px', // 여백 조정
-      marginTop: '12px',   // 여백 조정
+      marginBottom: '8px',
+      marginTop: '12px',
       textAlign: 'left',
     };
     
@@ -206,7 +214,7 @@ function Message() {
       marginTop:'10px',
       width: '96%',
       padding: '8px',
-      marginBottom: '10px', // 여백 조정
+      marginBottom: '10px',
       borderRadius: '5px',
       border: '1px solid #ccc',
       fontSize: '14px',
@@ -220,7 +228,7 @@ function Message() {
       borderRadius: '5px',
       border: '1px solid #ccc',
       fontSize: '14px',
-      resize: 'none', // textarea 리사이즈 비활성화
+      resize: 'none',
     };
     
     const buttonStyle = {
@@ -236,6 +244,37 @@ function Message() {
       marginTop: '10px',
     };
     
+    const profileStyle = {
+      display: 'flex',
+      alignItems: 'center',
+      marginBottom: '15px',
+      padding: '10px',
+  
+      borderRadius: '10px',
+    };
+    
+    const profileImgStyle = {
+      width: '40px',
+      height: '40px',
+      borderRadius: '50%',
+      border: '2px solid #444',
+      objectFit: 'cover',
+      marginRight: '12px',
+    };
+    
+    const usernameStyle = {
+      fontSize: '18px',
+      fontWeight: 'bold',
+      color: '#333',
+    };
+    
+    const profileContainerStyle = {
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+    };
+    
+    
     return (
       <>
         <div id="modal-background" style={modalBackStyle}></div>
@@ -249,7 +288,9 @@ function Message() {
                 alt="profile-img"
                 style={profileImgStyle}
               />
-              <span>To. {to_user.username}</span>
+              <div style={profileContainerStyle}>
+                <span style={usernameStyle}>To. {to_user.username}</span>
+              </div>
             </div>
           )}
           <span style={labelStyle}>제목</span>
@@ -264,6 +305,7 @@ function Message() {
           >
             보내기
           </button>
+          { isRegex.isOpen && <span style={{color:'red', fontSize:'14px', marginLeft:'5px'}}>{isRegex.msg}</span>}
         </div>
       </>
     );    

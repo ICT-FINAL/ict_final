@@ -329,7 +329,7 @@ function MessageBox() {
     onMouseOver={(e) => e.target.style.backgroundColor = '#343434'}
     onMouseOut={(e) => e.target.style.backgroundColor = '#222222'}
     onClick={()=>allDelete()}>
-      읽은 쪽지 전체 삭제
+      읽은 쪽지 삭제
     </button>
     <button style={{
       backgroundColor: '#222222',
