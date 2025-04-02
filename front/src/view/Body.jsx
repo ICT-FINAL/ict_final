@@ -13,6 +13,7 @@ import ModalIndex from '../modal/ModalIndex';
 import Modal2 from '../modal/Modal2';
 import Message from '../interact/Message';
 import MessageBox from '../interact/MessageBox';
+import Report from '../interact/Report';
 
 import MyIndex from './user/mypage/MyIndex';
 
@@ -22,6 +23,7 @@ import { setMenuModal } from '../store/menuSlice';
 import Interact from '../interact/Interact';
 
 import { useSelector, useDispatch } from 'react-redux';
+import AdminIndex from './admin/AdminIndex';
 function Body() {
   const modal = useSelector((state) => state.modal);
   
@@ -86,7 +88,7 @@ function Body() {
     {modal.isOpen && modal.selected=='2' && <Modal2/>}
     {modal.isOpen && modal.selected=='message' && <Message/>}
     {modal.isOpen && modal.selected=='message-box' && <MessageBox/>}
-
+    {modal.isOpen && modal.selected=='report' && <Report/>}
     {interact.isOpen && <Interact/>}
 
     <Routes>
@@ -97,6 +99,8 @@ function Body() {
       <Route exact path="/login/oauth2/code/google" element={<GoogleSignupHandler/>}/>
       
       <Route path='/mypage/*' element={<MyIndex/>}>
+      </Route>
+      <Route path='/admin/*' element={<AdminIndex/>}>
       </Route>
     </Routes>
     </>

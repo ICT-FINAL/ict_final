@@ -1,5 +1,6 @@
 package com.ict.serv.dto;
 
+import com.ict.serv.entity.Authority;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -11,4 +12,5 @@ public class UserResponseDto {
     private String username;
     private String email;
     private String imgUrl;
+    private Authority authority;
 }

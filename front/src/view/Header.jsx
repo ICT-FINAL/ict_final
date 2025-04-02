@@ -34,6 +34,7 @@ function Header() {
     }
 
     useEffect(() => {
+        console.log(user);
         if(user)
             axios.get(`${serverIP.ip}/interact/getMessageList`, {
                 headers: { Authorization: `Bearer ${user.token}`}
@@ -81,7 +82,7 @@ function Header() {
                         <img src={Logo} width='100' className="header-logo"/>
                     </Link>
                 </li>
-
+                { (user && user.user.authority == 'ROLE_USER') || user==undefined?
                 <li className='header-center'>
                     <ul>
                         <Link to='/'><li>메뉴입니다 1</li></Link>
@@ -89,8 +90,12 @@ function Header() {
                         <Link to='/'><li>메뉴 3</li></Link>
                         <Link to='/'><li>메뉴임 1</li></Link>
                     </ul>
+                </li> : <li className='header-center'>
+                    <ul>
+                        <Link to='/admin'><li>관리자 페이지</li></Link>
+                    </ul>
                 </li>
-
+                }
                 <li className='header-right'>
                     {user ? (
                         <>

@@ -3,6 +3,7 @@ package com.ict.serv.controller;
 import com.ict.serv.entity.message.Message;
 import com.ict.serv.entity.message.MessageResponseDTO;
 import com.ict.serv.entity.message.MessageState;
+import com.ict.serv.entity.report.Report;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.InteractService;
 import lombok.RequiredArgsConstructor;
@@ -74,6 +75,21 @@ public class InteractController {
             msg.setState(MessageState.READ);
             service.sendMessage(msg);
         }
+        return "ok";
+    }
+    @GetMapping("/sendReport")
+    public String sendReport(@AuthenticationPrincipal UserDetails userDetails, Long toId, String reportType, String comment) {
+        Report report = new Report();
+        report.setComment(comment);
+        report.setReportUser(service.selectUser(toId));
+        report.setUserFrom(service.selectUserByName(userDetails.getUsername()));
+        report.setReportType(reportType);
+        /*
+        msg.setSubject(subject);
+        msg.setComment(comment);
+        msg.setUserTo(service.selectUser(toId));
+        msg.setUserFrom(service.selectUserByName(userDetails.getUsername()));*/
+        service.sendReport(report);
         return "ok";
     }
 }
