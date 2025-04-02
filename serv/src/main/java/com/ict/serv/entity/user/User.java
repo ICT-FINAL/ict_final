@@ -46,7 +46,7 @@ public class User {
     private String addressDetail;
 
     @Column(nullable = false)
-    private int zipcode;
+    private String zipcode;
 
     @Column
     @Enumerated(EnumType.STRING)
