@@ -33,11 +33,16 @@ public class AdminController {
 
         return map;
     }
-    @GetMapping("changeState")
+    @GetMapping("/changeState")
     public String changeState(String state, Long id) {
         Report report = service.selectReport(id).get();
         report.setState(ReportState.valueOf(state));
         inter_service.sendReport(report);
-        return "";
+        return "ok";
+    }
+    @GetMapping("/delReport")
+    public String delReport(Long id) {
+        service.deleteReport(id);
+        return "ok";
     }
 }

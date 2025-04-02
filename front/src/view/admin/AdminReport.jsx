@@ -158,6 +158,21 @@ function AdminReport(){
         .catch(err => console.log(err));
     }
 
+    const delReport = (id) => {
+        axios.get(`${serverIP.ip}/admin/delReport?id=${id}`,{
+            headers: { Authorization: `Bearer ${user.token}` }
+        })
+        .then(res => {
+            getReportList('READABLE', nowPage.readable);
+            getReportList('PROCESSING', nowPage.readable);
+            getReportList('COMPLETE', nowPage.complete);
+            const det = document.querySelectorAll(".report-detail");
+            if(det)
+                det.forEach((det) => (det.style.display = "none"));
+        })
+        .catch(err => console.log(err));
+    }
+
     const inputStyle = {
         width: '140px',
         padding: '7px',
@@ -338,6 +353,16 @@ function AdminReport(){
                             transition: 'background-color 0.3s ease',
                             fontSize: '14px',
                             marginTop: '20px'}} onClick={()=>changeState('COMPLETE', item.id)}>처리 완료</button>
+                        <button style={{backgroundColor: '#222222',
+                        color: '#fff',
+                        padding: '7px 15px',
+                        border: 'none',
+                        borderRadius: '5px',
+                        cursor: 'pointer',
+                        float: 'right',
+                        transition: 'background-color 0.3s ease',
+                        fontSize: '14px',
+                        marginTop: '20px', marginRight:'20px'}} onClick={()=>changeState('COMPLETE', item.id)}>유저 ROLE 변경</button>
                     </div></>    
                 )
                 })
@@ -428,7 +453,7 @@ function AdminReport(){
                             float: 'right',
                             transition: 'background-color 0.3s ease',
                             fontSize: '14px',
-                            marginTop: '20px'}}>신고 파기</button>
+                            marginTop: '20px'}} onClick={()=> delReport(item.id)}>신고 파기</button>
                     </div></>    
                 )
                 })
