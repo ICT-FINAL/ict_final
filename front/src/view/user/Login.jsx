@@ -41,6 +41,9 @@ function Login({ onClose }) {
                 setUseridValid(true);
                 setUserpwValid(false);
             }
+            else if(err.response.data.substring(0,2) === '정지') {
+                alert('정지된 사용자입니다.');
+            }
             else alert((err.response.data || "서버 오류"));
         }
     };

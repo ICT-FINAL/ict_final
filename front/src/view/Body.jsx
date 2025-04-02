@@ -27,6 +27,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import AdminIndex from './admin/AdminIndex';
 import ProductIndex from './product/ProductIndex';
 import ProductSearch from './product/ProductSearch';
+import ReportApprove from '../interact/ReportApprove';
 function Body() {
   const modal = useSelector((state) => state.modal);
   
@@ -92,6 +93,7 @@ function Body() {
     {modal.isOpen && modal.selected=='message' && <Message/>}
     {modal.isOpen && modal.selected=='message-box' && <MessageBox/>}
     {modal.isOpen && modal.selected=='report' && <Report/>}
+    {modal.isOpen && modal.selected=='reportapprove' && <ReportApprove/>}
     {interact.isOpen && <Interact/>}
 
     <Routes>

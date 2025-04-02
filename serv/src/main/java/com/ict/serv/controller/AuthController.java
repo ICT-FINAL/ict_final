@@ -49,7 +49,6 @@ public class AuthController {
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequest, HttpServletRequest request) {
         User user = authService.findByUserid(loginRequest.getUserid());
-
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유저가 존재하지 않습니다.");
         }
@@ -57,7 +56,9 @@ public class AuthController {
         if (!passwordEncoder.matches(loginRequest.getUserpw(), user.getUserpw())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
         }
-
+        if(user.getAuthority() == Authority.ROLE_BANNED) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("정지된 사용자입니다.");
+        }
         String token = jwtProvider.createToken(user.getUserid());
 
         HttpSession session = request.getSession();
