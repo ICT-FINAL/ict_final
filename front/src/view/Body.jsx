@@ -16,6 +16,7 @@ import MessageBox from '../interact/MessageBox';
 import Report from '../interact/Report';
 
 import MyIndex from './user/mypage/MyIndex';
+import Already from './user/Already';
 
 import { setInteract } from '../store/interactSlice';
 import { setMenuModal } from '../store/menuSlice';
@@ -98,10 +99,10 @@ function Body() {
       <Route exact path="/login/oauth2/code/kakao" element={<SignupHandler/>}/>
       <Route exact path="/login/oauth2/code/google" element={<GoogleSignupHandler/>}/>
       
-      <Route path='/mypage/*' element={<MyIndex/>}>
-      </Route>
-      <Route path='/admin/*' element={<AdminIndex/>}>
-      </Route>
+      <Route path='/mypage/*' element={<MyIndex/>}></Route>
+      <Route path='/admin/*' element={<AdminIndex/>}></Route>
+      <Route path='/already' element={<Already/>}></Route>
+
     </Routes>
     </>
   );

@@ -115,14 +115,14 @@ function Login({ onClose }) {
             </div>
 
             <div className="social-login">
-            <button className="kakao-login" onClick={handleSignup}>
-                <SiKakaotalk size={20} />
-                카카오 회원가입
-            </button>
-            <button className="google-login" onClick={handleGoogleSignup}>
-                <FcGoogle size={20} />
-                구글 회원가입
-            </button>
+                <button className="kakao-login" onClick={handleSignup}>
+                    <SiKakaotalk size={20} />
+                    카카오 회원가입
+                </button>
+                <button className="google-login" onClick={handleGoogleSignup}>
+                    <FcGoogle size={20} />
+                    구글 회원가입
+                </button>
             </div>
         </div>
     );
