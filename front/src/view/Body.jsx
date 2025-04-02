@@ -25,8 +25,11 @@ import Interact from '../interact/Interact';
 
 import { useSelector, useDispatch } from 'react-redux';
 import AdminIndex from './admin/AdminIndex';
+
 import ProductIndex from './product/ProductIndex';
 import ProductSearch from './product/ProductSearch';
+import ProductSell from './product/ProductSell';
+
 import ReportApprove from '../interact/ReportApprove';
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -109,6 +112,7 @@ function Body() {
 
       <Route path='/product/*' element={<ProductIndex/>}></Route>
       <Route path='/product/search' element={<ProductSearch/>}></Route>
+      <Route path='/product/sell' element={<ProductSell/>}></Route>
     </Routes>
     </>
   );

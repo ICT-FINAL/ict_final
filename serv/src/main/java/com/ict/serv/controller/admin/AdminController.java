@@ -34,7 +34,6 @@ public class AdminController {
     @GetMapping("/reportList")
     public Map reportList(String type, PagingVO pvo){
         pvo.setOnePageRecord(5);
-        System.out.println(service.totalRecord(pvo,ReportState.valueOf(type)));
         pvo.setTotalRecord(service.totalRecord(pvo,ReportState.valueOf(type)));
         Map map = new HashMap();
         map.put("pvo", pvo);
