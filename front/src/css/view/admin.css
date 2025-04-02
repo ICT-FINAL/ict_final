@@ -69,6 +69,7 @@
 .admin-box{
     background-color: white;
     width:85%;
+    max-width: 1400px;
     margin:auto;
     margin-top:30px;
     padding:20px;
@@ -98,19 +99,95 @@
 }
 
 .admin-list > li:nth-child(1) {
-    width:25%
+    width:10%;
 }
 
 .admin-list > li:nth-child(2) {
-    width:45%
+    width:23%
 }
 
 .admin-list > li:nth-child(3) {
-    width:15%;
-    text-align:center;
+    width:42%;
 }
 
 .admin-list > li:nth-child(4) {
     width:15%;
     text-align:center;
+}
+.admin-list > li:nth-child(5) {
+    width:15%;
+    text-align:center;
+}
+.report-box{
+    padding:15px;
+    margin-top:30px;
+    margin-bottom:30px;
+}
+
+.admin-paging {
+    display:flex;
+    list-style-type: none;
+    margin: 0;
+    margin-top:20px;
+    padding:0;
+    justify-content: center;
+}
+
+.admin-paging > a {
+    padding: 10px 0;
+}
+.admin-paging li {
+    padding: 10px;
+    font-size:20px;
+    cursor: pointer;
+}
+
+.admin-paging li:hover {
+    color:#555;
+}
+
+.page-num.active{
+    font-weight: bold;
+    text-decoration: underline;
+    text-underline-position : under;
+}
+.report-search{
+    margin-top:20px;
+    display:flex;
+}
+.report-search>div:nth-child(1){
+    width:50%;
+}
+.report-search>div:nth-child(2){
+    width:50%;
+    text-align: right;
+    margin-right: 0px;
+}
+
+.no-list{
+    text-align: center;
+    margin-top: 110px;
+    margin-bottom:70px;
+}
+
+.report-detail{
+    width:96.5%;
+    margin: auto;
+    border: 1px solid #ddd;
+    padding:20px;
+}
+
+.report-date, .report-comment {
+    font-size:18px;
+    margin-bottom:10px;
+}
+
+.cm-rc{
+    width:90%;
+    border:1px solid #eee;
+    padding:20px;
+    margin-left:20px;
+    white-space: pre-wrap;
+    max-height: 300px;
+    overflow-y: scroll;
 }

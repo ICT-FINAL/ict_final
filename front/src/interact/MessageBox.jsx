@@ -180,8 +180,8 @@ function MessageBox() {
       borderBottom: '2px solid #ccc',
       paddingBottom: '10px',
       listStyle: 'none',
-      margin: '0', // margin reset
-      padding: '0' // padding reset
+      margin: '0',
+      padding: '0'
     }}>
       <li style={{
         fontWeight: 'bold',
