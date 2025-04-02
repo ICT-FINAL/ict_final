@@ -263,4 +263,47 @@ input.tel {
     color: #222;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
     transition: all 0.2s;
+    font-size: 14pt;
+}
+
+.already-container {
+    width: 100%;
+    height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8f8f8;
+}
+
+.message-box {
+    width: 350px;
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    text-align: center;
+    background: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.id-find{
+    margin-right: 15px;
+}
+
+.id-find:hover, .pw-find:hover{
+    color: rgb(146, 141, 141);
+    cursor: pointer;
+}
+
+.loader {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #3498db; /* 파란색 회전 */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

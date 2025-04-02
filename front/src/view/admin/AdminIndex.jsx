@@ -1,12 +1,13 @@
-import MyPageHeader from "./MyPageHeader";
-import MyPageNav from "./MyPageNav";
+import AdminHeader from "./AdminHeader";
+import AdminNav from "./AdminNav";
+
+import AdminReport from "./AdminReport";
+
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import MyReport from "./MyReport";
+import '../../css/view/admin.css';
 
-import '../../../css/view/mypage.css';
-
-function MyIndex(){
+function AdminIndex(){
     const location = useLocation();
     const [path, setPath] = useState({f_name:'',l_name:''});
     
@@ -14,9 +15,8 @@ function MyIndex(){
         window.scrollTo({top:0,left:0,behavior:'smooth'});
         let pathname = location.pathname.split("/");
         let page = pathname[2];
-
         const pathMap = {
-            profile: { f_name: "내 정보", l_name: "프로필" },
+            reportlist: { f_name: "관리자 페이지", l_name: "신고 목록" },
             edit: { f_name: "내 정보", l_name: "개인 정보 수정" },
             posts: { f_name: "나의 활동", l_name: "작성한 글" },
             reviews: { f_name: "나의 활동", l_name: "리뷰 관리" },
@@ -45,17 +45,17 @@ function MyIndex(){
 
 
     return(<>
-        <div className='mypage-container'>
+        <div className='admin-container'>
         </div>
-        <MyPageHeader path={path} setPath={setPath}/>
-        <MyPageNav path={path} setPath={setPath}/>
-        <div className='mypage-wrap'>
-            <div className='mypage-box'>
-            <div className='mypage-title'>{path.l_name}</div>
-            { path.l_name == '신고 내역' && <MyReport/> }
+        <AdminHeader path={path} setPath={setPath}/>
+        <AdminNav path={path} setPath={setPath}/>
+        <div className='admin-wrap'>
+            <div className='admin-box'>
+                <div className='admin-title'>{path.l_name}</div>
+                { path.l_name == '신고 목록' && <AdminReport/> }
             </div>
         </div>
     </>)
 }
 
-export default MyIndex;
+export default AdminIndex;

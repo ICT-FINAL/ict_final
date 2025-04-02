@@ -4,7 +4,7 @@ import { setModal } from "../store/modalSlice";
 
 import axios from "axios";
 
-function Message() {
+function ReportApprove() {
     let serverIP = useSelector((state) => state.serverIP);
 
     const [modalOpen, setModalOpen] = useState(false);
@@ -15,11 +15,10 @@ function Message() {
     const dispatch = useDispatch();
     const user = useSelector((state) => state.auth.user);
     const interact = useSelector((state) => state.interact);
-
-    const [subject, setSubject] = useState('');
+    const modal = useSelector((state) => state.modal);
     const [comment, setComment] = useState('');
 
-    const [to_user, setTo_user] = useState({});
+    const [report_cat, setReport_cat] = useState('이용 정지')
 
     const [isRegex, setIsRegex] = useState({
       isOpen:false,
@@ -36,36 +35,20 @@ function Message() {
         if (modalSel.isOpen) {
             setModalOpen(true);
             setModalTransform('scale(1)');
-            if(user)
-              axios.get(`${serverIP.ip}/interact/getToUser?toId=${interact.selected}`,{
-                headers: { Authorization: `Bearer ${user.token}`}, 
-              })
-              .then(res => {
-                setTo_user(res.data);
-              })
-              .catch(err => console.log(err))
         }
     }, [modalSel.isOpen]);
 
-    const changeSubject = (e) =>{
-      setSubject(e.target.value);
+    const changeCat = (e) => {
+      setReport_cat(e.target.value);
     }
 
     const changeComment = (e) =>{
       setComment(e.target.value);
     }
 
-    const sendMessage = () => {
-      if(subject.length === 0){
-        setIsRegex({isOpen:true, msg:'제목을 입력해주세요'});
-        return;
-      }
+    const sendMessage = (id) => {
       if(comment.length === 0) {
         setIsRegex({isOpen:true, msg:'내용을 입력해주세요'});
-        return;
-      }
-      if(subject.length > 20){
-        setIsRegex({isOpen:true, msg:'제목이 너무 깁니다'});
         return;
       }
       if(comment.length > 200) {
@@ -73,7 +56,7 @@ function Message() {
         return;
       }
       if(user)
-        axios.get(`${serverIP.ip}/interact/sendMessage?toId=${interact.selected}&subject=${subject}&comment=${encodeURIComponent(comment)}`,{
+        axios.get(`${serverIP.ip}/admin/reportApprove?toId=${modal.info.toId}&fromId=${modal.info.fromId}&reportId=${modal.info.reportId}&approveType=${report_cat}&comment=${encodeURIComponent(comment)}`,{
           headers: { Authorization: `Bearer ${user.token}`}, 
         })
         .then(res => {
@@ -212,7 +195,7 @@ function Message() {
     
     const inputStyle = {
       marginTop:'10px',
-      width: '96%',
+      width: '99.5%',
       padding: '8px',
       marginBottom: '10px',
       borderRadius: '5px',
@@ -253,18 +236,8 @@ function Message() {
       borderRadius: '10px',
     };
     
-    const profileImgStyle = {
-      width: '40px',
-      height: '40px',
-      borderRadius: '50%',
-      border: '2px solid #444',
-      objectFit: 'cover',
-      marginRight: '12px',
-    };
-    
     const usernameStyle = {
       fontSize: '18px',
-      fontWeight: 'bold',
       color: '#333',
     };
     
@@ -281,20 +254,18 @@ function Message() {
     
         <div id={`${modal_name.current}`} style={modalStyle}>
           <div style={exitStyle} onClick={modalClose}>x</div>
-          {to_user.imgUrl && (
+          {modal.info.toUrl && (
             <div style={profileStyle}>
-              <img
-                src={to_user.imgUrl.indexOf('http') !== -1 ? `${to_user.imgUrl}` : `${serverIP.ip}${to_user.imgUrl}`}
-                alt="profile-img"
-                style={profileImgStyle}
-              />
+              <span style={usernameStyle}><b>처리 대상</b> &gt;</span>
               <div style={profileContainerStyle}>
-                <span style={usernameStyle}>To. {to_user.username}</span>
+                <span style={usernameStyle}>&nbsp;{modal.info.toName}</span>
               </div>
             </div>
           )}
-          <span style={labelStyle}>제목</span>
-          <input type="text" onChange={changeSubject} style={inputStyle} />
+          <span style={labelStyle}>처리 내용</span>
+          <select style={inputStyle} onChange={changeCat}>
+            <option value="이용 정지">이용 정지</option>
+          </select>
           <span style={labelStyle}>내용</span>
           <textarea onChange={changeComment} style={textareaStyle} />
           <button
@@ -303,7 +274,7 @@ function Message() {
             onMouseOver={(e) => e.target.style.backgroundColor = '#343434'}
             onMouseOut={(e) => e.target.style.backgroundColor = '#222222'}
           >
-            보내기
+            처리
           </button>
           { isRegex.isOpen && <span style={{color:'red', fontSize:'14px', marginLeft:'5px'}}>{isRegex.msg}</span>}
         </div>
@@ -311,4 +282,4 @@ function Message() {
     );    
   }
   
-  export default Message;
+  export default ReportApprove;

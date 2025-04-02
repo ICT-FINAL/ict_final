@@ -28,7 +28,7 @@ public class Report {
 
     @Column(name = "report_status")
     @Enumerated(EnumType.STRING)
-    private ReportState state;
+    private ReportState state = ReportState.READABLE;
 
     @Column(name = "report_type")
     private String reportType;
@@ -37,8 +37,15 @@ public class Report {
 
     @CreationTimestamp
     @Column(columnDefinition = "DATETIME default now()")
-    private String create_date;
+    private String createDate;
 
     @Column(columnDefinition = "DATETIME")
-    private String end_date;
+    private String endDate;
+
+    // 컬럼추가
+    @Column(name = "report_text", length = 500)
+    private String reportText;
+
+    @Column(name = "report_result")
+    private String reportResult;
 }

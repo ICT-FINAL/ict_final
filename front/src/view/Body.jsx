@@ -13,9 +13,11 @@ import ModalIndex from '../modal/ModalIndex';
 import Modal2 from '../modal/Modal2';
 import Message from '../interact/Message';
 import MessageBox from '../interact/MessageBox';
+import Report from '../interact/Report';
 
 import MyIndex from './user/mypage/MyIndex';
 import Post from '../modal/Post';
+import Already from './user/Already';
 
 import { setInteract } from '../store/interactSlice';
 import { setMenuModal } from '../store/menuSlice';
@@ -23,6 +25,13 @@ import { setModal } from '../store/modalSlice';
 import Interact from '../interact/Interact';
 
 import { useSelector, useDispatch } from 'react-redux';
+import AdminIndex from './admin/AdminIndex';
+
+import ProductIndex from './product/ProductIndex';
+import ProductSearch from './product/ProductSearch';
+import ProductSell from './product/ProductSell';
+
+import ReportApprove from '../interact/ReportApprove';
 function Body() {
   const modal = useSelector((state) => state.modal);
   
@@ -93,6 +102,8 @@ function Body() {
           <Post/>
       </div>}
     
+    {modal.isOpen && modal.selected=='report' && <Report/>}
+    {modal.isOpen && modal.selected=='reportapprove' && <ReportApprove/>}
     {interact.isOpen && <Interact/>}
 
     <Routes>
@@ -102,8 +113,13 @@ function Body() {
       <Route exact path="/login/oauth2/code/kakao" element={<SignupHandler/>}/>
       <Route exact path="/login/oauth2/code/google" element={<GoogleSignupHandler/>}/>
       
-      <Route path='/mypage/*' element={<MyIndex/>}>
-      </Route>
+      <Route path='/mypage/*' element={<MyIndex/>}></Route>
+      <Route path='/admin/*' element={<AdminIndex/>}></Route>
+      <Route path='/already' element={<Already/>}></Route>
+
+      <Route path='/product/*' element={<ProductIndex/>}></Route>
+      <Route path='/product/search' element={<ProductSearch/>}></Route>
+      <Route path='/product/sell' element={<ProductSell/>}></Route>
     </Routes>
     </>
   );
