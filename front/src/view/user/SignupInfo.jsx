@@ -1,215 +1,112 @@
-import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useSelector } from "react-redux";
 
-import axios from "axios";
+import SignupForm from "./mypage/SignupForm";
 
 function SignupInfo() {
-    const loc = useLocation();
-    const serverIP = useSelector((state) => {return state.serverIP});
-    const navigate = useNavigate();
     const [isTermsChecked, setIsTermsChecked] = useState(false);
-    const [showAlert, setShowAlert] = useState(false);
+    const [firstCheck, setFirstCheck] = useState(false);
+    const [secondCheck, setSecondCheck] = useState(false);
 
-    const [user, setUser] = useState({
-        userid: "",
-        username: loc.state.nickname,
-        kakaoProfileUrl: loc.state.picture,
-        email: loc.state.email,
-        uploadedProfile: null,
-        uploadedProfilePreview: null, 
-        userpw: ""
-    });
-
-    const changeUser = (e) => {
-        console.log(loc.state)
-        console.log(user);
-        setUser({ ...user, [e.target.name]: e.target.value });
-    };
-
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (!file) {
-            setUser((prev) => ({
-                ...prev,
-                uploadedProfile: null,
-                uploadedProfilePreview: null,
-                kakaoProfileUrl: loc.state.picture
-            }));
-            return;
-        }
-    
-        if (file.type.startsWith("image/")) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                setUser((prev) => ({
-                    ...prev,
-                    uploadedProfile: file, 
-                    uploadedProfilePreview: event.target.result, 
-                    kakaoProfileUrl: null 
-                }));
-            };
-            reader.readAsDataURL(file);
-        } else {
-            alert("이미지 파일만 업로드 가능합니다.");
-            e.target.value = "";
-        }
-    };
-
-    const doSignUp = () => {
-        const formData = new FormData();
-        formData.append("userid", user.userid);
-        formData.append("username", user.username);
-        formData.append("email", user.email);
-        formData.append("userpw", user.userpw);
-    
-        if (user.uploadedProfile) {
-            formData.append("profileImage", user.uploadedProfile);
-        } else {
-            formData.append("kakaoProfileUrl", user.kakaoProfileUrl);
-        }
-    
-        axios.post(`${serverIP.ip}/signup/doSignUp`, formData, {
-            headers: { "Content-Type": "multipart/form-data" }
-        })
-        .then(res => {
-            alert(res.data);
-            navigate('/login');
-        })
-        .catch(err => console.log(err));
-    };
 
     const termsCheck = ()=>{
-        const isChecked = document.querySelector('input[name="agree"]:checked');
-        if (!isChecked) {
-            setIsTermsChecked(false);
-            setShowAlert(true);
-        } else {
-            setIsTermsChecked(true);
-            setShowAlert(false);
-        }
-    }
+        console.log(document.querySelector('input[name="agreeFirst"]'));
+        setFirstCheck(document.querySelector('input[name="agreeFirst"]:checked'));
+        setSecondCheck(document.querySelector('input[name="agreeSecond"]:checked'));
 
-    const formCheck = ()=>{
-        // if (/^[a-z]{6,12}$/.test(user.userid))
+        if (firstCheck && secondCheck) {
+            setIsTermsChecked(true);
+        } else {
+            setIsTermsChecked(false);
+        }
     }
 
     return (
+        <>
         <div className="sign-up-container">
-            <h3>회원가입</h3>
-            <div className="terms">
-                <pre style={{overflowY: 'scroll', height: '500px', border: '1px solid #ddd', padding: '10px'}}>
-                {`1. 목적
-이 약관은 회원이 본 사이트를 통해 수제품을 제작, 판매, 구매하는 과정에서의 권리, 의무 및 책임을 규정합니다.
-
-2. 용어 정의
-회원: 본 약관에 동의하고 사이트에 가입한 자
-
-판매자: 사이트를 통해 수제품을 등록하고 판매하는 회원
-
-구매자: 사이트에서 수제품을 구매하는 회원
-
-거래 보호 서비스: 안전한 거래를 위해 회사가 제공하는 결제 및 중개 시스템
-
-3. 회원 가입 및 관리
-회원은 본 약관에 동의해야 가입할 수 있습니다.
-
-판매자는 추가 등록 절차를 거쳐야 하며, 회사는 판매 등록을 승인 또는 거부할 수 있습니다.
-
-회원 정보는 정확해야 하며, 허위 정보 입력 시 서비스 이용이 제한될 수 있습니다.
-
-4. 서비스 이용 및 거래 조건
-4.1 판매자 관련 규정
-판매자는 직접 제작한 수제품만 등록할 수 있으며, 타인의 저작권을 침해하는 상품은 금지됩니다.
-
-판매자는 정확한 상품 정보(재료, 제작 기간, 가격 등)를 제공해야 합니다.
-
-주문 후 제작 방식의 경우 예상 배송 기간을 명확히 고지해야 합니다.
-
-회사는 품질 유지 및 신뢰도 관리를 위해 판매자의 활동을 모니터링할 수 있습니다.
-
-4.2 구매자 관련 규정
-구매자는 상품 설명을 충분히 확인하고 신중하게 구매해야 합니다.
-
-구매 후 단순 변심으로 인한 취소 및 환불이 제한될 수 있습니다.
-
-4.3 결제 및 정산
-모든 거래는 회사가 제공하는 안전 결제 시스템을 이용해야 합니다.
-
-결제 완료 후 구매자는 상품을 수령하고, 일정 기간 내 확인 후 정산이 이루어집니다.
-
-판매자의 정산 금액은 회사의 정산 정책에 따라 지급됩니다.
-
-5. 금지 행위
-회원은 다음 행위를 해서는 안 됩니다.
-
-타인의 지적 재산권을 침해하는 상품 등록
-
-불법 또는 유해한 제품 판매
-
-사이트 외부에서의 직거래 유도
-
-허위 리뷰 작성 및 조작
-
-위반 시 계정 정지, 서비스 이용 제한 등의 조치가 취해질 수 있습니다.
-
-6. 분쟁 해결 및 책임 제한
-판매자와 구매자 간 분쟁 발생 시 회사는 중재할 수 있으나, 개별 거래에 대한 법적 책임은 부담하지 않습니다.
-
-불가항력적 사유(시스템 오류, 천재지변 등)로 인한 피해에 대해 회사는 책임을 지지 않습니다.
-
-7. 약관 변경 및 공지
-회사는 필요 시 약관을 개정할 수 있으며, 변경된 약관은 공지 후 적용됩니다.
-
-변경된 약관에 동의하지 않는 경우 회원 탈퇴가 가능합니다.
-
-8. 준거법 및 관할 법원
-본 약관은 대한민국 법률을 따르며, 분쟁 발생 시 관할 법원에서 해결합니다.`}
-                </pre>
-                
-                <input type="radio" name="agree" value="agree" required onChange={()=>setShowAlert(false)}/>
-                (필수) 약관 및 개인정보 처리방침에 동의합니다.
-                <button onClick={termsCheck}>다음</button>
-                {showAlert && <div id="terms-alert">서비스 이용을 위해 약관 및 개인정보 보호 정책에 동의해 주세요.</div>}
-            </div>
-
+            <h2>회원가입</h2>
             {
-                isTermsChecked &&
-                <div>
-                <div className="sign-up-form">
-                    <label>아이디</label>
-                    <input type="text" name="userid" onChange={changeUser}/>
-                    <input type="button" id="duplicate-check-btn" value="아이디 중복 확인"/><br/>
+                isTermsChecked ? <SignupForm/> :
+                <div className="terms">
+                    <h4>1. 이용약관</h4>
+                    <div className="terms-box">
+                        <span className="terms-title">제1조 (목적)</span><br/>
+                        이 약관은 MIMYO(이하 "회사")가 제공하는 온라인 서비스(이하 "서비스")의 이용 조건 및 절차, 회사와 회원 간의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.<br/>
 
-                    <label>이름</label>
-                    <input type="text" name="username" value={user.username} onChange={changeUser}/><br/>
+                        <br/><span className="terms-title">제2조 (용어의 정의)</span><br/>
+                        "회원"이란 본 약관에 동의하고 회사가 제공하는 서비스를 이용하는 자를 의미합니다.<br/>
+                        "판매자"란 수제품을 제작하여 사이트를 통해 판매하는 회원을 의미합니다.<br/>
+                        "구매자"란 사이트에서 판매자가 등록한 상품을 구매하는 회원을 의미합니다.<br/>
+                        "콘텐츠"란 회사가 제공하는 서비스 내에서 게시되는 모든 정보(텍스트, 이미지, 영상 등)를 의미합니다.<br/>
 
-                    <label>이메일</label>
-                    <input type="text" name="email" readOnly value={user.email} /><br/>
+                        <br/><span className="terms-title">제3조 (약관의 효력 및 변경)</span><br/>
+                        본 약관은 회원이 사이트 가입 시 동의함으로써 효력이 발생합니다.<br/>
+                        회사는 필요 시 관련 법령을 위배하지 않는 범위 내에서 약관을 개정할 수 있으며, 변경된 약관은 공지 후 즉시 효력이 발생합니다.<br/>
+                        회원은 변경된 약관에 동의하지 않을 경우 탈퇴할 수 있으며, 변경된 약관 시행일 이후에도 서비스를 계속 이용하는 경우 약관 변경에 동의한 것으로 간주됩니다.<br/>
 
-                    <label>비밀번호</label>
-                    <input type='password' name="userpw" onChange={changeUser}/><br/>
+                        <br/><span className="terms-title">제4조 (회원 가입 및 관리)</span><br/>
+                        회원 가입은 본 약관과 개인정보 처리방침에 동의한 후, 회사가 정한 절차에 따라 이루어집니다.<br/>
+                        회원은 본인의 정확한 정보를 제공해야 하며, 타인의 정보를 도용하거나 허위 정보를 기재할 경우 서비스 이용이 제한될 수 있습니다.<br/>
+                        회원은 언제든지 회사에 회원 탈퇴를 요청할 수 있으며, 회사는 즉시 회원의 정보를 삭제합니다.<br/>
+
+                        <br/><span className="terms-title">제5조 (서비스의 이용 및 제한)</span><br/>
+                        회원은 회사가 제공하는 서비스를 자유롭게 이용할 수 있습니다.<br/>
+                        단, 다음과 같은 경우 회사는 회원의 서비스 이용을 제한할 수 있습니다.<br/>
+                        불법 행위 또는 부정 거래를 시도하는 경우<br/>
+                        타인의 권리를 침해하거나 명예를 훼손하는 경우<br/>
+                        회사의 운영을 방해하는 행위를 하는 경우<br/>
+
+                        <br/><span className="terms-title">제6조 (판매자 및 구매자의 책임)</span><br/>
+                        판매자는 상품의 품질 및 배송에 대한 모든 책임을 가지며, 허위 정보 제공 및 부정 거래 시 서비스 이용이 제한될 수 있습니다.<br/>
+                        구매자는 정당한 방법으로 결제를 진행해야 하며, 부정한 방법을 사용할 경우 법적 책임을 질 수 있습니다.<br/>
+
+                        <br/><span className="terms-title">제7조 (면책 조항)</span><br/>
+                        회사는 회원 간의 거래에 직접 개입하지 않으며, 거래 과정에서 발생하는 문제에 대해 책임을 지지 않습니다.<br/>
+                        회사는 천재지변, 시스템 오류 등 불가항력적인 사유로 인해 발생한 서비스 중단에 대해 책임을 지지 않습니다.<br/>
+
+                        <br/><span className="terms-title">제8조 (기타 사항)</span><br/>
+                        본 약관에서 정하지 않은 사항은 관련 법령 및 일반적인 상관례를 따릅니다.<br/>
+                    </div>
+
+                    <input type="radio" name="agreeFirst" required onChange={()=>setFirstCheck(true)}/>
+                    (필수) 위 내용을 확인하였으며, 이용약관에 동의합니다.
+                    {!firstCheck && <div id="terms-alert">이용약관에 동의해야 회원가입을 진행할 수 있습니다.</div>}
+
+                    <h4>2. 개인정보의 수집 및 이용에 대한 동의</h4>
+                    <div className="terms-box">
+                        MIMYO(이하 "회사")는 회원 가입 및 서비스 제공을 위해 아래와 같이 개인정보를 수집 및 이용합니다.<br/>
+
+                        <br/><span className="terms-title">1. 수집하는 개인정보 항목</span><br/>
+                        필수 항목: 이름, 이메일 주소, 휴대폰 번호, 아이디, 비밀번호<br/>
+                        선택 항목: 프로필 사진, 배송지 주소<br/>
+
+                        <br/><span className="terms-title">2. 개인정보의 이용 목적</span><br/>
+                        회원 가입 및 서비스 이용 관리<br/>
+                        주문 및 결제 처리, 배송 서비스 제공<br/>
+                        고객 문의 응대 및 서비스 관련 공지사항 전달<br/>
+                        부정 이용 방지 및 법적 의무 준수<br/>
+
+                        <br/><span className="terms-title">3. 개인정보의 보유 및 이용 기간</span><br/>
+                        회원 탈퇴 시 즉시 삭제 (단, 법령에 따라 보관이 필요한 경우 해당 기간 동안 보관)<br/>
+                        전자상거래법에 따른 거래 기록 보관 (5년)<br/>
+
+                        <br/><span className="terms-title">4. 개인정보의 제3자 제공 및 위탁</span><br/>
+                        회사는 원칙적으로 회원의 개인정보를 외부에 제공하지 않습니다.<br/>
+                        단, 서비스 제공을 위해 필요한 경우 회원의 동의를 받아 제3자에게 정보를 제공할 수 있습니다.<br/>
+
+                        <br/><span className="terms-title">5. 동의를 거부할 권리 및 불이익</span><br/>
+                        회원은 개인정보 제공에 대한 동의를 거부할 수 있으며, 이 경우 회원가입 및 서비스 이용이 제한될 수 있습니다.<br/>
+                        
+                    </div>
+
+                    <input type="radio" name="agreeSecond" required onChange={()=>setSecondCheck(true)}/>
+                    (필수) 위 내용을 확인하였으며, 개인정보 수집 및 이용에 동의합니다.
+                    {!secondCheck && <div id="terms-alert">개인정보 수집 및 이용에 동의해야 서비스를 이용할 수 있습니다.</div>}
                     
-                    <label>비밀번호 확인</label>
-                    <input type='password' name="userpw" onChange={changeUser}/><br/>
-
-                    <label>프로필 사진 업로드</label>
-                    <img
-                        id="profile-img" 
-                        src={user.uploadedProfilePreview || user.kakaoProfileUrl} 
-                        alt="프로필 이미지" 
-                        referrerPolicy="no-referrer"
-                    />
-                    <input type="file" accept="image/*" onChange={handleImageChange} /><br/>
-                </div>
-
-                <button id="signup-btn" onClick={()=>doSignUp()}>회원가입</button>
+                    <button onClick={termsCheck}>다음</button>
                 </div>
             }
-            
-
-            
         </div>
+        </>
     );
 }
 

@@ -122,8 +122,20 @@ public class AuthController {
         return account;
     }
 
+    @GetMapping("/signup/duplicateCheck")
+    public int duplicateCheck(String userid) {
+        return authService.idDuplicateCheck(userid);
+    }
+
     @PostMapping("/signup/doSignUp")
-    public ResponseEntity<String> doSignUp(@RequestParam("userid") String userid, @RequestParam("username") String username, @RequestParam("email") String email, @RequestParam("userpw") String userpw, @RequestParam(value = "profileImage", required = false) MultipartFile profileImage, @RequestParam(value = "kakaoProfileUrl", required = false) String kakaoProfileUrl) {
+    public ResponseEntity<String> doSignUp(@RequestParam("userid") String userid, @RequestParam("username") String username,
+                                           @RequestParam("email") String email, @RequestParam("userpw") String userpw,
+                                           @RequestParam("tel") String tel, @RequestParam("address") String address,
+                                           @RequestParam("addressDetail") String addressDetail, @RequestParam("zipcode") String zipcode,
+                                           @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
+                                           @RequestParam(value = "kakaoProfileUrl", required = false) String kakaoProfileUrl)
+    {
+        System.out.println(username);
         try {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             String encryptedPassword = passwordEncoder.encode(userpw);
@@ -150,6 +162,10 @@ public class AuthController {
                     .username(username)
                     .email(email)
                     .userpw(encryptedPassword)
+                    .tel(tel)
+                    .address(address)
+                    .addressDetail(addressDetail)
+                    .zipcode(zipcode)
                     .kakaoProfileUrl(kakaoProfileUrl)
                     .uploadedProfileUrl(finalProfileUrl)
                     .authority(Authority.ROLE_USER)
