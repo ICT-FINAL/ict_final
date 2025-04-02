@@ -1,9 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 const SignupHandler = () => {
+    const [isLoading, setIsLoading] = useState(true); // 초기값 true (로딩 시작)
     const code = new URL(window.location.href).searchParams.get('code');
     const serverIP = useSelector((state) => state.serverIP);
     const navigate = useNavigate();
@@ -12,6 +13,7 @@ const SignupHandler = () => {
         if (code) {
             axios.get(`${serverIP.ip}/signup/kakao?code=${code}`)
                 .then((res) => {
+                    setIsLoading(false); // API 응답 후 로딩 종료
                     if(res.data=='' || res.data==undefined || res.data==null) {
                         navigate('/already');
                     }
@@ -26,7 +28,8 @@ const SignupHandler = () => {
     }, [code, serverIP, navigate]);
 
     return (
-        <div>
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+            {isLoading && <div className="loader"></div>} {/* 🔄 로딩 화면 표시 */}
         </div>
     );
 }

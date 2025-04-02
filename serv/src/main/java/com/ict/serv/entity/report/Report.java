@@ -41,4 +41,8 @@ public class Report {
 
     @Column(columnDefinition = "DATETIME")
     private String end_date;
+
+    // 컬럼추가
+    @Column(name = "report_text", length = 500)
+    private String reportText;
 }
