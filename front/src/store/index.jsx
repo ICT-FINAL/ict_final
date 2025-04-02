@@ -4,6 +4,7 @@ import modalReducer from './modalSlice';
 import loginViewReducer from './loginSlice'; //로그인 뷰 관리
 import interactReducer from './interactSlice';
 import menuReducer from './menuSlice';
+import searchReducer from './searchSlice'; //검색 관리
 
 let serverIP = createSlice({
   name: "serverIP",
@@ -31,6 +32,7 @@ export default configureStore({
     modal: modalReducer,
     loginView: loginViewReducer,
     interact: interactReducer,
-    menuModal: menuReducer
+    menuModal: menuReducer,
+    search: searchReducer
   },
 });

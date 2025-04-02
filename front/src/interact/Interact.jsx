@@ -23,8 +23,8 @@ function Interact() {
        // setInteract({...interact, isOpen:false});
     }
 
-    const openMessage = () =>{
-        dispatch(setModal({selected:'message', isOpen:true}));
+    const openMessage = (wh) =>{
+        dispatch(setModal({selected:wh, isOpen:true}));
     }
 
     return (
@@ -33,8 +33,8 @@ function Interact() {
                 <div className="interact-exit" onClick={closePopup}>x</div>
                 <ul className="interact-list">
                     <li className="interact-item" onClick={()=> moveInfo(interact.selected)}>정보 보기</li>
-                    <li className="interact-item" onClick={()=> openMessage()}>쪽지 보내기</li>
-                    <li className="interact-item">신고 하기</li>
+                    <li className="interact-item" onClick={()=> openMessage('message')}>쪽지 보내기</li>
+                    <li className="interact-item" onClick={()=> openMessage('report')}>신고 하기</li>
                 </ul>
             </div>
         </>

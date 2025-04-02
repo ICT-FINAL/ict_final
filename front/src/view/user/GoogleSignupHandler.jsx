@@ -13,8 +13,7 @@ const GoogleSignupHandler = () => {
             axios.get(`${serverIP.ip}/signup/google?code=${code}`)
                 .then((res) => {
                     if (!res.data) {
-                        alert("이미 가입한 회원입니다.");
-                        navigate('/');
+                        navigate('/already');
                     } else {
                         navigate("/signup/info", { state: res.data });
                     }

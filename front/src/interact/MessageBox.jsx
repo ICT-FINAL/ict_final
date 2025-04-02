@@ -175,13 +175,13 @@ function MessageBox() {
     </span>
     <ul style={{
       display: 'grid',
-      gridTemplateColumns: '4fr 2fr 1.5fr 0.5fr',
+      gridTemplateColumns: '2fr 4fr 1.5fr 0.5fr',
       gap: '10px',
       borderBottom: '2px solid #ccc',
       paddingBottom: '10px',
       listStyle: 'none',
-      margin: '0', // margin reset
-      padding: '0' // padding reset
+      margin: '0',
+      padding: '0'
     }}>
       <li style={{
         fontWeight: 'bold',
@@ -189,14 +189,14 @@ function MessageBox() {
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis'
-      }}>제목</li>
+      }}>보낸이</li>
       <li style={{
         fontWeight: 'bold',
         padding: '10px 0',
         whiteSpace: 'nowrap',
         overflow: 'hidden',
         textOverflow: 'ellipsis'
-      }}>보낸이</li>
+      }}>제목</li>
       <li style={{
         fontWeight: 'bold',
         padding: '10px 0'
@@ -214,7 +214,7 @@ function MessageBox() {
               <ul key={idx} style={{
                 color: item.state !== 'READABLE' ? 'gray' : 'inherit',
                 display: 'grid',
-                gridTemplateColumns: '4fr 2fr 1.5fr 0.5fr',
+                gridTemplateColumns: '2fr 4fr 1.5fr 0.5fr',
                 gap: '10px',
                 paddingBottom: '15px',
                 listStyle: 'none',
@@ -222,16 +222,6 @@ function MessageBox() {
                 padding: '0',
                 borderBottom:'1px solid #ddd'
               }}>
-                <li style={{
-                  cursor: 'pointer',
-                  padding: '10px 0',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  fontSize: '16px'
-                }} onClick={() => readMessage(item.id)}>
-                  {item.subject}
-                </li>
                 <li className='message-who' id={`msg-${item.userFrom.id}`} style={{
                   cursor: 'pointer',
                   padding: '10px 0',
@@ -241,6 +231,16 @@ function MessageBox() {
                   fontSize: '16px'
                 }}>
                   {item.userFrom.username}
+                </li>
+                <li style={{
+                  cursor: 'pointer',
+                  padding: '10px 0',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  fontSize: '16px'
+                }} onClick={() => readMessage(item.id)}>
+                  {item.subject}
                 </li>
                 <li style={{
                   padding: '10px 0',

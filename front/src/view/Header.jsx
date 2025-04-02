@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { clearUser } from "../store/authSlice";
 import { setLoginView } from "../store/loginSlice";
 import { setModal } from "../store/modalSlice";
+import { setSearch } from "../store/searchSlice";
 
 import axios from "axios";
 
@@ -15,6 +16,8 @@ import { setMenuModal } from "../store/menuSlice";
 function Header() {
     const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
 
+    const search = useSelector((state => state.search));
+    const [searchWord, setSearchWord] = useState('');
     const navigate = useNavigate();
 
     const menuModal = useSelector((state)=> state.menuModal);
@@ -34,6 +37,7 @@ function Header() {
     }
 
     useEffect(() => {
+        console.log(user);
         if(user)
             axios.get(`${serverIP.ip}/interact/getMessageList`, {
                 headers: { Authorization: `Bearer ${user.token}`}
@@ -68,9 +72,21 @@ function Header() {
         };
     }, [menuModal]);
 
+    const changeSearch = (e) => {
+        setSearchWord(e.target.value);
+    }
+
+    const handleSearch = (event) => {
+        if (event.key === "Enter") {
+            dispatch(setSearch({...search, searchWord:searchWord}));
+            navigate('/product/search');
+        }
+    }
+
     const movePage = (where) => {
         dispatch(setMenuModal(false));
         navigate(where);
+        console.log(where);
     }
 
     return (
@@ -81,16 +97,20 @@ function Header() {
                         <img src={Logo} width='100' className="header-logo"/>
                     </Link>
                 </li>
-
+                { (user && user.user.authority == 'ROLE_USER') || user==undefined?
                 <li className='header-center'>
                     <ul>
-                        <Link to='/'><li>메뉴입니다 1</li></Link>
+                        <li style={{cursor:'pointer'}}onClick={()=>movePage('/product')}>상품 검색</li>
                         <Link to='/'><li>메뉴입니다 2</li></Link>
                         <Link to='/'><li>메뉴 3</li></Link>
                         <Link to='/'><li>메뉴임 1</li></Link>
                     </ul>
+                </li> : <li className='header-center'>
+                    <ul>
+                        <Link to='/admin/reportlist'><li>관리자 페이지</li></Link>
+                    </ul>
                 </li>
-
+                }
                 <li className='header-right'>
                     {user ? (
                         <>
@@ -107,7 +127,7 @@ function Header() {
                             <circle cx="10" cy="10" r="7" stroke="white" strokeWidth="2"/>
                             <line x1="15" y1="15" x2="22" y2="22" stroke="white" strokeWidth="2" strokeLinecap="round"/>
                         </svg>
-                        <input type='text' className="search-input" placeholder="검색어를 입력해주세요"/>
+                        <input type='text' className="search-input" placeholder="검색어를 입력해주세요" onChange={changeSearch} onKeyDown={handleSearch} />
                     </div>
                 </li>
             </ul>
