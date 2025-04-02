@@ -13,8 +13,7 @@ const SignupHandler = () => {
             axios.get(`${serverIP.ip}/signup/kakao?code=${code}`)
                 .then((res) => {
                     if(res.data=='' || res.data==undefined || res.data==null) {
-                        alert('이미 가입한 회원입니다.');
-                        navigate('/');
+                        navigate('/already');
                     }
                     else navigate("/signup/info",{state:res.data});
                 })
@@ -28,7 +27,6 @@ const SignupHandler = () => {
 
     return (
         <div>
-            잠시 대기...
         </div>
     );
 }

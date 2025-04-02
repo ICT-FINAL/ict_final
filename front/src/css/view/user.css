@@ -244,3 +244,32 @@
     border-radius: 10px;
     font-size: 14pt;
 }
+
+/* ===== already page ===== */
+.already-container {
+    width: 100%;
+    height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8f8f8;
+}
+
+.message-box {
+    width: 350px;
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    text-align: center;
+    background: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.id-find{
+    margin-right: 15px;
+}
+
+.id-find:hover, .pw-find:hover{
+    color: rgb(146, 141, 141);
+    cursor: pointer;
+}
