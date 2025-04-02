@@ -62,41 +62,43 @@
 /* 여기서부터 검색 */
 
 .product-grid-container {
-    max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
     text-align: center;
-    padding-top:100px;
+    padding-top:120px;
 }
 
 .product-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 20px;
-    justify-content: center;
+    padding:40px;
+
+	backdrop-filter: blur(1px);
+    border-top:1px solid #e7e7e7;
+    border-left:1px solid #e7e7e7;
+	box-shadow:inset 2px 2px 2px 0px rgba(255, 255, 255, .3), 1px 1px 2px 0px rgba(186, 179, 172, .2), 3px 3px 5px 0px rgba(186, 179, 172, 0.2);
+	background-color:transparent;
+	display:grid;
+	width:80%;
+	grid-template-columns:repeat(4, 1fr);
+	margin:auto;
+	margin-bottom:100px;
+	place-items: center;
+	transition: all 0.7s;
+	border-radius:10px;
 }
 
 .product-card {
-    width: 300px;
-    max-width: 240px;
-    height: 300px;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    overflow: hidden;
-    text-align: center;
-    padding: 10px;
-    padding-top: 20px;
-    background: #fff;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    transition: all 0.7s;
+	width:90%;
+	margin-bottom:20px;
+	padding:15px;
+	border-bottom: 1px solid #E0E0E0;
+	color:#6A3D17;
 }
 
 .product-card img {
-    width: 220px;
-    height: 220px;
-    object-fit: cover;
+    width:100%;
+	border-radius:5px;
+    transition: all 0.3s;
 }
 
 .product-info {
@@ -104,9 +106,27 @@
     font-size: 14px;
 }
 
+@media(min-width:1380px) {
+    .product-grid{
+		width:1120px;
+	}
+    .product-card{
+        height: 320px;
+    }
+    .product-card>img{
+        height:252px;
+    }
+}
+
 @media (max-width: 1380px) {
     .product-grid {
         grid-template-columns: repeat(4, 1fr);
+    }
+    .product-card{
+        height: 23vw;
+    }
+    .product-card>img{
+        height:17.25vw;
     }
 }
 
@@ -114,11 +134,35 @@
     .product-grid {
         grid-template-columns: repeat(3, 1fr);
     }
+    .product-card{
+        height: 29vw;
+    }
+    .product-card>img{
+        height:22.8vw;
+    }
 }
 
 @media (max-width: 800px) {
     .product-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+    .product-card{
+        height: 41vw;
+    }
+    .product-card>img{
+        height:33vw;
+    }
+}
+
+@media (max-width: 540px) {
+    .product-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+    .product-card{
+        height: 75vw;
+    }
+    .product-card>img{
+        height:64vw;
     }
 }
 
