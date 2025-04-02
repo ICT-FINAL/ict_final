@@ -66,7 +66,7 @@ function Report() {
         return;
       }
       if(user)
-        axios.get(`${serverIP.ip}/interact/sendReport?toId=${interact.selected}&reportType=${report_cat}&comment=${comment}`,{
+        axios.get(`${serverIP.ip}/interact/sendReport?toId=${interact.selected}&reportType=${report_cat}&comment=${encodeURIComponent(comment)}`,{
           headers: { Authorization: `Bearer ${user.token}`}, 
         })
         .then(res => {

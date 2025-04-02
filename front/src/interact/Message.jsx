@@ -73,7 +73,7 @@ function Message() {
         return;
       }
       if(user)
-        axios.get(`${serverIP.ip}/interact/sendMessage?toId=${interact.selected}&subject=${subject}&comment=${comment}`,{
+        axios.get(`${serverIP.ip}/interact/sendMessage?toId=${interact.selected}&subject=${subject}&comment=${encodeURIComponent(comment)}`,{
           headers: { Authorization: `Bearer ${user.token}`}, 
         })
         .then(res => {
