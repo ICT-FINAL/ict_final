@@ -52,7 +52,7 @@ function AdminIndex(){
         <div className='admin-wrap'>
             <div className='admin-box'>
                 <div className='admin-title'>{path.l_name}</div>
-                { path.l_name == '신고 목록' && <AdminReport/>}
+                { path.l_name == '신고 목록' && <AdminReport/> }
             </div>
         </div>
     </>)
