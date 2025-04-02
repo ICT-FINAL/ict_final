@@ -1,0 +1,116 @@
+.admin-container{
+    z-index: -1;
+    position: fixed;
+    width:100%;
+    background-color: #e9e9e9;
+    height:100%;
+}
+
+.admin-container a{
+    text-decoration: none;
+    color:black;
+}
+
+.admin-header{
+    position:fixed;
+    top:80px;
+    height:60px;
+    width:100%;
+    border-bottom: 1px solid #ddd;
+    line-height: 60px;
+    padding-left: 40px;
+    z-index: 2;
+    background-color: white;
+}
+
+.admin-nav {
+    position: fixed;
+    left: 0;
+    width: 300px;
+    top: 140px;
+    height: calc(100vh - 140px);
+    max-height: calc(100vh - 140px);
+    padding-bottom: 20px;
+    overflow-y: auto;
+    font-size: 16px;
+    box-sizing: border-box;
+    border-right: 1px solid #eee;
+    background-color: white;
+}
+.admin-nav > ul {
+    list-style-type: none;
+    padding:0;
+}
+.admin-nav > ul > li {
+    padding: 10px 0 10px;
+    transition: all 0.3s;
+}
+.admin-nav > ul > li > span {
+    padding-left: 30px;
+}
+.admin-nav > ul > li:not(:first-child):hover {
+    color:#fff;
+    background-color: #555;
+    font-weight: 700;
+    cursor: pointer;
+}
+.admin-nav > ul > li:first-child {
+    padding-top:20px;
+    font-size: 18px;
+    font-weight: 700;
+    padding-left: 20px;
+}
+
+.admin-wrap{
+    padding-top:140px;
+    padding-left:300px;
+}
+
+.admin-box{
+    background-color: white;
+    width:85%;
+    margin:auto;
+    margin-top:30px;
+    padding:20px;
+    border-radius: 10px;
+}
+
+.admin-title{
+    padding: 10px 0px 15px 10px;
+    font-size:19px;
+    border-bottom: 2px solid #ddd;
+    font-weight: bold;
+    margin-bottom:30px;
+}
+
+.admin-list{
+    list-style-type: none;
+    display: flex;
+    margin:0;
+    padding:10px;
+    margin-top:10px;
+}
+
+.admin-list > li{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.admin-list > li:nth-child(1) {
+    width:25%
+}
+
+.admin-list > li:nth-child(2) {
+    width:45%
+}
+
+.admin-list > li:nth-child(3) {
+    width:15%;
+    text-align:center;
+}
+
+.admin-list > li:nth-child(4) {
+    width:15%;
+    text-align:center;
+}

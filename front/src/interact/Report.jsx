@@ -4,7 +4,7 @@ import { setModal } from "../store/modalSlice";
 
 import axios from "axios";
 
-function Message() {
+function Report() {
     let serverIP = useSelector((state) => state.serverIP);
 
     const [modalOpen, setModalOpen] = useState(false);
@@ -16,8 +16,9 @@ function Message() {
     const user = useSelector((state) => state.auth.user);
     const interact = useSelector((state) => state.interact);
 
-    const [subject, setSubject] = useState('');
     const [comment, setComment] = useState('');
+
+    const [report_cat, setReport_cat] = useState('욕설 및 비방');
 
     const [to_user, setTo_user] = useState({});
 
@@ -47,8 +48,8 @@ function Message() {
         }
     }, [modalSel.isOpen]);
 
-    const changeSubject = (e) =>{
-      setSubject(e.target.value);
+    const changeCat = (e) => {
+      setReport_cat(e.target.value);
     }
 
     const changeComment = (e) =>{
@@ -56,16 +57,8 @@ function Message() {
     }
 
     const sendMessage = () => {
-      if(subject.length === 0){
-        setIsRegex({isOpen:true, msg:'제목을 입력해주세요'});
-        return;
-      }
       if(comment.length === 0) {
         setIsRegex({isOpen:true, msg:'내용을 입력해주세요'});
-        return;
-      }
-      if(subject.length > 20){
-        setIsRegex({isOpen:true, msg:'제목이 너무 깁니다'});
         return;
       }
       if(comment.length > 200) {
@@ -73,7 +66,7 @@ function Message() {
         return;
       }
       if(user)
-        axios.get(`${serverIP.ip}/interact/sendMessage?toId=${interact.selected}&subject=${subject}&comment=${comment}`,{
+        axios.get(`${serverIP.ip}/interact/sendReport?toId=${interact.selected}&reportType=${report_cat}&comment=${comment}`,{
           headers: { Authorization: `Bearer ${user.token}`}, 
         })
         .then(res => {
@@ -212,7 +205,7 @@ function Message() {
     
     const inputStyle = {
       marginTop:'10px',
-      width: '96%',
+      width: '99.5%',
       padding: '8px',
       marginBottom: '10px',
       borderRadius: '5px',
@@ -253,18 +246,8 @@ function Message() {
       borderRadius: '10px',
     };
     
-    const profileImgStyle = {
-      width: '40px',
-      height: '40px',
-      borderRadius: '50%',
-      border: '2px solid #444',
-      objectFit: 'cover',
-      marginRight: '12px',
-    };
-    
     const usernameStyle = {
       fontSize: '18px',
-      fontWeight: 'bold',
       color: '#333',
     };
     
@@ -283,18 +266,20 @@ function Message() {
           <div style={exitStyle} onClick={modalClose}>x</div>
           {to_user.imgUrl && (
             <div style={profileStyle}>
-              <img
-                src={to_user.imgUrl.indexOf('http') !== -1 ? `${to_user.imgUrl}` : `${serverIP.ip}${to_user.imgUrl}`}
-                alt="profile-img"
-                style={profileImgStyle}
-              />
+              <span style={usernameStyle}><b>신고 대상</b> &gt;</span>
               <div style={profileContainerStyle}>
-                <span style={usernameStyle}>To. {to_user.username}</span>
+                <span style={usernameStyle}>&nbsp;{to_user.username}</span>
               </div>
             </div>
           )}
-          <span style={labelStyle}>제목</span>
-          <input type="text" onChange={changeSubject} style={inputStyle} />
+          <span style={labelStyle}>신고 분류</span>
+          <select style={inputStyle} onChange={changeCat}>
+            <option value="욕설 및 비방">욕설 및 비방</option>
+            <option value="부적절한 컨텐츠">부적절한 컨텐츠</option>
+            <option value="허위 정보 및 사기">허위 정보 및 사기</option>
+            <option value="스팸 및 광고">스팸 및 광고</option>
+            <option value="기타">기타</option>
+          </select>
           <span style={labelStyle}>내용</span>
           <textarea onChange={changeComment} style={textareaStyle} />
           <button
@@ -311,4 +296,4 @@ function Message() {
     );    
   }
   
-  export default Message;
+  export default Report;

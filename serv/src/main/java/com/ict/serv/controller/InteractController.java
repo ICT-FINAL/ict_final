@@ -2,6 +2,8 @@ package com.ict.serv.controller;
 
 import com.ict.serv.entity.message.Message;
 import com.ict.serv.entity.message.MessageResponseDTO;
+import com.ict.serv.entity.message.MessageState;
+import com.ict.serv.entity.report.Report;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.InteractService;
 import lombok.RequiredArgsConstructor;
@@ -41,5 +43,53 @@ public class InteractController {
     @GetMapping("/getMessageList")
     public List<Message> getMessageList(@AuthenticationPrincipal UserDetails userDetails){
         return service.getMessageList(service.selectUserByName(userDetails.getUsername()));
+    }
+    @GetMapping("/readMessage")
+    public String readMessage(Long id) {
+        Message msg = service.selectMessage(id);
+        msg.setState(MessageState.READ);
+        service.sendMessage(msg);
+        return "ok";
+    }
+    @GetMapping("/deleteMessage")
+    public String deleteMessage(Long id) {
+        service.deleteMessage(id);
+        return "ok";
+    }
+    @GetMapping("/allDelete")
+    public String allDelete(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = service.selectUserByName(userDetails.getUsername());
+        List<Message> msg_list = service.getMessageList(service.selectUserByName(userDetails.getUsername()));
+        for(Message msg : msg_list) {
+            if(msg.getState() == MessageState.READ) {
+                service.deleteMessage(msg.getId());
+            }
+        }
+        return "ok";
+    }
+    @GetMapping("/allRead")
+    public String allRead(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = service.selectUserByName(userDetails.getUsername());
+        List<Message> msg_list = service.getMessageList(service.selectUserByName(userDetails.getUsername()));
+        for(Message msg : msg_list) {
+            msg.setState(MessageState.READ);
+            service.sendMessage(msg);
+        }
+        return "ok";
+    }
+    @GetMapping("/sendReport")
+    public String sendReport(@AuthenticationPrincipal UserDetails userDetails, Long toId, String reportType, String comment) {
+        Report report = new Report();
+        report.setComment(comment);
+        report.setReportUser(service.selectUser(toId));
+        report.setUserFrom(service.selectUserByName(userDetails.getUsername()));
+        report.setReportType(reportType);
+        /*
+        msg.setSubject(subject);
+        msg.setComment(comment);
+        msg.setUserTo(service.selectUser(toId));
+        msg.setUserFrom(service.selectUserByName(userDetails.getUsername()));*/
+        service.sendReport(report);
+        return "ok";
     }
 }
