@@ -62,10 +62,35 @@
 }
 
 .mypage-wrap{
-    padding-top:160px;
-    padding-left:330px;
+    padding-top:140px;
+    padding-left:300px;
 }
 
 .mypage-box{
-    height:1000px;
+    background-color: white;
+    width:85%;
+    max-width: 1400px;
+    margin:auto;
+    margin-top:30px;
+    padding:20px;
+    border-radius: 10px;
 }
+
+.mypage-title{
+    padding: 10px 0px 15px 10px;
+    font-size:19px;
+    border-bottom: 2px solid #ddd;
+    font-weight: bold;
+    margin-bottom:30px;
+}
+
+.basket-body{
+    background-color: beige;
+    width:85%;
+    max-width: 1400px;
+    margin:auto;
+    margin-top:30px;
+    padding:20px;
+    border-radius: 10px;
+}
+
