@@ -101,9 +101,9 @@ function Header() {
                 <li className='header-center'>
                     <ul>
                         <li style={{cursor:'pointer'}}onClick={()=>movePage('/product')}>상품 검색</li>
-                        <Link to='/'><li>메뉴입니다 2</li></Link>
-                        <Link to='/'><li>메뉴 3</li></Link>
-                        <Link to='/'><li>메뉴임 1</li></Link>
+                        <Link to='/recommend'><li>상품 추천</li></Link>
+                        <Link to='/event'><li>이벤트</li></Link>
+                        <Link to='/community'><li>커뮤니티</li></Link>
                     </ul>
                 </li> : <li className='header-center'>
                     <ul>
@@ -159,7 +159,7 @@ function Header() {
 
                     <div className="menu-item" onClick={()=> {dispatch(setModal({isOpen:true, selected:'message-box'}))}}>
                     <div className="icon-container">
-                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg transform="translate(0,4)" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M4 4h16v14H4z" stroke="white" strokeWidth="2"/>
                             <path d="M4 4l8 7 8-7" stroke="white" strokeWidth="2"/>
                         </svg>
