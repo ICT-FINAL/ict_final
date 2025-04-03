@@ -29,6 +29,10 @@ import AdminIndex from './admin/AdminIndex';
 
 import ProductIndex from './product/ProductIndex';
 import ProductSearch from './product/ProductSearch';
+
+import CenterHome from './customerservice/CenterHome';
+import Inquiry from './customerservice/Inquiry';
+import FAQ from './customerservice/FAQ';
 import ProductSell from './product/ProductSell';
 
 import ReportApprove from '../interact/ReportApprove';
@@ -125,6 +129,12 @@ function Body() {
 
       <Route path='/product/*' element={<ProductIndex/>}></Route>
       <Route path='/product/search' element={<ProductSearch/>}></Route>
+
+      <Route path='/customerservice/*' element={<CenterHome/>}>
+      <Route path="inquiry" element={<Inquiry/>} />
+      <Route path="faq" element={<FAQ/>} /> 
+      </Route>
+
       <Route path='/product/sell' element={<ProductSell/>}></Route>
       <Route path='/product/info' element={<ProductInfo/>}></Route>
       <Route path='/product/buying' element={<ProductBuy/>}></Route>
