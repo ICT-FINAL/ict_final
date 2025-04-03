@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   isOpen:false,
   selected:0,
+  select:0,
   pageX:0,
   pageY:0,
 };
@@ -14,6 +15,7 @@ const interactSlice = createSlice({
     setInteract: (state, action) => {
       state.isOpen = action.payload.isOpen;
       state.selected = action.payload.selected;
+      state.select = action.payload.select;
       state.pageX = action.payload.pageX;
       state.pageY = action.payload.pageY;
     },

@@ -21,6 +21,11 @@ function Message() {
 
     const [to_user, setTo_user] = useState({});
 
+    const [isRegex, setIsRegex] = useState({
+      isOpen:false,
+      msg:'제목을 입력해주세요'
+    });
+
     const modalClose = () => {
         dispatch(setModal({...modalSel, isOpen:false}));
         setModalOpen(false);
@@ -51,12 +56,28 @@ function Message() {
     }
 
     const sendMessage = () => {
+      if(subject.length === 0){
+        setIsRegex({isOpen:true, msg:'제목을 입력해주세요'});
+        return;
+      }
+      if(comment.length === 0) {
+        setIsRegex({isOpen:true, msg:'내용을 입력해주세요'});
+        return;
+      }
+      if(subject.length > 20){
+        setIsRegex({isOpen:true, msg:'제목이 너무 깁니다'});
+        return;
+      }
+      if(comment.length > 200) {
+        setIsRegex({isOpen:true, msg:'내용이 너무 깁니다'});
+        return;
+      }
       if(user)
-        axios.get(`${serverIP.ip}/interact/sendMessage?toId=${interact.selected}&subject=${subject}&comment=${comment}`,{
+        axios.get(`${serverIP.ip}/interact/sendMessage?toId=${interact.selected}&subject=${subject}&comment=${encodeURIComponent(comment)}`,{
           headers: { Authorization: `Bearer ${user.token}`}, 
         })
         .then(res => {
-          console.log(res.data);
+          modalClose();
         })
         .catch(err => console.log(err))
     }
@@ -144,54 +165,150 @@ function Message() {
       }
       return result;
     }
-  
     const modalBackStyle = {    //모달 배경
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        backdropFilter: 'blur(5px)',
-        zIndex: 2000,
-        opacity: modalOpen ? 1 : 0,
-        transition: 'opacity 0.3s ease'
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      backdropFilter: 'blur(5px)',
+      zIndex: 2000,
+      opacity: modalOpen ? 1 : 0,
+      transition: 'opacity 0.3s ease'
     }
-
+    
     const modalStyle = {    //모달 스타일은 이런 양식으로 plz 마음대로 커스텀
-        position: 'fixed',
-        width: '600px',
-        height: '600px',
-        backgroundColor: 'white',
-        zIndex: 2001,
-        opacity: modalOpen ? 1 : 0,
-        transform: modalTransform,
-        transition: 'opacity 0.3s ease, transform 0.3s ease',
-      };
-
+      position: 'fixed',
+      width: '500px', 
+      height: '360px', 
+      backgroundColor: 'white',
+      zIndex: 2001,
+      opacity: modalOpen ? 1 : 0,
+      transform: modalTransform,
+      borderRadius: '12px',
+      boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
+      padding: '20px',
+      transition: 'opacity 0.3s ease, transform 0.3s ease',
+    };
+    
     const exitStyle = { //나가기버튼임 마음대로 커스텀
-        position:'absolute',
-        top:'15px',
-        right:'25px',
-        fontSize:'30px',
-        cursor:'pointer'
-    }
-
+      position: 'absolute',
+      top: '15px',
+      right: '25px',
+      fontSize: '30px',
+      cursor: 'pointer',
+      fontWeight: 'bold',
+      color: '#555',
+    };
+    
+    const labelStyle = {
+      fontSize: '16px',
+      fontWeight: 'bold',
+      marginBottom: '8px',
+      marginTop: '12px',
+      textAlign: 'left',
+    };
+    
+    const inputStyle = {
+      marginTop:'10px',
+      width: '96%',
+      padding: '8px',
+      marginBottom: '10px',
+      borderRadius: '5px',
+      border: '1px solid #ccc',
+      fontSize: '14px',
+    };
+    
+    const textareaStyle = {
+      marginTop:'10px',
+      width: '96%',
+      padding: '8px',
+      height: '120px',
+      borderRadius: '5px',
+      border: '1px solid #ccc',
+      fontSize: '14px',
+      resize: 'none',
+    };
+    
+    const buttonStyle = {
+      backgroundColor: '#222222',
+      color: '#fff',
+      padding: '7px 15px',
+      border: 'none',
+      borderRadius: '5px',
+      cursor: 'pointer',
+      float: 'right',
+      transition: 'background-color 0.3s ease',
+      fontSize: '14px',
+      marginTop: '10px',
+    };
+    
+    const profileStyle = {
+      display: 'flex',
+      alignItems: 'center',
+      marginBottom: '15px',
+      padding: '10px',
+  
+      borderRadius: '10px',
+    };
+    
+    const profileImgStyle = {
+      width: '40px',
+      height: '40px',
+      borderRadius: '50%',
+      border: '2px solid #444',
+      objectFit: 'cover',
+      marginRight: '12px',
+    };
+    
+    const usernameStyle = {
+      fontSize: '18px',
+      fontWeight: 'bold',
+      color: '#333',
+    };
+    
+    const profileContainerStyle = {
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+    };
+    
+    
     return (
       <>
         <div id="modal-background" style={modalBackStyle}></div>
-  
+    
         <div id={`${modal_name.current}`} style={modalStyle}>
           <div style={exitStyle} onClick={modalClose}>x</div>
-          { to_user.imgUrl &&
-          <><img src={to_user.imgUrl.indexOf('http') !==-1 ? `${to_user.imgUrl}`:`${serverIP.ip}${to_user.imgUrl}`} width='40'/><span>To. {to_user.username}</span><br/></>
-          }
-          제목 <input type='text' onChange={changeSubject}/><br/>
-          내용 <textarea onChange={changeComment}/><br/>
-          <button onClick={()=>sendMessage()}>보내기</button>
+          {to_user.imgUrl && (
+            <div style={profileStyle}>
+              <img
+                src={to_user.imgUrl.indexOf('http') !== -1 ? `${to_user.imgUrl}` : `${serverIP.ip}${to_user.imgUrl}`}
+                alt="profile-img"
+                style={profileImgStyle}
+              />
+              <div style={profileContainerStyle}>
+                <span style={usernameStyle}>To. {to_user.username}</span>
+              </div>
+            </div>
+          )}
+          <span style={labelStyle}>제목</span>
+          <input type="text" onChange={changeSubject} style={inputStyle} />
+          <span style={labelStyle}>내용</span>
+          <textarea onChange={changeComment} style={textareaStyle} />
+          <button
+            onClick={() => sendMessage()}
+            style={buttonStyle}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#343434'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#222222'}
+          >
+            보내기
+          </button>
+          { isRegex.isOpen && <span style={{color:'red', fontSize:'14px', marginLeft:'5px'}}>{isRegex.msg}</span>}
         </div>
       </>
-    );
+    );    
   }
   
   export default Message;

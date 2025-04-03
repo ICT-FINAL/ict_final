@@ -30,7 +30,7 @@ function Login({ onClose }) {
 
             if (response.status === 200) {
                 dispatch(setUser(response.data));
-                navigate("/");
+                window.location.href='/';
                 onClose();
             }
         } catch (err) {
@@ -40,6 +40,9 @@ function Login({ onClose }) {
             else if(err.response.data.substring(0,2) === '비밀') {
                 setUseridValid(true);
                 setUserpwValid(false);
+            }
+            else if(err.response.data.substring(0,2) === '정지') {
+                alert('정지된 사용자입니다.');
             }
             else alert((err.response.data || "서버 오류"));
         }
@@ -115,14 +118,14 @@ function Login({ onClose }) {
             </div>
 
             <div className="social-login">
-            <button className="kakao-login" onClick={handleSignup}>
-                <SiKakaotalk size={20} />
-                카카오 회원가입
-            </button>
-            <button className="google-login" onClick={handleGoogleSignup}>
-                <FcGoogle size={20} />
-                구글 회원가입
-            </button>
+                <button className="kakao-login" onClick={handleSignup}>
+                    <SiKakaotalk size={20} />
+                    카카오 회원가입
+                </button>
+                <button className="google-login" onClick={handleGoogleSignup}>
+                    <FcGoogle size={20} />
+                    구글 회원가입
+                </button>
             </div>
         </div>
     );

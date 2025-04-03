@@ -5,6 +5,7 @@ import com.ict.serv.entity.user.Account;
 import com.ict.serv.entity.Authority;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.AuthService;
+import com.ict.serv.service.InteractService;
 import com.ict.serv.util.JwtProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +14,9 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -31,36 +34,21 @@ import java.util.UUID;
 public class AuthController {
 
     private final AuthService authService;
+    private final InteractService interactService;
+
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
     @GetMapping("/auth/me")
-    public ResponseEntity<?> getCurrentUser(HttpSession session) {
-        // 세션에서 JWT 가져오기
-        String token = (String) session.getAttribute("JWT");
-
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 필요");
-        }
-
-        // JWT에서 사용자 아이디 추출
-        String userid = jwtProvider.getUseridFromToken(token);
-
-        // 유저 정보 조회
-        User user = authService.findByUserid(userid);
-
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("유저 정보 없음");
-        }
-
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = interactService.selectUserByName(userDetails.getUsername());
         // 유저 정보 반환 (비밀번호 제외)
-        return ResponseEntity.ok(new UserResponseDto(user.getUserid(), user.getUsername(), user.getEmail(), user.getUploadedProfileUrl()));
+        return ResponseEntity.ok(new UserResponseDto(user.getId(),user.getUserid(), user.getUsername(), user.getEmail(), user.getUploadedProfileUrl(), user.getAuthority()));
     }
 
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequest, HttpServletRequest request) {
         User user = authService.findByUserid(loginRequest.getUserid());
-
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유저가 존재하지 않습니다.");
         }
@@ -68,17 +56,21 @@ public class AuthController {
         if (!passwordEncoder.matches(loginRequest.getUserpw(), user.getUserpw())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
         }
-
+        if(user.getAuthority() == Authority.ROLE_BANNED) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("정지된 사용자입니다.");
+        }
         String token = jwtProvider.createToken(user.getUserid());
 
         HttpSession session = request.getSession();
         session.setAttribute("JWT", token);
 
         UserResponseDto userResponse = new UserResponseDto(
+                user.getId(),
                 user.getUserid(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getUploadedProfileUrl()
+                user.getUploadedProfileUrl(),
+                user.getAuthority()
         );
         return ResponseEntity.ok(new LoginResponseDto(token, "로그인 성공", userResponse));
     }
@@ -130,13 +122,25 @@ public class AuthController {
         return account;
     }
 
+    @GetMapping("/signup/duplicateCheck")
+    public int duplicateCheck(String userid) {
+        return authService.idDuplicateCheck(userid);
+    }
+
     @PostMapping("/signup/doSignUp")
-    public ResponseEntity<String> doSignUp(@RequestParam("userid") String userid, @RequestParam("username") String username, @RequestParam("email") String email, @RequestParam("userpw") String userpw, @RequestParam(value = "profileImage", required = false) MultipartFile profileImage, @RequestParam(value = "kakaoProfileUrl", required = false) String kakaoProfileUrl) {
+    public ResponseEntity<String> doSignUp(@RequestParam("userid") String userid, @RequestParam("username") String username,
+                                           @RequestParam("email") String email, @RequestParam("userpw") String userpw,
+                                           @RequestParam("tel") String tel, @RequestParam("address") String address,
+                                           @RequestParam("addressDetail") String addressDetail, @RequestParam("zipcode") String zipcode,
+                                           @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
+                                           @RequestParam(value = "kakaoProfileUrl", required = false) String kakaoProfileUrl)
+    {
+        System.out.println(username);
         try {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             String encryptedPassword = passwordEncoder.encode(userpw);
 
-            String uploadDir = System.getProperty("user.dir") + "/uploads/user/profile";
+            String uploadDir = System.getProperty("user.dir") + "/uploads/user/profile";    //path는 무조건 이 경로
             File dir = new File(uploadDir);
             if (!dir.exists()) {
                 dir.mkdirs();
@@ -158,6 +162,10 @@ public class AuthController {
                     .username(username)
                     .email(email)
                     .userpw(encryptedPassword)
+                    .tel(tel)
+                    .address(address)
+                    .addressDetail(addressDetail)
+                    .zipcode(zipcode)
                     .kakaoProfileUrl(kakaoProfileUrl)
                     .uploadedProfileUrl(finalProfileUrl)
                     .authority(Authority.ROLE_USER)
