@@ -32,6 +32,7 @@ import ProductSearch from './product/ProductSearch';
 import ProductSell from './product/ProductSell';
 
 import ReportApprove from '../interact/ReportApprove';
+import CategoryModal from '../modal/CategoryModal';
 function Body() {
   const modal = useSelector((state) => state.modal);
   
@@ -104,6 +105,7 @@ function Body() {
     
     {modal.isOpen && modal.selected=='report' && <Report/>}
     {modal.isOpen && modal.selected=='reportapprove' && <ReportApprove/>}
+    {modal.isOpen && modal.selected=='categorymodal' && <CategoryModal/>}
     {interact.isOpen && <Interact/>}
 
     <Routes>

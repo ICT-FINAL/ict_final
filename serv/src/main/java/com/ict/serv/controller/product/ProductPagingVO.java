@@ -9,7 +9,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProductPagingVO {
     private String searchWord;
-    private String category;
+
+    /* 카테고리 */
+    private String eventCategory;
+    private String targetCategory;
+    private String productCategory;
 
     private String sort;
 

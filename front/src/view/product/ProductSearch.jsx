@@ -19,7 +19,7 @@ function ProductSearch() {
         setProducts([]);
         setNowPage(1);
         getProductList(1);
-    }, [search.searchWord]);
+    }, [search.searchWord, search.eventCategory, search.targetCategory, search.productCategory]);
 
     useEffect(() => {
         if (nowPage > 1) {
@@ -36,7 +36,7 @@ function ProductSearch() {
     const getProductList = (page) => {
         axios
             .get(
-                `${serverIP.ip}/product/search?searchWord=${search.searchWord}&nowPage=${page}`,
+                `${serverIP.ip}/product/search?searchWord=${search.searchWord}&eventCategory=${search.eventCategory}&targetCategory=${search.targetCategory}&productCategory=${search.productCategory}&nowPage=${page}`,
                 { headers: { Authorization: `Bearer ${user.token}` } }
             )
             .then((res) => {
@@ -57,7 +57,7 @@ function ProductSearch() {
     return (
         <div className="product-grid-container">
             <h2>상품 검색 결과</h2>
-            <p>'{search.searchWord}' 에 대한 검색 결과</p>
+            <p>'{search.searchWord}' '{search.eventCategory}' '{search.targetCategory}' '{search.productCategory}' 에 대한 검색 결과</p>
             <div className="product-grid">
                 {products.map((product, index) => (
                     <div
