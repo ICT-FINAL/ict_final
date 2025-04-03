@@ -1,3 +1,14 @@
 .CenterHome-container{
-    padding: 150px;
+    padding: 100px;
+    
 }
+.center-menu{
+    list-style-type: none;
+    margin: 0 auto;
+}
+.center-menu li{
+    float: left;
+    padding: 0 30px;
+    text-align: center;
+}
+

@@ -1,0 +1,117 @@
+.inquiryWrite-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .inquiryWrite-container h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #333;
+    font-weight: 600;
+  }
+  
+  .inquiry-form .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .inquiry-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #555;
+    font-size: 0.9rem;
+  }
+  
+  .inquiry-form input[type="text"]#inquiryTitle {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1rem;
+  }
+  
+  .CKEditor-container {
+  
+  }
+  
+  .inquiry-form .ck.ck-editor {
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  
+  .inquiry-form .ck.ck-editor__top .ck-sticky-panel .ck-toolbar {
+  
+  }
+  
+  .inquiry-form .ck.ck-editor__main .ck-editor__editable {
+    min-height: 250px;
+    border: 1px solid #ccc;
+    border-top: none;
+    padding: 0 1rem;
+    background-color: #fff;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+  }
+  
+  .inquiry-form .ck.ck-editor__editable.ck-focused {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  }
+  
+  .submit-button {
+    display: block;
+    width: 100%;
+    padding: 0.9rem 1.5rem;
+    background-color: #3EDAD8;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease;
+    margin-top: 1rem;
+  }
+  
+  .submit-button:hover {
+    background-color: #0056b3;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  .submitted-data {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    border: 1px dashed #aaa;
+    border-radius: 6px;
+    background-color: #f0f4f8;
+  }
+  
+  .submitted-data h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 0.5rem;
+  }
+  
+  .submitted-data p,
+  .submitted-data div {
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+    color: #444;
+  }
+  
+  .submitted-data div p { margin-bottom: 0.5em; }
+  .submitted-data div ul,
+  .submitted-data div ol { margin-left: 1.5em; margin-bottom: 0.75em; }
+  .submitted-data div li { margin-bottom: 0.25em; }
+  .submitted-data div strong { font-weight: bold; }
+  .submitted-data div em { font-style: italic; }
