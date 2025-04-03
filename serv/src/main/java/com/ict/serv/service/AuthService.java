@@ -195,4 +195,8 @@ public class AuthService {
     public void saveUser(User user) {
         userRepository.save(user);
     }
+
+    public int idDuplicateCheck(String userid) {
+        return userRepository.countByUserid(userid);
+    }
 }

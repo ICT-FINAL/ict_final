@@ -40,4 +40,8 @@ public class InteractService {
     public void sendReport(Report report) {
         report_repo.save(report);
     }
+
+    public Optional<Report> selectReport(Long id) {
+        return report_repo.findById(id);
+    }
 }
