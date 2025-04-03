@@ -54,8 +54,7 @@ function MyIndex(){
             <div className='mypage-box'>
               <div className='mypage-title'>{path.l_name}</div>
                   {path.l_name == '장바구니' && <MyBasket/>}
-            <div className='mypage-title'>{path.l_name}</div>
-            { path.l_name == '신고 내역' && <MyReport/> }
+                  { path.l_name == '신고 내역' && <MyReport/> }
             </div>
         </div>
     </>)
