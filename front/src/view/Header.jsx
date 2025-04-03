@@ -37,7 +37,6 @@ function Header() {
     }
 
     useEffect(() => {
-        console.log(user);
         if(user)
             axios.get(`${serverIP.ip}/interact/getMessageList`, {
                 headers: { Authorization: `Bearer ${user.token}`}
