@@ -49,7 +49,6 @@ public class AuthController {
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequest, HttpServletRequest request) {
         User user = authService.findByUserid(loginRequest.getUserid());
-
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유저가 존재하지 않습니다.");
         }
@@ -57,7 +56,9 @@ public class AuthController {
         if (!passwordEncoder.matches(loginRequest.getUserpw(), user.getUserpw())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
         }
-
+        if(user.getAuthority() == Authority.ROLE_BANNED) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("정지된 사용자입니다.");
+        }
         String token = jwtProvider.createToken(user.getUserid());
 
         HttpSession session = request.getSession();
@@ -121,8 +122,20 @@ public class AuthController {
         return account;
     }
 
+    @GetMapping("/signup/duplicateCheck")
+    public int duplicateCheck(String userid) {
+        return authService.idDuplicateCheck(userid);
+    }
+
     @PostMapping("/signup/doSignUp")
-    public ResponseEntity<String> doSignUp(@RequestParam("userid") String userid, @RequestParam("username") String username, @RequestParam("email") String email, @RequestParam("userpw") String userpw, @RequestParam(value = "profileImage", required = false) MultipartFile profileImage, @RequestParam(value = "kakaoProfileUrl", required = false) String kakaoProfileUrl) {
+    public ResponseEntity<String> doSignUp(@RequestParam("userid") String userid, @RequestParam("username") String username,
+                                           @RequestParam("email") String email, @RequestParam("userpw") String userpw,
+                                           @RequestParam("tel") String tel, @RequestParam("address") String address,
+                                           @RequestParam("addressDetail") String addressDetail, @RequestParam("zipcode") String zipcode,
+                                           @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
+                                           @RequestParam(value = "kakaoProfileUrl", required = false) String kakaoProfileUrl)
+    {
+        System.out.println(username);
         try {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             String encryptedPassword = passwordEncoder.encode(userpw);
@@ -149,6 +162,10 @@ public class AuthController {
                     .username(username)
                     .email(email)
                     .userpw(encryptedPassword)
+                    .tel(tel)
+                    .address(address)
+                    .addressDetail(addressDetail)
+                    .zipcode(zipcode)
                     .kakaoProfileUrl(kakaoProfileUrl)
                     .uploadedProfileUrl(finalProfileUrl)
                     .authority(Authority.ROLE_USER)

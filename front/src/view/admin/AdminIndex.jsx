@@ -1,8 +1,6 @@
 import AdminHeader from "./AdminHeader";
 import AdminNav from "./AdminNav";
-
 import AdminReport from "./AdminReport";
-
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import '../../css/view/admin.css';
@@ -25,7 +23,7 @@ function AdminIndex(){
             inquiries: { f_name: "나의 활동", l_name: "문의 내역" },
             purchases: { f_name: "거래 내역", l_name: "구매 기록" },
             sales: { f_name: "거래 내역", l_name: "판매 기록" },
-            wish: { f_name: "보관함", l_name: "장바구니" },
+            basket: { f_name: "보관함", l_name: "장바구니" },
             coupons: { f_name: "보관함", l_name: "쿠폰함" },
             points: { f_name: "보관함", l_name: "적립 내역" },
             "stats-activity": { f_name: "통계", l_name: "활동 통계" },
@@ -52,7 +50,7 @@ function AdminIndex(){
         <div className='admin-wrap'>
             <div className='admin-box'>
                 <div className='admin-title'>{path.l_name}</div>
-                { path.l_name == '신고 목록' && <AdminReport/>}
+                { path.l_name == '신고 목록' && <AdminReport/> }
             </div>
         </div>
     </>)

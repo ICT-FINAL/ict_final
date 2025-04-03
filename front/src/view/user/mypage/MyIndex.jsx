@@ -3,6 +3,9 @@ import MyPageNav from "./MyPageNav";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 
+import MyBasket from "./MyBasket";
+import MyReport from "./MyReport";
+
 import '../../../css/view/mypage.css';
 
 function MyIndex(){
@@ -13,7 +16,6 @@ function MyIndex(){
         window.scrollTo({top:0,left:0,behavior:'smooth'});
         let pathname = location.pathname.split("/");
         let page = pathname[2];
-
         const pathMap = {
             profile: { f_name: "내 정보", l_name: "프로필" },
             edit: { f_name: "내 정보", l_name: "개인 정보 수정" },
@@ -24,7 +26,7 @@ function MyIndex(){
             inquiries: { f_name: "나의 활동", l_name: "문의 내역" },
             purchases: { f_name: "거래 내역", l_name: "구매 기록" },
             sales: { f_name: "거래 내역", l_name: "판매 기록" },
-            wish: { f_name: "보관함", l_name: "장바구니" },
+            basket: { f_name: "보관함", l_name: "장바구니" },
             coupons: { f_name: "보관함", l_name: "쿠폰함" },
             points: { f_name: "보관함", l_name: "적립 내역" },
             "stats-activity": { f_name: "통계", l_name: "활동 통계" },
@@ -50,7 +52,10 @@ function MyIndex(){
         <MyPageNav path={path} setPath={setPath}/>
         <div className='mypage-wrap'>
             <div className='mypage-box'>
-                {location.pathname}
+              <div className='mypage-title'>{path.l_name}</div>
+                  {path.l_name == '장바구니' && <MyBasket/>}
+            <div className='mypage-title'>{path.l_name}</div>
+            { path.l_name == '신고 내역' && <MyReport/> }
             </div>
         </div>
     </>)

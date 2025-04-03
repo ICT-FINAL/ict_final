@@ -289,7 +289,7 @@ function MessageBox() {
                 }}>
                   {item.comment}
                 </div>
-
+                {item.userFrom.authority !== 'ROLE_ADMIN' &&
                 <button style={{
                   backgroundColor: '#222222',
                   color: '#fff',
@@ -307,6 +307,7 @@ function MessageBox() {
                 onClick={()=> reSend(item.userFrom)}>
                   답장
                 </button>
+              }
               </div>
 
             </>
