@@ -18,6 +18,9 @@ public class AdminService {
     public Optional<Report> selectReport(Long id) {
         return report_repo.findById(id);
     }
+    public void deleteReport(Long id) {
+        report_repo.deleteById(id);
+    }
     public List<Report> getAllReport(PagingVO pvo, ReportState state){
         boolean no_word = pvo.getSearchWord() == null || pvo.getSearchWord().isEmpty();
         boolean no_cat = pvo.getCategory()==null || pvo.getCategory().isEmpty();

@@ -1,13 +1,16 @@
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 import { useEffect,useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setModal } from "../../store/modalSlice";
 
 function AdminReport(){
     const loc = useLocation();
     const serverIP = useSelector((state) => {return state.serverIP});
     const user = useSelector((state) => state.auth.user);
-
+    const modal = useSelector((state) => state.modal);
+    const dispatch = useDispatch();
+    
     const [totalPage, setTotalPage] = useState({
         readable:1,processing:1,complete:1
     });
@@ -75,7 +78,10 @@ function AdminReport(){
         getReportList('READABLE', nowPage.readable);
         getReportList('PROCESSING', nowPage.processing);
         getReportList('COMPLETE', nowPage.complete);
-    },[searchWord.readable, category.readable, searchWord.processing,category.processing,searchWord.complete,category.complete])
+        const det = document.querySelectorAll(".report-detail");
+        if(det)
+            det.forEach((det) => (det.style.display = "none"));
+    },[searchWord.readable, category.readable, searchWord.processing,category.processing,searchWord.complete,category.complete, modal])
 
     const getReportList = (type, page) => {
         let cat='';
@@ -145,6 +151,28 @@ function AdminReport(){
 
     const changeState = (state, id) => {
         axios.get(`${serverIP.ip}/admin/changeState?state=${state}&id=${id}`,{
+            headers: { Authorization: `Bearer ${user.token}` }
+        })
+        .then(res => {
+            getReportList('READABLE', nowPage.readable);
+            getReportList('PROCESSING', nowPage.readable);
+            getReportList('COMPLETE', nowPage.complete);
+            const det = document.querySelectorAll(".report-detail");
+            if(det)
+                det.forEach((det) => (det.style.display = "none"));
+        })
+        .catch(err => console.log(err));
+    }
+
+    const approvingReport = (id, toId,fromId,toName,toUrl) => {
+        if(!modal.isOpen) dispatch(setModal({isOpen:true, selected:'reportapprove', info:{reportId:id, toId:toId, fromId:fromId, toName:toName, toUrl:toUrl}}))
+        else if(modal.selected == 'reportapprove'){
+            dispatch(setModal({isOpen:false, selected:'reportapprove'}));
+        }
+    }
+
+    const delReport = (id) => {
+        axios.get(`${serverIP.ip}/admin/delReport?id=${id}`,{
             headers: { Authorization: `Bearer ${user.token}` }
         })
         .then(res => {
@@ -229,7 +257,7 @@ function AdminReport(){
                         </li>
                     </ul>
                     <div className='report-detail' id={'report-detail-' + item.id} style={{display:'none'}}>
-                        <div className='report-date'>신고일: {item.create_date}</div>
+                        <div className='report-date'>신고일: {item.createDate}</div>
                         <div className='report-comment'>내용: </div>
                         <div className='cm-rc'>{item.comment}</div>
                         <button style={{backgroundColor: '#222222',
@@ -325,7 +353,7 @@ function AdminReport(){
                         </li>
                     </ul>
                     <div className='report-detail' id={'report-detail-' + item.id} style={{display:'none'}}>
-                        <div className='report-date'>신고일: {item.create_date}</div>
+                        <div className='report-date'>신고일: {item.createDate}</div>
                         <div className='report-comment'>내용: </div>
                         <div className='cm-rc'>{item.comment}</div>
                         <button style={{backgroundColor: '#222222',
@@ -337,7 +365,7 @@ function AdminReport(){
                             float: 'right',
                             transition: 'background-color 0.3s ease',
                             fontSize: '14px',
-                            marginTop: '20px'}} onClick={()=>changeState('COMPLETE', item.id)}>처리 완료</button>
+                            marginTop: '20px'}} onClick={()=>approvingReport(item.id, item.reportUser.id,item.userFrom.id, item.reportUser.username, item.reportUser.profileImageUrl)}>처리 하기</button>
                     </div></>    
                 )
                 })
@@ -416,7 +444,7 @@ function AdminReport(){
                         </li>
                     </ul>
                     <div className='report-detail' id={'report-detail-' + item.id} style={{display:'none'}}>
-                        <div className='report-date'>신고일: {item.create_date}</div>
+                        <div className='report-date'>신고일: {item.createDate}</div>
                         <div className='report-comment'>내용: </div>
                         <div className='cm-rc'>{item.comment}</div>
                         <button style={{backgroundColor: '#222222',
@@ -428,7 +456,7 @@ function AdminReport(){
                             float: 'right',
                             transition: 'background-color 0.3s ease',
                             fontSize: '14px',
-                            marginTop: '20px'}}>신고 파기</button>
+                            marginTop: '20px'}} onClick={()=> delReport(item.id)}>신고 파기</button>
                     </div></>    
                 )
                 })

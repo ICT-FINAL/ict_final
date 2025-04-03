@@ -2,6 +2,7 @@ package com.ict.serv.repository;
 
 import com.ict.serv.entity.report.Report;
 import com.ict.serv.entity.report.ReportState;
+import com.ict.serv.entity.user.User;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -51,4 +52,9 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
             "OR LOWER(r.reportUser.username) LIKE LOWER(CONCAT('%', :searchWord, '%')) " +
             "OR LOWER(r.userFrom.username) LIKE LOWER(CONCAT('%', :searchWord, '%')))")
     List<Report> findAllByStateAndReportTypeContainingAndSearchWord(@Param("state") ReportState state, @Param("reportType") String reportType, @Param("searchWord") String searchWord, PageRequest of);
+    int countIdByReportUser(User user);
+
+    List<Report> findAllByUserFromOrderByCreateDateDesc(User user, PageRequest of);
+
+    int countIdByUserFrom(User user);
 }

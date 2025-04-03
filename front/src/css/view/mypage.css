@@ -94,3 +94,31 @@
     border-radius: 10px;
 }
 
+.report-state {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 12px;
+    text-align: center;
+    min-width: 70px;
+    letter-spacing: 0.5px;
+}
+
+.report-state.readable {
+    background-color: #ffebe6;
+    color: #d93025;
+    border: 1px solid #d93025;
+}
+
+.report-state.processing {
+    background-color: #fff4e5;
+    color: #e67e22;
+    border: 1px solid #e67e22;
+}
+
+.report-state.complete {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #2e7d32;
+}
