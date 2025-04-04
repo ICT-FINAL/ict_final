@@ -117,3 +117,7 @@ body{
     font-size: 20px;
     border: none;
 }
+
+.editor-container__editor .ck-editor__editable_inline {
+    min-height: 400px;
+}

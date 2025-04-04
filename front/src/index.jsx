@@ -15,6 +15,8 @@ import './css/view/public.css';
 import './css/view/user.css';
 import './css/view/modal.css';
 import './css/view/product.css';
+import './css/view/event.css';
+
 const App = () => {
   return (
       <Routes>

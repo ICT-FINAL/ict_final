@@ -2,6 +2,7 @@ import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useInView } from "react-intersection-observer";
+import { useNavigate } from "react-router-dom";
 
 function ProductSearch() {
     const search = useSelector((state) => state.search);
@@ -10,6 +11,8 @@ function ProductSearch() {
     const [totalPage, setTotalPage] = useState(1);
     const serverIP = useSelector((state) => state.serverIP);
     const user = useSelector((state) => state.auth.user);
+    
+    const navigate = useNavigate();
 
     const { ref, inView } = useInView({
         threshold: 0.5, // 50% 보이면
@@ -19,7 +22,7 @@ function ProductSearch() {
         setProducts([]);
         setNowPage(1);
         getProductList(1);
-    }, [search.searchWord]);
+    }, [search.searchWord, search.eventCategory, search.targetCategory, search.productCategory]);
 
     useEffect(() => {
         if (nowPage > 1) {
@@ -33,10 +36,15 @@ function ProductSearch() {
         }
     }, [inView, totalPage]);
 
+    const moveInfo = (prod) => {
+        console.log(prod);
+        navigate('/product/info',{state:{product:prod}});
+    }
+
     const getProductList = (page) => {
         axios
             .get(
-                `${serverIP.ip}/product/search?searchWord=${search.searchWord}&nowPage=${page}`,
+                `${serverIP.ip}/product/search?searchWord=${search.searchWord}&eventCategory=${search.eventCategory}&targetCategory=${search.targetCategory}&productCategory=${search.productCategory}&nowPage=${page}`,
                 { headers: { Authorization: `Bearer ${user.token}` } }
             )
             .then((res) => {
@@ -50,14 +58,14 @@ function ProductSearch() {
                 setTotalPage(pvo.totalPage);
             })
             .catch((err) => {
-               console.log(err)
+                console.log(err)
             });
     };
 
     return (
         <div className="product-grid-container">
             <h2>상품 검색 결과</h2>
-            <p>'{search.searchWord}' 에 대한 검색 결과</p>
+            <p>'{search.searchWord}' '{search.eventCategory}' '{search.targetCategory}' '{search.productCategory}' 에 대한 검색 결과</p>
             <div className="product-grid">
                 {products.map((product, index) => (
                     <div
@@ -65,12 +73,13 @@ function ProductSearch() {
                         className="product-card"
                         ref={index === products.length - 1 ? ref : null}
                     >
-                        <img
+                        <img style={{cursor:'pointer'}} onClick={() => {moveInfo(product)}}
                             src={`${serverIP.ip}/uploads/product/${product.id}/${product.images[0]?.filename}`}
                             alt={product.productName}
                             className="w-full h-40 object-cover"
                         />
-                        <div className="product-info">
+                        <div style={{cursor:'pointer'}} onClick={() => {moveInfo(product)}}
+                        className="product-info">
                             <p>{product.productName}</p>
                             <p>{product.price}원</p>
                         </div>

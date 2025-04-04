@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import MyBasket from "./MyBasket";
 import MyReport from "./MyReport";
+import MyPageProfile from "./MyPageProfile";
 
 import '../../../css/view/mypage.css';
 
@@ -52,10 +53,10 @@ function MyIndex(){
         <MyPageNav path={path} setPath={setPath}/>
         <div className='mypage-wrap'>
             <div className='mypage-box'>
-              <div className='mypage-title'>{path.l_name}</div>
-                  {path.l_name == '장바구니' && <MyBasket/>}
             <div className='mypage-title'>{path.l_name}</div>
-            { path.l_name == '신고 내역' && <MyReport/> }
+            { path.l_name == '프로필' && <MyPageProfile/> }
+                  {path.l_name == '장바구니' && <MyBasket/>}
+                  { path.l_name == '신고 내역' && <MyReport/> }
             </div>
         </div>
     </>)
