@@ -19,6 +19,7 @@ public class Guestbook {
     @JoinColumn(name="writer_no")
     private User writer;
 
+
     @Column(nullable = false)
     private String content;
 

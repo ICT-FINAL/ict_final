@@ -1,11 +1,14 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useLocation } from "react-router-dom";
 
-function MyPageProfile(){
+function UserInfo(){
     const user = useSelector((state) => state.auth.user);
     let serverIP = useSelector((state) => state.serverIP);
+    const loc = useLocation();
     
+    const [userinfo, setUserinfo] = useState({});
     const [profileMenu, setProfileMenu] = useState('guestbook');
     const [guestbookList, setGuestbookList] = useState([]);
     const [productList, setProductList] = useState([]);
@@ -13,10 +16,20 @@ function MyPageProfile(){
     useEffect(()=>{
         getGuestbookList();
         getProductList();
+        getUserInfo();
     },[]);
 
+    const getUserInfo = ()=>{
+        axios.get(`${serverIP.ip}/interact/getUserInfo?id=${loc.state}`)
+        .then(res=>{
+            console.log(res.data);
+            setUserinfo(res.data);
+        })
+        .catch(err=>console.log(err));
+    }
+
     const getGuestbookList = ()=>{
-        axios.get(`${serverIP.ip}/mypage/guestbookList?id=${user.user.id}`, {
+        axios.get(`${serverIP.ip}/mypage/guestbookList?id=${loc.state}`, {
             headers: {
               Authorization: `Bearer ${user.token}`
             }
@@ -69,7 +82,7 @@ function MyPageProfile(){
     }
 
     const getProductList = ()=>{
-        axios.get(`${serverIP.ip}/mypage/productList/${user.user.id}`, {
+        axios.get(`${serverIP.ip}/mypage/productList/${loc.state}`, {
             headers: {
                 Authorization: `Bearer ${user.token}`
             }
@@ -82,7 +95,7 @@ function MyPageProfile(){
     }
     
     return (
-        <div className="profile-container">
+        <div className="profile-container" style={{paddingTop: '140px'}}>
             <div className="profile-top">
                 <img src = {user.user.imgUrl.indexOf('http') !==-1 ? `${user.user.imgUrl}`:`${serverIP.ip}${user.user.imgUrl}`} alt='' width={140} height={140}/>
                 <div className="profile-info">
@@ -168,4 +181,4 @@ function MyPageProfile(){
     )
 }
 
-export default MyPageProfile;
+export default UserInfo;

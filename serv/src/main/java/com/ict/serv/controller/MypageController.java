@@ -38,8 +38,9 @@ public class MypageController {
     }
 
     @GetMapping("/guestbookList")
-    public List<Guestbook> guestbookList() {
-        List<Guestbook> result = service.selectGuestbookAll();
+    public List<Guestbook> guestbookList(User user) {
+        System.out.println(user);
+        List<Guestbook> result = service.selectGuestbookAll(user);
         System.out.println("result=>" + result);
         return result;
     }
@@ -58,7 +59,7 @@ public class MypageController {
     @GetMapping("/productList/{id}")
     public List<Product> productList(@PathVariable long id) {
         List<Product> result = service.selectProductBySellerNo(id);
-        
+
         return result;
     }
 }

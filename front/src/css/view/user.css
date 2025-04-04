@@ -377,6 +377,7 @@ input.tel {
     border: 1px solid #ddd;
     min-width: 500px;
 }
+/* ========== Mypage Guestbook ========== */
 .guestbook-item {
     max-width: 700px;
     margin: 10px auto;
@@ -387,14 +388,14 @@ input.tel {
     height: 50px;
     border-radius:100%;
 }
-#writer-name { /* 이름 */
+#writer-name {
     position: relative;
     top: -20px;
     left: 10px;
     display: inline-block;
     font-weight: bold;
 }
-#guestbook-content { /* 내용 */
+#guestbook-content {
     position: relative;
     background-color: #d1e2d7;
     margin: 10px;
@@ -434,11 +435,20 @@ input.tel {
     color: #fff;
     background-color: #222;
     border: none;
+    cursor: pointer;
 }
 
-/* ========== product ==========*/
+/* ========== Mypage Product ========== */
 .product-item {
     padding: 10px;
     background-color: #eee;
     border-radius: 10px;
+}
+#product-img {
+    width: 120px;
+    height: 120px;
+}
+#discount-sticker {
+    top: 200px;
+    left: 50px;
 }
