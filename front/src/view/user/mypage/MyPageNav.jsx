@@ -45,7 +45,7 @@ function MyPageNav({ path }) {
             </ul>
             <ul>
                 <li>보관함</li>
-                <li onClick={() => navigate("/mypage/wish")} style={path.l_name === "장바구니" ? clickedStyle : {}}>
+                <li onClick={() => navigate("/mypage/basket")} style={path.l_name === "장바구니" ? clickedStyle : {}}>
                     <span style={path.l_name === "장바구니" ? clickedStyle2 : {}}>장바구니</span>
                 </li>
                 <li onClick={() => navigate("/mypage/coupons")} style={path.l_name === "쿠폰함" ? clickedStyle : {}}>

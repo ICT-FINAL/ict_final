@@ -29,10 +29,20 @@ import AdminIndex from './admin/AdminIndex';
 
 import ProductIndex from './product/ProductIndex';
 import ProductSearch from './product/ProductSearch';
+
+import CenterHome from './customerservice/CenterHome';
+import InquiryWrite from './customerservice/InquiryWrite';
+import FAQ from './customerservice/FAQ';
 import ProductSell from './product/ProductSell';
 
 import ReportApprove from '../interact/ReportApprove';
 import CategoryModal from '../modal/CategoryModal';
+import ProductInfo from './product/ProductInfo';
+import ProductBuy from './product/ProductBuy';
+import RecommendIndex from './recommend/RecommendIndex';
+import EventIndex from './event/EventIndex';
+import CommunityIndex from './community/CommunityIndex';
+import EventWrite from './event/EventWrite';
 function Body() {
   const modal = useSelector((state) => state.modal);
   
@@ -56,6 +66,7 @@ function Body() {
       al_mount.current = true;
 
       const handleClick = (e) => {
+        console.log(e.target.className);
         if (e.target.className === 'message-who' || e.target.className === 'msg-who') {
           /*
           axios.post(`${serverIP}/tech/selUser`, {
@@ -121,7 +132,22 @@ function Body() {
 
       <Route path='/product/*' element={<ProductIndex/>}></Route>
       <Route path='/product/search' element={<ProductSearch/>}></Route>
+
+      <Route path='/customerservice/*' element={<CenterHome/>}>
+      <Route path="inquirywrite" element={<InquiryWrite/>} />
+      <Route path="faq" element={<FAQ/>} /> 
+      </Route>
+
       <Route path='/product/sell' element={<ProductSell/>}></Route>
+      <Route path='/product/info' element={<ProductInfo/>}></Route>
+      <Route path='/product/buying' element={<ProductBuy/>}></Route>
+
+      <Route path='/recommend/*' element={<RecommendIndex/>}></Route>
+
+      <Route path='/event/*' element={<EventIndex/>}></Route>
+      <Route path='/event/write' element={<EventWrite/>}></Route>
+
+      <Route path='/community/*' element={<CommunityIndex/>}></Route>
     </Routes>
     </>
   );

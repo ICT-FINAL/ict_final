@@ -106,14 +106,14 @@ function SignupForm() {
             });
         } else if (validationRules[name]) {
             const isValid = validationRules[name].regex.test(value);
-            
+
             setAlert({
                 ...alert,
                 [name]: {
                     content: isValid ? "" : validationRules[name].message,
                     state: isValid
                 }
-            });
+            });       
         }
     };
 
@@ -160,12 +160,63 @@ function SignupForm() {
         });
     }
 
+    const validateForm = () => {
+        let isValid = true;
+    
+        for (const key of Object.keys(validationRules)) {
+            if (key === "userpwCheck") {
+                const isMatch = user.userpw === user.userpwCheck;
+                if (!isMatch) {
+                    setAlert(prev => ({ 
+                        ...prev, 
+                        [key]: { content: validationRules[key].message, state: false } 
+                    }));
+                    return false;  // 첫 번째 오류에서 종료
+                }
+            } else if (key === "address") {
+                const hasAddress = modal.info && modal.info.address;
+                if (!hasAddress) {
+                    setAlert(prev => ({ 
+                        ...prev, 
+                        [key]: { content: validationRules[key].message, state: false } 
+                    }));
+                    return false;
+                }
+            } else {
+                const value = user[key] || "";
+                const isValidField = validationRules[key].regex.test(value);
+                if (!isValidField) {
+                    setAlert(prev => ({ 
+                        ...prev, 
+                        [key]: { content: validationRules[key].message, state: false } 
+                    }));
+                    return false;
+                }
+            }
+        }
+    
+        return isValid;
+    };
+
     const doSignUp = () => {
+        // for (const key of Object.keys(alert)) {
+        //     console.log(alert);
+        //     if (!alert[key].state) {  // 유효하지 않은 항목 찾기
+        //         console.log(key);
+        //         setAlert(({...alert, [key]: { content: validationRules[key].message}}));
+        //         break;
+        //     }
+        // }
+
+        if (!validateForm()) {
+            return;
+        }
+        
         if (!idCheck) {
             window.alert("아이디 중복 확인을 해주세요.");
             return;
         }
-        addressCheck();
+        
         const formData = new FormData();
         formData.append("userid", user.userid);
         formData.append("username", user.username);
@@ -188,7 +239,7 @@ function SignupForm() {
             })
             .then(res => {
                 window.alert(res.data);
-                navigate('/login');
+                navigate('/');
             })
             .catch(err => console.log(err));
         } else {
@@ -232,6 +283,7 @@ function SignupForm() {
         <>
         <div id="modal-background" style={modalBackStyle}></div>
             <div className="sign-up-form">
+                <h2>회원가입</h2>
                 <label>아이디</label>
                 <input type="text" name="userid" onChange={changeUser}/>
                 <button id="duplicate-check-btn" onClick={duplicateCheck}>중복확인</button><br/>
@@ -276,8 +328,8 @@ function SignupForm() {
                     alt="프로필 이미지" 
                     referrerPolicy="no-referrer"
                 />
-                <input type="file" id="profile-image" style={{display: "none"}} accept="image/*" onChange={handleImageChange} /><br/>
-                <label for="profile-image" id="profile-image-btn">사진첨부</label>
+                <input type="file" id="profile-image-file" style={{display: "none"}} accept="image/*" onChange={handleImageChange} /><br/>
+                <label htmlFor="profile-image-file" id="profile-image-btn">사진첨부</label>
             </div>
 
             <button id="signup-btn" onClick={()=>doSignUp()}>회원가입</button>

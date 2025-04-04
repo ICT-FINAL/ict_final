@@ -37,7 +37,6 @@ function Header() {
     }
 
     useEffect(() => {
-        console.log(user);
         if(user)
             axios.get(`${serverIP.ip}/interact/getMessageList`, {
                 headers: { Authorization: `Bearer ${user.token}`}
@@ -101,9 +100,9 @@ function Header() {
                 <li className='header-center'>
                     <ul>
                         <li style={{cursor:'pointer'}}onClick={()=>movePage('/product')}>상품 검색</li>
-                        <Link to='/'><li>메뉴입니다 2</li></Link>
-                        <Link to='/'><li>메뉴 3</li></Link>
-                        <Link to='/'><li>메뉴임 1</li></Link>
+                        <Link to='/recommend'><li>상품 추천</li></Link>
+                        <Link to='/event'><li>이벤트</li></Link>
+                        <Link to='/community'><li>커뮤니티</li></Link>
                     </ul>
                 </li> : <li className='header-center'>
                     <ul>
@@ -148,7 +147,7 @@ function Header() {
                         <span>내 정보</span>
                     </div>
 
-                    <div className="menu-item" onClick={()=> movePage('/mypage/wish')}>
+                    <div className="menu-item" onClick={()=> movePage('/mypage/basket')}>
                         <svg transform="translate(-3,0)" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M6 6h15l-2 9H8L6 6z" stroke="white" strokeWidth="2"/>
                             <circle cx="9" cy="20" r="1.5" fill="white"/>
@@ -159,7 +158,7 @@ function Header() {
 
                     <div className="menu-item" onClick={()=> {dispatch(setModal({isOpen:true, selected:'message-box'}))}}>
                     <div className="icon-container">
-                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg transform="translate(0,4)" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M4 4h16v14H4z" stroke="white" strokeWidth="2"/>
                             <path d="M4 4l8 7 8-7" stroke="white" strokeWidth="2"/>
                         </svg>
@@ -174,7 +173,7 @@ function Header() {
                         </svg>
                         <span>쿠폰등록</span>
                     </div>
-                    <div className="menu-item">
+                    <div className="menu-item" onClick={()=> movePage('/customerservice')}>
                         <svg transform="translate(0,-4)" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M4 12V11a8 8 0 0 1 16 0v1" stroke="white" strokeWidth="2"/>
                             <path d="M2 15a2 2 0 1 0 4 0v-2H2v2ZM18 13v2a2 2 0 1 0 4 0v-2h-4Z" stroke="white" strokeWidth="2"/>

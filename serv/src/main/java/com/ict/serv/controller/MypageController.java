@@ -2,16 +2,14 @@ package com.ict.serv.controller;
 
 import com.ict.serv.controller.admin.PagingVO;
 import com.ict.serv.entity.report.ReportState;
+import com.ict.serv.entity.user.Guestbook;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.InteractService;
 import com.ict.serv.service.MypageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,5 +32,13 @@ public class MypageController {
         map.put("reportList", service.getReportByUserFrom(user,pvo));
 
         return map;
+    }
+
+    @PostMapping("/guestbookWrite")
+    public String guestbookWrite(Guestbook guestbook) {
+        System.out.println(guestbook);
+        System.out.println(guestbook.getUserNo());
+        System.out.println(guestbook.getContent());
+        return "ok";
     }
 }
