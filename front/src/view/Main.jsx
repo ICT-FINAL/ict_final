@@ -51,9 +51,11 @@ function Main() {
     const settings = {
         dots: true,
         infinite: true,
-        speed: 450,
+        speed: 500,
         slidesToShow: 1,
         slidesToScroll: 1,
+        centerMode: true,
+        centerPadding: "20%",
         autoplay: true,
         autoplaySpeed: 5000,
         appendDots: (dots) => (
@@ -74,20 +76,26 @@ function Main() {
 
     return (
         <div style={{height:'1000px',paddingTop:'140px'}}>
-            <div className="slider-container" style={{ borderRadius: '20px', overflow: 'hidden' }}>
-                <Slider {...settings}>
-                    {event_list.map((item, idx) => (
-                        <div key={idx} className="slider-image-banner">
-                            <img style={{ width: '100%', height: '100%', objectFit: 'fill' }} src={item.src} />
-                            <div className="event-date-badge">
-                                📅 {item.startDate.substring(0, 10)} ~ 📅 {item.endDate.substring(0, 10)}
-                            </div>
-                            {item.state === "COUPON" && <div className="main-coupon-badge">쿠폰 지급!</div>}
+            <div className="slider-container">
+            <Slider {...settings}>
+                {event_list.map((item, idx) => (
+                    <div key={idx} className="slider-image-banner">
+                        <img 
+                            className="slider-image" 
+                            src={item.src} 
+                            alt={item.eventName} 
+                        />
 
-                            <Link className="event-button">Click ▶</Link>
+                        <div className="event-date-badge">
+                            📅 {item.startDate.substring(0, 10)} ~ 📅 {item.endDate.substring(0, 10)}
                         </div>
-                    ))}
-                </Slider>
+
+                        {item.state === "COUPON" && <div className="main-coupon-badge">쿠폰 지급!</div>}
+
+                        <Link className="event-button">Click ▶</Link>
+                    </div>
+                ))}
+            </Slider>
           </div>
           {user ? (
                 <>
