@@ -43,6 +43,7 @@ import RecommendIndex from './recommend/RecommendIndex';
 import EventIndex from './event/EventIndex';
 import CommunityIndex from './community/CommunityIndex';
 import EventWrite from './event/EventWrite';
+import EventInfo from './event/EventInfo';
 function Body() {
   const modal = useSelector((state) => state.modal);
   
@@ -146,6 +147,7 @@ function Body() {
 
       <Route path='/event/*' element={<EventIndex/>}></Route>
       <Route path='/event/write' element={<EventWrite/>}></Route>
+      <Route path='/event/info' element={<EventInfo/>}></Route>
 
       <Route path='/community/*' element={<CommunityIndex/>}></Route>
     </Routes>
