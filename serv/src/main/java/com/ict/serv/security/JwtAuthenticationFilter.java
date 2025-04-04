@@ -28,6 +28,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        // ❗ 인증이 필요 없는 경로는 필터를 그냥 통과시킴
+        String requestURI = request.getRequestURI();
+        if (requestURI.startsWith("/auth/send-code") ||
+                requestURI.startsWith("/auth/find-id") ||
+                requestURI.startsWith("/auth/reset-password") ||
+                requestURI.startsWith("/auth/login")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String token = getTokenFromRequest(request);
 
@@ -41,6 +50,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
+        } else {
+            // 토큰 검증 실패 처리
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "인증 실패");
+            return; // 필터 체인 중단
         }
 
         filterChain.doFilter(request, response);
