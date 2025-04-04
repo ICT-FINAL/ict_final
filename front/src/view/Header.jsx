@@ -107,6 +107,7 @@ function Header() {
                 </li> : <li className='header-center'>
                     <ul>
                         <Link to='/admin/reportlist'><li>관리자 페이지</li></Link>
+                        <Link to='/event'><li>이벤트 관리</li></Link>
                     </ul>
                 </li>
                 }

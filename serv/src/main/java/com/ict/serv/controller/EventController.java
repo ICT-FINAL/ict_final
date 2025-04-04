@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -57,5 +58,9 @@ public class EventController {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("상품 등록 실패");
         }
+    }
+    @GetMapping("/getEventList")
+    public List<Event> getEventList(){
+        return eventService.getAllEvent();
     }
 }

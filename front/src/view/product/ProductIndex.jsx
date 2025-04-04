@@ -3,42 +3,22 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { setModal } from "../../store/modalSlice";
-import CategoryModal from "../../modal/CategoryModal";
-
+import Logo from '../../img/mimyo_logo.png';
 
 function ProductIndex(){
 
     const search = useSelector((state => state.search));
-    const [searchWord, setSearchWord] = useState('');
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    /* 상품 검색 카테고리 */
-    const [selectedSubCategories, setSelectedSubCategories] = useState([]); // 소분류값들을 저장한 배열
-
-    // 모달에서 선택된 데이터를 받는 함수
-    const handleCategorySelect = (selectedData) => {
-        setSelectedSubCategories(selectedData);
-    };
-
-    const [eventCategory, setEventCategory] = useState("");
-    const [targetCategory, setTargetCategory] = useState("");
-    // const [productCategory, setProductCategory] = useState("");
-    const [subCategory, setSubCategory] = useState("");
 
     const modal = useSelector((state)=>state.modal);
 
     const changeSearchWord = (e) => {
-        setSearchWord(e.target.value);
+        dispatch(setSearch({...search, searchWord:e.target.value}));
     }
     
     const doSearch = () => {
-        dispatch(setSearch({...search, 
-            searchWord:searchWord,
-            eventCategory:eventCategory,
-            targetCategory:targetCategory,
-            productCategory:subCategory
-        }));
         navigate('/product/search');
     }
 
@@ -46,6 +26,12 @@ function ProductIndex(){
         navigate('/product/sell');
     }
     
+    const handleSearch = (event) => {
+        if (event.key === "Enter") {
+            doSearch();
+        }
+    }
+
     /* 상품 검색 카테고리 */
     const eventOptions = ["생일", "결혼", "졸업", "시험", "출산", "기타"];
     const targetOptions = ["여성", "남성", "연인", "직장동료", "부모님", "선생님", "기타"];
@@ -66,41 +52,59 @@ function ProductIndex(){
 
 
     return(
-        <div style={{ padding: '200px' }}>
-            <h2>상품 메인 페이지</h2>
-            <div>
-                <select onChange={(e) => setEventCategory(e.target.value)} className="selectbox-style"> 
-                    <option value="">이벤트 선택</option>
-                    {eventOptions.map((event, index) => (
-                        <option key={index} value={event}>{event}</option>
-                    ))}
-                </select>
-                
-                <select onChange={(e) => setTargetCategory(e.target.value)} className="selectbox-style"> 
-                    <option value="">대상 선택</option>
-                    {targetOptions.map((target, index) => (
-                        <option key={index} value={target}>{target}</option>
-                    ))}
-                </select>
-
-                <button onClick={() => dispatch(setModal({
-    ...modal,
-    isOpen: true,
-    selected: "categorymodal",
-    info: productOptions,
-    onSelect: handleCategorySelect // 부모에서 handleCategorySelect 실행
-}))} className="selectbox-style">
-    카테고리 선택
-</button>
+        <div style={{ paddingTop: '300px' }}>
+            <div className='product-main-container'>
+                <div className='product-main-box'>
+                    <img src={Logo}/>
+                    <div className='product-right-box'>
+                    <select 
+                        value={search.eventCategory}
+                        onChange={(e) => dispatch(setSearch({...search, eventCategory:e.target.value}))} 
+                        className="selectbox-style"
+                    > 
+                        <option value="">이벤트 선택</option>
+                        {eventOptions.map((event, index) => (
+                            <option key={index} value={event}>{event}</option>
+                        ))}
+                    </select>
+                        
+                    <select 
+                        value={search.targetCategory}
+                        onChange={(e) => dispatch(setSearch({...search, targetCategory:e.target.value}))} 
+                        className="selectbox-style"
+                    > 
+                        <option value="">대상 선택</option>
+                        {targetOptions.map((target, index) => (
+                            <option key={index} value={target}>{target}</option>
+                        ))}
+                    </select>
+                        <button onClick={() => dispatch(setModal({
+                            ...modal,
+                            isOpen: true,
+                            selected: "categorymodal",
+                            info: productOptions,
+                        }))} className="selectbox-style">
+                            카테고리 선택
+                        </button>
+                        <div className="search-wrapper">
+                    <div className="search-container">
+                            <input onKeyDown={handleSearch} type="text" value={search.searchWord} placeholder="검색어 입력" onChange={changeSearchWord} className="searchWord-style"/>
+                            <button onClick={doSearch} className="searchBtn-style">검색</button>
+                        </div>
+                        <div className="hashtag-box">
+                            {search.eventCategory && <span id='search-hashtag'>#{search.eventCategory}</span>}
+                            {search.targetCategory && <span id='search-hashtag'>#{search.targetCategory}</span>} 
+                            {search.productCategory && search.productCategory.map((item, index) => (
+                                <span key={index} id='search-hashtag'>#{item}</span>
+                            ))}
+                        </div>
+                    </div>
+                    </div>
+                    <div className="sellBtn-wrapper">
+                        <button onClick={doSell} className="sellBtn-style">상품 등록</button>
+                    </div>
+                </div>
             </div>
-            
-            <input type="text" placeholder="검색어 입력" onChange={changeSearchWord} className="searchWord-style"/>
-            <button onClick={doSearch} className="searchBtn-style">검색</button> <br />
-            <button onClick={doSell}>상품 등록</button>
-
-            {/* 선택된 카테고리 표시 */}
-            <p>선택된 소분류: {selectedSubCategories.join('/ ')}</p>
-
         </div>
     )
 }

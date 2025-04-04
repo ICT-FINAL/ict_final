@@ -17,10 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -90,8 +87,10 @@ public class ProductController {
     @GetMapping("/search")
     public Map<String, Object> searchProducts(ProductPagingVO pvo) {
         pvo.setOnePageRecord(10);
-        pvo.setTotalRecord(service.totalRecord(pvo));
-        List<Product> productList = service.getProductList(pvo);
+        String[] cats = pvo.getProductCategory().split(",");
+        List<String> categories = new ArrayList<>(Arrays.asList(cats));
+        pvo.setTotalRecord(service.searchCountAll(pvo,categories));
+        List<Product> productList = service.searchAll(pvo,categories);
 
         Map<String, Object> result = new HashMap<>();
         result.put("productList",productList);
