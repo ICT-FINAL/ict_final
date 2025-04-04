@@ -12,6 +12,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findAllByProductNameContainingAndEventCategoryContainingAndTargetCategoryContainingAndProductCategoryContaining(String searchWord, String eventCategory, String targetCategory, String productCategory, PageRequest of);
 
+    List<Product> findAllBySellerNo_Id(long id);
+
 
     // List<Product> findAllByProductNameContaining(String searchWord, PageRequest of);
 }
