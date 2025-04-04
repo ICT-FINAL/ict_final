@@ -167,3 +167,151 @@
 }
 
 /* 검색 끝 */
+
+
+/* 상품 상세 */
+
+.product-info-container {
+    width: 80%;
+    margin: auto;
+    height: 40vw;
+    max-width: 1200px;
+    max-height: 600px;
+    min-width: 800px;
+    min-height: 400px;
+    display: grid;
+    grid-template-columns: 4.5fr 5.5fr;
+}
+
+.product-info-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#product-big-img {
+    width: 90%;
+    min-width:324px;
+    min-height:324px;
+    max-width:485px;
+    max-height:485px;
+    height:31vw;
+    object-fit: cover;
+    display: block;
+}
+
+.product-thumbnail-list {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 0;
+    list-style: none;
+}
+
+.thumbnail-item {
+    width:5vw;
+    height:5vw;
+    max-width: 80px;
+    max-height: 80px;
+    min-width:50px;
+    min-height:50px;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.thumbnail-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.thumbnail-item.active {
+    border-radius: 5px;
+    border-color: #8CC7A5;
+}
+
+.product-info-right>ul{
+    padding:0;
+    padding-left: 50px;
+    list-style-type: none;
+}
+
+.product-profile-box{
+    display:flex;
+    cursor: pointer;
+    font-weight: 700;
+    float:left;
+    width:50%;
+}
+.product-star-rating{
+    float:right;
+    width:50%;
+    line-height: 40px;
+    font-size:20px;
+    text-align: right;
+    color:rgb(212, 212, 15);
+}
+.product-info-name{
+    width:80%;
+}
+
+.product-wish {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding-left: 10px;
+}
+
+.product-wish > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    font-size: 32px;
+    color: rgb(100, 100, 100);
+    transition: color 0.3s ease-in-out;
+}
+
+.product-wish > div:nth-child(1):hover {
+    color: rgb(255, 70, 70);
+}
+
+.product-wish > div:nth-child(2):hover {
+    color: rgb(24, 24, 24);
+}
+
+.wishlist-icon,
+.cart-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.wishlist-icon span,
+.cart-icon span {
+    font-size: 12px;
+    margin-top: 5px;
+    white-space: nowrap;
+}
+
+.cart-icon span{
+    padding-left: 5px;
+}
+
+.product-buy-button{
+    width:100%;
+    margin-top:20px;
+    font-size:20px;
+    height:60px;
+    border:none;
+    border-radius: 5px;
+    background-color: #8CC7A5;
+    transition:all 0.3s;
+    cursor: pointer;
+}
+
+.product-buy-button:hover{
+    background-color: #70a385;
+}
