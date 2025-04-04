@@ -21,7 +21,7 @@ function MyPageProfile(){
         console.log(document.getElementById("guestbook-write").value);
         console.log(user.user.id);
         const data = {
-            userNo: user.user.id,
+            userNo: user.user,
             content: document.getElementById("guestbook-write").value
         }
 
