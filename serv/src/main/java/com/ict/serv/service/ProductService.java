@@ -31,7 +31,8 @@ public class ProductService {
     public int totalRecord(ProductPagingVO pvo){
         return repo.countByProductNameContaining(pvo.getSearchWord());
     }
+
     public List<Product> getProductList(ProductPagingVO pvo) {
-        return repo.findAllByProductNameContaining(pvo.getSearchWord(), PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+        return repo.findAllByProductNameContainingAndEventCategoryContainingAndTargetCategoryContainingAndProductCategoryContaining(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), pvo.getProductCategory(), PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
     }
 }

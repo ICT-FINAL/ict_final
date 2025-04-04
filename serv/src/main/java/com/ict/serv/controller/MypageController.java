@@ -35,7 +35,7 @@ public class MypageController {
     }
 
     @PostMapping("/guestbookWrite")
-    public String guestbookWrite(Guestbook guestbook) {
+    public String guestbookWrite(@RequestBody Guestbook guestbook) {
         System.out.println(guestbook);
         System.out.println(guestbook.getUserNo());
         System.out.println(guestbook.getContent());

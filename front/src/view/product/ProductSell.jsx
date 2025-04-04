@@ -91,7 +91,7 @@ function ProductSell() {
         new_formData.append("productName", formData.productName);
         new_formData.append("eventCategory", formData.eventCategory);
         new_formData.append("targetCategory", formData.targetCategory);
-        new_formData.append("productCategory", formData.productCategory);
+        new_formData.append("productCategory", formData.subCategories);
         new_formData.append("detail", formData.detail);
         new_formData.append("price", parseInt(formData.price, 10) || 0);
         new_formData.append("quantity", parseInt(formData.quantity, 10) || 0);
