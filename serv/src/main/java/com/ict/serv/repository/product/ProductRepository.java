@@ -14,6 +14,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findAllByProductNameContainingAndEventCategoryContainingAndTargetCategoryContainingAndProductCategoryContaining(String searchWord, String eventCategory, String targetCategory, String productCategory, PageRequest of);
 
+    List<Product> findAllBySellerNo_Id(long id);
     @Query(value = "SELECT COUNT(*) " +
             "FROM product p " +
             "WHERE p.product_name LIKE %:keyword% " +

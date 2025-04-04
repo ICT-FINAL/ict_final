@@ -360,7 +360,7 @@ input.tel {
     float: right;
     height: 35px;
     padding: 0 20px;
-    background-color: #c9daf0;
+    background-color: #8CC7A5;
     border: none;
     border-radius: 10px;
     cursor: pointer;
@@ -377,6 +377,43 @@ input.tel {
     border: 1px solid #ddd;
     min-width: 500px;
 }
+.guestbook-item {
+    max-width: 700px;
+    margin: 10px auto;
+    padding: 10px;
+}
+#writer-profile-image {
+    width: 50px;
+    height: 50px;
+    border-radius:100%;
+}
+#writer-name { /* 이름 */
+    position: relative;
+    top: -20px;
+    left: 10px;
+    display: inline-block;
+    font-weight: bold;
+}
+#guestbook-content { /* 내용 */
+    position: relative;
+    background-color: #d1e2d7;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    white-space: pre-line;
+}
+#guestbook-delete-btn {
+    position: absolute;
+    top: -6px;
+    right: -4px;
+    width: 20px;
+    line-height: 20px;
+    text-align: center;
+    color: #333;
+    background-color: rgb(255, 113, 113);
+    border-radius: 100%;
+    cursor: pointer;
+}
 .guestbook-write-box {
     display: flex;
     justify-content: center;
@@ -385,15 +422,23 @@ input.tel {
 }
 #guestbook-write, #guestbook-write-btn {
     width: calc(100% - 140px);
-    line-height: 30px;
+    line-height: 20px;
     margin: 10px auto;
     padding: 5px 10px;
     border: 1px solid #222;
     border-radius: 10px;
+    resize: none;
 }
 #guestbook-write-btn {
     width: 80px;
     color: #fff;
     background-color: #222;
     border: none;
+}
+
+/* ========== product ==========*/
+.product-item {
+    padding: 10px;
+    background-color: #eee;
+    border-radius: 10px;
 }
