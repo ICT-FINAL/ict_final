@@ -136,7 +136,7 @@ function EventIndex() {
                     visibleList.map((event) => (
                         <div onClick={()=>moveEvent(event)} className={`event-banner ${activeTab === "ended" ? "ended" : ""}`} key={event.id}>
                             <img src={event.src} alt={event.eventName} />
-                            <div className="event-date">📅 {event.startDate} ~ 📅 {event.endDate}</div>
+                            <div className="event-date">📅 {event.startDate.substring(0,10)} ~ 📅 {event.endDate.substring(0,10)}</div>
                             <div className="event-title">{event.eventName}</div>
                             {event.state === "COUPON" && <div className="coupon-badge">쿠폰 지급!</div>}
                         </div>

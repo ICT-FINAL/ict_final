@@ -113,7 +113,7 @@
 
 #search-hashtag{
     color:rgb(32, 32, 228);
-    font-size: clamp(10px, 2vw, 20px);
+    font-size: clamp(14px, 2vw, 20px);
 }
 
 .sellBtn-wrapper {
