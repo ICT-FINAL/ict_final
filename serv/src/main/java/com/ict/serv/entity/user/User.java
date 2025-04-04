@@ -48,6 +48,9 @@ public class User {
     @Column(nullable = false)
     private String zipcode;
 
+    @Column(name="info_text")
+    private String infoText;
+
     @Column
     @Enumerated(EnumType.STRING)
     private Authority authority;

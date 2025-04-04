@@ -9,7 +9,9 @@ function SignupInfo() {
 
 
     const termsCheck = ()=>{
-        console.log(document.querySelector('input[name="agreeFirst"]'));
+        if (document.getElementById("terms-alert")) {
+            document.getElementById("terms-alert").style.display = "block";
+        }
         setFirstCheck(document.querySelector('input[name="agreeFirst"]:checked'));
         setSecondCheck(document.querySelector('input[name="agreeSecond"]:checked'));
 
@@ -23,7 +25,6 @@ function SignupInfo() {
     return (
         <>
         <div className="sign-up-container">
-            <h2>회원가입</h2>
             {
                 isTermsChecked ? <SignupForm/> :
                 <div className="terms">
@@ -68,7 +69,7 @@ function SignupInfo() {
                     </div>
 
                     <input type="radio" name="agreeFirst" required onChange={()=>setFirstCheck(true)}/>
-                    (필수) 위 내용을 확인하였으며, 이용약관에 동의합니다.
+                    (필수) 위 내용을 확인하였으며, 이용약관에 동의합니다.<br/>
                     {!firstCheck && <div id="terms-alert">이용약관에 동의해야 회원가입을 진행할 수 있습니다.</div>}
 
                     <h4>2. 개인정보의 수집 및 이용에 대한 동의</h4>
@@ -99,10 +100,10 @@ function SignupInfo() {
                     </div>
 
                     <input type="radio" name="agreeSecond" required onChange={()=>setSecondCheck(true)}/>
-                    (필수) 위 내용을 확인하였으며, 개인정보 수집 및 이용에 동의합니다.
+                    (필수) 위 내용을 확인하였으며, 개인정보 수집 및 이용에 동의합니다.<br/>
                     {!secondCheck && <div id="terms-alert">개인정보 수집 및 이용에 동의해야 서비스를 이용할 수 있습니다.</div>}
                     
-                    <button onClick={termsCheck}>다음</button>
+                    <button id="terms-next" onClick={termsCheck}>다음</button>
                 </div>
             }
         </div>
