@@ -7,6 +7,7 @@ import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.UserRepository;
 import com.ict.serv.service.AuthService;
 import com.ict.serv.service.MailService;
+import com.ict.serv.service.InteractService;
 import com.ict.serv.util.JwtProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,7 +17,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -38,6 +41,8 @@ import java.util.concurrent.TimeUnit;
 public class AuthController {
 
     private final AuthService authService;
+    private final InteractService interactService;
+
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
@@ -189,7 +194,6 @@ public class AuthController {
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequest, HttpServletRequest request) {
         User user = authService.findByUserid(loginRequest.getUserid());
-
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유저가 존재하지 않습니다.");
         }
@@ -197,17 +201,21 @@ public class AuthController {
         if (!passwordEncoder.matches(loginRequest.getUserpw(), user.getUserpw())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
         }
-
+        if(user.getAuthority() == Authority.ROLE_BANNED) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("정지된 사용자입니다.");
+        }
         String token = jwtProvider.createToken(user.getUserid());
 
         HttpSession session = request.getSession();
         session.setAttribute("JWT", token);
 
         UserResponseDto userResponse = new UserResponseDto(
+                user.getId(),
                 user.getUserid(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getUploadedProfileUrl()
+                user.getUploadedProfileUrl(),
+                user.getAuthority()
         );
         return ResponseEntity.ok(new LoginResponseDto(token, "로그인 성공", userResponse));
     }
@@ -259,13 +267,25 @@ public class AuthController {
         return account;
     }
 
+    @GetMapping("/signup/duplicateCheck")
+    public int duplicateCheck(String userid) {
+        return authService.idDuplicateCheck(userid);
+    }
+
     @PostMapping("/signup/doSignUp")
-    public ResponseEntity<String> doSignUp(@RequestParam("userid") String userid, @RequestParam("username") String username, @RequestParam("email") String email, @RequestParam("userpw") String userpw, @RequestParam(value = "profileImage", required = false) MultipartFile profileImage, @RequestParam(value = "kakaoProfileUrl", required = false) String kakaoProfileUrl) {
+    public ResponseEntity<String> doSignUp(@RequestParam("userid") String userid, @RequestParam("username") String username,
+                                           @RequestParam("email") String email, @RequestParam("userpw") String userpw,
+                                           @RequestParam("tel") String tel, @RequestParam("address") String address,
+                                           @RequestParam("addressDetail") String addressDetail, @RequestParam("zipcode") String zipcode,
+                                           @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
+                                           @RequestParam(value = "kakaoProfileUrl", required = false) String kakaoProfileUrl)
+    {
+        System.out.println(username);
         try {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             String encryptedPassword = passwordEncoder.encode(userpw);
 
-            String uploadDir = System.getProperty("user.dir") + "/uploads/user/profile";
+            String uploadDir = System.getProperty("user.dir") + "/uploads/user/profile";    //path는 무조건 이 경로
             File dir = new File(uploadDir);
             if (!dir.exists()) {
                 dir.mkdirs();
@@ -287,6 +307,10 @@ public class AuthController {
                     .username(username)
                     .email(email)
                     .userpw(encryptedPassword)
+                    .tel(tel)
+                    .address(address)
+                    .addressDetail(addressDetail)
+                    .zipcode(zipcode)
                     .kakaoProfileUrl(kakaoProfileUrl)
                     .uploadedProfileUrl(finalProfileUrl)
                     .authority(Authority.ROLE_USER)

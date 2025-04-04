@@ -57,7 +57,11 @@ function Login({ onClose }) {
         } else if (errorMsg.startsWith("비밀")) {
           setUseridValid(true);
           setUserpwValid(false);
-        } else {
+        } 
+        else if(err.response.data.substring(0,2) === '정지') {
+                alert('정지된 사용자입니다.');
+        }
+        else {
           alert(errorMsg);
         }
       } else {
@@ -279,6 +283,16 @@ function Login({ onClose }) {
             <span onClick={() => setShowFindId(true)}>아이디 찾기</span>
             <span onClick={() => setShowResetPw(true)}>비밀번호 찾기</span>
           </div>
+            <div className="social-login">
+                <button className="kakao-login" onClick={handleSignup}>
+                    <SiKakaotalk size={20} />
+                    카카오 회원가입
+                </button>
+                <button className="google-login" onClick={handleGoogleSignup}>
+                    <FcGoogle size={20} />
+                    구글 회원가입
+                </button>
+            </div>
         </div>
       )}
 

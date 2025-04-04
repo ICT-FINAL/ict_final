@@ -27,14 +27,29 @@ public class User {
     @Column(name="user_id", nullable = false, unique = true)
     private String userid;
 
-    @Column(nullable = false, unique = true)
-    private String email;
-
     @Column(name="user_name")
     private String username;
 
+    @Column(nullable = false, unique = true)
+    private String email;
+
     @Column(name="user_pw", nullable = false)
     private String userpw;
+
+    @Column(nullable = false)
+    private String tel;
+
+    @Column(nullable = false)
+    private String address;
+
+    @Column(name="address_detail", nullable = false)
+    private String addressDetail;
+
+    @Column(nullable = false)
+    private String zipcode;
+
+    @Column(name="info_text")
+    private String infoText;
 
     @Column
     @Enumerated(EnumType.STRING)

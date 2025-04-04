@@ -160,3 +160,285 @@
 .invalid {
     color: #FF3D00;
 }
+
+/* ===== sign up ===== */
+.sign-up-container {
+    width: 80%;
+    margin: 0 auto;
+    padding-top: 120px;
+}
+.terms {
+    min-width: 600px;
+    padding: 10px 0;
+}
+.terms h4 {
+    margin: 0;
+    margin-top: 30px;
+    font-size: 1.1em;
+}
+.terms-title {
+    font-weight: bold;
+}
+.terms-box {
+    height: 300px;
+    line-height: 1.6;
+    margin: 10px auto;
+    padding: 10px;
+    font-size: 12pt;
+    overflow-y: scroll;
+    border: 1px solid #ddd;
+}
+#terms-alert {
+    color: #f44;
+    padding: 10px 20px;
+    font-size: 11pt;
+    display: none;
+}
+#terms-next {
+    width: 60px;
+    height: 30px;
+    margin: 30px auto;
+    background-color: #222;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.sign-up-form {
+    width: 600px;
+    margin: 0 auto;
+}
+.sign-up-form label, .sign-up-form input {
+    display: inline-block;
+    width: 25%;
+    height: 30px;
+    line-height: 30px;
+    margin: 5px;
+    padding: 5px;
+}
+.sign-up-form label {
+    font-weight: bold;
+}
+.sign-up-form input {
+    width: 65%;
+    border: 1px solid #555;
+    border-radius: 10px;
+}
+.sign-up-form input:first-of-type {
+    width: calc(65% - 85px);
+}
+input.tel {
+    width: 110px;
+}
+#profile-img {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    padding: 10px;
+}
+.form-alert {
+    margin-left: 30%;
+    line-height: 1.6;
+    font-size: 9pt;
+    font-weight: bold;
+    color: #f37373;
+}
+#postcode, #profile-image-btn, #duplicate-check-btn {
+    margin-left: 10px;
+    height: 30px;
+    padding: 0 10px;
+    background-color: #222;
+    color: #fff;
+    font-size: 9pt;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+#profile-image-btn {
+    position: relative;
+    top: 25px;
+    left: 48%;
+    width: 60px;
+    padding: 0 5px;
+    text-align: center;
+    font-weight: 400;
+}
+#signup-btn {
+    display: block;
+    width: 600px;
+    height: 40px;
+    margin: auto;
+    margin-top: 60px;
+    color: #fff;
+    background-color: #222;
+    border: none;
+    border-radius: 10px;
+    font-size: 12pt;
+    cursor: pointer;
+}
+#signup-btn:hover, #postcode:hover, #profile-image-btn:hover, #duplicate-check-btn:hover {
+    background-color: #fff;
+    color: #222;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+}
+
+.already-container {
+    width: 100%;
+    height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8f8f8;
+}
+
+.message-box {
+    width: 350px;
+    padding: 30px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    text-align: center;
+    background: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.id-find{
+    margin-right: 15px;
+}
+
+.id-find:hover, .pw-find:hover{
+    color: rgb(146, 141, 141);
+    cursor: pointer;
+}
+
+.loader {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #3498db; /* 파란색 회전 */
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+/* ========== Mypage Profile ========== */
+.profile-top, .profile-menu {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 20px auto;
+    display: flex;
+    min-width: 500px;
+}
+.profile-top{
+    max-width: 750px;
+    margin: 0 auto;
+
+}
+.profile-info {
+    width: 100%;
+    padding: 0 10px;
+}
+.profile-info div {
+    margin: 5px;
+    padding: 5px;
+}
+.profile-follow {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+    border: 1px solid #ccc;
+}
+#follow-btn {
+    display: inline;
+    float: right;
+    height: 35px;
+    padding: 0 20px;
+    background-color: #8CC7A5;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+.profile-menu {
+    justify-content:space-around;
+    margin-bottom: 0;
+}
+.profile-menu>div {
+    cursor: pointer;
+}
+.profile-bottom {
+    padding: 10px;
+    border: 1px solid #ddd;
+    min-width: 500px;
+}
+.guestbook-item {
+    max-width: 700px;
+    margin: 10px auto;
+    padding: 10px;
+}
+#writer-profile-image {
+    width: 50px;
+    height: 50px;
+    border-radius:100%;
+}
+#writer-name { /* 이름 */
+    position: relative;
+    top: -20px;
+    left: 10px;
+    display: inline-block;
+    font-weight: bold;
+}
+#guestbook-content { /* 내용 */
+    position: relative;
+    background-color: #d1e2d7;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    white-space: pre-line;
+}
+#guestbook-delete-btn {
+    position: absolute;
+    top: -6px;
+    right: -4px;
+    width: 20px;
+    line-height: 20px;
+    text-align: center;
+    color: #333;
+    background-color: rgb(255, 113, 113);
+    border-radius: 100%;
+    cursor: pointer;
+}
+.guestbook-write-box {
+    display: flex;
+    justify-content: center;
+    max-width: 900px;
+    margin: 0 auto;
+}
+#guestbook-write, #guestbook-write-btn {
+    width: calc(100% - 140px);
+    line-height: 20px;
+    margin: 10px auto;
+    padding: 5px 10px;
+    border: 1px solid #222;
+    border-radius: 10px;
+    resize: none;
+}
+#guestbook-write-btn {
+    width: 80px;
+    color: #fff;
+    background-color: #222;
+    border: none;
+}
+
+/* ========== product ==========*/
+.product-item {
+    padding: 10px;
+    background-color: #eee;
+    border-radius: 10px;
+}

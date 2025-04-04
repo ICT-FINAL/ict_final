@@ -3,6 +3,8 @@ import authReducer from "./authSlice"; // JWT 세션 관리
 import modalReducer from './modalSlice';
 import loginViewReducer from './loginSlice'; //로그인 뷰 관리
 import interactReducer from './interactSlice';
+import menuReducer from './menuSlice';
+import searchReducer from './searchSlice'; //검색 관리
 
 let serverIP = createSlice({
   name: "serverIP",
@@ -29,6 +31,8 @@ export default configureStore({
     auth: authReducer,
     modal: modalReducer,
     loginView: loginViewReducer,
-    interact: interactReducer
+    interact: interactReducer,
+    menuModal: menuReducer,
+    search: searchReducer
   },
 });

@@ -44,7 +44,9 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/static/**", "/resources/**").permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/product/search").permitAll()
+                        .requestMatchers("/event/getEventList").permitAll()
+                        .anyRequest().authenticated() // 나머지는 인증 필요
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint((request, response, authException) -> {
