@@ -35,4 +35,13 @@ public class ProductService {
     public List<Product> getProductList(ProductPagingVO pvo) {
         return repo.findAllByProductNameContainingAndEventCategoryContainingAndTargetCategoryContainingAndProductCategoryContaining(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), pvo.getProductCategory(), PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
     }
+    public int searchCountAll(ProductPagingVO pvo, List<String> categories) {
+        if(categories.isEmpty()|| categories.get(0).isEmpty()) return repo.countProductsNoCategory(pvo.getSearchWord(),pvo.getEventCategory(),pvo.getTargetCategory());
+        else return repo.countProductsAllCategory(pvo.getSearchWord(),pvo.getEventCategory(),pvo.getTargetCategory(), categories);
+    }
+    public List<Product> searchAll(ProductPagingVO pvo, List<String> categories) {
+        if(categories.isEmpty() || categories.get(0).isEmpty()) {
+            return repo.findProductsNoCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord()));
+        }else return repo.findProductsAllCategory(pvo.getSearchWord(),pvo.getEventCategory(),pvo.getTargetCategory(), categories,PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+    }
 }
