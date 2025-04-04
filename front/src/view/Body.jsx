@@ -36,6 +36,7 @@ import FAQ from './customerservice/FAQ';
 import ProductSell from './product/ProductSell';
 
 import ReportApprove from '../interact/ReportApprove';
+import CategoryModal from '../modal/CategoryModal';
 import ProductInfo from './product/ProductInfo';
 import ProductBuy from './product/ProductBuy';
 import RecommendIndex from './recommend/RecommendIndex';
@@ -115,6 +116,7 @@ function Body() {
     
     {modal.isOpen && modal.selected=='report' && <Report/>}
     {modal.isOpen && modal.selected=='reportapprove' && <ReportApprove/>}
+    {modal.isOpen && modal.selected=='categorymodal' && <CategoryModal/>}
     {interact.isOpen && <Interact/>}
 
     <Routes>
