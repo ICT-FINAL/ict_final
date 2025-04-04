@@ -19,8 +19,8 @@ function Interact() {
     };
 
     const moveInfo = (where) => {
-       navigate('/userinfo', {state:interact.selected});
-       setInteract({...interact, isOpen:false});
+        dispatch(setInteract({...interact, isOpen:false}));
+        navigate('/userinfo', {state:interact.selected});
     }
 
     const openMessage = (wh) =>{

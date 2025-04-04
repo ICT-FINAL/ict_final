@@ -463,3 +463,70 @@
 .product-buy-button:hover{
     background-color: #70a385;
 }
+
+.search-selectbox-style {
+    text-align: center;
+    min-width: 150px;
+    width:16%;
+    padding: 10px 15px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #333;
+    background-color: #FFFFFF;
+    border: 1px solid #D9D9D9;
+    border-radius: 20px;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    margin: 10px;
+    /* 드롭다운 화살표 */
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23666"><path d="M7 10l5 5 5-5H7z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 14px;
+}
+
+.search-options-container {
+    display: inline-block; /* 한 줄로 배치 */
+    width: 100%;
+    text-align: center;
+}
+
+.search-options-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    flex-wrap: nowrap;
+    margin-bottom:40px;
+}
+
+.search-container {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+}
+
+
+.search-info-style {
+    min-width: 150px;
+    width: 70%;
+    padding: 10px 15px 10px 40px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #333;
+    background-color: #FFFFFF;
+    border: 1px solid #D9D9D9;
+    border-radius: 5px;
+    transition: all 0.2s ease-in-out;
+}
+
+.search-icon-two {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+}
