@@ -16,6 +16,7 @@
 
 .product-main-box>img{
     width:100%;
+    border-radius: 15px;
 }
 
 .product-right-box{
@@ -62,6 +63,7 @@
     border: 1px solid #D9D9D9;
     border-radius: 6px;
     transition: all 0.2s ease-in-out;
+    height:40px;
 }
 
 .searchWord-style:focus {
@@ -71,6 +73,7 @@
 }
 
 .searchBtn-style{
+    height:60px;
     padding: 10px 18px;
     font-size: 16px;
     font-weight: 500;
