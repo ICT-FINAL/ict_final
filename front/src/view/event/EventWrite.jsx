@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import EventEditor from "./EventEditor";
 
 function EventWrite() {
     const serverIP = useSelector((state) => state.serverIP);
@@ -118,8 +119,8 @@ function EventWrite() {
 
             {formData.eventState === "NOCOUPON" ? (
                 <>
-                    <label className="event-write-label">이벤트 내용(추후 ckeditor로)</label>
-                    <textarea name="content" className="event-write-textarea" value={formData.content} onChange={handleChange} rows="4"></textarea>
+                    <label className="event-write-label">이벤트 내용</label>
+                    <EventEditor formData={formData} setFormData={setFormData} />
                 </>
             ) : (
                 <>

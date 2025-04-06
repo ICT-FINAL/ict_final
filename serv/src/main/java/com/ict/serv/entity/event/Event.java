@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Data
@@ -17,9 +18,10 @@ public class Event {
     @Column(name="EVENT_ID")
     private Long id;
 
+    @CreationTimestamp
     @Column(name="start_date",columnDefinition = "DATETIME")
     private String startDate;
-
+    @CreationTimestamp
     @Column(name="end_date", columnDefinition = "DATETIME")
     private String endDate;
 
