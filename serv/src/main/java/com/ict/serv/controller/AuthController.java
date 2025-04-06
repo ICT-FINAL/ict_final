@@ -210,6 +210,11 @@ public class AuthController {
     }*/
     @PostMapping("/auth/send-code")
     public ResponseEntity<?> sendVerificationCode(@RequestBody EmailRequestDto request) {
+        User user = authService.findUserByEmail(request.getEmail());
+        if(user == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("해당 이메일의 사용자가 없습니다.");
+        }
         try {
             authService.sendVerificationCode(request.getEmail());
             return ResponseEntity.ok("인증번호가 전송되었습니다.");
