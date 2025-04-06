@@ -45,6 +45,10 @@ import CommunityIndex from './community/CommunityIndex';
 import EventWrite from './event/EventWrite';
 import EventInfo from './event/EventInfo';
 import UserInfo from './user/UserInfo';
+
+import AuctionIndex from './auction/AuctionIndex';
+import AuctionRoom from './auction/AuctionRoom';
+
 function Body() {
   const modal = useSelector((state) => state.modal);
   
@@ -152,6 +156,9 @@ function Body() {
       <Route path='/event/info' element={<EventInfo/>}></Route>
 
       <Route path='/community/*' element={<CommunityIndex/>}></Route>
+
+      <Route path='/auction/*' element={<AuctionIndex/>}></Route>
+      <Route path='/auction/room/:roomId' element={<AuctionRoom/>}></Route>
     </Routes>
     </>
   );
