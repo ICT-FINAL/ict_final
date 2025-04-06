@@ -40,8 +40,10 @@ public class SecurityConfig {
                                 "/auth/reset-password/request",
                                 "/auth/reset-password/verify",
                                 "/auth/reset-password",
-                                "/auth/me"
+                                "/auth/me",
+                                "/auction/room/**"
                         ).permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/signup/**", "/auth/login").permitAll()
                         .requestMatchers("/uploads/**").permitAll() //파일
                         .requestMatchers("/static/**", "/resources/**").permitAll()

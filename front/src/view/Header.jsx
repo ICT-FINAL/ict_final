@@ -102,6 +102,7 @@ function Header() {
                         <li style={{cursor:'pointer'}}onClick={()=>movePage('/product')}>상품 검색</li>
                         <Link to='/recommend'><li>상품 추천</li></Link>
                         <Link to='/event'><li>이벤트</li></Link>
+                        <Link to='/auction'><li>실시간 경매</li></Link>
                         <Link to='/community'><li>커뮤니티</li></Link>
                     </ul>
                 </li> : <li className='header-center'>

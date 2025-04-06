@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { clearUser } from "../store/authSlice";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import Slider from 'react-slick';
@@ -12,6 +12,8 @@ function Main() {
     let serverIP = useSelector((state) => state.serverIP);
     let dispatch = useDispatch();
     const user = useSelector((state) => state.auth.user);
+    const navigate = useNavigate();
+
     const [event_list, setEvent_list] = useState([]);
     function testfunc() {
         if(user)
@@ -26,6 +28,11 @@ function Main() {
         localStorage.removeItem("token");
         dispatch(clearUser());
     }
+
+    const moveToEvent = (item) => {
+        navigate('/event/info',{state:item});
+    }
+
     useEffect(() => {
         console.log("현재 로그인된 사용자:", user);
     }, [user]);
@@ -92,7 +99,7 @@ function Main() {
 
                         {item.state === "COUPON" && <div className="main-coupon-badge">쿠폰 지급!</div>}
 
-                        <Link className="event-button">Click ▶</Link>
+                        <div className="event-button" onClick={()=> moveToEvent(item)}>자세히보기 ▶</div>
                     </div>
                 ))}
             </Slider>

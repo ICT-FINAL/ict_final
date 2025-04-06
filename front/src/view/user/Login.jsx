@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { setUser } from "../../store/authSlice";
-import { setLoginView } from "../../store/loginSlice";
 import { FaUser, FaLock, FaEnvelope } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { SiKakaotalk } from "react-icons/si";
 import { Check, X } from "lucide-react"; 
 import Logo from '../../img/mimyo_logo-removebg.png';
+import Spinner from "../../effect/Spinner";
 
 function Login({ onClose }) {
     const dispatch = useDispatch();
@@ -30,6 +30,8 @@ function Login({ onClose }) {
     const [userId, setUserId] = useState("");
     const [newPassword, setNewPassword] = useState("");
 
+    const [isSendingCode, setIsSendingCode] = useState(false);
+    const [emailError, setEmailError] = useState("");
 
     const handleLogin = async () => {
         try {
@@ -61,25 +63,30 @@ function Login({ onClose }) {
 
     const sendVerificationCode = async () => {
       try {
+        setIsSendingCode(true);
+        setEmailError("");
         if (showResetPw) {
-          // 비밀번호 재설정일 경우
           const formData = new URLSearchParams();
           formData.append("userid", userid);
           formData.append("email", email);
-  
+    
           await axios.post(`${serverIP}/auth/reset-password/request`, formData, {
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             withCredentials: true,
           });
         } else {
-          // 아이디 찾기일 경우
           await axios.post(`${serverIP}/auth/send-code`, { userid, email });
         }
-  
+    
         setIsVerifying(true);
         alert("인증번호가 이메일로 전송되었습니다.");
       } catch (err) {
-        alert("이메일 전송 실패: " + err.response?.data?.message);
+        if(err.response.data.message) {
+          setEmailError(err.response.data.message || "인증 요청 중 오류가 발생했습니다.");
+        }
+        else setEmailError(err.response.data || "인증 요청 중 오류가 발생했습니다.");
+      } finally {
+        setIsSendingCode(false);
       }
     };
 
@@ -93,8 +100,7 @@ function Login({ onClose }) {
         setUserId(res.data.userid);
         setStep(2);
       } catch (err) {
-        console.log("Error details:", err.response?.data);
-        alert("인증 실패: " + (err.response?.data?.message || "알 수 없는 오류"));
+        setEmailError("인증번호가 일치하지 않습니다.");
       }
     };
   
@@ -112,12 +118,11 @@ function Login({ onClose }) {
         setStep(2);
       } catch (err) {
         console.log("❌ Error details:", err.response?.data);
-  
+        setEmailError("인증번호가 일치하지 않습니다.");
         const errorMsg =
           err.response?.data?.message ||
           JSON.stringify(err.response?.data) ||
           "알 수 없는 오류";
-        alert("인증 실패: " + errorMsg);
       }
     };
 
@@ -147,6 +152,7 @@ function Login({ onClose }) {
       setIsVerifying(false);
       setUserId("");
       setNewPassword("");
+      setEmailError("");
     };
 
     const handleSignup = () => {
@@ -176,10 +182,10 @@ function Login({ onClose }) {
     const renderAuthFlow = () => {
       return (
         <div>
-          <h3>{showFindId ? "아이디 찾기" : "비밀번호 재설정"}</h3>
+          <h3 style={{color:'white'}}>{showFindId ? "아이디 찾기" : "비밀번호 재설정"}</h3>
           {step === 1 ? (
             <>
-              {showResetPw && (
+              {showResetPw && !isVerifying && (
                 <div className="input-wrapper">
                   <FaUser className="input-icon" />
                   <input
@@ -190,6 +196,7 @@ function Login({ onClose }) {
                   />
                 </div>
               )}
+              { !isVerifying && <>
               <div className="input-wrapper">
                 <FaEnvelope className="input-icon" />
                 <input
@@ -197,12 +204,26 @@ function Login({ onClose }) {
                   placeholder="이메일 입력"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={isSendingCode}
                 />
               </div>
-              <button onClick={sendVerificationCode}>인증번호 요청</button>
+              {emailError && (
+                <p style={{ color: "#ff6b6b", fontSize: "14px", marginTop: "-8px", marginBottom: "10px" }}>
+                  {emailError}
+                </p>
+              )}
+              {isSendingCode ? (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+                <Spinner/>
+                </div>
+              ) : (
+                <button style={{marginBottom:'10px'}} onClick={sendVerificationCode}>인증번호 요청</button>
+              )}</>
+            }
               {isVerifying && (
                 <>
                   <div className="input-wrapper">
+                    <FaLock className="input-icon" />
                     <input
                       type="text"
                       placeholder="인증번호 입력"
@@ -210,7 +231,12 @@ function Login({ onClose }) {
                       onChange={(e) => setVerificationCode(e.target.value)}
                     />
                   </div>
-                  <button
+                  {emailError && (
+                    <p style={{ color: "#ff6b6b", fontSize: "14px", marginTop: "-8px", marginBottom: "10px" }}>
+                      {emailError}
+                    </p>
+                  )}
+                  <button style={{marginBottom:'10px'}}
                     onClick={showFindId ? verifyForFindId : verifyForResetPw}
                   >
                     인증 확인
@@ -220,8 +246,7 @@ function Login({ onClose }) {
             </>
           ) : showFindId ? (
             <div>
-              <p style={{color:'white'}}>회원님의 아이디는 다음과 같습니다:</p>
-              <strong style={{color:'white'}}>{userId}</strong>
+              <p style={{color:'white'}}>아이디: <strong>{userId}</strong></p>
             </div>
           ) : (
             <>
@@ -234,12 +259,16 @@ function Login({ onClose }) {
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
               </div>
-              <button onClick={resetPassword}>비밀번호 변경</button>
+              <button style={{marginBottom:'10px'}}onClick={resetPassword}>비밀번호 변경</button>
             </>
           )}
-          <button onClick={resetForm} className="back-btn">
-            돌아가기
-          </button>
+          {isSendingCode ? (
+            <></>
+          ) : (
+            <button onClick={resetForm} className="back-btn">
+              돌아가기
+            </button>
+          )}
         </div>
       );
     };
