@@ -39,15 +39,18 @@ public class MypageController {
 
     @GetMapping("/guestbookList")
     public List<Guestbook> guestbookList(User user) {
-        System.out.println(user);
-        List<Guestbook> result = service.selectGuestbookAll(user);
-        System.out.println("result=>" + result);
+        return service.selectGuestbookAll(user);
+    }
+
+    @GetMapping("/replyList/{id}")
+    public List<Guestbook> replyList(@PathVariable int id) {
+        List<Guestbook> result = service.selectReplyAll(id);
+        System.out.println("replyList ====================================================\n" + result);
         return result;
     }
 
     @PostMapping("/guestbookWrite")
     public void guestbookWrite(@RequestBody Guestbook guestbook) {
-        System.out.println(guestbook);
         service.insertGuestbook(guestbook);
     }
 
@@ -58,8 +61,7 @@ public class MypageController {
 
     @GetMapping("/productList/{id}")
     public List<Product> productList(@PathVariable long id) {
-        List<Product> result = service.selectProductBySellerNo(id);
-
-        return result;
+        return service.selectProductBySellerNo(id);
     }
+
 }

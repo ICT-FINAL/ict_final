@@ -98,6 +98,7 @@ public class InteractController {
     public UserResponseDto getUserInfo(Long id) {
         User user = service.selectUser(id);
         UserResponseDto response = new UserResponseDto();
+        response.setId(id);
         response.setUserid(user.getUserid());
         response.setImgUrl(user.getProfileImageUrl());
         response.setEmail(user.getEmail());

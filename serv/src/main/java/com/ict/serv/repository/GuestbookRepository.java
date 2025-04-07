@@ -7,5 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface GuestbookRepository extends JpaRepository<Guestbook, Integer> {
-    List<Guestbook> findAllByWriter(User writer);
+    List<Guestbook> findAllByReceiver(User writer);
+
+    List<Guestbook> findAllByOriginalId(int id);
 }
