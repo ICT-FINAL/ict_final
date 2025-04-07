@@ -1,117 +1,120 @@
-.inquiryWrite-container {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 2rem;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .inquiryWrite-container h2 {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    color: #333;
-    font-weight: 600;
-  }
-  
-  .inquiry-form .form-group {
-    margin-bottom: 1.5rem;
-  }
-  
-  .inquiry-form label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-    color: #555;
-    font-size: 0.9rem;
-  }
-  
-  .inquiry-form input[type="text"]#inquiryTitle {
-    width: 100%;
-    padding: 0.8rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-size: 1rem;
-  }
-  
-  .CKEditor-container {
-  
-  }
-  
-  .inquiry-form .ck.ck-editor {
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  
-  .inquiry-form .ck.ck-editor__top .ck-sticky-panel .ck-toolbar {
-  
-  }
-  
-  .inquiry-form .ck.ck-editor__main .ck-editor__editable {
-    min-height: 250px;
-    border: 1px solid #ccc;
-    border-top: none;
-    padding: 0 1rem;
-    background-color: #fff;
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
-  }
-  
-  .inquiry-form .ck.ck-editor__editable.ck-focused {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-  }
-  
-  .submit-button {
-    display: block;
-    width: 100%;
-    padding: 0.9rem 1.5rem;
-    background-color: #3EDAD8;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease;
-    margin-top: 1rem;
-  }
-  
-  .submit-button:hover {
-    background-color: #0056b3;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  }
-  
-  .submitted-data {
-    margin-top: 2rem;
-    padding: 1.5rem;
-    border: 1px dashed #aaa;
-    border-radius: 6px;
-    background-color: #f0f4f8;
-  }
-  
-  .submitted-data h3 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    color: #333;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 0.5rem;
-  }
-  
-  .submitted-data p,
-  .submitted-data div {
-    margin-bottom: 0.75rem;
-    line-height: 1.6;
-    color: #444;
-  }
-  
-  .submitted-data div p { margin-bottom: 0.5em; }
-  .submitted-data div ul,
-  .submitted-data div ol { margin-left: 1.5em; margin-bottom: 0.75em; }
-  .submitted-data div li { margin-bottom: 0.25em; }
-  .submitted-data div strong { font-weight: bold; }
-  .submitted-data div em { font-style: italic; }
+.inquiry-form-container {
+  font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+  background-color: #ffffff;
+  padding: 30px 40px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  max-width: 750px;
+  margin: 40px auto;
+  color: #333;
+}
+.main-title{
+  text-align: center;
+}
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+  font-size: 15px;
+  color: #555;
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.5;
+  transition: border-color 0.2s ease-in-out;
+  box-sizing: border-box;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+}
+
+select.form-control {
+  appearance: none;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007bff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 10px 10px;
+  padding-right: 30px;
+}
+
+.textarea-content {
+  min-height: 180px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.char-counter {
+  text-align: right;
+  font-size: 13px;
+  color: #888;
+  margin-top: 5px;
+}
+
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.btn {
+  padding: 12px 25px;
+  font-size: 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  min-width: 120px;
+  text-align: center;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-cancel {
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  color: #555;
+}
+
+.btn-cancel:hover {
+  background-color: #f8f8f8;
+  border-color: #bbb;
+}
+
+.btn-submit {
+  background-color: #007bff;
+  color: #ffffff;
+  border: 1px solid #007bff;
+}
+
+.btn-submit:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+.error-message {
+  color: red;
+  background-color: #ffebee;
+  border: 1px solid #ef9a9a;
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  white-space: pre-line;
+}

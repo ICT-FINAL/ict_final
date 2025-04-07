@@ -31,6 +31,7 @@ import ProductIndex from './product/ProductIndex';
 import ProductSearch from './product/ProductSearch';
 
 import CenterHome from './customerservice/CenterHome';
+import InquiryList from './customerservice/InquiryList';
 import InquiryWrite from './customerservice/InquiryWrite';
 import FAQ from './customerservice/FAQ';
 import ProductSell from './product/ProductSell';
@@ -142,6 +143,7 @@ function Body() {
       <Route path='/product/search' element={<ProductSearch/>}></Route>
 
       <Route path='/customerservice/*' element={<CenterHome/>}>
+      <Route path="inquirylist" element={<InquiryList/>} />
       <Route path="inquirywrite" element={<InquiryWrite/>} />
       <Route path="faq" element={<FAQ/>} /> 
       </Route>
