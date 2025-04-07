@@ -437,6 +437,10 @@ input.tel {
     border: none;
     cursor: pointer;
 }
+#guestbook-reply-btn {
+    display: block;
+    margin: 10px;
+}
 
 /* ========== Mypage Product ========== */
 .product-item {
