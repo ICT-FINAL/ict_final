@@ -34,35 +34,10 @@ public class BasketService {
         }).collect(Collectors.toList());
     }
 
-//    // 장바구니에 상품 추가 (이미 있으면 수량 증가)
-//    @Transactional
-//    public void addToBasket(User user, Long productNo, int quantity) {
-//        Product product = productRepository.findById(productNo)
-//                .orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다."));
-//
-//        Basket existingBasket = basketRepository.findByUserNoAndProductNo(user, productNo);
-//
-//        if (existingBasket != null) {
-//            existingBasket.setBasketQuantity(existingBasket.getBasketQuantity() + quantity);
-//        } else {
-//            Basket basket = new Basket();
-//            basket.setUserNo(user);
-//            basket.setProductNo(product);
-//            basket.setBasketQuantity(quantity);
-//            basketRepository.save(basket);
-//        }
-//    }
-//
-//    // 장바구니에서 특정 상품 삭제
-//    @Transactional
-//    public void removeFromBasket(User user, Long productNo) {
-//        basketRepository.deleteByUserNoAndProductNo(user, productNo);
-//    }
-//
-//    // 장바구니 전체 비우기
-//    @Transactional
-//    public void clearBasket(User user) {
-//        basketRepository.deleteByUserNo(user);
-//    }
-
+    // 장바구니에서 특정 상품 삭제
+    @Transactional
+    public void deleteBasketItems(User user, List<Long> basketNos) {
+        List<Basket> basketsToDelete = basketRepository.findByUserNoAndIdIn(user, basketNos);
+        basketRepository.deleteAll(basketsToDelete);
+    }
 }

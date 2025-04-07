@@ -199,13 +199,74 @@
 
 .product-checkbox-group {
     margin-top: 10px;
+    padding: 15px;
+}
+
+.product-checkbox-group div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.product-checkbox-title {
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 8px;
 }
 
 .product-checkbox-label {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 3px;
     font-size: 14px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.option-button {
+    margin-left: 15px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    background-color: rgb(51,51,51);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    white-space: nowrap;
+}
+
+.option-delete-button{
+    margin-left: 5px;
+    background-color: #c78c8c;
+    font-size: 14px;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    white-space: nowrap;
+}
+
+.option-button:hover, .option-delete-button:hover {
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.option-container{
+    margin : 10px 0 0 15px;
+}
+
+.option-input-style {
+    padding: 3px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin: 5px 0 0 5px;
+}
+
+.option-input-style:hover {
+    border: 1px solid #7c7c7c;
 }
 
 /* 여기서부터 검색 */

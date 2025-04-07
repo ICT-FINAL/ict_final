@@ -1,7 +1,9 @@
 import axios from "axios";
 import { useEffect, useState, useMemo } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
+import { setModal } from "../../../../src/store/modalSlice";
+import { setInteract } from "../../../../src/store/interactSlice";
 
 function MyBasket() {
     const user = useSelector((state) => state.auth.user);
@@ -15,6 +17,8 @@ function MyBasket() {
     const navigate = useNavigate();
     const loc = useLocation();
     const [imageIndex, setImageIndex] = useState(0);
+    const [basketNo, setBasketNo] = useState();
+    const dispatch = useDispatch();
 
     useEffect(() => {
         if (user) {
@@ -129,19 +133,41 @@ function MyBasket() {
         }
     };
 
+    const handleDeleteSelected = () => {
+        if (window.confirm("선택한 상품을 삭제하시겠습니까?")) {
+            const selectedBasketNos = Object.keys(checkedItems);
+            if (selectedBasketNos.length === 0) {
+                return;
+            }
+
+            axios
+                .delete(`${serverIP.ip}/basket/delete`, {
+                    headers: { Authorization: `Bearer ${user.token}` },
+                    data: { basketNos: selectedBasketNos },
+                })
+                .then(() => {
+                    setBasketItems(basketItems.filter((item) => !selectedBasketNos.includes(String(item.basketNo))));
+                    setCheckedItems({});
+                    setAllChecked(false);
+                })
+                .catch((err) => console.log(err));
+        }
+    };
+
     return (
         <div style={{ paddingLeft: "10px" }}>
             <div className="basket-addr">
                 <span style={{ paddingLeft: "0px", fontSize: "17px", fontWeight: "600", color: "#555" }}>
                     {" "}
                     🏡 배송지 : {address}, {addressDetail}, {zipcode}
-                    <button style={{ marginLeft: "30px" }}>변경</button>
+                    <button style={{ marginLeft: "30px" }} onClick={() => { dispatch(setModal({ isOpen: true, selected: 'address-box' })) }}>변경</button>
                 </span>
                 <hr />
             </div>
 
             <div className="basket-sel-all">
-                <input type="checkbox" checked={allChecked} onChange={handleAllCheck} /> 전체 선택 <button type="button">선택삭제</button>
+                <input type="checkbox" checked={allChecked} onChange={handleAllCheck} /> 전체 선택
+                <button type="button" onClick={handleDeleteSelected}>선택삭제</button>
                 <hr />
             </div>
             {Object.keys(groupedItems).length > 0 ? (
@@ -180,7 +206,12 @@ function MyBasket() {
                                         onClick={() => setImageIndex(idx)}
                                     />
                                     {item.sellerNo.productName}
-                                </li>
+                                </li><button onClick={() => {
+                                    dispatch(setInteract(item)); // 선택된 상품 정보 저장
+                                    console.log("전달되는 아이템:", item);
+                                    dispatch(setModal({ isOpen: true, selected: 'basket-box', selectedItem: item }));
+
+                                }}>주문수정</button>
                                 <li>{formatNumber(item.sellerNo.price)}원</li>
                                 <li>{item.quantity}</li>
                                 <li>{formatNumber(item.sellerNo.shippingfee)}원</li>
