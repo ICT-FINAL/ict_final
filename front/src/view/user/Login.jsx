@@ -33,6 +33,20 @@ function Login({ onClose }) {
     const [isSendingCode, setIsSendingCode] = useState(false);
     const [emailError, setEmailError] = useState("");
 
+    const [newPasswordValid, setNewPasswordValid] = useState(null); // 비밀번호 재설정
+
+    const handleNewPasswordChange = (e) => { // 비밀번호 찾기 -> 재설정
+      const value = e.target.value;
+      setNewPassword(value);
+  
+      const passwordRegex = /^[A-Za-z0-9`~!@#$%^&*?]{8,14}$/;
+      if (passwordRegex.test(value)) {
+          setNewPasswordValid(true);
+      } else {
+          setNewPasswordValid(false);
+      }
+    };
+
     const handleLogin = async () => {
         try {
             const response = await axios.post(`${serverIP}/auth/login`, {
@@ -251,14 +265,22 @@ function Login({ onClose }) {
           ) : (
             <>
               <div className="input-wrapper">
-                <FaLock className="input-icon" />
-                <input
-                  type="password"
-                  placeholder="새 비밀번호 입력"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                />
+                  <FaLock className="input-icon" />
+                  <input
+                      type="password"
+                      placeholder="새 비밀번호 입력"
+                      value={newPassword}
+                      onChange={handleNewPasswordChange}
+                  />
+                  {newPasswordValid !== null  && newPassword !== "" && (
+                      newPasswordValid ? <Check className="input-status valid" /> : <X className="input-status invalid" />
+                  )}
               </div>
+              {newPasswordValid === false  && newPassword !== "" && (
+                  <p style={{ color: "#ff6b6b", fontSize: "14px", marginTop: "-8px", marginBottom: "10px" }}>
+                      비밀번호는 8자 이상 14자 이하의 영어, 숫자, 특수문자만 가능합니다.
+                  </p>
+              )}
               <button style={{marginBottom:'10px'}}onClick={resetPassword}>비밀번호 변경</button>
             </>
           )}
