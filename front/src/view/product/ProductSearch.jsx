@@ -81,6 +81,7 @@ function ProductSearch() {
                 });
 
                 setTotalPage(pvo.totalPage);
+                console.log(productList);
             })
             .catch((err) => {
                 console.log(err)
