@@ -1,12 +1,17 @@
 package com.ict.serv.controller;
 
 import com.ict.serv.dto.UserResponseDto;
+import com.ict.serv.entity.report.ReportState;
+import com.ict.serv.entity.wish.WishPagingVO;
+import com.ict.serv.entity.wish.Wishlist;
 import com.ict.serv.entity.message.Message;
 import com.ict.serv.entity.message.MessageResponseDTO;
 import com.ict.serv.entity.message.MessageState;
+import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.report.Report;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.InteractService;
+import com.ict.serv.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,7 +20,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -23,7 +30,7 @@ import java.util.List;
 @RequestMapping("/interact")
 public class InteractController {
     private final InteractService service;
-
+    private final ProductService productService;
     @GetMapping("/getToUser")
     public MessageResponseDTO getToUser(Long toId) {
         User user = service.selectUser(toId);
@@ -104,5 +111,37 @@ public class InteractController {
         response.setUsername(user.getUsername());
 
         return response;
+    }
+    @GetMapping("/getWish")
+    public Wishlist getWish(Long userId, Long productId){
+        return service.selectWish(userId,productId);
+    }
+
+    @GetMapping("/addWish")
+    public Wishlist addWish(Long userId, Long productId){
+        User user = new User();
+        user.setId(userId);
+        Product product = new Product();
+        product.setId(productId);
+        Wishlist wish = new Wishlist();
+        wish.setUser(user);
+        wish.setProduct(product);
+        return service.insertWish(wish);
+    }
+
+    @GetMapping("/delWish")
+    public String delWish(Long userId, Long productId){
+        service.deleteWish(service.selectWish(userId,productId));
+        return "ok";
+    }
+    @GetMapping("/getWishList")
+    public Map getWishList(@AuthenticationPrincipal UserDetails userDetails, WishPagingVO pvo) {
+        User user = service.selectUserByName(userDetails.getUsername());
+        pvo.setOnePageRecord(5);
+        pvo.setTotalRecord(service.wishTotalRecord(pvo,user));
+        Map map = new HashMap();
+        map.put("pvo",pvo);
+        map.put("wishList", service.getAllWishList(pvo,user));
+        return map;
     }
 }
