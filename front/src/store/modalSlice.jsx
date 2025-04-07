@@ -1,9 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  isOpen:false,
-  selected:'',
-  info:{}
+  isOpen: false,
+  selected: '',
+  info: {},
+  selectedItem: null
 };
 
 const modalSlice = createSlice({
@@ -14,6 +15,7 @@ const modalSlice = createSlice({
       state.isOpen = action.payload.isOpen;
       state.selected = action.payload.selected;
       state.info = action.payload.info;
+      state.selectedItem = action.payload.selectedItem;
     },
   },
 });
