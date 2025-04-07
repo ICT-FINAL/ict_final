@@ -1,5 +1,6 @@
 package com.ict.serv.controller;
 
+import com.ict.serv.dto.UserResponseDto;
 import com.ict.serv.entity.message.Message;
 import com.ict.serv.entity.message.MessageResponseDTO;
 import com.ict.serv.entity.message.MessageState;
@@ -91,5 +92,17 @@ public class InteractController {
         msg.setUserFrom(service.selectUserByName(userDetails.getUsername()));*/
         service.sendReport(report);
         return "ok";
+    }
+
+    @GetMapping("/getUserInfo")
+    public UserResponseDto getUserInfo(Long id) {
+        User user = service.selectUser(id);
+        UserResponseDto response = new UserResponseDto();
+        response.setUserid(user.getUserid());
+        response.setImgUrl(user.getProfileImageUrl());
+        response.setEmail(user.getEmail());
+        response.setUsername(user.getUsername());
+
+        return response;
     }
 }

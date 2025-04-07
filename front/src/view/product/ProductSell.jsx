@@ -15,8 +15,64 @@ function ProductSell() {
         detail: "",
         price: "",
         quantity: "",
-        discountRate: ""
+        discountRate: "",
+        options: []
     });
+    
+    const addMainOption = () => {
+        setFormData(prev => ({
+            ...prev,
+            options: [...prev.options, { mainOptionName: "", quantity: 0, subOptions: [] }]
+        }));
+    };
+
+    const removeMainOption = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            options: prev.options.filter((_, i) => i !== index)
+        }));
+    };
+
+    const handleMainOptionChange = (index, value) => {
+        const updatedOptions = [...formData.options];
+        updatedOptions[index].mainOptionName = value;
+        setFormData({ ...formData, options: updatedOptions });
+    };
+
+    const calculateTotalQuantity = () => {
+        let totalQuantity = 0;
+    
+        formData.options.forEach(option => {
+            option.subOptions.forEach(subOption => {
+                totalQuantity += subOption.quantity;
+            });
+        });
+        return totalQuantity;
+    };
+
+    const addSubOption = (index) => {
+        const updatedOptions = [...formData.options];
+        updatedOptions[index].subOptions.push({ subOptionName: "", quantity: 1 });
+        setFormData({ ...formData, options: updatedOptions });
+    };
+
+    const removeSubOption = (mainIndex, subIndex) => {
+        const updatedOptions = [...formData.options];
+        updatedOptions[mainIndex].subOptions = updatedOptions[mainIndex].subOptions.filter((_, i) => i !== subIndex);
+        setFormData({ ...formData, options: updatedOptions });
+    };
+
+    const handleSubOptionChange = (mainIndex, subIndex, value) => {
+        const updatedOptions = [...formData.options];
+        updatedOptions[mainIndex].subOptions[subIndex].subOptionName = value;
+        setFormData({ ...formData, options: updatedOptions });
+    };
+
+    const handleSubOptionQuantityChange = (mainIndex, subIndex, value) => {
+        const updatedOptions = [...formData.options];
+        updatedOptions[mainIndex].subOptions[subIndex].quantity = parseInt(value, 10) || 0;
+        setFormData({ ...formData, options: updatedOptions });
+    };
 
     const eventOptions = ["생일", "결혼", "졸업", "시험", "출산", "기타"];
     const targetOptions = ["여성", "남성", "연인", "직장동료", "부모님", "선생님", "기타"];
@@ -36,8 +92,6 @@ function ProductSell() {
     };
 
     const handleChange = (e) => {
-        console.log(formData);
-        console.log(files);
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
@@ -46,12 +100,13 @@ function ProductSell() {
         setFormData({
             ...formData,
             productCategory: e.target.value,
-            subCategories: ""
+            subCategories: "",
+            options: []
         });
     };
 
     const handleSubCategoryChange = (sub) => {
-        setFormData((prev) => ({
+        setFormData(prev => ({
             ...prev,
             subCategories: sub
         }));
@@ -88,15 +143,30 @@ function ProductSell() {
             new_formData.append("files", files[i]);
         }
 
-        new_formData.append("productName", formData.productName);
-        new_formData.append("eventCategory", formData.eventCategory);
-        new_formData.append("targetCategory", formData.targetCategory);
-        new_formData.append("productCategory", formData.subCategories);
-        new_formData.append("detail", formData.detail);
-        new_formData.append("price", parseInt(formData.price, 10) || 0);
-        new_formData.append("quantity", parseInt(formData.quantity, 10) || 0);
-        new_formData.append("discountRate", parseFloat(formData.discountRate) || 0.0);
-        
+        const productData = {
+            productName: formData.productName,
+            eventCategory: formData.eventCategory,
+            targetCategory: formData.targetCategory,
+            productCategory: formData.subCategories,
+            detail: formData.detail,
+            price: parseInt(formData.price, 10) || 0,
+            quantity: formData.options.length > 0 ? calculateTotalQuantity() : formData.quantity,
+            discountRate: parseFloat(formData.discountRate) || 0.0,
+            options: formData.options.map(option => ({
+              mainOptionName: option.mainOptionName,
+              quantity: option.quantity,
+              subOptions: option.subOptions.map(subOption => ({
+                subOptionName: subOption.subOptionName,
+                quantity: subOption.quantity,
+              })),
+            })),
+          };
+
+          new_formData.append("product", new Blob([JSON.stringify(productData)], {
+            type: "application/json"
+          }));
+          console.log(productData);
+          
         axios.post(`${serverIP.ip}/product/write`, new_formData, {
             headers: {
                 Authorization: `Bearer ${user.token}`
@@ -162,6 +232,47 @@ function ProductSell() {
                         ))}
                     </div>
                 )}
+
+                {formData.subCategories && (
+                        <>
+                            <button type="button" onClick={addMainOption}>옵션 추가</button>
+                            <div>
+                                {formData.options.map((option, mainIndex) => (
+                                    <div key={mainIndex} style={{ marginBottom: "15px" }}>
+                                        <input
+                                            type="text"
+                                            value={option.optionName}
+                                            onChange={(e) => handleMainOptionChange(mainIndex, e.target.value)}
+                                            placeholder="대분류 옵션 이름 입력"
+                                        />
+
+                                        <button type="button" onClick={() => addSubOption(mainIndex)}>+ 소분류 옵션 추가</button>
+                                        <button type="button" onClick={() => removeMainOption(mainIndex)}>대분류 삭제</button>
+                                        <div style={{ marginLeft: "20px" }}>
+                                            {option.subOptions.map((subOption, subIndex) => (
+                                                <div key={subIndex}>
+                                                    <input
+                                                        type="text"
+                                                        value={subOption.subOptionName}
+                                                        onChange={(e) => handleSubOptionChange(mainIndex, subIndex, e.target.value)}
+                                                        placeholder="소분류 옵션 이름"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        value={subOption.quantity}
+                                                        onChange={(e) => handleSubOptionQuantityChange(mainIndex, subIndex, e.target.value)}
+                                                        placeholder="수량"
+                                                        min="1"
+                                                    />
+                                                     <button type="button" onClick={() => removeSubOption(mainIndex, subIndex)}>소분류 삭제</button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
             </fieldset>
 
             <fieldset className="product-fieldset">
@@ -173,8 +284,14 @@ function ProductSell() {
                 <input type="text" name="price" className="product-input" value={formData.price} onChange={handleChange} />
 
                 <label className="product-label">수량</label>
-                <input type="text" name="quantity" className="product-input" value={formData.quantity} onChange={handleChange} />
-
+                <input
+                        type="number"
+                        name="quantity"
+                        className="product-input"
+                        value={formData.options.length > 0 ? calculateTotalQuantity() : formData.quantity}
+                        readOnly={formData.options.length > 0}
+                        onChange={handleChange}
+                    />
                 <label className="product-label">할인율</label>
                 <input type="text" name="discountRate" className="product-input" value={formData.discountRate} onChange={handleChange} />
             </fieldset>
