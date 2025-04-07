@@ -9,11 +9,21 @@ function MyPageProfile(){
     const [profileMenu, setProfileMenu] = useState('guestbook');
     const [guestbookList, setGuestbookList] = useState([]);
     const [productList, setProductList] = useState([]);
+    const [replyList, setReplyList] = useState({});
+    const [originalId, setOriginalId] = useState(0);
 
     useEffect(()=>{
         getGuestbookList();
         getProductList();
     },[]);
+
+    useEffect(() => {
+        guestbookList.forEach(item => {
+            if (!replyList[item.id]) {
+                getReplyList(item.id);
+            }
+        });
+    }, [guestbookList]);
 
     const getGuestbookList = ()=>{
         axios.get(`${serverIP.ip}/mypage/guestbookList?id=${user.user.id}`, {
@@ -28,10 +38,12 @@ function MyPageProfile(){
         .catch(err=>console.log(err));
     }
 
-    const guestbookWrite = ()=>{
+    const guestbookWrite = (id)=>{
+        console.log(user.user);
         const data = {
             writer: user.user,
-            content: document.getElementById("guestbook-write").value
+            content: document.getElementById(`guestbook-write-${id}`).value,
+            originalId: id
         }
         
         if (!data.content.trim()) {
@@ -49,7 +61,7 @@ function MyPageProfile(){
             })
             .catch(err=>console.log(err));
         }
-        document.getElementById("guestbook-write").value = '';
+        document.getElementById(`guestbook-write-${id}`).value = '';
     }
     
     const guestbookDelete = (id)=>{
@@ -80,7 +92,31 @@ function MyPageProfile(){
         })
         .catch(err=>console.log(err));
     }
+
+    const getReplyList = (id)=>{
+        axios.get(`${serverIP.ip}/mypage/replyList/${id}`, {
+            headers: {
+                Authorization: `Bearer ${user.token}`
+            }
+        })
+        .then(res=>{
+            console.log(res.data);
+            setReplyList(prev => ({
+                ...prev,
+                [id]: res.data
+            }));
+        })
+        .catch(err=>console.log(err));
+    }
+
+    const writeReply = (id) => {
+        let guestbookState = document.getElementById(`guestbook-${id}`);
+        guestbookState.style.display === "flex" ? 
+        guestbookState.style.display = "none" : 
+        guestbookState.style.display = "flex";
+    };
     
+
     return (
         <div className="profile-container">
             <div className="profile-top">
@@ -115,22 +151,30 @@ function MyPageProfile(){
                             return (
                                 <div className="guestbook-item">
                                     <img id="writer-profile-image" src = {item.writer.uploadedProfileUrl.indexOf('http') !==-1 ? `${item.writer.uploadedProfileUrl}`:`${serverIP.ip}${item.writer.uploadedProfileUrl}`} alt=''/>
-                                        <div id="writer-name">{item.writer.username}<span style={{fontSize: '14px'}}> &gt;</span></div>
-                                        <div style={{float: 'right', padding: '25px'}}>{item.writedate}</div>
-                                        <div id="guestbook-content">{item.content}
-                                            {
-                                                user.user.id === item.writer.id &&
-                                                <div id="guestbook-delete-btn" onClick={()=>guestbookDelete(item.id)}>×</div>
-                                            }
+                                    <div id="writer-name">{item.writer.username}<span style={{fontSize: '14px'}}> &gt;</span></div>
+                                    <div style={{float: 'right', padding: '25px'}}>{item.writedate}</div>
+                                    <div id="guestbook-content">{item.content}
+                                        {
+                                            user.user.id === item.writer.id &&
+                                            <div id="guestbook-delete-btn" onClick={()=>guestbookDelete(item.id)}>×</div>
+                                        }
+                                        <button id="guestbook-reply-btn" onClick={()=>writeReply(item.id)}>답글</button>
+                                        <div className="guestbook-write-box" id={`guestbook-${item.id}`} style={{display: 'none'}}>
+                                            <span>┗</span>
+                                            <textarea id={`guestbook-write-${item.id}`} placeholder="답글을 입력해 주세요."/>
+                                            <input type="button" id="guestbook-write-btn" onClick={()=>guestbookWrite(item.id)} value="등록"/>
                                         </div>
+                                        {replyList[item.id]?.map(reply => (
+                                            <div key={reply.id} className="guestbook-reply">
+                                                <span>┗</span>
+                                                <span>{reply.writer.username}</span>: {reply.content}
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             )
                         })
                     }
-                    <div className="guestbook-write-box">
-                        <textarea id="guestbook-write" placeholder="방명록을 남겨 주세요."/>
-                        <input type="button" id="guestbook-write-btn" onClick={guestbookWrite} value="등록"/>
-                    </div>
                 </>
             }
             {

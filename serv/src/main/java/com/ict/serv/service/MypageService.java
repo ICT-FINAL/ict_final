@@ -33,8 +33,8 @@ public class MypageService {
         guestbook_repo.save(guestbook);
     }
 
-    public List<Guestbook> selectGuestbookAll(User writer) {
-        return guestbook_repo.findAllByWriter(writer);
+    public List<Guestbook> selectGuestbookAll(User user) {
+        return guestbook_repo.findAllByReceiver(user);
     }
 
     public Optional<Guestbook> selectGuestbookById(int id) {
@@ -47,5 +47,9 @@ public class MypageService {
 
     public List<Product> selectProductBySellerNo(Long id) {
         return product_repo.findAllBySellerNo_Id(id);
+    }
+
+    public List<Guestbook> selectReplyAll(int id) {
+        return guestbook_repo.findAllByOriginalId(id);
     }
 }

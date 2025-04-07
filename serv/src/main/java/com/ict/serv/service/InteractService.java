@@ -1,12 +1,16 @@
 package com.ict.serv.service;
 
+import com.ict.serv.entity.wish.WishPagingVO;
+import com.ict.serv.entity.wish.Wishlist;
 import com.ict.serv.entity.message.Message;
 import com.ict.serv.entity.report.Report;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.MessageRepository;
 import com.ict.serv.repository.ReportRepository;
 import com.ict.serv.repository.UserRepository;
+import com.ict.serv.repository.WishRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +22,8 @@ public class InteractService {
     private final UserRepository user_repo;
     private final MessageRepository message_repo;
     private final ReportRepository report_repo;
+    private final WishRepository wish_repo;
+
     public User selectUser(Long id) {
         return user_repo.findUserById(id);
     }
@@ -43,5 +49,22 @@ public class InteractService {
 
     public Optional<Report> selectReport(Long id) {
         return report_repo.findById(id);
+    }
+
+    public Wishlist selectWish(Long userId, Long productId) {
+        return wish_repo.findByUser_IdAndProduct_Id(userId,productId);
+    }
+    public Wishlist insertWish(Wishlist wish) {
+        return wish_repo.save(wish);
+    }
+
+    public void deleteWish(Wishlist wish) {
+        wish_repo.deleteById(wish.getId());
+    }
+    public int wishTotalRecord(WishPagingVO pvo, User user) {
+        return wish_repo.countIdByUser(user);
+    }
+    public List<Wishlist> getAllWishList(WishPagingVO pvo, User user){
+        return wish_repo.findAllByUserOrderByIdDesc(user, PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
     }
 }
