@@ -44,9 +44,7 @@ public class MypageController {
 
     @GetMapping("/replyList/{id}")
     public List<Guestbook> replyList(@PathVariable int id) {
-        List<Guestbook> result = service.selectReplyAll(id);
-        System.out.println("replyList ====================================================\n" + result);
-        return result;
+        return service.selectReplyAll(id);
     }
 
     @PostMapping("/guestbookWrite")
@@ -64,4 +62,9 @@ public class MypageController {
         return service.selectProductBySellerNo(id);
     }
 
+    @GetMapping("/myInfo")
+    public int myInfo(User user) {
+        // 팔로워 팔로잉 추가 필요
+        return service.getWishCount(user.getId());
+    }
 }

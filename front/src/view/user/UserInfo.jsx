@@ -12,12 +12,36 @@ function UserInfo(){
     const [profileMenu, setProfileMenu] = useState('guestbook');
     const [guestbookList, setGuestbookList] = useState([]);
     const [productList, setProductList] = useState([]);
+    const [replyList, setReplyList] = useState({});
+    const [wishCount, setWishCount] = useState(0);
 
     useEffect(()=>{
         getGuestbookList();
         getProductList();
         getUserInfo();
+        getInfo();
     },[]);
+
+    useEffect(() => {
+        guestbookList.forEach(item => {
+            if (!replyList[item.id]) {
+                getReplyList(item.id);
+            }
+        });
+    }, [guestbookList]);
+
+    const getInfo = ()=>{
+        axios.get(`${serverIP.ip}/mypage/myInfo?id=${loc.state}`, {
+            headers: {
+              Authorization: `Bearer ${user.token}`
+            }
+        })
+        .then(res=>{
+            console.log(res.data);
+            setWishCount(res.data);
+        })
+        .catch(err=>console.log(err));
+    }
 
     const getUserInfo = ()=>{
         axios.get(`${serverIP.ip}/interact/getUserInfo?id=${loc.state}`, {
@@ -45,13 +69,15 @@ function UserInfo(){
         .catch(err=>console.log(err));
     }
 
-    const guestbookWrite = ()=>{
-        console.log(user.user);
-        console.log(userinfo);
+    const guestbookWrite = (id)=>{
+        const textareaId = id !== undefined ? `guestbook-write-${id}` : 'guestbook-write';
+        const content = document.getElementById(textareaId)?.value || '';
+
         const data = {
             writer: user.user,
             receiver: userinfo,
-            content: document.getElementById("guestbook-write").value
+            content: content,
+            originalId: id
         }
         
         if (!data.content.trim()) {
@@ -64,12 +90,16 @@ function UserInfo(){
                 }
             })
             .then(res=>{
-                console.log(res.data);
-                getGuestbookList();
+                if (id) {
+                    replyToggle(id);
+                    getReplyList(id);
+                } else {
+                    getGuestbookList();
+                }
             })
             .catch(err=>console.log(err));
         }
-        document.getElementById("guestbook-write").value = '';
+        document.getElementById(textareaId).value = '';
     }
     
     const guestbookDelete = (id)=>{
@@ -100,6 +130,29 @@ function UserInfo(){
         })
         .catch(err=>console.log(err));
     }
+
+    const getReplyList = (id)=>{
+        axios.get(`${serverIP.ip}/mypage/replyList/${id}`, {
+            headers: {
+                Authorization: `Bearer ${user.token}`
+            }
+        })
+        .then(res=>{
+            console.log(res.data);
+            setReplyList(prev => ({
+                ...prev,
+                [id]: res.data
+            }));
+        })
+        .catch(err=>console.log(err));
+    }
+
+    const replyToggle = (id) => {
+        let guestbookState = document.getElementById(`guestbook-${id}`);
+        guestbookState.style.display === "flex" ? 
+        guestbookState.style.display = "none" : 
+        guestbookState.style.display = "flex";
+    };
     
     return (
         <div className="profile-container" style={{paddingTop: '140px'}}>
@@ -113,7 +166,7 @@ function UserInfo(){
                     <div className="profile-follow">
                         <div>팔로워<br/><span>100</span></div>
                         <div>팔로잉<br/><span>300</span></div>
-                        <div>작품찜<br/><span>50</span></div>
+                        <div>작품찜<br/><span>{wishCount}</span></div>
                     </div>
                 </div>
             </div>
@@ -142,6 +195,20 @@ function UserInfo(){
                                                 user.user.id === item.writer.id &&
                                                 <div id="guestbook-delete-btn" onClick={()=>guestbookDelete(item.id)}>×</div>
                                             }
+                                            <button id="guestbook-reply-btn" onClick={()=>replyToggle(item.id)}>답글</button>
+                                            <div className="guestbook-write-box" id={`guestbook-${item.id}`} style={{display: 'none'}}>
+                                                <span>┗</span>
+                                                <textarea id={`guestbook-write-${item.id}`} placeholder="답글을 입력해 주세요."/>
+                                                <input type="button" id="guestbook-write-btn" onClick={()=>guestbookWrite(item.id)} value="등록"/>
+                                            </div>
+                                            {
+                                                replyList[item.id]?.map(reply => (
+                                                    <div key={reply.id} className="guestbook-reply">
+                                                        <span>┗</span>
+                                                        <span>{reply.writer.username}</span>: {reply.content}
+                                                    </div>
+                                                ))
+                                            }
                                         </div>
                                 </div>
                             )
@@ -149,7 +216,7 @@ function UserInfo(){
                     }
                     <div className="guestbook-write-box">
                         <textarea id="guestbook-write" placeholder="방명록을 남겨 주세요."/>
-                        <input type="button" id="guestbook-write-btn" onClick={guestbookWrite} value="등록"/>
+                        <input type="button" id="guestbook-write-btn" onClick={()=>guestbookWrite()} value="등록"/>
                     </div>
                 </>
             }
