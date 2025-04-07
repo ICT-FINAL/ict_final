@@ -20,4 +20,6 @@ public class UserResponseDto {
     private String zipcode;
     private String address;
     private String addressDetail;
+    private int grade;
+    private int gradePoint;
 }

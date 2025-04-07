@@ -29,8 +29,13 @@ function Main() {
         dispatch(clearUser());
     }
 
-    const moveToEvent = (item) => {
-        navigate('/event/info',{state:item});
+    const moveToEvent = (tar) => {
+        if(tar.state==='NOCOUPON') {
+            navigate('/event/info', {state:tar});
+        }
+        else {
+            navigate(tar.redirectUrl);
+        }
     }
 
     useEffect(() => {

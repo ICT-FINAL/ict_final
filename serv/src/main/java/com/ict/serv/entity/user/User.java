@@ -68,6 +68,12 @@ public class User {
     @LastModifiedDate
     private LocalDateTime modifiedDate;
 
+    @Column(columnDefinition = "int default 0")
+    private int grade;
+
+    @Column(name="grade_point", columnDefinition = "int default 0")
+    private int gradePoint;
+
     public String getProfileImageUrl() {
         return (uploadedProfileUrl != null && !uploadedProfileUrl.trim().isEmpty())
                 ? uploadedProfileUrl.trim()

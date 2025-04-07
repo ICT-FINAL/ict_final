@@ -32,7 +32,7 @@ public class AuctionWebSocketController {
     public void handleBid(@DestinationVariable String roomId, @Payload AuctionBidDTO message) {
         User user = interactService.selectUserByName(message.getUserid());
         auctionService.saveBid(roomId, user, message.getPrice());
-        UserResponseDto urd = new UserResponseDto(user.getId(),user.getUserid(),user.getUsername(),user.getEmail(),user.getProfileImageUrl(),user.getAuthority(),user.getZipcode(),user.getAddress(), user.getAddressDetail());
+        UserResponseDto urd = new UserResponseDto(user.getId(),user.getUserid(),user.getUsername(),user.getEmail(),user.getProfileImageUrl(),user.getAuthority(),user.getZipcode(),user.getAddress(), user.getAddressDetail(),user.getGrade(),user.getGradePoint());
         message.setUrd(urd);
         messagingTemplate.convertAndSend("/topic/auction/" + roomId, message);
     }
