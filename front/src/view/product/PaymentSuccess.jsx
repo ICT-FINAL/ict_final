@@ -19,13 +19,13 @@ const PaymentSuccess = () => {
     fetch("http://localhost:9977/payment/confirm", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         paymentKey,
         orderId: orderIdParam,
-        amount: amountParam
-      })
+        amount: amountParam,
+      }),
     })
       .then((res) => res.json())
       .then((data) => {
@@ -39,10 +39,17 @@ const PaymentSuccess = () => {
   return (
     <div style={{ padding: "100px" }}>
       <h2>결제가 성공적으로 완료되었습니다!</h2>
-      <p><strong>주문번호:</strong> {orderId}</p>
-      <p><strong>결제금액:</strong> {amount}원</p>
+      <p>
+        <strong>주문번호:</strong> {orderId}
+      </p>
+      <p>
+        <strong>결제금액:</strong> {amount}원
+      </p>
       <p>고객님 감사합니다 😊</p>
-      <button onClick={() => navigate("/")} style={{ marginTop: "30px", padding: "10px 20px" }}>
+      <button
+        onClick={() => navigate("/")}
+        style={{ marginTop: "30px", padding: "10px 20px" }}
+      >
         홈으로 돌아가기
       </button>
     </div>
