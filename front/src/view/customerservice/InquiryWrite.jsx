@@ -1,18 +1,31 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import '../../css/view/InquiryWrite.css';
-import { form } from 'framer-motion/client';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 const MAX_CONTENT_LENGTH = 2000;
 const MAX_FILES_COUNT = 5;
 
 const InquiryWrite = () => {
+    const serverIP = useSelector((state) => state.serverIP);
     const [inquirySubject, setInquirySubject] = useState('');
     const [inquiryType, setInquiryType] = useState('');
     const [inquiryContent, setInquiryContent] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [SuccessMessage,setSuccessMessage] = useState('');
+    const [isSubmitting,setIsSubmitting] = useState(false);
 
     const user = useSelector((state) => state.auth.user);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!user) {
+             navigate('/');
+             setErrorMessage("로그인후 이용해주세요.");
+        } else {
+             console.log("User details:", user);
+        }
+    }, [user, navigate]);
 
     const handleTitleChange = (event) => {
         console.log(user);
@@ -32,8 +45,17 @@ const InquiryWrite = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        setErrorMessage('');
+        if (isSubmitting) return;
 
+        setErrorMessage('');
+        setSuccessMessage('');
+        
+        if (!user || !user.user || user.user.id === undefined || user.user.id === null) {
+            setErrorMessage('로그인해주세요.');
+            console.error("로그인정보보", user);
+            return;
+       }
+      
         if (!inquirySubject.trim()) {
             setErrorMessage('문의제목을 입력해주세요.');
             return;
@@ -46,7 +68,8 @@ const InquiryWrite = () => {
             setErrorMessage('문의내용을 입력해주세요.');
             return;
         }
-
+        setIsSubmitting(true);
+        
         const formData = new FormData();
     
         formData.append('inquiry_subject', inquirySubject);
@@ -62,11 +85,28 @@ const InquiryWrite = () => {
         for (let [key, value] of formData.entries()) {
             console.log(`${key}:`, value);
         }
-        axios.post("http://localhost:9977/Inquiry/inquiryWriteOk", formData)
-        .then(function(response){
-            
+        axios.post(`${serverIP.ip}/inquiry/inquiryWriteOk`, formData,{
+            headers:{
+                Authorization: `Bearer ${user.token}`
+            }
         })
-
+        .then(function(response){
+            if (response.data === "ok") {
+                setSuccessMessage('문의가 등록되었습니다.');
+                setInquirySubject('');
+                setInquiryType('');
+                setInquiryContent('');
+                setFiles([]);
+        }else{
+            setErrorMessage(response.data || '문의 등록실패');
+            }
+        })
+        .catch(function(error){
+            console.log(error);
+        })
+        .finally(() => {
+            setIsSubmitting(false);
+        });
     };
 
 
@@ -83,6 +123,7 @@ const InquiryWrite = () => {
 
     const handleDrop = (e) => {
         e.preventDefault();
+        e.stopPropagation();
         handleFiles(e.dataTransfer.files);
     };
 
@@ -98,6 +139,7 @@ const InquiryWrite = () => {
 
         const totalFiles = files.length + imageFiles.length;
         if (totalFiles > MAX_FILES_COUNT) {
+            setErrorMessage(`최대 ${MAX_FILES_COUNT}개의 파일만 첨부할 수 있습니다.`);
              return;
         }
 
@@ -246,7 +288,7 @@ const InquiryWrite = () => {
             </div>
             </div>
                 <div className="button-group">
-                    <button type="button" className="btn btn-cancel" onClick={handleCancel}>
+                    <button type="button" className="btn btn-cancel" onClick={handleCancel} disabled={isSubmitting}>
                         취소하기
                     </button>
                     <button type="submit" className="btn btn-submit" onClick={handleSubmit}>

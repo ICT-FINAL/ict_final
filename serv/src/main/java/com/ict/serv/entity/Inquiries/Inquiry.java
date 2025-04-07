@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @NoArgsConstructor
 @Data
@@ -27,14 +29,14 @@ public class Inquiry {
     private String inquiryContent;
 
     @Column(name="inquiry_writedate", columnDefinition = "DATETIME")
-    private String inquiryWritedate;
+    private LocalDateTime inquiryWritedate;
 
     @Column(name="inquiry_status")
     @Enumerated(EnumType.STRING)
     private InquiryState inquiryStatus;
 
     @Column(name="inquiry_enddate", columnDefinition = "DATETIME")
-    private String inquiryEnddate; // 문의완료날짜
+    private LocalDateTime inquiryEnddate; // 문의완료날짜
 
     @ManyToOne
     @JoinColumn(name="user_id")
