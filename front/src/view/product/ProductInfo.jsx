@@ -2,17 +2,23 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { FaHeart, FaShoppingCart } from "react-icons/fa";
+import axios from "axios";
 
 function ProductInfo() {
     const serverIP = useSelector((state) => state.serverIP);
     const loc = useLocation();
     const [imageIndex, setImageIndex] = useState(0);
-
+    const user = useSelector((state)=> state.auth.user);
     const navigate = useNavigate();
 
     useEffect(() => {
         console.log(loc.state.product);
-    }, [])
+        axios.get(`${serverIP.ip}/product/getOption?id=${loc.state.product.id}`,{
+            headers: { Authorization: `Bearer ${user.token}` } 
+        })
+        .then(res=>console.log(res.data))
+        .catch(err => console.log(err));
+    },[])
 
     const moveBuy = () => {
         navigate('/product/buying'); // 필요한 정보 state담아서 후에 처리

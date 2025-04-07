@@ -3,9 +3,13 @@ package com.ict.serv.dto;
 import com.ict.serv.entity.Authority;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Setter
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class UserResponseDto {
     private Long id;
     private String userid;
