@@ -31,6 +31,7 @@ public class InquiryController {
     private final UserRepository userRepository;
     private final InquiryRepository inquiryRepository;
 
+    /*
     @PostMapping("/inquiryWriteOk")
     public ResponseEntity<String> InquiryWriteOk(
             @RequestParam("inquiry_subject")String inquirySubject,
@@ -85,6 +86,6 @@ public class InquiryController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body("");
             }
-        }
+        }*/
     }
 
