@@ -7,4 +7,5 @@ import lombok.Data;
 public class SubOptionDTO {
     private String subOptionName;
     private int quantity;
+    private int additionalPrice;
 }

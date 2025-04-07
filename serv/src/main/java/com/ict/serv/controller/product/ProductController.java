@@ -61,6 +61,7 @@ public class ProductController {
                             OptionCategory optionCategory = new OptionCategory();
                             optionCategory.setCategoryName(subOptionDTO.getSubOptionName());
                             optionCategory.setQuantity(subOptionDTO.getQuantity());
+                            optionCategory.setAdditionalPrice(subOptionDTO.getAdditionalPrice());
                             optionCategory.setOption(savedOption);
                             service.saveOptionCategory(optionCategory);
                             savedOption.getSubOptionCategories().add(optionCategory);
