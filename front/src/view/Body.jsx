@@ -44,6 +44,11 @@ import EventIndex from './event/EventIndex';
 import CommunityIndex from './community/CommunityIndex';
 import EventWrite from './event/EventWrite';
 import EventInfo from './event/EventInfo';
+import UserInfo from './user/UserInfo';
+
+import AuctionIndex from './auction/AuctionIndex';
+import AuctionRoom from './auction/AuctionRoom';
+
 function Body() {
   const modal = useSelector((state) => state.modal);
   
@@ -127,6 +132,7 @@ function Body() {
       <Route exact path="/login/oauth2/code/kakao" element={<SignupHandler/>}/>
       <Route exact path="/login/oauth2/code/google" element={<GoogleSignupHandler/>}/>
       
+      <Route path='/userinfo' element={<UserInfo/>}></Route>
       <Route path='/mypage/*' element={<MyIndex/>}></Route>
       <Route path='/admin/*' element={<AdminIndex/>}></Route>
       <Route path='/already' element={<Already/>}></Route>
@@ -150,6 +156,9 @@ function Body() {
       <Route path='/event/info' element={<EventInfo/>}></Route>
 
       <Route path='/community/*' element={<CommunityIndex/>}></Route>
+
+      <Route path='/auction/*' element={<AuctionIndex/>}></Route>
+      <Route path='/auction/room/:roomId' element={<AuctionRoom/>}></Route>
     </Routes>
     </>
   );

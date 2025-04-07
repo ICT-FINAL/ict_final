@@ -16,7 +16,7 @@ function MyPageProfile(){
     },[]);
 
     const getGuestbookList = ()=>{
-        axios.get(`${serverIP.ip}/mypage/guestbookList`, {
+        axios.get(`${serverIP.ip}/mypage/guestbookList?id=${user.user.id}`, {
             headers: {
               Authorization: `Bearer ${user.token}`
             }
@@ -137,10 +137,18 @@ function MyPageProfile(){
                 profileMenu === "product" &&
                 <>
                     {
+                        productList.length === 0 &&
+                        <div style={{padding: '20px', textAlign: 'center'}}>등록된 작품이 없습니다.</div>
+                    }
+                    {
                         productList.map(item=>{
                             return (
                                 <div className="product-item">
-                                    <img src={`${serverIP.ip}/uploads/product/${item.id}/${item.images[0].filename}`} alt='ff'/>
+                                    <img id="product-img" src={`${serverIP.ip}/uploads/product/${item.id}/${item.images[0].filename}`} alt='상품이미지준비중'/>
+                                    {
+                                        item.discountRate !== 0 &&
+                                        <div id="discount-sticker">{item.discountRate}</div>
+                                    }
                                     <div>상품명: {item.productName}</div>
                                     <div>가격: {item.price}</div>
                                 </div>

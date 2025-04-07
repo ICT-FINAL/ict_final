@@ -2,16 +2,22 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { FaHeart, FaShoppingCart } from "react-icons/fa";
+import axios from "axios";
 
 function ProductInfo() {
     const serverIP = useSelector((state) => state.serverIP);
     const loc = useLocation();
     const [imageIndex, setImageIndex] = useState(0);
-
+    const user = useSelector((state)=> state.auth.user);
     const navigate = useNavigate();
 
-    useEffect(()=>{
+    useEffect(() => {
         console.log(loc.state.product);
+        axios.get(`${serverIP.ip}/product/getOption?id=${loc.state.product.id}`,{
+            headers: { Authorization: `Bearer ${user.token}` } 
+        })
+        .then(res=>console.log(res.data))
+        .catch(err => console.log(err));
     },[])
 
     const moveBuy = () => {
@@ -41,16 +47,16 @@ function ProductInfo() {
                 </div>
                 <div className="product-info-right">
                     <ul>
-                        <li style={{display:'flex'}}>
+                        <li style={{ display: 'flex' }}>
                             <div className='product-profile-box'>
-                                <img id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' src = {loc.state.product.sellerNo.uploadedProfileUrl && loc.state.product.sellerNo.uploadedProfileUrl.indexOf('http') !==-1 ? `${loc.state.product.sellerNo.uploadedProfileUrl}`:`${serverIP.ip}${loc.state.product.sellerNo.uploadedProfileUrl}`} alt='' width={40} height={40} style={{borderRadius:'100%', backgroundColor:'white', border:'1px solid gray'}}/>
-                                <div id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' style={{height:'40px',lineHeight:'40px',marginLeft:'5px'}}>{loc.state.product.sellerNo.username} &gt;</div>
+                                <img id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' src={loc.state.product.sellerNo.uploadedProfileUrl && loc.state.product.sellerNo.uploadedProfileUrl.indexOf('http') !== -1 ? `${loc.state.product.sellerNo.uploadedProfileUrl}` : `${serverIP.ip}${loc.state.product.sellerNo.uploadedProfileUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
+                                <div id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{loc.state.product.sellerNo.username} &gt;</div>
                             </div>
                             <div className='product-star-rating'>
-                                ★★★★★ <span style={{color:'black'}}>{loc.state.product.rating}</span>
+                                ★★★★★ <span style={{ color: 'black' }}>{loc.state.product.rating}</span>
                             </div>
                         </li>
-                        <li style={{display:'flex', marginTop:'20px', fontSize:'25px',lineHeight:'30px'}}>
+                        <li style={{ display: 'flex', marginTop: '20px', fontSize: '25px', lineHeight: '30px' }}>
                             <div className='product-info-name'>
                                 {loc.state.product.productName}
                             </div>
@@ -65,11 +71,11 @@ function ProductInfo() {
                                 </div>
                             </div>
                         </li>
-                        <li style={{height:'350px', border:'1px solid gray', marginTop:'10px'}}>
+                        <li style={{ height: '350px', border: '1px solid gray', marginTop: '10px' }}>
                             대충 내용들 가격 등등..
                         </li>
                         <li>
-                            <button className='product-buy-button' onClick={()=>moveBuy()}>
+                            <button className='product-buy-button' onClick={() => moveBuy()}>
                                 구매하기
                             </button>
                         </li>

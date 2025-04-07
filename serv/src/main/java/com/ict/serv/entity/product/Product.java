@@ -43,6 +43,9 @@ public class Product {
     private int price;
     private int quantity;
 
+    @Column(name="shipping_fee")
+    private int shippingfee;
+
     @CreationTimestamp
     @Column(columnDefinition = "DATETIME default now()")
     private String startDate;

@@ -83,11 +83,13 @@ function ProductIndex(){
                             isOpen: true,
                             selected: "categorymodal",
                             info: productOptions,
-                        }))} className="selectbox-style">
-                            카테고리 선택
+                        }))} className="selectbox-style" style={{fontSize:'12px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',display:'inline-block'}}>
+                            { search.productCategory.length == 0 ? '카테고리 선택':search.productCategory.map((item, index) => (
+                                <div style={{display:'inline-block'}} key={index}> #{item}</div>
+                            )) }
                         </button>
                         <div className="search-wrapper">
-                    <div className="search-container">
+                        <div className="search-container">
                             <input onKeyDown={handleSearch} type="text" value={search.searchWord} placeholder="검색어 입력" onChange={changeSearchWord} className="searchWord-style"/>
                             <button onClick={doSearch} className="searchBtn-style">검색</button>
                         </div>

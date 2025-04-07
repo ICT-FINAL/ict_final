@@ -1,7 +1,6 @@
 package com.ict.serv.controller.product;
 
-import com.ict.serv.entity.product.Product;
-import com.ict.serv.entity.product.ProductImage;
+import com.ict.serv.entity.product.*;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.InteractService;
 import com.ict.serv.service.ProductService;
@@ -29,14 +28,47 @@ public class ProductController {
 
     @PostMapping("/write")
     @Transactional(rollbackFor = {RuntimeException.class, SQLException.class})
-    public ResponseEntity<String> write(Product product, @RequestParam("files") MultipartFile[] files,
+    public ResponseEntity<String> write(@RequestPart("product") ProductWriteRequest productRequest, @RequestParam("files") MultipartFile[] files,
                                         @AuthenticationPrincipal UserDetails userDetails) {
         List<File> savedFiles = new ArrayList<>();
+
         try {
             User seller = interactService.selectUserByName(userDetails.getUsername());
-            product.setSellerNo(seller);
 
+            Product product = new Product();
+            product.setSellerNo(seller);
+            product.setProductName(productRequest.getProductName());
+            product.setEventCategory(productRequest.getEventCategory());
+            product.setTargetCategory(productRequest.getTargetCategory());
+            product.setProductCategory(productRequest.getProductCategory());
+            product.setDetail(productRequest.getDetail());
+            product.setPrice(productRequest.getPrice());
+            product.setQuantity(productRequest.getQuantity());
+            product.setDiscountRate(productRequest.getDiscountRate());
             product.setImages(new ArrayList<>());
+
+            if (productRequest.getOptions() != null && !productRequest.getOptions().isEmpty()) {
+                for (OptionDTO optionDTO : productRequest.getOptions()) {
+                    Option mainOption = new Option();
+                    mainOption.setProduct(product);
+                    mainOption.setOptionName(optionDTO.getMainOptionName());
+                    mainOption.setSubOptionCategories(new ArrayList<>());
+
+                    Option savedOption = service.saveOption(mainOption);
+
+                    if (optionDTO.getSubOptions() != null && !optionDTO.getSubOptions().isEmpty()) {
+                        for (SubOptionDTO subOptionDTO : optionDTO.getSubOptions()) {
+                            OptionCategory optionCategory = new OptionCategory();
+                            optionCategory.setCategoryName(subOptionDTO.getSubOptionName());
+                            optionCategory.setQuantity(subOptionDTO.getQuantity());
+                            optionCategory.setOption(savedOption);
+                            service.saveOptionCategory(optionCategory);
+                            savedOption.getSubOptionCategories().add(optionCategory);
+                        }
+                    }
+                    service.saveOption(savedOption);
+                }
+            }
 
             Product savedProduct = service.saveProduct(product);
 
@@ -96,5 +128,9 @@ public class ProductController {
         result.put("productList",productList);
         result.put("pvo",pvo);
         return result;
+    }
+    @GetMapping("/getOption")
+    public List<Option> getOption(Long id) {
+        return service.selectOptions(service.selectProduct(id).get());
     }
 }
