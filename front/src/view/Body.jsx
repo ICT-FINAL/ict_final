@@ -163,7 +163,8 @@ function Body() {
       <Route path='/community/*' element={<CommunityIndex/>}></Route>
 
       <Route path='/auction/*' element={<AuctionIndex/>}></Route>
-      <Route path='/auction/room/:roomId' element={<AuctionRoom/>}></Route>
+      
+
     </Routes>
     </>
   );

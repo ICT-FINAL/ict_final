@@ -22,7 +22,13 @@ function ProductInfo() {
     },[])
 
     const moveBuy = () => {
-        navigate('/product/buying'); // 필요한 정보 state담아서 후에 처리
+        navigate('/product/buying',{ // 필요한 정보 state담아서 후에 처리
+            state: {
+                productId: loc.state.product.id,
+                price: loc.state.product.price,
+                productName: loc.state.product.productName
+            }
+        });
     }
 
     const getWish = () => {
