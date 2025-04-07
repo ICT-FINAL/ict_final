@@ -49,6 +49,7 @@ import UserInfo from './user/UserInfo';
 
 import AuctionIndex from './auction/AuctionIndex';
 import AuctionRoom from './auction/AuctionRoom';
+import DailyCheck from './event/coupon/DailyCheck';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -157,6 +158,7 @@ function Body() {
       <Route path='/event/*' element={<EventIndex/>}></Route>
       <Route path='/event/write' element={<EventWrite/>}></Route>
       <Route path='/event/info' element={<EventInfo/>}></Route>
+      <Route path='/event/dailycheck' element={<DailyCheck/>}></Route>
 
       <Route path='/community/*' element={<CommunityIndex/>}></Route>
 

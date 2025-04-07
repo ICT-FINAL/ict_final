@@ -102,7 +102,9 @@ function EventIndex() {
         if(tar.state==='NOCOUPON') {
             navigate('/event/info', {state:tar});
         }
-        else alert("쿠폰 페이지 따로 만들려고");
+        else {
+            navigate(tar.redirectUrl);
+        }
     }
 
     return (
