@@ -8,6 +8,7 @@ import MyReport from "./MyReport";
 import MyPageProfile from "./MyPageProfile";
 
 import '../../../css/view/mypage.css';
+import MyWish from "./MyWish";
 
 function MyIndex(){
     const location = useLocation();
@@ -30,6 +31,7 @@ function MyIndex(){
             basket: { f_name: "보관함", l_name: "장바구니" },
             coupons: { f_name: "보관함", l_name: "쿠폰함" },
             points: { f_name: "보관함", l_name: "적립 내역" },
+            wishlist: { f_name:"보관함", l_name:"찜 목록"},
             "stats-activity": { f_name: "통계", l_name: "활동 통계" },
             "stats-purchases": { f_name: "통계", l_name: "구매 통계" },
             "stats-sales": { f_name: "통계", l_name: "판매 통계" },
@@ -57,6 +59,7 @@ function MyIndex(){
             { path.l_name == '프로필' && <MyPageProfile/> }
                   {path.l_name == '장바구니' && <MyBasket/>}
                   { path.l_name == '신고 내역' && <MyReport/> }
+                  { path.l_name == '찜 목록' && <MyWish/> }
             </div>
         </div>
     </>)
