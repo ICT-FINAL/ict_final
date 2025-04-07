@@ -71,11 +71,11 @@ public class AuthController {
                 user.getUserid(),
                 user.getUsername(),
                 user.getEmail(),
+                user.getProfileImageUrl(),
                 user.getAuthority(),
                 user.getZipcode(),
                 user.getAddress(),
                 user.getAddressDetail()
-                user.getProfileImageUrl(),
         );
         return ResponseEntity.ok(new LoginResponseDto(token, "로그인 성공", userResponse));
     }

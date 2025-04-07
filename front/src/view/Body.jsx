@@ -33,14 +33,16 @@ import ProductIndex from './product/ProductIndex';
 import ProductSearch from './product/ProductSearch';
 
 import CenterHome from './customerservice/CenterHome';
+import InquiryList from './customerservice/InquiryList';
 import InquiryWrite from './customerservice/InquiryWrite';
 import FAQ from './customerservice/FAQ';
 import ProductSell from './product/ProductSell';
-
 import ReportApprove from '../interact/ReportApprove';
 import CategoryModal from '../modal/CategoryModal';
 import ProductInfo from './product/ProductInfo';
 import ProductBuy from './product/ProductBuy';
+import PaymentSuccess from './product/PaymentSuccess';
+import PaymentFail from './product/PaymentFail';
 import RecommendIndex from './recommend/RecommendIndex';
 import EventIndex from './event/EventIndex';
 import CommunityIndex from './community/CommunityIndex';
@@ -130,32 +132,31 @@ function Body() {
     {interact.isOpen && <Interact />}
 
     <Routes>
-      <Route path="/" element={<Main />} />
-      <Route path="/test" element={<Test />} />
-      <Route path="/signup/info" element={<SignupInfo />} />
-      <Route exact path="/login/oauth2/code/kakao" element={<SignupHandler />} />
-      <Route exact path="/login/oauth2/code/google" element={<GoogleSignupHandler />} />
+      <Route path="/" element={<Main/>} />
+      <Route path="/test" element={<Test/>} />
+      <Route path="/signup/info" element={<SignupInfo/>} />
+      <Route exact path="/login/oauth2/code/kakao" element={<SignupHandler/>}/>
+      <Route exact path="/login/oauth2/code/google" element={<GoogleSignupHandler/>}/>
+      
+      <Route path='/userinfo' element={<UserInfo/>}></Route>
+      <Route path='/mypage/*' element={<MyIndex/>}></Route>
+      <Route path='/admin/*' element={<AdminIndex/>}></Route>
+      <Route path='/already' element={<Already/>}></Route>
 
-      <Route path='/userinfo' element={<UserInfo />}></Route>
-      <Route path='/mypage/*' element={<MyIndex />}></Route>
-      <Route path='/admin/*' element={<AdminIndex />}></Route>
-      <Route path='/already' element={<Already />}></Route>
+      <Route path='/product/*' element={<ProductIndex/>}></Route>
+      <Route path='/product/search' element={<ProductSearch/>}></Route>
 
-      <Route path='/mypage/*' element={<MyIndex />}></Route>
-      <Route path='/admin/*' element={<AdminIndex />}></Route>
-      <Route path='/already' element={<Already />}></Route>
-
-      <Route path='/product/*' element={<ProductIndex />}></Route>
-      <Route path='/product/search' element={<ProductSearch />}></Route>
-
-      <Route path='/customerservice/*' element={<CenterHome />}>
-        <Route path="inquirywrite" element={<InquiryWrite />} />
-        <Route path="faq" element={<FAQ />} />
+      <Route path='/customerservice/*' element={<CenterHome/>}>
+      <Route path="inquirylist" element={<InquiryList/>} />
+      <Route path="inquirywrite" element={<InquiryWrite/>} />
+      <Route path="faq" element={<FAQ/>} /> 
       </Route>
 
-      <Route path='/product/sell' element={<ProductSell />}></Route>
-      <Route path='/product/info' element={<ProductInfo />}></Route>
-      <Route path='/product/buying' element={<ProductBuy />}></Route>
+      <Route path='/product/sell' element={<ProductSell/>}></Route>
+      <Route path='/product/info' element={<ProductInfo/>}></Route>
+      <Route path='/product/buying' element={<ProductBuy/>}></Route>
+      <Route path="/payment/success" element={<PaymentSuccess/>}></Route>
+      <Route path="/payment/fail" element={<PaymentFail/>}></Route>
 
       <Route path='/recommend/*' element={<RecommendIndex />}></Route>
 

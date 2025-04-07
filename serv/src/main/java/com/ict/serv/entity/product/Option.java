@@ -29,6 +29,4 @@ public class Option {
     @OneToMany(mappedBy = "option", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     List<OptionCategory> subOptionCategories;
-
-    private int additionalPrice;  // 추가금
 }

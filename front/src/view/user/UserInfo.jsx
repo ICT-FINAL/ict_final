@@ -20,7 +20,11 @@ function UserInfo(){
     },[]);
 
     const getUserInfo = ()=>{
-        axios.get(`${serverIP.ip}/interact/getUserInfo?id=${loc.state}`)
+        axios.get(`${serverIP.ip}/interact/getUserInfo?id=${loc.state}`, {
+            headers: {
+                Authorization: `Bearer ${user.token}`
+              }
+        })
         .then(res=>{
             console.log(res.data);
             setUserinfo(res.data);
@@ -42,8 +46,11 @@ function UserInfo(){
     }
 
     const guestbookWrite = ()=>{
+        console.log(user.user);
+        console.log(userinfo);
         const data = {
             writer: user.user,
+            receiver: userinfo,
             content: document.getElementById("guestbook-write").value
         }
         
@@ -97,9 +104,9 @@ function UserInfo(){
     return (
         <div className="profile-container" style={{paddingTop: '140px'}}>
             <div className="profile-top">
-                <img src = {user.user.imgUrl.indexOf('http') !==-1 ? `${user.user.imgUrl}`:`${serverIP.ip}${user.user.imgUrl}`} alt='' width={140} height={140}/>
+                {userinfo.imgUrl && <img src = {userinfo.imgUrl.indexOf('http') !==-1 ? `${userinfo.imgUrl}`:`${serverIP.ip}${userinfo.imgUrl}`} alt='' width={140} height={140}/>}
                 <div className="profile-info">
-                    <div style={{fontWeight: 'bold', fontSize: '1.2em'}}>{user.user.username}
+                    <div style={{fontWeight: 'bold', fontSize: '1.2em'}}>{userinfo.username}
                         <button id="follow-btn">팔로우</button>
                     </div>
                     <div>별점(후기개수)</div>

@@ -10,18 +10,57 @@ function ProductInfo() {
     const [imageIndex, setImageIndex] = useState(0);
     const user = useSelector((state)=> state.auth.user);
     const navigate = useNavigate();
+    const [isWish, setIsWish] = useState(false);
 
     useEffect(() => {
-        console.log(loc.state.product);
         axios.get(`${serverIP.ip}/product/getOption?id=${loc.state.product.id}`,{
             headers: { Authorization: `Bearer ${user.token}` } 
         })
         .then(res=>console.log(res.data))
         .catch(err => console.log(err));
+        getWish();
     },[])
 
     const moveBuy = () => {
-        navigate('/product/buying'); // 필요한 정보 state담아서 후에 처리
+        navigate('/product/buying',{ // 필요한 정보 state담아서 후에 처리
+            state: {
+                productId: loc.state.product.id,
+                price: loc.state.product.price,
+                productName: loc.state.product.productName
+            }
+        });
+    }
+
+    const getWish = () => {
+        axios.get(`${serverIP.ip}/interact/getWish?userId=${user.user.id}&productId=${loc.state.product.id}`,{
+            headers: { Authorization: `Bearer ${user.token}` } 
+        })
+        .then(res=>{
+            if(res.data===undefined || res.data==='') {
+                setIsWish(false);
+            }
+            else {
+                setIsWish(true);
+            }
+        })
+        .catch(err => console.log(err));
+    }
+
+    const addWish = () => {
+        axios.get(`${serverIP.ip}/interact/addWish?userId=${user.user.id}&productId=${loc.state.product.id}`,{
+            headers: { Authorization: `Bearer ${user.token}` } 
+        })
+        .then(res=>{
+            setIsWish(true);
+        })
+        .catch(err => console.log(err));
+    }
+    const delWish = () => {
+        axios.get(`${serverIP.ip}/interact/delWish?userId=${user.user.id}&productId=${loc.state.product.id}`,{
+            headers: { Authorization: `Bearer ${user.token}` } 
+        })
+        .then(res=>setIsWish(false))
+        .catch(err => console.log(err));
     }
 
     return (
@@ -61,10 +100,16 @@ function ProductInfo() {
                                 {loc.state.product.productName}
                             </div>
                             <div className='product-wish'>
-                                <div className="wishlist-icon">
+                                {!isWish ?
+                                <div className="wishlist-icon" onClick={()=>{addWish()}}>
+                                    <FaHeart />
+                                    <span>좋아요</span>
+                                </div>:
+                                <div className="wishlist-icon" onClick={()=>{delWish()}} style={{color:'rgb(255, 70, 70)'}}>
                                     <FaHeart />
                                     <span>좋아요</span>
                                 </div>
+                                }
                                 <div className="cart-icon">
                                     <FaShoppingCart />
                                     <span>장바구니</span>

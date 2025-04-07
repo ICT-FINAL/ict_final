@@ -30,4 +30,6 @@ public class OptionCategory {
     private Option option;
 
     private int quantity;
+
+    private int additionalPrice;  // 소분류 추가 → 금액
 }
