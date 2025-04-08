@@ -33,7 +33,6 @@ import ProductIndex from './product/ProductIndex';
 import ProductSearch from './product/ProductSearch';
 
 import CenterHome from './customerservice/CenterHome';
-import InquiryList from './customerservice/InquiryList';
 import InquiryWrite from './customerservice/InquiryWrite';
 import FAQ from './customerservice/FAQ';
 import ProductSell from './product/ProductSell';
@@ -53,6 +52,8 @@ import UserInfo from './user/UserInfo';
 import AuctionIndex from './auction/AuctionIndex';
 import AuctionRoom from './auction/AuctionRoom';
 import DailyCheck from './event/coupon/DailyCheck';
+import MyInquiryList from './user/mypage/MyInquiryList';
+import InquiryView from './customerservice/InquiryView';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -142,6 +143,8 @@ function Body() {
       
       <Route path='/userinfo' element={<UserInfo key={location.state} />}></Route>
       <Route path='/mypage/*' element={<MyIndex/>}></Route>
+      <Route path='/mypage/myinquirylist' element={<MyInquiryList/>}></Route>
+      
       <Route path='/admin/*' element={<AdminIndex/>}></Route>
       <Route path='/already' element={<Already/>}></Route>
 
@@ -149,10 +152,10 @@ function Body() {
       <Route path='/product/search' element={<ProductSearch/>}></Route>
 
       <Route path='/customerservice/*' element={<CenterHome/>}>
-      <Route path="inquirylist" element={<InquiryList/>} />
       <Route path="inquirywrite" element={<InquiryWrite/>} />
       <Route path="faq" element={<FAQ/>} /> 
       </Route>
+      <Route path='/inquiry/inquiryview/:id' element={<InquiryView/>}/>
 
       <Route path='/product/sell' element={<ProductSell/>}></Route>
       <Route path='/product/info' element={<ProductInfo/>}></Route>

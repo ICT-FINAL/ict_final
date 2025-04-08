@@ -2,6 +2,7 @@ package com.ict.serv.service;
 
 import com.ict.serv.entity.Inquiries.Inquiry;
 import com.ict.serv.entity.Inquiries.InquiryImage;
+import com.ict.serv.entity.product.ProductImage;
 import com.ict.serv.repository.inquiry.InquiryImageRepository;
 import com.ict.serv.repository.inquiry.InquiryRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,44 +27,48 @@ public class InquiryService {
     private final InquiryRepository inquiryRepository;
     private final InquiryImageRepository inquiryImageRepository;
 
-/*
-    @Value("${upload.path.inquiry}")
-    private String uploadPath;
+
+
 
     @Transactional
     public Inquiry createInquiryWithImages(Inquiry inquiry, List<MultipartFile> images) throws IOException {
-
+        List<File> savedFiles = new ArrayList<>();
         Inquiry savedInquiry = inquiryRepository.save(inquiry);
-
+        String uploadDir = System.getProperty("user.dir") + "/uploads/inquiry/" + savedInquiry.getId();
+        File dir = new File(uploadDir);
         if (images != null && !images.isEmpty()) {
-            File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdirs();
+            if (!dir.exists()) {
+                dir.mkdirs();
             }
 
             List<InquiryImage> inquiryImages = new ArrayList<>();
-            for (MultipartFile imageFile : images) {
-                if (!imageFile.isEmpty()) {
-                    String originalFileName = imageFile.getOriginalFilename();
-                    String fileExtension = "";
-                    if (originalFileName != null && originalFileName.contains(".")) {
-                        fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
-                    }
-                    String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
-                    String filePath = uploadPath + File.separator + uniqueFileName;
+            for (MultipartFile image : images) {
+                if (image.isEmpty()) continue;
+                String originalFilename = image.getOriginalFilename();
+                if (originalFilename == null) continue;
 
+                File destFile = new File(uploadDir, originalFilename);
+                int point = originalFilename.lastIndexOf(".");
+                String baseName = originalFilename.substring(0, point);
+                String extension = originalFilename.substring(point + 1);
 
-                    Path destinationPath = Paths.get(filePath);
-                    Files.copy(imageFile.getInputStream(), destinationPath);
-
-                    InquiryImage inquiryImage = new InquiryImage();
-                    inquiryImage.setFilename(uniqueFileName);
-                    inquiryImage.setSize((int) imageFile.getSize());
-                    inquiryImage.setInquiry(savedInquiry);
-
-                    inquiryImages.add(inquiryImage);
+                int count = 1;
+                while (destFile.exists()) {
+                    String newFilename = baseName + "(" + count + ")." + extension;
+                    destFile = new File(uploadDir, newFilename);
+                    count++;
                 }
+                image.transferTo(destFile);
+                savedFiles.add(destFile);
+                InquiryImage inquiryImage = new InquiryImage();
+                inquiryImage.setFilename(destFile.getName());
+                inquiryImage.setSize((int) destFile.length());
+                inquiryImage.setInquiry(savedInquiry);
+
+
+                savedInquiry.getImages().add(inquiryImage);
             }
+            inquiryRepository.save(savedInquiry);
             if (!inquiryImages.isEmpty()) {
                 inquiryImageRepository.saveAll(inquiryImages);
             }
@@ -74,5 +79,5 @@ public class InquiryService {
 
     public Inquiry InquiryInsert(Inquiry inquiry){
         return inquiryRepository.save(inquiry);
-    }*/
+    }
 }
