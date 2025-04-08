@@ -235,6 +235,7 @@
     cursor: pointer;
     transition: all 0.2s ease-in-out;
     white-space: nowrap;
+    padding:5px;
 }
 
 .option-delete-button{
@@ -247,6 +248,7 @@
     cursor: pointer;
     transition: all 0.2s ease-in-out;
     white-space: nowrap;
+    padding:5px;
 }
 
 .option-button:hover, .option-delete-button:hover {
@@ -263,6 +265,7 @@
     border: 1px solid #ccc;
     border-radius: 5px;
     margin: 5px 0 0 5px;
+    padding:5px;
 }
 
 .option-input-style:hover {
@@ -314,6 +317,48 @@
 .product-info {
     margin-top: 10px;
     font-size: 14px;
+}
+
+.product-info-main-box {
+    list-style-type: none;
+    padding:0;
+    margin:0;
+}
+
+.product-info-main-box > li {
+    padding:10px 0px 10px 20px;
+}
+
+.product-info-selectbox {
+    text-align: center;
+    min-width: 150px;
+    width:40%;
+    padding: 10px 15px;
+    font-size: 15px;
+    color: #333;
+    background-color: #FFFFFF;
+    border: 1px solid #D9D9D9;
+    border-radius: 20px;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    /* 드롭다운 화살표 */
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23666"><path d="M7 10l5 5 5-5H7z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 14px;
+}
+.product-info-selectbox:hover {
+    border-color: #BEBEBE;
+}
+.product-info-selectbox:focus {
+    outline: none;
+    border-color: #A8A8A8;
+    box-shadow: 0 0 5px rgba(168, 168, 168, 0.3);
+}
+
+.info-coupon-box> div{
+    padding:5px 0px 5px 0px;
 }
 
 @media(min-width:1380px) {
@@ -509,6 +554,23 @@
     padding-left: 5px;
 }
 
+.product-select-button{
+    width:60px;
+    font-size:15px;
+    height:40px;
+    border:none;
+    border-radius: 5px;
+    background-color: #8CC7A5;
+    transition:all 0.3s;
+    cursor: pointer;
+    margin-left:15px;
+}
+
+.product-select-button:hover{
+    background-color: #70a385;
+}
+
+
 .product-buy-button{
     width:100%;
     margin-top:20px;
@@ -591,3 +653,147 @@
     width: 20px;
     height: 20px;
 }
+
+.CKEditor-container-product {
+    width: 750px;
+    margin: 0 auto;
+}
+
+/* 상품구매 */
+.product-buy-container {
+    padding: 30px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .product-buy-header {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 30px;
+  }
+  .product-buy-info {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  .product-buy-name {
+    font-size: 24px;
+    color: #444;
+    font-weight: 500;
+  }
+  
+  .buy-price {
+    font-size: 20px;
+    color: #d9534f;
+    margin: 10px 0;
+  }
+  
+  .selected-options {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #666;
+  }
+  
+  .selected-option-item {
+    margin-bottom: 12px;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+  
+  .selected-options strong {
+    font-weight: bold;
+    color: #000000;
+}
+.payment-button {
+    background-color: #8CC7A5;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 100%;
+    max-width: 200px;
+    transition: background-color 0.3s ease;
+}
+
+.payment-button:hover {
+    background-color: #4a7b63;
+}
+
+.shipping-discount-info {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #666;
+}
+  
+.shipping-fee,
+.discount {
+    margin: 5px 0;
+    font-weight: 500;
+}
+  
+.shipping-fee {
+    color: #007bff;
+}
+  
+.discount {
+    color: #d9534f;
+}
+
+.final-price {
+    margin-top: 20px;
+    font-size: 20px;
+    color: #333;
+    font-weight: bold;
+}
+  
+.payment-method {
+    margin-top: 20px;
+    font-size: 16px;
+}
+  
+.payment-select {
+    padding: 10px;
+    margin-top: 5px;
+    font-size: 16px;
+    width: 100%;
+    max-width: 200px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+  
+.security-notice {
+    margin-top: 30px;
+    font-size: 14px;
+    color: #777;
+    text-align: center;
+}
+
+.coupon-info {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #666;
+}
+  
+.coupon-description {
+    margin: 5px 0;
+    font-weight: 500;
+}
+  
+.coupon-discount {
+    color: #d9534f;
+    font-weight: bold;
+}
+
+/* 상품구매 끝 */

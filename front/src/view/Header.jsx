@@ -176,7 +176,7 @@ function Header() {
                             <path d="M3 9V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v3a2 2 0 1 0 0 6v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a2 2 0 1 0 0-6Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             <path d="M12 6v12" stroke="white" strokeWidth="2" strokeLinecap="round"/>
                         </svg>
-                        <span>쿠폰등록</span>
+                        <span>쿠폰함</span>
                     </div>
                     <div className="menu-item" onClick={()=> movePage('/customerservice')}>
                         <svg transform="translate(0,-4)" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
