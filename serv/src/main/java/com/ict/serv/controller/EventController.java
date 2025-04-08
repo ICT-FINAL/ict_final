@@ -16,6 +16,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,6 +35,12 @@ public class EventController {
         try{
             User writer = interactService.selectUserByName(userDetails.getUsername());
             event.setUser(writer);
+            String startDate = event.getStartDate();
+            String endDate = event.getEndDate();
+
+            event.setStartDate(startDate);
+            event.setEndDate(endDate);
+
             Event savedEvent = eventService.saveEvent(event);
             String uploadDir = System.getProperty("user.dir") + "/uploads/event/" + savedEvent.getId();
             File dir = new File(uploadDir);
@@ -51,11 +61,15 @@ public class EventController {
             savedEvent.setFilename(destFile.getName());
 
             eventService.saveEvent(savedEvent);
-            return ResponseEntity.ok("상품 등록 성공");
+            return ResponseEntity.ok("이벤트 등록 성공");
         } catch (Exception e) {
             e.printStackTrace();
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("상품 등록 실패");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("이벤트 등록 실패");
         }
+    }
+    @GetMapping("/getEventList")
+    public List<Event> getEventList(){
+        return eventService.getAllEvent();
     }
 }

@@ -13,25 +13,28 @@ function AdminNav({ path }) {
                     <span style={path.l_name === "신고 목록" ? clickedStyle2 : {}}>신고 목록</span>
                 </li>
                 <li onClick={() => navigate("/admin/edit")} style={path.l_name === "개인 정보 수정" ? clickedStyle : {}}>
-                    <span style={path.l_name === "개인 정보 수정" ? clickedStyle2 : {}}>개인 정보 수정</span>
+                    <span style={path.l_name === "개인 정보 수정" ? clickedStyle2 : {}}>문의 목록</span>
+                </li>
+                <li onClick={() => navigate("/admin/edit")} style={path.l_name === "개인 정보 수정" ? clickedStyle : {}}>
+                    <span style={path.l_name === "개인 정보 수정" ? clickedStyle2 : {}}>회원 목록</span>
                 </li>
             </ul>
             <ul>
-                <li>나의 활동</li>
+                <li>매출관리</li>
                 <li onClick={() => navigate("/admin/posts")} style={path.l_name === "작성한 글" ? clickedStyle : {}}>
-                    <span style={path.l_name === "작성한 글" ? clickedStyle2 : {}}>작성한 글</span>
+                    <span style={path.l_name === "작성한 글" ? clickedStyle2 : {}}>판매 통계</span>
                 </li>
                 <li onClick={() => navigate("/admin/reviews")} style={path.l_name === "리뷰 관리" ? clickedStyle : {}}>
-                    <span style={path.l_name === "리뷰 관리" ? clickedStyle2 : {}}>리뷰 관리</span>
+                    <span style={path.l_name === "리뷰 관리" ? clickedStyle2 : {}}>수익 통계</span>
                 </li>
                 <li onClick={() => navigate("/admin/comments")} style={path.l_name === "댓글 관리" ? clickedStyle : {}}>
-                    <span style={path.l_name === "댓글 관리" ? clickedStyle2 : {}}>댓글 관리</span>
+                    <span style={path.l_name === "댓글 관리" ? clickedStyle2 : {}}>정산 처리</span>
                 </li>
                 <li onClick={() => navigate("/admin/reports")} style={path.l_name === "신고 내역" ? clickedStyle : {}}>
-                    <span style={path.l_name === "신고 내역" ? clickedStyle2 : {}}>신고 내역</span>
+                    <span style={path.l_name === "신고 내역" ? clickedStyle2 : {}}>환불 처리</span>
                 </li>
                 <li onClick={() => navigate("/admin/inquiries")} style={path.l_name === "문의 내역" ? clickedStyle : {}}>
-                    <span style={path.l_name === "문의 내역" ? clickedStyle2 : {}}>문의 내역</span>
+                    <span style={path.l_name === "문의 내역" ? clickedStyle2 : {}}>배송 처리</span>
                 </li>
             </ul>
             <ul>

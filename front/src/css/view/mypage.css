@@ -19,7 +19,7 @@
     border-bottom: 1px solid #ddd;
     line-height: 60px;
     padding-left: 40px;
-    z-index: 2;
+    z-index: 2003;
     background-color: white;
 }
 
@@ -94,7 +94,80 @@
     border-radius: 10px;
 }
 
-.report-state {
+.basket-list{
+    list-style-type: none;
+    display: flex;
+    margin:0;
+    padding:10px;
+}
+
+.basket-list > li{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.basket-list > li:nth-child(1) {
+    width:5%;
+}
+
+.basket-list > li:nth-child(2) {
+    width:15%
+}
+
+.basket-list > li:nth-child(3) {
+    width:50%;
+}
+
+.basket-list > li:nth-child(4) {
+    width:10%;
+    text-align:center;
+}
+.basket-list > li:nth-child(5) {
+    width:10%;
+    text-align:center;
+}.basket-list > li:nth-child(6) {
+    width:10%;
+    text-align:center;
+}
+
+.price-list{
+    list-style-type: none;
+    display: flex;
+    margin:0;
+    padding:10px;
+    margin-top:10px;
+    border-top: "1px solid #ddd";
+    background-color: "beige";
+    border-radius: "10px";
+}
+
+.price-list > li:nth-child(1) {
+    width:20%;
+    text-align:right;
+}
+
+.price-list > li:nth-child(2) {
+    width:20%;
+    text-align:right;
+}
+
+.price-list > li:nth-child(3) {
+    width:20%;
+    text-align:right;
+}
+
+.price-list > li:nth-child(4) {
+    width:20%;
+    text-align:right;
+}
+
+.price-list > li:nth-child(5) {
+    width:20%;
+    text-align:right;
+}
+
+-wish-state {
     display: inline-block;
     padding: 4px 10px;
     border-radius: 12px;
@@ -105,20 +178,77 @@
     letter-spacing: 0.5px;
 }
 
-.report-state.readable {
+-wish-state.readable {
     background-color: #ffebe6;
     color: #d93025;
     border: 1px solid #d93025;
 }
 
-.report-state.processing {
+-wish-state.processing {
     background-color: #fff4e5;
     color: #e67e22;
     border: 1px solid #e67e22;
 }
 
-.report-state.complete {
+-wish-state.complete {
     background-color: #e8f5e9;
     color: #2e7d32;
     border: 1px solid #2e7d32;
 }
+
+/* button {
+    background-color: #b2f1cf;
+    border: 0.5px solid #bdbdbd;
+    padding: 10px 20px;
+    border-radius: 10px;
+    width:100px;
+    transition: background-color 0.1s, transform 0.1s, box-shadow 0.1s;
+  }
+  
+button:active {
+    background-color: #cbf7de    ;
+    transform: scale(0.95);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+  } */
+/* 찜 목록 */
+
+.mypage-wish-list{
+    list-style-type: none;
+    display: flex;
+    margin:0;
+    padding:10px;
+    margin-top:10px;
+}
+
+.mypage-wish-list > li{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.mypage-wish-list > li:nth-child(1) {
+    width:35%;
+}
+
+.mypage-wish-list > li:nth-child(2) {
+    width:17%
+}
+
+.mypage-wish-list > li:nth-child(3) {
+    width:13%;
+}
+
+.mypage-wish-list > li:nth-child(4) {
+    width:20%;
+    text-align:center;
+}
+.mypage-wish-list > li:nth-child(5) {
+    width:10%;
+    text-align:center;
+}
+.mypage-wish-list > li:nth-child(6) {
+    width:5%;
+    text-align:center;
+}
+
+/* 찜 목록 끝 */

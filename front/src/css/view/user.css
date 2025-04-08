@@ -167,6 +167,15 @@
     margin: 0 auto;
     padding-top: 120px;
 }
+.terms {
+    min-width: 600px;
+    padding: 10px 0;
+}
+.terms h4 {
+    margin: 0;
+    margin-top: 30px;
+    font-size: 1.1em;
+}
 .terms-title {
     font-weight: bold;
 }
@@ -182,6 +191,18 @@
 #terms-alert {
     color: #f44;
     padding: 10px 20px;
+    font-size: 11pt;
+    display: none;
+}
+#terms-next {
+    width: 60px;
+    height: 30px;
+    margin: 30px auto;
+    background-color: #222;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
 }
 
 .sign-up-form {
@@ -245,12 +266,11 @@ input.tel {
     font-weight: 400;
 }
 #signup-btn {
-    position: relative;
-    top: 60px;
     display: block;
     width: 600px;
     height: 40px;
     margin: auto;
+    margin-top: 60px;
     color: #fff;
     background-color: #222;
     border: none;
@@ -263,7 +283,6 @@ input.tel {
     color: #222;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
     transition: all 0.2s;
-    font-size: 14pt;
 }
 
 .already-container {
@@ -306,4 +325,134 @@ input.tel {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+
+/* ========== Mypage Profile ========== */
+.profile-top, .profile-menu {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 20px auto;
+    display: flex;
+    min-width: 500px;
+}
+.profile-top{
+    max-width: 750px;
+    margin: 0 auto;
+
+}
+.profile-info {
+    width: 100%;
+    padding: 0 10px;
+}
+.profile-info div {
+    margin: 5px;
+    padding: 5px;
+}
+.profile-follow {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+    border: 1px solid #ccc;
+}
+#follow-btn {
+    display: inline;
+    float: right;
+    height: 35px;
+    padding: 0 20px;
+    background-color: #8CC7A5;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+.profile-menu {
+    justify-content:space-around;
+    margin-bottom: 0;
+}
+.profile-menu>div {
+    cursor: pointer;
+}
+.profile-bottom {
+    padding: 10px;
+    border: 1px solid #ddd;
+    min-width: 500px;
+}
+/* ========== Mypage Guestbook ========== */
+.guestbook-item {
+    max-width: 700px;
+    margin: 10px auto;
+    padding: 10px;
+}
+#writer-profile-image {
+    width: 50px;
+    height: 50px;
+    border-radius:100%;
+}
+#writer-name {
+    position: relative;
+    top: -20px;
+    left: 10px;
+    display: inline-block;
+    font-weight: bold;
+}
+#guestbook-content {
+    position: relative;
+    background-color: #d1e2d7;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    white-space: pre-line;
+}
+#guestbook-delete-btn {
+    position: absolute;
+    top: -6px;
+    right: -4px;
+    width: 20px;
+    line-height: 20px;
+    text-align: center;
+    color: #333;
+    background-color: rgb(255, 113, 113);
+    border-radius: 100%;
+    cursor: pointer;
+}
+.guestbook-write-box {
+    display: flex;
+    justify-content: center;
+    max-width: 900px;
+    margin: 0 auto;
+}
+#guestbook-write, #guestbook-write-btn {
+    width: calc(100% - 140px);
+    line-height: 20px;
+    margin: 10px auto;
+    padding: 5px 10px;
+    border: 1px solid #222;
+    border-radius: 10px;
+    resize: none;
+}
+#guestbook-write-btn {
+    width: 80px;
+    color: #fff;
+    background-color: #222;
+    border: none;
+    cursor: pointer;
+}
+#guestbook-reply-btn {
+    display: block;
+    margin: 10px;
+}
+
+/* ========== Mypage Product ========== */
+.product-item {
+    padding: 10px;
+    background-color: #eee;
+    border-radius: 10px;
+}
+#product-img {
+    width: 120px;
+    height: 120px;
+}
+#discount-sticker {
+    top: 200px;
+    left: 50px;
 }

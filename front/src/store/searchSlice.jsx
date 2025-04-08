@@ -1,7 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  searchWord:''
+  searchWord:'',
+  eventCategory:'',
+  targetCategory:'',
+  productCategory:''
 };
 
 const searchSlice = createSlice({
@@ -10,6 +13,9 @@ const searchSlice = createSlice({
   reducers: {
     setSearch: (state, action) => {
       state.searchWord = action.payload.searchWord;
+      state.eventCategory = action.payload.eventCategory;
+      state.targetCategory = action.payload.targetCategory;
+      state.productCategory = action.payload.productCategory;
     },
   },
 });

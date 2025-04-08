@@ -1,7 +1,6 @@
 package com.ict.serv.controller.product;
 
-import com.ict.serv.entity.product.Product;
-import com.ict.serv.entity.product.ProductImage;
+import com.ict.serv.entity.product.*;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.InteractService;
 import com.ict.serv.service.ProductService;
@@ -17,10 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,14 +28,48 @@ public class ProductController {
 
     @PostMapping("/write")
     @Transactional(rollbackFor = {RuntimeException.class, SQLException.class})
-    public ResponseEntity<String> write(Product product, @RequestParam("files") MultipartFile[] files,
+    public ResponseEntity<String> write(@RequestPart("product") ProductWriteRequest productRequest, @RequestParam("files") MultipartFile[] files,
                                         @AuthenticationPrincipal UserDetails userDetails) {
         List<File> savedFiles = new ArrayList<>();
+
         try {
             User seller = interactService.selectUserByName(userDetails.getUsername());
-            product.setSellerNo(seller);
 
+            Product product = new Product();
+            product.setSellerNo(seller);
+            product.setProductName(productRequest.getProductName());
+            product.setEventCategory(productRequest.getEventCategory());
+            product.setTargetCategory(productRequest.getTargetCategory());
+            product.setProductCategory(productRequest.getProductCategory());
+            product.setDetail(productRequest.getDetail());
+            product.setPrice(productRequest.getPrice());
+            product.setQuantity(productRequest.getQuantity());
+            product.setDiscountRate(productRequest.getDiscountRate());
             product.setImages(new ArrayList<>());
+
+            if (productRequest.getOptions() != null && !productRequest.getOptions().isEmpty()) {
+                for (OptionDTO optionDTO : productRequest.getOptions()) {
+                    Option mainOption = new Option();
+                    mainOption.setProduct(product);
+                    mainOption.setOptionName(optionDTO.getMainOptionName());
+                    mainOption.setSubOptionCategories(new ArrayList<>());
+
+                    Option savedOption = service.saveOption(mainOption);
+
+                    if (optionDTO.getSubOptions() != null && !optionDTO.getSubOptions().isEmpty()) {
+                        for (SubOptionDTO subOptionDTO : optionDTO.getSubOptions()) {
+                            OptionCategory optionCategory = new OptionCategory();
+                            optionCategory.setCategoryName(subOptionDTO.getSubOptionName());
+                            optionCategory.setQuantity(subOptionDTO.getQuantity());
+                            optionCategory.setAdditionalPrice(subOptionDTO.getAdditionalPrice());
+                            optionCategory.setOption(savedOption);
+                            service.saveOptionCategory(optionCategory);
+                            savedOption.getSubOptionCategories().add(optionCategory);
+                        }
+                    }
+                    service.saveOption(savedOption);
+                }
+            }
 
             Product savedProduct = service.saveProduct(product);
 
@@ -90,12 +120,18 @@ public class ProductController {
     @GetMapping("/search")
     public Map<String, Object> searchProducts(ProductPagingVO pvo) {
         pvo.setOnePageRecord(10);
-        pvo.setTotalRecord(service.totalRecord(pvo));
-        List<Product> productList = service.getProductList(pvo);
+        String[] cats = pvo.getProductCategory().split(",");
+        List<String> categories = new ArrayList<>(Arrays.asList(cats));
+        pvo.setTotalRecord(service.searchCountAll(pvo,categories));
+        List<Product> productList = service.searchAll(pvo,categories);
 
         Map<String, Object> result = new HashMap<>();
         result.put("productList",productList);
         result.put("pvo",pvo);
         return result;
+    }
+    @GetMapping("/getOption")
+    public List<Option> getOption(Long id) {
+        return service.selectOptions(service.selectProduct(id).get());
     }
 }

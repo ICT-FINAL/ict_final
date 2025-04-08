@@ -26,7 +26,7 @@ public class InquiryService {
     private final InquiryRepository inquiryRepository;
     private final InquiryImageRepository inquiryImageRepository;
 
-
+/*
     @Value("${upload.path.inquiry}")
     private String uploadPath;
 
@@ -74,5 +74,5 @@ public class InquiryService {
 
     public Inquiry InquiryInsert(Inquiry inquiry){
         return inquiryRepository.save(inquiry);
-    }
+    }*/
 }

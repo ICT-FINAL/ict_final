@@ -48,6 +48,9 @@ public class User {
     @Column(nullable = false)
     private String zipcode;
 
+    @Column(name="info_text")
+    private String infoText;
+
     @Column
     @Enumerated(EnumType.STRING)
     private Authority authority;
@@ -64,6 +67,12 @@ public class User {
 
     @LastModifiedDate
     private LocalDateTime modifiedDate;
+
+    @Column(columnDefinition = "int default 0")
+    private int grade;
+
+    @Column(name="grade_point", columnDefinition = "int default 0")
+    private int gradePoint;
 
     public String getProfileImageUrl() {
         return (uploadedProfileUrl != null && !uploadedProfileUrl.trim().isEmpty())

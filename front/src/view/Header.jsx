@@ -30,6 +30,9 @@ function Header() {
     let serverIP = useSelector((state) => state.serverIP);
     const [messageCount, setMessageCount] = useState(0);
     const [messageList, setMessageList] = useState([]);
+
+    const [grade, setGrade] = useState(['✊','☝️','✌️','🖐️']);
+
     function handleLogout() {
         localStorage.removeItem("token");
         dispatch(clearUser());
@@ -102,11 +105,13 @@ function Header() {
                         <li style={{cursor:'pointer'}}onClick={()=>movePage('/product')}>상품 검색</li>
                         <Link to='/recommend'><li>상품 추천</li></Link>
                         <Link to='/event'><li>이벤트</li></Link>
+                        <Link to='/auction'><li>실시간 경매</li></Link>
                         <Link to='/community'><li>커뮤니티</li></Link>
                     </ul>
                 </li> : <li className='header-center'>
                     <ul>
                         <Link to='/admin/reportlist'><li>관리자 페이지</li></Link>
+                        <Link to='/event'><li>이벤트 관리</li></Link>
                     </ul>
                 </li>
                 }
@@ -115,7 +120,7 @@ function Header() {
                         <>
                             <div ref={menuButtonRef} className="menu-icon" onClick={() => dispatch(setMenuModal(!menuModal))}>
                                 <img src = {user.user.imgUrl.indexOf('http') !==-1 ? `${user.user.imgUrl}`:`${serverIP.ip}${user.user.imgUrl}`} alt='' width={40} height={40} style={{borderRadius:'100%', backgroundColor:'white'}}/>
-                                <div style={{color:'white', paddingLeft:'10px', textAlign:'center', width:'120px', fontSize:'14px',textOverflow:'ellipsis',overflow:'hidden',whiteSpace:'nowrap'}}>{user.user.username}<br/><div style={{paddingTop:'5px'}}>P:1000p / G:👑</div></div>
+                                <div style={{color:'white', paddingLeft:'10px', textAlign:'center', width:'120px', fontSize:'14px',textOverflow:'ellipsis',overflow:'hidden',whiteSpace:'nowrap'}}>{user.user.username}<br/><div style={{paddingTop:'5px'}}>등급: {grade[user.user.grade]}</div></div>
                             </div>
                         </>
                     ) : (
