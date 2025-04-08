@@ -47,14 +47,16 @@ function ProductInfo() {
     }, [selectedItems, selectedCoupon, loc.state.product.price, loc.state.product.discountRate]);
 
     const moveBuy = () => {
-        navigate('/product/buying', {
-            state: {
-                productId: loc.state.product.id,
-                totalPrice: totalPrice,
-                productName: loc.state.product.productName,
-                selectedOptions: selectedItems
-            }
-        });
+        if(totalPrice === 0) alert('구매하실 상품을 선택해주세요');
+        else
+            navigate('/product/buying', {
+                state: {
+                    productId: loc.state.product.id,
+                    totalPrice: totalPrice,
+                    productName: loc.state.product.productName,
+                    selectedOptions: selectedItems
+                }
+            });
     };
 
     const getWish = () => {

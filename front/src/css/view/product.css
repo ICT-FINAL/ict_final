@@ -235,6 +235,7 @@
     cursor: pointer;
     transition: all 0.2s ease-in-out;
     white-space: nowrap;
+    padding:5px;
 }
 
 .option-delete-button{
@@ -247,6 +248,7 @@
     cursor: pointer;
     transition: all 0.2s ease-in-out;
     white-space: nowrap;
+    padding:5px;
 }
 
 .option-button:hover, .option-delete-button:hover {
@@ -263,6 +265,7 @@
     border: 1px solid #ccc;
     border-radius: 5px;
     margin: 5px 0 0 5px;
+    padding:5px;
 }
 
 .option-input-style:hover {
@@ -649,4 +652,9 @@
     transform: translateY(-50%);
     width: 20px;
     height: 20px;
+}
+
+.CKEditor-container-product {
+    width: 750px;
+    margin: 0 auto;
 }
