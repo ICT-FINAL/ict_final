@@ -255,7 +255,7 @@ function SignupForm() {
         height: '100%',
         backgroundColor: 'rgba(0,0,0,0.5)',
         backdropFilter: 'blur(5px)',
-        zIndex: 3000,
+        zIndex: 10000,
         display: modal.isOpen ? 'block' : 'none',
         transition: 'opacity 0.3s ease'
     }

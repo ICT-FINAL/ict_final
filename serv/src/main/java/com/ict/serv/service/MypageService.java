@@ -3,8 +3,10 @@ package com.ict.serv.service;
 import com.ict.serv.controller.admin.PagingVO;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.report.Report;
+import com.ict.serv.entity.user.Address;
 import com.ict.serv.entity.user.Guestbook;
 import com.ict.serv.entity.user.User;
+import com.ict.serv.repository.AddressRepository;
 import com.ict.serv.repository.GuestbookRepository;
 import com.ict.serv.repository.ReportRepository;
 import com.ict.serv.repository.WishRepository;
@@ -23,6 +25,7 @@ public class MypageService {
     private final GuestbookRepository guestbook_repo;
     private final ProductRepository product_repo;
     private final WishRepository wish_repo;
+    private final AddressRepository address_repo;
 
     public List<Report> getReportByUserFrom(User user, PagingVO pvo) {
         return report_repo.findAllByUserFromOrderByCreateDateDesc(user, PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
@@ -58,4 +61,8 @@ public class MypageService {
     public int getWishCount(Long sellerId) {
         return wish_repo.countWishBySeller(sellerId);
     }
+
+    public List<Address> getAddrList(User user) { return address_repo.findAllByUser(user);}
+
+    public Address insertAddress(Address address) { return address_repo.save(address);}
 }

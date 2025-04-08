@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, BrowserRouter } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, BrowserRouter, useLocation } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
 import axios from 'axios';
 
@@ -63,6 +63,7 @@ function Body() {
   const interact = useSelector((state) => state.interact);
 
   const dispatch = useDispatch();
+  const location = useLocation();
 
   const serverIP = useSelector((state) => state.serverIP);
   const user = useSelector((state) => state.auth.user);
@@ -140,7 +141,7 @@ function Body() {
       <Route exact path="/login/oauth2/code/kakao" element={<SignupHandler/>}/>
       <Route exact path="/login/oauth2/code/google" element={<GoogleSignupHandler/>}/>
       
-      <Route path='/userinfo' element={<UserInfo/>}></Route>
+      <Route path='/userinfo' element={<UserInfo key={location.state} />}></Route>
       <Route path='/mypage/*' element={<MyIndex/>}></Route>
       <Route path='/mypage/myinquirylist' element={<MyInquiryList/>}></Route>
       
