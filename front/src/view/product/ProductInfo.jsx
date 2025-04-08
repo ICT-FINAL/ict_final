@@ -56,7 +56,8 @@ function ProductInfo() {
                     totalPrice: totalPrice,
                     productName: loc.state.product.productName,
                     selectedOptions: selectedItems,
-                    shippingFee:loc.state.product.shippingFee
+                    shippingFee:loc.state.product.shippingFee || 0,
+                    selectedCoupon:selectedCoupon || 0
                 }
             });
     };

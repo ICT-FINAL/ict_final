@@ -1,11 +1,15 @@
 import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 function ProductBuy() {
   const location = useLocation();
-  const { productId, totalPrice, productName, selectedOptions,shippingFee } = location.state || {};
+  const { productId, totalPrice, productName, selectedOptions,shippingFee,selectedCoupon } = location.state || {};
+
+  useEffect(()=> {
+    console.log(selectedOptions);
+  },[]);
 
   const finalPrice = totalPrice;
-
   const handlePayment = () => {
     if (!window.TossPayments) {
       alert("TossPayments SDK가 로드되지 않았습니다.");
@@ -27,6 +31,10 @@ function ProductBuy() {
         console.error("❌ 결제창 오류:", error);
       });
   };
+  
+  function formatNumberWithCommas(num) {
+    return num.toLocaleString();
+  }
 
   return (
     <div style={{ paddingTop: '150px' }}>
@@ -34,8 +42,7 @@ function ProductBuy() {
         <h2 className="product-buy-header">상품 결제</h2>
         <div className="product-buy-info">
           <h3 className="product-buy-name">{productName}</h3>
-          <p className="buy-price">가격: {totalPrice-shippingFee}원</p>
-
+          <p className="buy-price">가격: {formatNumberWithCommas(totalPrice-shippingFee + selectedCoupon)}원</p>
           {selectedOptions && selectedOptions.length > 0 && (
             <div className="selected-options">
               <strong>선택된 옵션:</strong>
@@ -44,7 +51,7 @@ function ProductBuy() {
                   <li key={index} className="selected-option-item">
                     {item.option.optionName}
                     {item.subOption && ` - ${item.subOption.categoryName} (+${item.subOption.additionalPrice}원)`}
-                    x {item.quantity}
+                    &nbsp;x {item.quantity} = {formatNumberWithCommas(item.option.product.price*(100-item.option.product.discountRate)/100*item.quantity)}원
                   </li>
                 ))}
               </ul>
@@ -52,12 +59,13 @@ function ProductBuy() {
           )}
 
           <div className="shipping-discount-info">
-            <p className="shipping-fee">배송비: {shippingFee}원</p>
+            {shippingFee!== 0 &&<p className="shipping-fee">배송비: +{shippingFee}원</p>}
+            {selectedCoupon!==0 && <p className="shipping-fee" style={{color:'#d9534f'}}>쿠폰: -{selectedCoupon}원</p>}
           </div>
 
           {/* 결제 금액 최종 안내 */}
           <div className="final-price">
-            <strong>최종 결제 금액: {finalPrice}원</strong>
+            <strong>최종 결제 금액: {formatNumberWithCommas(finalPrice)}원</strong>
           </div>
 
           <div className="payment-method">
