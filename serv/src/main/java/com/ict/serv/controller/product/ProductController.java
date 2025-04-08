@@ -45,6 +45,7 @@ public class ProductController {
             product.setPrice(productRequest.getPrice());
             product.setQuantity(productRequest.getQuantity());
             product.setDiscountRate(productRequest.getDiscountRate());
+            product.setShippingFee(productRequest.getShippingFee());
             product.setImages(new ArrayList<>());
 
             if (productRequest.getOptions() != null && !productRequest.getOptions().isEmpty()) {

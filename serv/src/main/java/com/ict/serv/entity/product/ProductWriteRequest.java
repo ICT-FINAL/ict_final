@@ -16,4 +16,5 @@ public class ProductWriteRequest {
     private int quantity;
     private float discountRate;
     private List<OptionDTO> options;
+    private int shippingFee;
 }
