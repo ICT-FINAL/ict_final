@@ -316,6 +316,16 @@
     font-size: 14px;
 }
 
+.product-info-main-box {
+    list-style-type: none;
+    padding:0;
+    margin:0;
+}
+
+.product-info-main-box > li {
+    padding:10px 0px 10px 20px;
+}
+
 @media(min-width:1380px) {
     .product-grid{
 		width:1120px;

@@ -104,14 +104,18 @@ function ProductSell() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-
-        // 가격(price) 필드일 경우 숫자만 허용
-        if (name === "price" && !/^\d*$/.test(value)) {
-            alert("가격은 숫자만 입력할 수 있습니다.");
-            return;
-        }
-
-        setFormData({ ...formData, [name]: value });
+        if (name === "discountRate") {
+            const numericValue = Math.min(40, Math.max(0, parseFloat(value)));
+            setFormData({
+              ...formData,
+              [name]: numericValue,
+            });
+          } else {
+            setFormData({
+              ...formData,
+              [name]: value,
+            });
+          }
     };
 
     const handleCategoryChange = (e) => {
@@ -126,8 +130,8 @@ function ProductSell() {
     const handleSubCategoryChange = (sub) => {
         setFormData((prev) => ({
             ...prev,
-            subCategories: prev.subCategories === sub ? "" : sub, // 체크 해제 가능
-            options: [] // 세부 카테고리를 다른걸 체크했을때 아래의 옵션 모두 초기화
+            subCategories: prev.subCategories === sub ? "" : sub,
+            options: []
         }));
     };
 
@@ -332,7 +336,20 @@ function ProductSell() {
                         <option key={category} value={category}>{category}</option>
                     ))}
                 </select>
+                <label className="product-label">가격</label>
+                <input type="text" id="price" name="price" className="product-input" value={formData.price} onChange={handleChange} />
 
+                <label className="product-label">수량</label>
+                <input
+                        type="number"
+                        id="quantity"
+                        name="quantity"
+                        className="product-input"
+                        placeholder="수량은 옵션 선택시 자동 산정됩니다."
+                        value={formData.options.length > 0 ? calculateTotalQuantity() : formData.quantity}
+                        readOnly={formData.options.length > 0}
+                        onChange={handleChange}
+                    />
                 {formData.productCategory && productOptions[formData.productCategory] && (
                     <div className="product-checkbox-group">
                         <div className="product-checkbox-title">세부 카테고리 선택</div>
@@ -364,7 +381,7 @@ function ProductSell() {
                                             id={`mainOption-${mainIndex}`} // 각 대분류 옵션에 고유 id 추가
                                             value={option.optionName}
                                             onChange={(e) => handleMainOptionChange(mainIndex, e.target.value)}
-                                            placeholder="대분류 옵션 이름 입력"
+                                            placeholder="EX) 빨강"
                                             className="option-input-style"
                                         />
 
@@ -377,7 +394,7 @@ function ProductSell() {
                                                         type="text"
                                                         value={subOption.subOptionName}
                                                         onChange={(e) => handleSubOptionChange(mainIndex, subIndex, e.target.value)}
-                                                        placeholder="소분류 옵션 이름"
+                                                        placeholder="EX) XL"
                                                         className="option-input-style"
                                                     />
                                                     <input
@@ -393,7 +410,7 @@ function ProductSell() {
                                                         id={`additionalPrice-${mainIndex}-${subIndex}`} // 고유한 ID 값 설정
                                                         value={subOption.additionalPrice}
                                                         onChange={(e) => handleSubOptionAdditionalPriceChange(mainIndex, subIndex, e.target.value)}
-                                                        placeholder="금액"
+                                                        placeholder="추가 금액"
                                                         min="1"
                                                         className="option-input-style"
                                                     />
@@ -412,23 +429,18 @@ function ProductSell() {
                 <legend className="product-legend">상세 정보</legend>
                 <label className="product-label">상세 설명</label>
                 <textarea id="detail" name="detail" className="product-textarea" value={formData.detail} onChange={handleChange} rows="4"></textarea>
-
-                <label className="product-label">가격</label>
-                <input type="text" id="price" name="price" className="product-input" value={formData.price} onChange={handleChange} />
-
-                <label className="product-label">수량</label>
-                <input
-                        type="number"
-                        id="quantity"
-                        name="quantity"
-                        className="product-input"
-                        value={formData.options.length > 0 ? calculateTotalQuantity() : formData.quantity}
-                        readOnly={formData.options.length > 0}
-                        onChange={handleChange}
-                    />
                 <label className="product-label">할인율</label>
-                <input type="text" id="discountRate" name="discountRate" className="product-input" value={formData.discountRate} onChange={handleChange} />
-            </fieldset>
+                <input 
+                    type="number" 
+                    id="discountRate" 
+                    name="discountRate" 
+                    className="product-input" 
+                    value={formData.discountRate} 
+                    onChange={handleChange} 
+                    max="40"
+                    min="0"
+                    step="1"
+                    /> </fieldset>
 
             <div 
                 onDragOver={(e) => e.preventDefault()} 
