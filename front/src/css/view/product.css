@@ -326,6 +326,38 @@
     padding:10px 0px 10px 20px;
 }
 
+.product-info-selectbox {
+    text-align: center;
+    min-width: 150px;
+    width:40%;
+    padding: 10px 15px;
+    font-size: 15px;
+    color: #333;
+    background-color: #FFFFFF;
+    border: 1px solid #D9D9D9;
+    border-radius: 20px;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    /* 드롭다운 화살표 */
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23666"><path d="M7 10l5 5 5-5H7z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 14px;
+}
+.product-info-selectbox:hover {
+    border-color: #BEBEBE;
+}
+.product-info-selectbox:focus {
+    outline: none;
+    border-color: #A8A8A8;
+    box-shadow: 0 0 5px rgba(168, 168, 168, 0.3);
+}
+
+.info-coupon-box> div{
+    padding:5px 0px 5px 0px;
+}
+
 @media(min-width:1380px) {
     .product-grid{
 		width:1120px;
@@ -518,6 +550,23 @@
 .cart-icon span{
     padding-left: 5px;
 }
+
+.product-select-button{
+    width:60px;
+    font-size:15px;
+    height:40px;
+    border:none;
+    border-radius: 5px;
+    background-color: #8CC7A5;
+    transition:all 0.3s;
+    cursor: pointer;
+    margin-left:15px;
+}
+
+.product-select-button:hover{
+    background-color: #70a385;
+}
+
 
 .product-buy-button{
     width:100%;
