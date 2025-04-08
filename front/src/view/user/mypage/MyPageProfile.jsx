@@ -10,11 +10,12 @@ function MyPageProfile(){
     const [guestbookList, setGuestbookList] = useState([]);
     const [productList, setProductList] = useState([]);
     const [replyList, setReplyList] = useState({});
-    const [originalId, setOriginalId] = useState(0);
+    const [wishCount, setWishCount] = useState(0);
 
     useEffect(()=>{
         getGuestbookList();
         getProductList();
+        getInfo();
     },[]);
 
     useEffect(() => {
@@ -24,6 +25,19 @@ function MyPageProfile(){
             }
         });
     }, [guestbookList]);
+
+    const getInfo = ()=>{
+        axios.get(`${serverIP.ip}/mypage/myInfo?id=${user.user.id}`, {
+            headers: {
+              Authorization: `Bearer ${user.token}`
+            }
+        })
+        .then(res=>{
+            console.log(res.data);
+            setWishCount(res.data);
+        })
+        .catch(err=>console.log(err));
+    }
 
     const getGuestbookList = ()=>{
         axios.get(`${serverIP.ip}/mypage/guestbookList?id=${user.user.id}`, {
@@ -57,7 +71,8 @@ function MyPageProfile(){
             })
             .then(res=>{
                 console.log(res.data);
-                getGuestbookList();
+                replyToggle(id);
+                getReplyList(id);
             })
             .catch(err=>console.log(err));
         }
@@ -77,7 +92,6 @@ function MyPageProfile(){
             })
             .catch(err=>console.log(err));
         }
-        
     }
 
     const getProductList = ()=>{
@@ -109,7 +123,7 @@ function MyPageProfile(){
         .catch(err=>console.log(err));
     }
 
-    const writeReply = (id) => {
+    const replyToggle = (id) => {
         let guestbookState = document.getElementById(`guestbook-${id}`);
         guestbookState.style.display === "flex" ? 
         guestbookState.style.display = "none" : 
@@ -129,7 +143,7 @@ function MyPageProfile(){
                     <div className="profile-follow">
                         <div>팔로워<br/><span>100</span></div>
                         <div>팔로잉<br/><span>300</span></div>
-                        <div>작품찜<br/><span>50</span></div>
+                        <div>작품찜<br/><span>{wishCount}</span></div>
                     </div>
                 </div>
             </div>
@@ -158,18 +172,20 @@ function MyPageProfile(){
                                             user.user.id === item.writer.id &&
                                             <div id="guestbook-delete-btn" onClick={()=>guestbookDelete(item.id)}>×</div>
                                         }
-                                        <button id="guestbook-reply-btn" onClick={()=>writeReply(item.id)}>답글</button>
+                                        <button id="guestbook-reply-btn" onClick={()=>replyToggle(item.id)}>답글</button>
                                         <div className="guestbook-write-box" id={`guestbook-${item.id}`} style={{display: 'none'}}>
                                             <span>┗</span>
                                             <textarea id={`guestbook-write-${item.id}`} placeholder="답글을 입력해 주세요."/>
                                             <input type="button" id="guestbook-write-btn" onClick={()=>guestbookWrite(item.id)} value="등록"/>
                                         </div>
-                                        {replyList[item.id]?.map(reply => (
-                                            <div key={reply.id} className="guestbook-reply">
-                                                <span>┗</span>
-                                                <span>{reply.writer.username}</span>: {reply.content}
-                                            </div>
-                                        ))}
+                                        {
+                                            replyList[item.id]?.map(reply => (
+                                                <div key={reply.id} className="guestbook-reply">
+                                                    <span>┗</span>
+                                                    <span>{reply.writer.username}</span>: {reply.content}
+                                                </div>
+                                            ))
+                                        }
                                     </div>
                                 </div>
                             )
