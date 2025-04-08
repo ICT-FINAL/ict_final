@@ -9,6 +9,7 @@ import MyPageProfile from "./MyPageProfile";
 
 import '../../../css/view/mypage.css';
 import MyWish from "./MyWish";
+import MyInquiryList from "./MyInquiryList";
 
 function MyIndex(){
     const location = useLocation();
@@ -59,6 +60,7 @@ function MyIndex(){
             { path.l_name == '프로필' && <MyPageProfile/> }
                   {path.l_name == '장바구니' && <MyBasket/>}
                   { path.l_name == '신고 내역' && <MyReport/> }
+                  { path.l_name == '문의 내역' && <MyInquiryList/> }
                   { path.l_name == '찜 목록' && <MyWish/> }
             </div>
         </div>
