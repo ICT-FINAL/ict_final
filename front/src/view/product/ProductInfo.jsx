@@ -8,60 +8,111 @@ function ProductInfo() {
     const serverIP = useSelector((state) => state.serverIP);
     const loc = useLocation();
     const [imageIndex, setImageIndex] = useState(0);
-    const user = useSelector((state)=> state.auth.user);
+    const user = useSelector((state) => state.auth.user);
     const navigate = useNavigate();
     const [isWish, setIsWish] = useState(false);
+    const [options, setOptions] = useState([]);
+    const [selectedOption, setSelectedOption] = useState(null);
+    const [subOptions, setSubOptions] = useState([]);
+    const [selectedSubOption, setSelectedSubOption] = useState(null);
+    const [quantity, setQuantity] = useState(1);
+    const [totalPrice, setTotalPrice] = useState(0);
+    const [selectedCoupon, setSelectedCoupon] = useState(0);
 
     useEffect(() => {
         axios.get(`${serverIP.ip}/product/getOption?id=${loc.state.product.id}`,{
             headers: { Authorization: `Bearer ${user.token}` } 
         })
-        .then(res=>console.log(res.data))
+        .then(res => {
+            setOptions(res.data);
+        })
         .catch(err => console.log(err));
         getWish();
-    },[])
+    },[]);
+
+    useEffect(() => {
+        if (selectedSubOption) {
+            const discountPrice = loc.state.product.discountRate === 0
+                ? loc.state.product.price
+                : loc.state.product.price * (100 - loc.state.product.discountRate) / 100;
+            const subOptionPrice = selectedSubOption ? selectedSubOption.additionalPrice : 0;
+            let newTotalPrice = (discountPrice + subOptionPrice) * quantity;
+            
+            newTotalPrice -= selectedCoupon;
+
+            newTotalPrice = newTotalPrice < 0 ? 0 : newTotalPrice;
+
+            setTotalPrice(newTotalPrice);
+        }
+    }, [quantity, selectedSubOption, selectedCoupon]);
 
     const moveBuy = () => {
-        navigate('/product/buying',{ // 필요한 정보 state담아서 후에 처리
+        navigate('/product/buying', {
             state: {
                 productId: loc.state.product.id,
-                price: loc.state.product.price,
+                price: totalPrice,
                 productName: loc.state.product.productName
             }
         });
-    }
+    };
 
     const getWish = () => {
         axios.get(`${serverIP.ip}/interact/getWish?userId=${user.user.id}&productId=${loc.state.product.id}`,{
             headers: { Authorization: `Bearer ${user.token}` } 
         })
-        .then(res=>{
-            if(res.data===undefined || res.data==='') {
+        .then(res => {
+            if(res.data === undefined || res.data === '') {
                 setIsWish(false);
-            }
-            else {
+            } else {
                 setIsWish(true);
             }
         })
         .catch(err => console.log(err));
-    }
+    };
 
     const addWish = () => {
         axios.get(`${serverIP.ip}/interact/addWish?userId=${user.user.id}&productId=${loc.state.product.id}`,{
             headers: { Authorization: `Bearer ${user.token}` } 
         })
-        .then(res=>{
-            setIsWish(true);
-        })
+        .then(res => setIsWish(true))
         .catch(err => console.log(err));
-    }
+    };
+
     const delWish = () => {
         axios.get(`${serverIP.ip}/interact/delWish?userId=${user.user.id}&productId=${loc.state.product.id}`,{
             headers: { Authorization: `Bearer ${user.token}` } 
         })
-        .then(res=>setIsWish(false))
+        .then(res => setIsWish(false))
         .catch(err => console.log(err));
+    };
+
+    function formatNumberWithCommas(num) {
+        return num.toLocaleString();
     }
+
+    const handleOptionChange = (e) => {
+        const selected = e.target.value;
+        const option = options.find(option => option.id == selected);
+        setSelectedOption(option);
+        setSubOptions(option ? option.subOptionCategories : []);
+        setSelectedSubOption(null);
+        setQuantity(1);
+    };
+
+    const handleSubOptionChange = (e) => {
+        const selectedSub = e.target.value;
+        const subOption = subOptions.find(option => option.id == selectedSub);
+        setSelectedSubOption(subOption);
+        setQuantity(1);
+    };
+
+    const handleQuantityChange = (e) => {
+        setQuantity(e.target.value);
+    };
+
+    const handleCouponChange = (e) => {
+        setSelectedCoupon(Number(e.target.value));
+    };
 
     return (
         <div style={{ paddingTop: "140px" }}>
@@ -100,16 +151,17 @@ function ProductInfo() {
                                 {loc.state.product.productName}
                             </div>
                             <div className='product-wish'>
-                                {!isWish ?
-                                <div className="wishlist-icon" onClick={()=>{addWish()}}>
-                                    <FaHeart />
-                                    <span>좋아요</span>
-                                </div>:
-                                <div className="wishlist-icon" onClick={()=>{delWish()}} style={{color:'rgb(255, 70, 70)'}}>
-                                    <FaHeart />
-                                    <span>좋아요</span>
-                                </div>
-                                }
+                                {!isWish ? (
+                                    <div className="wishlist-icon" onClick={() => { addWish() }}>
+                                        <FaHeart />
+                                        <span>좋아요</span>
+                                    </div>
+                                ) : (
+                                    <div className="wishlist-icon" onClick={() => { delWish() }} style={{ color: 'rgb(255, 70, 70)' }}>
+                                        <FaHeart />
+                                        <span>좋아요</span>
+                                    </div>
+                                )}
                                 <div className="cart-icon">
                                     <FaShoppingCart />
                                     <span>장바구니</span>
@@ -117,7 +169,59 @@ function ProductInfo() {
                             </div>
                         </li>
                         <li style={{ height: '350px', border: '1px solid gray', marginTop: '10px' }}>
-                            대충 내용들 가격 등등..
+                            <ul className='product-info-main-box'>
+                                {loc.state.product.discountRate !== 0 && (
+                                    <li>
+                                        <span style={{fontSize:'20px', fontWeight:'bold'}}>{loc.state.product.discountRate}%</span> 
+                                        <span style={{ textDecoration: 'line-through', marginLeft:'15px', color:'gray' }}>
+                                        &nbsp;{formatNumberWithCommas(loc.state.product.price)}&nbsp;
+                                        </span>
+                                    </li>
+                                )}
+                                <li>{loc.state.product.discountRate === 0 ? loc.state.product.price : formatNumberWithCommas(loc.state.product.price * (100 - loc.state.product.discountRate) / 100)}</li>
+                                <li>
+                                    <select onChange={handleCouponChange} value={selectedCoupon}>
+                                        <option value="0" disabled>쿠폰을 선택해주세요</option>
+                                        <option value="1000">1000원 쿠폰</option>
+                                        <option value="3000">3000원 쿠폰</option>
+                                    </select>
+                                </li>
+                                <li>쿠폰 적용박스</li>
+                                <li>
+                                    <select onChange={handleOptionChange}>
+                                        <option value="" disabled selected>대분류를 선택해주세요</option>
+                                        {options.map((option) => (
+                                            <option key={option.id} value={option.id}>{option.optionName}</option>
+                                        ))}
+                                    </select>
+                                </li>
+                                {subOptions.length > 0 && (
+                                    <li>
+                                        <select onChange={handleSubOptionChange}>
+                                            <option value="" disabled selected>소분류를 선택해주세요</option>
+                                            {subOptions.map((subOption) => (
+                                                <option key={subOption.id} value={subOption.id}>
+                                                    {subOption.categoryName} (+{subOption.additionalPrice}원)
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </li>
+                                )}
+                                {selectedSubOption && (
+                                    <li>
+                                        <select onChange={handleQuantityChange}>
+                                            {[...Array(selectedSubOption.quantity).keys()].map((num) => (
+                                                <option key={num} value={num + 1}>{num + 1}</option>
+                                            ))}
+                                        </select>
+                                    </li>
+                                )}
+                            </ul>
+                        </li>
+                        <li>
+                            <div className='total-price'>
+                                <strong>총 금액:</strong> {formatNumberWithCommas(totalPrice)}원
+                            </div>
                         </li>
                         <li>
                             <button className='product-buy-button' onClick={() => moveBuy()}>
