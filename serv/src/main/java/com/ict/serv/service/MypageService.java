@@ -7,6 +7,7 @@ import com.ict.serv.entity.user.Guestbook;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.GuestbookRepository;
 import com.ict.serv.repository.ReportRepository;
+import com.ict.serv.repository.WishRepository;
 import com.ict.serv.repository.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +22,7 @@ public class MypageService {
     private final ReportRepository report_repo;
     private final GuestbookRepository guestbook_repo;
     private final ProductRepository product_repo;
+    private final WishRepository wish_repo;
 
     public List<Report> getReportByUserFrom(User user, PagingVO pvo) {
         return report_repo.findAllByUserFromOrderByCreateDateDesc(user, PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
@@ -34,7 +36,7 @@ public class MypageService {
     }
 
     public List<Guestbook> selectGuestbookAll(User user) {
-        return guestbook_repo.findAllByReceiver(user);
+        return guestbook_repo.findAllByReceiverAndOriginalId(user, 0);
     }
 
     public Optional<Guestbook> selectGuestbookById(int id) {
@@ -51,5 +53,9 @@ public class MypageService {
 
     public List<Guestbook> selectReplyAll(int id) {
         return guestbook_repo.findAllByOriginalId(id);
+    }
+
+    public int getWishCount(Long sellerId) {
+        return wish_repo.countWishBySeller(sellerId);
     }
 }
