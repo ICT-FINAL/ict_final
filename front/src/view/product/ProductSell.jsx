@@ -17,7 +17,8 @@ function ProductSell() {
         price: "",
         quantity: "",
         discountRate: "",
-        options: []
+        options: [],
+        shippingFee:""
     });
     
     const addMainOption = () => {
@@ -258,6 +259,12 @@ function ProductSell() {
             return;
         }
 
+        if (!formData.shippingFee) {
+            alert("배송비를 입력해주세요.");
+            setTimeout(() => document.getElementById("shippingFee").focus(), 0);
+            return;
+        }
+
         // 이미지 검사
         if (files.length === 0) {
             alert("이미지를 최소 1개 이상 선택해주세요.");
@@ -279,6 +286,7 @@ function ProductSell() {
             price: parseInt(formData.price, 10) || 0,
             quantity: formData.options.length > 0 ? calculateTotalQuantity() : formData.quantity,
             discountRate: parseFloat(formData.discountRate) || 0.0,
+            shippingFee:formData.shippingFee,
             options: formData.options.map(option => ({
               mainOptionName: option.mainOptionName,
               quantity: option.quantity,
@@ -416,13 +424,14 @@ function ProductSell() {
                         </>
                     )}
                 <label className="product-label">가격</label>
-                <input type="text" id="price" name="price" className="product-input" value={formData.price} onChange={handleChange} />
+                <input type="number" id="price" name="price" className="product-input" value={formData.price} onChange={handleChange} />
 
                 <label className="product-label">수량</label>
                 <input
                         type="number"
                         id="quantity"
                         name="quantity"
+                        disabled
                         className="product-input"
                         placeholder="수량은 옵션 선택시 자동 산정됩니다."
                         value={formData.options.length > 0 ? calculateTotalQuantity() : formData.quantity}
@@ -441,6 +450,8 @@ function ProductSell() {
                     min="0"
                     step="1"
                     /> 
+                    <label className="product-label">배송비</label>
+                    <input type="number" id="shippingFee" name="shippingFee" className="product-input" value={formData.shippingFee} onChange={handleChange} />
             </fieldset>
 
             <fieldset className="product-fieldset">

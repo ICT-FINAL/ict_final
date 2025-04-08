@@ -2,10 +2,9 @@ import { useLocation } from "react-router-dom";
 
 function ProductBuy() {
   const location = useLocation();
-  const { productId, totalPrice, productName, selectedOptions } = location.state || {};
+  const { productId, totalPrice, productName, selectedOptions,shippingFee } = location.state || {};
 
-  const shippingFee = 3000; // 예시 배송비
-  const finalPrice = totalPrice + shippingFee;
+  const finalPrice = totalPrice;
 
   const handlePayment = () => {
     if (!window.TossPayments) {
@@ -35,7 +34,7 @@ function ProductBuy() {
         <h2 className="product-buy-header">상품 결제</h2>
         <div className="product-buy-info">
           <h3 className="product-buy-name">{productName}</h3>
-          <p className="buy-price">가격: {totalPrice}원</p>
+          <p className="buy-price">가격: {totalPrice-shippingFee}원</p>
 
           {selectedOptions && selectedOptions.length > 0 && (
             <div className="selected-options">

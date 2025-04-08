@@ -44,7 +44,7 @@ public class Product {
     private int quantity;
 
     @Column(name="shipping_fee")
-    private int shippingfee;
+    private int shippingFee;
 
     @CreationTimestamp
     @Column(columnDefinition = "DATETIME default now()")
