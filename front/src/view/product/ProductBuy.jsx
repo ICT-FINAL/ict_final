@@ -1,16 +1,44 @@
 import { useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import AddressForm from "../user/AddressForm";
+import { useSelector } from "react-redux";
+import axios from "axios";
 
 function ProductBuy() {
   const location = useLocation();
   const { productId, totalPrice, productName, selectedOptions,shippingFee,selectedCoupon } = location.state || {};
 
+  const [selectedAddress, setSelectedAddress] = useState('');
+
+  const [isGet, setIsGet] = useState(true);
+
+  const user = useSelector((state) => state.auth.user);
+  const serverIP = useSelector((state)=> state.serverIP);
+
   useEffect(()=> {
     console.log(selectedOptions);
   },[]);
 
+  const handleAddAddress = (newAddress) => {
+    if (user)
+      axios
+          .post(`${serverIP.ip}/mypage/insertAddrList`, newAddress, {
+              headers: { Authorization: `Bearer ${user.token}` },
+          })
+          .then((res) => {
+            setIsGet(!isGet);
+          })
+          .catch((err) => {
+              console.log(err);
+          });
+  };
+
   const finalPrice = totalPrice;
   const handlePayment = () => {
+    if(selectedAddress == '' || selectedAddress == undefined) {
+      alert("배송지를 선택해주세요")
+      return;
+    }
     if (!window.TossPayments) {
       alert("TossPayments SDK가 로드되지 않았습니다.");
       return;
@@ -63,10 +91,10 @@ function ProductBuy() {
             {selectedCoupon!==0 && <p className="shipping-fee" style={{color:'#d9534f'}}>쿠폰: -{selectedCoupon}원</p>}
           </div>
 
-          {/* 결제 금액 최종 안내 */}
           <div className="final-price">
             <strong>최종 결제 금액: {formatNumberWithCommas(finalPrice)}원</strong>
           </div>
+
 
           <div className="payment-method">
             <strong>결제 수단 선택: </strong>
@@ -75,7 +103,9 @@ function ProductBuy() {
             </select>
           </div>
         </div>
-
+        <div className='product-buy-info'>
+        <AddressForm isGet={isGet} onAddAddress={handleAddAddress} setSelectedAddresses={setSelectedAddress}/>
+        </div>
         <button className="payment-button" onClick={handlePayment}>결제하기</button>
 
         <div className="security-notice">
