@@ -1,13 +1,15 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 function UserInfo(){
     const user = useSelector((state) => state.auth.user);
     let serverIP = useSelector((state) => state.serverIP);
     const loc = useLocation();
+    const navigate = useNavigate();
     
+    const [userNo, setUserNo] = useState(0);
     const [userinfo, setUserinfo] = useState({});
     const [profileMenu, setProfileMenu] = useState('guestbook');
     const [guestbookList, setGuestbookList] = useState([]);
@@ -16,11 +18,15 @@ function UserInfo(){
     const [wishCount, setWishCount] = useState(0);
 
     useEffect(()=>{
+        setUserNo(loc.state === null ? user.user.id : loc.state);
+    },[]);
+
+    useEffect(()=>{
         getGuestbookList();
         getProductList();
         getUserInfo();
         getInfo();
-    },[]);
+    },[userNo])
 
     useEffect(() => {
         guestbookList.forEach(item => {
@@ -31,20 +37,20 @@ function UserInfo(){
     }, [guestbookList]);
 
     const getInfo = ()=>{
-        axios.get(`${serverIP.ip}/mypage/myInfo?id=${loc.state}`, {
+        axios.get(`${serverIP.ip}/mypage/myInfo?id=${userNo}`, {
             headers: {
               Authorization: `Bearer ${user.token}`
             }
         })
         .then(res=>{
-            console.log(res.data);
+            console.log("작품찜 수:", res.data);
             setWishCount(res.data);
         })
         .catch(err=>console.log(err));
     }
 
     const getUserInfo = ()=>{
-        axios.get(`${serverIP.ip}/interact/getUserInfo?id=${loc.state}`, {
+        axios.get(`${serverIP.ip}/interact/getUserInfo?id=${userNo}`, {
             headers: {
                 Authorization: `Bearer ${user.token}`
               }
@@ -57,13 +63,12 @@ function UserInfo(){
     }
 
     const getGuestbookList = ()=>{
-        axios.get(`${serverIP.ip}/mypage/guestbookList?id=${loc.state}`, {
+        axios.get(`${serverIP.ip}/mypage/guestbookList?id=${userNo}`, {
             headers: {
               Authorization: `Bearer ${user.token}`
             }
         })
         .then(res=>{
-            console.log(res.data);
             setGuestbookList(res.data);
         })
         .catch(err=>console.log(err));
@@ -102,7 +107,7 @@ function UserInfo(){
         document.getElementById(textareaId).value = '';
     }
     
-    const guestbookDelete = (id)=>{
+    const guestbookDelete = (id, parentId = null)=>{
         if (window.confirm("삭제하시겠습니까?")) {
             axios.get(`${serverIP.ip}/mypage/guestbookDelete/${id}`, {
                 headers: {
@@ -110,16 +115,18 @@ function UserInfo(){
                 }
             })
             .then(res=>{
-                console.log(res.data);
-                getGuestbookList();
+                if (parentId) {
+                    getReplyList(parentId);
+                } else {
+                    getGuestbookList();
+                }
             })
             .catch(err=>console.log(err));
         }
-        
     }
 
     const getProductList = ()=>{
-        axios.get(`${serverIP.ip}/mypage/productList/${loc.state}`, {
+        axios.get(`${serverIP.ip}/mypage/productList/${userNo}`, {
             headers: {
                 Authorization: `Bearer ${user.token}`
             }
@@ -138,7 +145,6 @@ function UserInfo(){
             }
         })
         .then(res=>{
-            console.log(res.data);
             setReplyList(prev => ({
                 ...prev,
                 [id]: res.data
@@ -153,9 +159,14 @@ function UserInfo(){
         guestbookState.style.display = "none" : 
         guestbookState.style.display = "flex";
     };
+
+    const moveInfo = (prod) => {
+        console.log(prod);
+        navigate('/product/info',{state:{product:prod}});
+    }
     
     return (
-        <div className="profile-container" style={{paddingTop: '140px'}}>
+        <div className="profile-container" style={loc.state !== null ? { paddingTop: '140px' } : {}}>
             <div className="profile-top">
                 {userinfo.imgUrl && <img src = {userinfo.imgUrl.indexOf('http') !==-1 ? `${userinfo.imgUrl}`:`${serverIP.ip}${userinfo.imgUrl}`} alt='' width={140} height={140}/>}
                 <div className="profile-info">
@@ -171,9 +182,9 @@ function UserInfo(){
                 </div>
             </div>
             <div className="profile-menu">
-                <div onClick={()=>setProfileMenu("guestbook")}>방명록</div>
-                <div onClick={()=>setProfileMenu("product")}>판매작품</div>
-                <div onClick={()=>setProfileMenu("review")}>구매후기</div>
+                <div onClick={()=>setProfileMenu("guestbook")} className={profileMenu === "guestbook" ? "selected-menu" : {}}>방명록</div>
+                <div onClick={()=>setProfileMenu("product")} className={profileMenu === "product" ? "selected-menu" : {}}>판매작품</div>
+                <div onClick={()=>setProfileMenu("review")} className={profileMenu === "review" ? "selected-menu" : {}}>구매후기</div>
             </div>
             <div className="profile-bottom">
             {
@@ -184,65 +195,104 @@ function UserInfo(){
                         <div style={{padding: '20px', textAlign: 'center'}}>작성된 방명록이 없습니다.</div>
                     }
                     {
+                        loc.state !== null &&
+                        <div className="guestbook-write-box">
+                            <textarea id="guestbook-write" className="guestbook-write" placeholder="방명록을 남겨 주세요."
+                                rows={5} style={{height: '50px', lineHeight: '1.2'}}/>
+                            <input type="button" id="guestbook-write-btn" onClick={()=>guestbookWrite()} value="등록"/>
+                        </div>
+                    }
+                    {
                         guestbookList.map(item=>{
                             return (
                                 <div className="guestbook-item">
                                     <img id="writer-profile-image" src = {item.writer.uploadedProfileUrl.indexOf('http') !==-1 ? `${item.writer.uploadedProfileUrl}`:`${serverIP.ip}${item.writer.uploadedProfileUrl}`} alt=''/>
-                                        <div id="writer-name">{item.writer.username}<span style={{fontSize: '14px'}}> &gt;</span></div>
-                                        <div style={{float: 'right', padding: '25px'}}>{item.writedate}</div>
-                                        <div id="guestbook-content">{item.content}
-                                            {
-                                                user.user.id === item.writer.id &&
-                                                <div id="guestbook-delete-btn" onClick={()=>guestbookDelete(item.id)}>×</div>
-                                            }
-                                            <button id="guestbook-reply-btn" onClick={()=>replyToggle(item.id)}>답글</button>
-                                            <div className="guestbook-write-box" id={`guestbook-${item.id}`} style={{display: 'none'}}>
-                                                <span>┗</span>
-                                                <textarea id={`guestbook-write-${item.id}`} placeholder="답글을 입력해 주세요."/>
-                                                <input type="button" id="guestbook-write-btn" onClick={()=>guestbookWrite(item.id)} value="등록"/>
-                                            </div>
-                                            {
-                                                replyList[item.id]?.map(reply => (
-                                                    <div key={reply.id} className="guestbook-reply">
-                                                        <span>┗</span>
-                                                        <span>{reply.writer.username}</span>: {reply.content}
-                                                    </div>
-                                                ))
-                                            }
-                                        </div>
+                                    <div id={`mgx-${item.writer.id}`}
+                                        className='message-who'
+                                        style={{
+                                            position: 'relative',
+                                            top: '-25px',
+                                            left: '10px',
+                                            display: 'inline-block',
+                                            fontWeight: 'bold',
+                                            cursor: 'pointer'
+                                        }}>
+                                        {item.writer.username}
+                                        <span style={{fontSize: '14px'}}> &gt;</span>
+                                    </div>
+                                    <div style={{position: 'absolute', display: 'inline', top: '55px', left: '80px', fontSize: '11pt'}}>{item.writedate.slice(0,16)}</div>
+                                    <div id="guestbook-content" style={user.user.id === item.writer.id ? {background: '#9dc0a9'} : {}}><span>{item.content}</span>
+                                        {
+                                            user.user.id === item.writer.id &&
+                                            <div className="guestbook-delete-btn" onClick={()=>guestbookDelete(item.id)}>×</div>
+                                        }
+                                        {
+                                            userNo === user.user.id && replyList[item.id]?.length === 0 &&
+                                            <>
+                                                <button id="guestbook-reply-btn" onClick={()=>replyToggle(item.id)}>답글</button>
+                                                <div className="guestbook-write-box" id={`guestbook-${item.id}`} style={{display: 'none', border: 'none', padding: '0'}}>
+                                                    <span>┗</span>
+                                                    <textarea id={`guestbook-write-${item.id}`} className="guestbook-write" placeholder="답글을 입력해 주세요."/>
+                                                    <input type="button" id="guestbook-write-btn" onClick={()=>guestbookWrite(item.id)} value="등록"/>
+                                                </div>
+                                            </>
+                                        }
+                                    </div>
+                                    {
+                                        replyList[item.id]?.map(reply => {
+                                            return (
+                                                <>
+                                                <div key={reply.id} className="guestbook-reply" style={user.user.id === reply.writer.id ? {background: '#ddd'} : {}}>
+                                                    <span>┗ </span>
+                                                    <span style={user.user.id === reply.writer.id ? {fontWeight: 'bold'} : {}}>{reply.writer.username}</span>: 
+                                                    <span style={{lineHeight: '1.4'}}>{reply.content}</span>
+                                                    <span style={{
+                                                            position: 'absolute',
+                                                            bottom: '3px',
+                                                            right: '10px',
+                                                            fontSize: '10.2pt',
+                                                            color: '#666'
+                                                        }}>{reply.writedate.slice(0,16)}</span>
+                                                    {
+                                                        user.user.id === reply.writer.id &&
+                                                        <div className="reply-delete-btn" onClick={()=>guestbookDelete(reply.id, item.id)}>×</div>
+                                                    }
+                                                </div>
+                                                </>
+
+                                            )
+                                        })
+                                    }
                                 </div>
                             )
                         })
                     }
-                    <div className="guestbook-write-box">
-                        <textarea id="guestbook-write" placeholder="방명록을 남겨 주세요."/>
-                        <input type="button" id="guestbook-write-btn" onClick={()=>guestbookWrite()} value="등록"/>
-                    </div>
+                    
                 </>
             }
             {
                 profileMenu === "product" &&
-                <>
+                <div className="product-container">
                     {
                         productList.length === 0 &&
                         <div style={{padding: '20px', textAlign: 'center'}}>등록된 작품이 없습니다.</div>
                     }
                     {
-                        productList.map(item=>{
+                        productList.map(product=>{
                             return (
-                                <div className="product-item">
-                                    <img id="product-img" src={`${serverIP.ip}/uploads/product/${item.id}/${item.images[0].filename}`} alt='상품이미지준비중'/>
+                                <div className="product-item" onClick={() => {moveInfo(product)}}>
+                                    <img id="product-img" src={`${serverIP.ip}/uploads/product/${product.id}/${product.images[0].filename}`} alt='상품이미지준비중'/>
                                     {
-                                        item.discountRate !== 0 &&
-                                        <div id="discount-sticker">{item.discountRate}</div>
+                                        product.discountRate !== 0 &&
+                                        <div id="discount-sticker">{product.discountRate}</div>
                                     }
-                                    <div>상품명: {item.productName}</div>
-                                    <div>가격: {item.price}</div>
+                                    <div>상품명: {product.productName}</div>
+                                    <div>가격: {product.price}</div>
                                 </div>
                             )
                         })
                     }
-                </>
+                </div>
             }
             {
                 profileMenu === "review" &&
