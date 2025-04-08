@@ -9,8 +9,10 @@ function ProductBuy() {
   const { productId, totalPrice, productName, selectedOptions,shippingFee,selectedCoupon } = location.state || {};
 
   const [selectedAddress, setSelectedAddress] = useState('');
-
+  const [request, setRequest] = useState('');
   const [isGet, setIsGet] = useState(true);
+
+  const [selAddrId,setSelAddrId] = useState(0);
 
   const user = useSelector((state) => state.auth.user);
   const serverIP = useSelector((state)=> state.serverIP);
@@ -44,20 +46,40 @@ function ProductBuy() {
       return;
     }
     const tossPayments = window.TossPayments("test_ck_ORzdMaqN3w2RZ1XBgmxM85AkYXQG");
-    const orderId = "orderId-" + new Date().getTime();
+    const orderId = new Date().getTime();
 
-    tossPayments
-      .requestPayment("카드", {
-        amount: finalPrice,
-        orderId,
-        orderName: productName,
-        customerName: "홍길동",
-        successUrl: `http://localhost:3000/payment/success`,
-        failUrl: `http://localhost:3000/payment/fail`,
+    console.log(selectedOptions);
+    let options=[];
+    for(var i=0; i<selectedOptions.length; i++) {
+      options.push({
+        optionCategoryId:selectedOptions[i].subOption.id,
+        quantity:selectedOptions[i].quantity,
+        coupon:selectedCoupon
       })
-      .catch((error) => {
-        console.error("❌ 결제창 오류:", error);
-      });
+    }
+
+    axios.post(`${serverIP.ip}/order/setOrder`,{options:options, addrId:selAddrId, req:request, orderId:orderId
+      ,shippingFee:shippingFee, couponDiscount:selectedCoupon, productId:productId
+    },{
+      headers: { Authorization: `Bearer ${user.token}` },
+    })
+    .then(res => {
+      const successUrl = `http://localhost:3000/payment/success?iid=${res.data.id}`;
+      if(user)
+        tossPayments
+          .requestPayment("카드", {
+            amount: finalPrice,
+            orderId,
+            orderName: productName,
+            customerName: user.user.username,
+            successUrl: successUrl,
+            failUrl: `http://localhost:3000/payment/fail`,
+          })
+          .catch((error) => {
+            console.error("❌ 결제창 오류:", error);
+          });
+    })
+    .catch(err => console.log(err));
   };
   
   function formatNumberWithCommas(num) {
@@ -104,7 +126,7 @@ function ProductBuy() {
           </div>
         </div>
         <div className='product-buy-info'>
-        <AddressForm isGet={isGet} onAddAddress={handleAddAddress} setSelectedAddresses={setSelectedAddress}/>
+        <AddressForm setSelAddrId={setSelAddrId} isGet={isGet} onAddAddress={handleAddAddress} setRequest={setRequest} request={request} setSelectedAddresses={setSelectedAddress}/>
         </div>
         <button className="payment-button" onClick={handlePayment}>결제하기</button>
 

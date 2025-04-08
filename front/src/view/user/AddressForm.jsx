@@ -4,7 +4,7 @@ import axios from "axios";
 import '../../css/address.css';
 import { setModal } from "../../store/modalSlice";
 
-function AddressForm({ onAddAddress, isGet, setSelectedAddresses}) {
+function AddressForm({ setSelAddrId, onAddAddress, isGet, setSelectedAddresses, setRequest, request}) {
     const [recipientName, setRecipientName] = useState("");
     const [address, setAddress] = useState("");
     const [addressDetail, setAddressDetail] = useState("");
@@ -56,13 +56,14 @@ function AddressForm({ onAddAddress, isGet, setSelectedAddresses}) {
         setAddressDetail("");
         setZipcode("");
         setTel("");
+        setRequest('');
         setType("HOME");
         setIsAddressFormVisible(false);
     };
 
     const handleSelectChange = (e) => {
         const selectedAddressId = e.target.value;
-        
+        setSelAddrId(e.target.value);
         if (!selectedAddressId) {
             setSelectedAddress(null);
             setSelectedAddresses('');
@@ -196,6 +197,10 @@ function AddressForm({ onAddAddress, isGet, setSelectedAddresses}) {
                     </form>
                 </div>
             )}
+            <h3>요청사항</h3>
+            <textarea value={request} 
+            style={{ whiteSpace: 'pre-wrap', width: '100%', height: '150px',resize:'none' }}
+            onChange={(e) => setRequest(e.target.value)}/>
         </div>
     );
 }

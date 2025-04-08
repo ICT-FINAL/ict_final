@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
@@ -8,23 +9,27 @@ const PaymentSuccess = () => {
   const [orderId, setOrderId] = useState("");
   const [amount, setAmount] = useState("");
 
+  const user = useSelector((state) => state.auth.user);
+
   useEffect(() => {
     const paymentKey = searchParams.get("paymentKey");
     const orderIdParam = searchParams.get("orderId");
     const amountParam = searchParams.get("amount");
-
+    const iid = searchParams.get('iid');
     setOrderId(orderIdParam);
     setAmount(amountParam);
-
+    if(user)
     fetch("http://localhost:9977/payment/confirm", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${user.token}` 
       },
       body: JSON.stringify({
         paymentKey,
         orderId: orderIdParam,
         amount: amountParam,
+        iid: iid
       }),
     })
       .then((res) => res.json())
@@ -45,7 +50,13 @@ const PaymentSuccess = () => {
       <p>
         <strong>결제금액:</strong> {amount}원
       </p>
-      <p>고객님 감사합니다 😊</p>
+      <p>'{user.user.username}'님 감사합니다 😊</p>
+      <button
+        onClick={() => navigate("/")}
+        style={{ marginTop: "30px", padding: "10px 20px" }}
+      >
+        주문 목록으로
+      </button>
       <button
         onClick={() => navigate("/")}
         style={{ marginTop: "30px", padding: "10px 20px" }}

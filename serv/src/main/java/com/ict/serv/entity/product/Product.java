@@ -51,8 +51,8 @@ public class Product {
     private String startDate;
     private String endDate;
 
-    @Column(columnDefinition = "float default 0.0")
-    private float discountRate;
+    @Column(columnDefinition = "int default 0.0")
+    private int discountRate;
 
     @Enumerated(EnumType.STRING)
     private ProductState state = ProductState.SELL;
