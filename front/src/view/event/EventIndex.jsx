@@ -13,63 +13,63 @@ function EventIndex() {
     const navigate = useNavigate();
     const { ref, inView } = useInView({ triggerOnce: false, threshold: 0.1 });
     const user = useSelector((state) => state.auth.user);
+    const serverIP = useSelector((state) => state.serverIP);
+    const [ongoingEvents, setOngoingEvents] = useState([]);
+    const [endedEvents, setEndedEvents] = useState([]);
 
-    const serverIP = useSelector((state)=>state.serverIP);
-
-    const [ongoingEvents,setOngoingEvents] = useState([]);
-    const [endedEvents,setEndedEvents] = useState([]);
-
-    useEffect(()=> {
+    useEffect(() => {
         const now = new Date();
         axios.get(`${serverIP.ip}/event/getEventList`)
-        .then(res => {
-            console.log(res.data);
-            const ongoing = res.data.filter(event => {
-                const start = new Date(event.startDate);
-                const end = new Date(event.endDate);
-                return start <= now && now <= end;
+            .then(res => {
+                console.log(res.data);
+                const ongoing = res.data.filter(event => {
+                    const start = new Date(event.startDate);
+                    const end = new Date(event.endDate);
+
+                    const selectedMonthStart = new Date(currentYear, currentMonth - 1, 1);
+                    selectedMonthStart.setHours(0, 0, 0, 0);
+    
+                    const selectedMonthEnd = new Date(currentYear, currentMonth, 0);
+                    selectedMonthEnd.setHours(23, 59, 59, 999);
+    
+                    return (start <= selectedMonthEnd && end >= selectedMonthStart);
+                })
+                .map(event => ({
+                    ...event,
+                    src: `${serverIP.ip}/uploads/event/${event.id}/${event.filename}`
+                }));
+                setOngoingEvents(ongoing);
+                console.log(ongoing);
+                const ended = res.data.filter(event => {
+                    const end = new Date(event.endDate);
+                    return end < now;
+                })
+                .map(event => ({
+                    ...event,
+                    src: `${serverIP.ip}/uploads/event/${event.id}/${event.filename}`
+                }));
+                setEndedEvents(ended);
             })
-            .map(event => ({
-                ...event,
-                src: `${serverIP.ip}/uploads/event/${event.id}/${event.filename}`
-            }));
-            setOngoingEvents(ongoing);
-            const ended = res.data.filter(event => {
-                const end = new Date(event.endDate);
-                return end < now;
-            })
-            .map(event => ({
-                ...event,
-                src: `${serverIP.ip}/uploads/event/${event.id}/${event.filename}`
-            }));
-            setEndedEvents(ended);
-            /*
-            const upcomingEvents = allEvents.filter(event => {
-            const start = new Date(event.startDate);
-            return start > now;
-            });
-            */
-        })
-        .catch(err => console.log(err))
-    },[])
+            .catch(err => console.log(err));
+    }, []);
 
     const allEvents = activeTab === "ongoing" ? ongoingEvents : endedEvents;
 
     const handlePrevMonth = () => {
         if (currentMonth === 1) {
             setCurrentMonth(12);
-            setCurrentYear((prev) => prev - 1);
+            setCurrentYear(prev => prev - 1);
         } else {
-            setCurrentMonth((prev) => prev - 1);
+            setCurrentMonth(prev => prev - 1);
         }
     };
-    
+
     const handleNextMonth = () => {
         if (currentMonth === 12) {
             setCurrentMonth(1);
-            setCurrentYear((prev) => prev + 1);
+            setCurrentYear(prev => prev + 1);
         } else {
-            setCurrentMonth((prev) => prev + 1);
+            setCurrentMonth(prev => prev + 1);
         }
     };
 
@@ -77,9 +77,11 @@ function EventIndex() {
         const eventStart = new Date(event.startDate);
         const eventEnd = new Date(event.endDate);
         const selectedMonthStart = new Date(currentYear, currentMonth - 1, 1);
+        selectedMonthStart.setHours(0, 0, 0, 0);
+    
         const selectedMonthEnd = new Date(currentYear, currentMonth, 0);
-
-        return eventEnd >= selectedMonthStart && eventStart <= selectedMonthEnd;
+        selectedMonthEnd.setHours(23, 59, 59, 999);
+        return (eventStart <= selectedMonthEnd && eventEnd >= selectedMonthStart);
     });
 
     const visibleList = filteredEvents.slice(0, visibleEvents);
@@ -88,7 +90,7 @@ function EventIndex() {
         if (inView && visibleEvents < filteredEvents.length && !isFetching.current) {
             isFetching.current = true;
             setTimeout(() => {
-                setVisibleEvents((prev) => Math.min(prev + 3, filteredEvents.length));
+                setVisibleEvents(prev => Math.min(prev + 3, filteredEvents.length));
                 isFetching.current = false;
             }, 500);
         }
@@ -99,17 +101,18 @@ function EventIndex() {
     }, [activeTab, currentMonth, currentYear]);
 
     const moveEvent = (tar) => {
-        if(tar.state==='NOCOUPON') {
-            navigate('/event/info', {state:tar});
+        if (tar.state === 'NOCOUPON') {
+            navigate('/event/info', { state: tar });
+        } else {
+            navigate(tar.redirectUrl);
         }
-        else alert("쿠폰 페이지 따로 만들려고");
     }
 
     return (
         <div className="event-container">
             <div className="calendar-nav">
                 <button onClick={() => handlePrevMonth()} className="arrow-button">
-                ‹ {currentMonth === 1 ? currentYear - 1 : currentYear}.{currentMonth === 1 ? 12 : currentMonth - 1}
+                    ‹ {currentMonth === 1 ? currentYear - 1 : currentYear}.{currentMonth === 1 ? 12 : currentMonth - 1}
                 </button>
                 <span>
                     {currentYear}.{currentMonth.toString().padStart(2, "0")}
@@ -134,9 +137,9 @@ function EventIndex() {
             <div className="event-list">
                 {visibleList.length > 0 ? (
                     visibleList.map((event) => (
-                        <div onClick={()=>moveEvent(event)} className={`event-banner ${activeTab === "ended" ? "ended" : ""}`} key={event.id}>
+                        <div onClick={() => moveEvent(event)} className={`event-banner ${activeTab === "ended" ? "ended" : ""}`} key={event.id}>
                             <img src={event.src} alt={event.eventName} />
-                            <div className="event-date">📅 {event.startDate.substring(0,10)} ~ 📅 {event.endDate.substring(0,10)}</div>
+                            <div className="event-date">📅 {event.startDate.substring(0, 10)} ~ 📅 {event.endDate.substring(0, 10)}</div>
                             <div className="event-title">{event.eventName}</div>
                             {event.state === "COUPON" && <div className="coupon-badge">쿠폰 지급!</div>}
                         </div>

@@ -30,4 +30,19 @@ public class BasketController {
         return ResponseEntity.ok(basketItems);
     }
 
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> deleteBasketItems(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody Map<String, List<Long>> requestBody) {
+
+        List<Long> basketNos = requestBody.get("basketNos");
+        if (basketNos == null || basketNos.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        User user = interactService.selectUserByName(userDetails.getUsername());
+        basketService.deleteBasketItems(user, basketNos);
+
+        return ResponseEntity.ok().build();
+    }
 }

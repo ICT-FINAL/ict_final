@@ -101,7 +101,7 @@ body{
     position: fixed;
     left: 50%;
     top: 50%;
-    z-index: 2001;
+    z-index: 3001;
     transform: translate(-50%, -50%);
     border: 2px solid black;
     border-radius: 5px;
@@ -116,6 +116,7 @@ body{
     background-color: #fff;
     font-size: 20px;
     border: none;
+    cursor:pointer;
 }
 
 .editor-container__editor .ck-editor__editable_inline {

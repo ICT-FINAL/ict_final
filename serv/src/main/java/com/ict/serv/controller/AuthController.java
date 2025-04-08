@@ -45,7 +45,7 @@ public class AuthController {
         User user = interactService.selectUserByName(userDetails.getUsername());
         // 유저 정보 반환 (비밀번호 제외)
         return ResponseEntity.ok(new UserResponseDto(user.getId(),user.getUserid(), user.getUsername(),
-                user.getEmail(), user.getUploadedProfileUrl(), user.getAuthority(),user.getZipcode(),user.getAddress(),user.getAddressDetail()));
+                user.getEmail(), user.getUploadedProfileUrl(), user.getAuthority(),user.getZipcode(),user.getAddress(),user.getAddressDetail(),user.getGrade(),user.getGradePoint()));
     }
 
     @PostMapping("/auth/login")
@@ -75,7 +75,9 @@ public class AuthController {
                 user.getAuthority(),
                 user.getZipcode(),
                 user.getAddress(),
-                user.getAddressDetail()
+                user.getAddressDetail(),
+                user.getGrade(),
+                user.getGradePoint()
         );
         return ResponseEntity.ok(new LoginResponseDto(token, "로그인 성공", userResponse));
     }

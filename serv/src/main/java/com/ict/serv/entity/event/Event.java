@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -18,10 +20,9 @@ public class Event {
     @Column(name="EVENT_ID")
     private Long id;
 
-    @CreationTimestamp
-    @Column(name="start_date",columnDefinition = "DATETIME")
-    private String startDate;
-    @CreationTimestamp
+    @Column(name="start_date", columnDefinition = "DATETIME")
+    private String startDate;  // LocalDateTime으로 변경
+
     @Column(name="end_date", columnDefinition = "DATETIME")
     private String endDate;
 
