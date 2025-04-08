@@ -42,6 +42,7 @@ function ProductInfo() {
         });
 
         newTotalPrice -= selectedCoupon;
+        newTotalPrice += loc.state.product.shippingFee;
         newTotalPrice = newTotalPrice < 0 ? 0 : newTotalPrice;
         setTotalPrice(newTotalPrice);
     }, [selectedItems, selectedCoupon, loc.state.product.price, loc.state.product.discountRate]);
@@ -54,7 +55,9 @@ function ProductInfo() {
                     productId: loc.state.product.id,
                     totalPrice: totalPrice,
                     productName: loc.state.product.productName,
-                    selectedOptions: selectedItems
+                    selectedOptions: selectedItems,
+                    shippingFee:loc.state.product.shippingFee || 0,
+                    selectedCoupon:selectedCoupon || 0
                 }
             });
     };
@@ -255,6 +258,7 @@ function ProductInfo() {
                                 { (loc.state.product.discountRate !== 0 || selectedCoupon!==0) &&
                                 <li className='info-coupon-box' style={{color:'#d34141', border:'1px solid #ddd', width:'76%', margin:'15px 0px 15px 20px', borderRadius:'10px'}}>
                                     { loc.state.product.discountRate !== 0 && <div>상품 할인가: -{formatNumberWithCommas(loc.state.product.discountRate * loc.state.product.price / 100)}원</div>}
+                                    { loc.state.product.shippingFee !==0 && <div style={{color:'#0288D1'}}>배송비: +{formatNumberWithCommas(loc.state.product.shippingFee)}원</div>}
                                     { selectedCoupon!==0 && <div>쿠폰: -{selectedCoupon}원</div>}
                                 </li>
                                 }
@@ -285,30 +289,45 @@ function ProductInfo() {
                                     <li style={{marginTop: '20px', borderTop: '1px solid #ddd', paddingTop: '15px'}}>
                                         <strong>선택된 옵션:</strong>
                                         <ul>
-                                            {selectedItems.map((item, index) => (
-                                                <li key={index} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', marginTop: '10px'}}>
-                                                    <div>
-                                                        {item.option.optionName}
-                                                        {item.subOption && ` - ${item.subOption.categoryName} (+${formatNumberWithCommas(item.subOption.additionalPrice)}원)`}
-                                                    </div>
-                                                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                        <label htmlFor={`quantity-${index}`} style={{ marginRight: '5px' }}>수량:</label>
-                                                        <select
-                                                            id={`quantity-${index}`}
-                                                            value={item.quantity}
-                                                            onChange={(e) => handleItemQuantityChange(index, e.target.value)}
-                                                            style={{ width: '60px', height: '25px' }}
-                                                        >
-                                                            {[...Array(item.subOption?.quantity || 10).keys()].map((num) => (
-                                                                <option key={num} value={num + 1}>{num + 1}</option>
-                                                            ))}
-                                                        </select>
-                                                        <button type="button" onClick={() => removeItem(index)} style={{ color: 'red', border: 'none', background: 'none', cursor: 'pointer', marginLeft: '10px' }}>
-                                                            <FaTimes />
-                                                        </button>
-                                                    </div>
-                                                </li>
-                                            ))}
+                                            {selectedItems.map((item, index) => {
+                                                const basePrice = loc.state.product.discountRate === 0
+                                                    ? loc.state.product.price
+                                                    : loc.state.product.price * (100 - loc.state.product.discountRate) / 100;
+
+                                                const subOptionPrice = item.subOption ? item.subOption.additionalPrice : 0;
+
+                                                const itemPrice = (basePrice + subOptionPrice) * item.quantity;
+
+                                                return (
+                                                    <>
+                                                    <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', marginTop: '10px' }}>
+                                                        <div>
+                                                            {item.option.optionName}
+                                                            {item.subOption && ` - ${item.subOption.categoryName} (+${formatNumberWithCommas(item.subOption.additionalPrice)}원)`}
+                                                        </div>
+                                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                            <label htmlFor={`quantity-${index}`} style={{ marginRight: '5px' }}>수량:</label>
+                                                            <select
+                                                                id={`quantity-${index}`}
+                                                                value={item.quantity}
+                                                                onChange={(e) => handleItemQuantityChange(index, e.target.value)}
+                                                                style={{ width: '60px', height: '25px' }}
+                                                            >
+                                                                {[...Array(item.subOption?.quantity || 10).keys()].map((num) => (
+                                                                    <option key={num} value={num + 1}>{num + 1}</option>
+                                                                ))}
+                                                            </select>
+                                                            <button type="button" onClick={() => removeItem(index)} style={{ color: 'red', border: 'none', background: 'none', cursor: 'pointer', marginLeft: '10px' }}>
+                                                                <FaTimes />
+                                                            </button>
+                                                        </div>
+                                                    </li>
+                                                    <li style={{textAlign:'right', listStyleType:'none', fontSize:'17px'}}>
+                                                        <div>{formatNumberWithCommas(itemPrice)}원</div>
+                                                    </li>
+                                                    </>
+                                                );
+                                            })}
                                         </ul>
                                     </li>
                                 )}
