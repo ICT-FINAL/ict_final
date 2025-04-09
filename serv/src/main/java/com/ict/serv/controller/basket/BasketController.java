@@ -3,9 +3,11 @@ package com.ict.serv.controller.basket;
 import com.ict.serv.dto.BasketItemDto;
 import com.ict.serv.entity.basket.Basket;
 import com.ict.serv.entity.product.OptionCategory;
+import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.BasketService;
 import com.ict.serv.service.InteractService;
+import com.ict.serv.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,6 +24,7 @@ import java.util.Map;
 public class BasketController {
     private final InteractService interactService;
     private final BasketService basketService;
+    private final ProductService productService;
 
     @PostMapping("/add")
     public String addItemsToBasket(@AuthenticationPrincipal UserDetails userDetails, @RequestBody List<BasketItemDto> items) {
@@ -40,11 +43,14 @@ public class BasketController {
 
     @GetMapping("/list")
     public ResponseEntity<List<Map<String, Object>>> getBasketItems(@AuthenticationPrincipal UserDetails userDetails) {
-
         User user = interactService.selectUserByName(userDetails.getUsername());
         List<Map<String, Object>> basketItems = basketService.getBasketItems(user);
         System.out.println("바스켓서비스=>"+basketItems);
         return ResponseEntity.ok(basketItems);
+    }
+    @GetMapping("/getProduct")
+    public Product getProduct(Long productId) {
+        return productService.selectProduct(productId).get();
     }
 
     @DeleteMapping("/delete")

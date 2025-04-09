@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setModal } from "../store/modalSlice";
+//import AddressForm from "../user/AddressForm";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
 
 function AddressBox() {
   let serverIP = useSelector((state) => state.serverIP);
-
+  const location = useLocation();
   const [address, setAddress] = useState("");
   const [addressDetail, setAddressDetail] = useState("");
   const [zipcode, setZipcode] = useState("");
@@ -17,6 +19,10 @@ function AddressBox() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const interact = useSelector((state) => state.interact);
+  const [selAddrId, setSelAddrId] = useState(0);
+  const [isGet, setIsGet] = useState(true);
+  const [request, setRequest] = useState('');
+  const [selectedAddress, setSelectedAddress] = useState('');
 
   const modalClose = () => {
     dispatch(setModal({ ...modalSel, isOpen: false }));
@@ -162,12 +168,12 @@ function AddressBox() {
             </span>
             <hr />
           </div>
+          {/* <div >
+            <AddressForm setSelAddrId={setSelAddrId} isGet={isGet} onAddAddress={handleAddAddress} setRequest={setRequest} request={request} setSelectedAddresses={setSelectedAddress} />
+          </div> */}
         </div>
       </div>
     </>
   );
-
-
-
 }
 export default AddressBox;

@@ -18,23 +18,36 @@ function BasketBox() {
   const selectedItem = modalSel.selectedItem;
   const item = selectedItem;
 
-  useEffect(() => {
-    console.log("모달에 전달된 아이템:", selectedItem);
-    if (modalSel.isOpen && selectedItem) {
-      setModalOpen(true);
-      setModalTransform('scale(1)');
-      setQuantity(selectedItem.quantity); // 선택된 아이템의 수량 설정
-    } else {
-      setModalOpen(false);
-      setModalTransform('scale(0.8)');
-    }
-  }, [modalSel.isOpen, selectedItem]);
-
   const modalClose = () => {
     dispatch(setModal({ ...modalSel, isOpen: false }));
     setModalOpen(false);
     setModalTransform('scale(0.8)');
   }
+
+  useEffect(() => {
+    if (modalSel.isOpen) {
+      setModalOpen(true);
+      setModalTransform('scale(1)');
+    }
+  }, [modalSel.isOpen]);
+
+  useEffect(() => {
+    if (user) {
+      axios
+        .get(`${serverIP.ip}/basket/list`, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        })
+        .then((res) => {
+          console.log("선택된장바구니모달:", res.data);
+
+        })
+        .catch((err) => console.log(err));
+    }
+  }, [user, serverIP]);
+
+  useEffect(() => {
+    console.log("모달에 전달된 아이템:", selectedItem);
+  }, [modalSel.isOpen, selectedItem]);
 
   useEffect(() => {
     if (user) {
@@ -78,13 +91,6 @@ function BasketBox() {
         setIsSaving(false);
       });
   };
-
-  useEffect(() => {
-    if (modalSel.isOpen) {
-      setModalOpen(true);
-      setModalTransform('scale(1)');
-    }
-  }, [modalSel.isOpen]);
 
   useEffect(() => {
     if (!mount.current) mount.current = false;
@@ -191,9 +197,9 @@ function BasketBox() {
         {selectedItem && (
           <div style={{ padding: '10px' }}>
             <img style={{ width: '20vw', height: '20vw', borderRadius: '10px' }}
-              src={`${serverIP.ip}/uploads/product/${item.sellerNo.id}/${item.sellerNo.images[0].filename}`}
+              src={`${serverIP.ip}/uploads/product/${item.sellerNo}/${item.productImage}`}
             />
-            <p><strong>상품명:</strong> {selectedItem.sellerNo?.productName}</p>
+            <p><strong>상품명:</strong> </p>
             <p><strong>현재 수량:</strong></p>
             <input
               type="number"
@@ -212,5 +218,4 @@ function BasketBox() {
     </>
   );
 }
-
 export default BasketBox;
