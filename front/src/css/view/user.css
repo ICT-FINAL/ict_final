@@ -331,7 +331,7 @@ input.tel {
 /* ========== Mypage Profile ========== */
 .profile-top, .profile-menu {
     border: 1px solid #ccc;
-    padding: 10px;
+    padding: 30px;
     margin: 20px auto;
     display: flex;
     min-width: 500px;
@@ -339,7 +339,7 @@ input.tel {
 .profile-top{
     max-width: 750px;
     margin: 0 auto;
-
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 .profile-info {
     width: 100%;
@@ -366,22 +366,31 @@ input.tel {
     cursor: pointer;
 }
 .profile-menu {
-    justify-content:space-around;
+    justify-content:center;
+    padding: 10px;
     margin-bottom: 0;
 }
-.profile-menu>div {
+.profile-menu div {
     cursor: pointer;
+    margin: 0 8%;
+}
+.selected-menu {
+    font-weight: bold;
+    color: #419c67;
 }
 .profile-bottom {
-    padding: 10px;
+    padding: 30px;
     border: 1px solid #ddd;
     min-width: 500px;
 }
 /* ========== Mypage Guestbook ========== */
 .guestbook-item {
-    max-width: 700px;
-    margin: 10px auto;
-    padding: 10px;
+    position: relative;
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    border-radius: 20px;
 }
 #writer-profile-image {
     width: 50px;
@@ -398,18 +407,21 @@ input.tel {
 #guestbook-content {
     position: relative;
     background-color: #d1e2d7;
-    margin: 10px;
-    padding: 10px;
+    line-height: 1.4;
+    margin: 20px 10px;
+    padding: 20px;
     border-radius: 10px;
     white-space: pre-line;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
 }
-#guestbook-delete-btn {
+.guestbook-delete-btn {
     position: absolute;
     top: -6px;
     right: -4px;
     width: 20px;
     line-height: 20px;
     text-align: center;
+    font-weight: bold;
     color: #333;
     background-color: rgb(255, 113, 113);
     border-radius: 100%;
@@ -418,39 +430,104 @@ input.tel {
 .guestbook-write-box {
     display: flex;
     justify-content: center;
-    max-width: 900px;
+    max-width: 850px;
     margin: 0 auto;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #ccc;
 }
-#guestbook-write, #guestbook-write-btn {
+.guestbook-write, #guestbook-write-btn {
     width: calc(100% - 140px);
-    line-height: 20px;
     margin: 10px auto;
-    padding: 5px 10px;
-    border: 1px solid #222;
+    padding: 10px;
+    border: 1px solid #eee;
     border-radius: 10px;
     resize: none;
+    box-shadow: 0 3px 5px rgba(31, 131, 81, 0.15);
+    transition: all 0.5s;
 }
 #guestbook-write-btn {
     width: 80px;
-    color: #fff;
-    background-color: #222;
-    border: none;
+    color: #333;
+    background-color: #eee;
+    font-size: 12pt;
     cursor: pointer;
+}
+#guestbook-write-btn:hover {
+    background-color: #d1e2d7;
 }
 #guestbook-reply-btn {
     display: block;
-    margin: 10px;
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: #fff;
+    border: 1px solid #777;
+}
+
+.guestbook-reply {
+    position: relative;
+    margin: 20px 10px;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: #eee;
+    box-shadow: 0 3px 10px rgba(37, 37, 37, 0.149);
+}
+.reply-delete-btn {
+    position: absolute;
+    right: -6px;
+    top: -5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 18px;
+    color: #555;
 }
 
 /* ========== Mypage Product ========== */
+.product-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 10px;
+    justify-content: center;
+    margin: 0 auto;
+    transition: all 1s ease;
+}
 .product-item {
+    width: 100%;
+    max-width: 250px;
+    height: 300px;
     padding: 10px;
     background-color: #eee;
     border-radius: 10px;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: all 0.5s ease;
+}
+.product-item:hover {
+    background-color: #ccc;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+}
+@media (min-width: 600px) {
+    .product-container {
+      grid-template-columns: repeat(2, 250px);
+    }
+}
+@media (min-width: 900px) {
+    .product-container {
+      grid-template-columns: repeat(3, 250px);
+      gap: 30px;
+    }
+}
+@media (min-width: 1300px) {
+    .product-container {
+      grid-template-columns: repeat(4, 250px);
+      gap: 40px;
+    }
 }
 #product-img {
-    width: 120px;
-    height: 120px;
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
 }
 #discount-sticker {
     top: 200px;

@@ -1,5 +1,7 @@
 package com.ict.serv.entity.Inquiries;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.ict.serv.entity.product.ProductImage;
 import com.ict.serv.entity.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -41,4 +45,8 @@ public class Inquiry {
     @ManyToOne
     @JoinColumn(name="user_id")
     private User user;
+
+    @OneToMany(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<InquiryImage> images = new ArrayList<>();
 }

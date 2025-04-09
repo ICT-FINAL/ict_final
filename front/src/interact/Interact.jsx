@@ -21,6 +21,7 @@ function Interact() {
     const moveInfo = (where) => {
         dispatch(setInteract({...interact, isOpen:false}));
         navigate('/userinfo', {state:interact.selected});
+        window.scrollTo({top: 0});
     }
 
     const openMessage = (wh) =>{

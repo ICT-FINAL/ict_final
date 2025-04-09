@@ -682,8 +682,10 @@
   
   .buy-price {
     font-size: 20px;
-    color: #d9534f;
+    color: black;
     margin: 10px 0;
+    border-bottom: 1px solid #ddd;
+    padding-bottom:5px;
   }
   
   .selected-options {

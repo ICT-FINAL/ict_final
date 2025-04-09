@@ -50,7 +50,7 @@ function ProductInfo() {
     }, [selectedItems, selectedCoupon, loc.state.product.price, loc.state.product.discountRate]);
 
     const moveBuy = () => {
-        if(totalPrice === 0) alert('구매하실 상품을 선택해주세요');
+        if(totalPrice - loc.state.product.shippingFee <= 0) alert('구매하실 상품을 선택해주세요');
         else
             navigate('/product/buying', {
                 state: {
@@ -58,7 +58,8 @@ function ProductInfo() {
                     totalPrice: totalPrice,
                     productName: loc.state.product.productName,
                     selectedOptions: selectedItems,
-                    shippingFee:loc.state.product.shippingFee
+                    shippingFee:loc.state.product.shippingFee || 0,
+                    selectedCoupon:selectedCoupon || 0
                 }
             });
     };

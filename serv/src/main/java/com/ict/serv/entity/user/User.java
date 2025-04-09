@@ -1,6 +1,8 @@
 package com.ict.serv.entity.user;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ict.serv.entity.Authority;
+import com.ict.serv.entity.product.ProductImage;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -8,6 +10,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -73,6 +77,11 @@ public class User {
 
     @Column(name="grade_point", columnDefinition = "int default 0")
     private int gradePoint;
+
+    @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    @Builder.Default
+    private List<Address> addressList = new ArrayList<>();
 
     public String getProfileImageUrl() {
         return (uploadedProfileUrl != null && !uploadedProfileUrl.trim().isEmpty())
