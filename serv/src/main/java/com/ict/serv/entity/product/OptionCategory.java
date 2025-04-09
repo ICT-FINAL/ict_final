@@ -2,6 +2,7 @@ package com.ict.serv.entity.product;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.ict.serv.entity.basket.Basket;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
