@@ -65,9 +65,17 @@ public class MypageController {
     }
 
     @GetMapping("/myInfo")
-    public int myInfo(User user) {
-        // 팔로워 팔로잉 추가 필요
-        return service.getWishCount(user.getId());
+    public Map<String, Object> myInfo(User user) {
+        List<User> followerList = interactService.getFollowerList(user.getId());
+        List<User> followingList = interactService.getFollowingList(user.getId());
+        int wishCount = service.getWishCount(user.getId());
+
+        Map<String, Object> info = new HashMap<>();
+        info.put("followerList", followerList);
+        info.put("followingList", followingList);
+        info.put("wishCount", wishCount);
+
+        return info;
     }
 
     @GetMapping("/getAddrList")

@@ -11,6 +11,7 @@ import '../../../css/view/mypage.css';
 import MyWish from "./MyWish";
 import MyInquiryList from "./MyInquiryList";
 import UserInfo from "../UserInfo";
+import MyFollow from "./MyFollow";
 
 function MyIndex(){
     const location = useLocation();
@@ -28,6 +29,7 @@ function MyIndex(){
             comments: { f_name: "나의 활동", l_name: "댓글 관리" },
             reports: { f_name: "나의 활동", l_name: "신고 내역" },
             inquiries: { f_name: "나의 활동", l_name: "문의 내역" },
+            follow: { f_name: "나의 활동", l_name: "팔로우 목록" },
             purchases: { f_name: "거래 내역", l_name: "주문 내역" },
             sales: { f_name: "거래 내역", l_name: "판매 기록" },
             basket: { f_name: "보관함", l_name: "장바구니" },
@@ -64,6 +66,7 @@ function MyIndex(){
                   { path.l_name == '문의 내역' && <MyInquiryList/> }
                   { path.l_name == '찜 목록' && <MyWish/> }
                   { path.l_name == '주문 내역' && <MyPurchases/> }
+                  { path.l_name == '팔로우 목록' && <MyFollow/> }
             </div>
         </div>
     </>)

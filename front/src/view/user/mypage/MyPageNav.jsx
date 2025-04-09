@@ -33,6 +33,9 @@ function MyPageNav({ path }) {
                 <li onClick={() => navigate("/mypage/inquiries")} style={path.l_name === "문의 내역" ? clickedStyle : {}}>
                     <span style={path.l_name === "문의 내역" ? clickedStyle2 : {}}>문의 내역</span>
                 </li>
+                <li onClick={() => navigate("/mypage/follow")} style={path.l_name === "팔로우 목록" ? clickedStyle : {}}>
+                    <span style={path.l_name === "팔로우 목록" ? clickedStyle2 : {}}>팔로우 목록</span>
+                </li>
             </ul>
             <ul>
                 <li>거래 내역</li>

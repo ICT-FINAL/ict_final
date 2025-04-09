@@ -364,6 +364,10 @@ input.tel {
     border: none;
     border-radius: 10px;
     cursor: pointer;
+    transition: all 0.5s;
+}
+#follow-btn:hover {
+    background-color: #52a575;
 }
 .profile-menu {
     justify-content:center;
@@ -532,4 +536,35 @@ input.tel {
 #discount-sticker {
     top: 200px;
     left: 50px;
+}
+
+/* ========== Mypage Follow ========== */
+.follow-container {
+    min-width: 500px;
+}
+.follow-menu, .follow-menu>li {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+.follow-menu>li {
+    float: left;
+    width: calc(50% - 2px);
+    background-color: #eee;
+    margin-bottom: 20px;
+    padding: 20px 0;
+    border: 1px solid #555;
+    
+    text-align: center;
+    cursor: pointer;
+}
+.follow-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    text-align: center;
+}
+.follow-user-img {
+    width: 10vw;
+    height: 10vw;
+    object-fit: cover;
 }
