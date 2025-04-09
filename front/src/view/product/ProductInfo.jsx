@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { FaHeart, FaShoppingCart, FaTimes } from "react-icons/fa";
 import axios from "axios";
+import { Star } from "lucide-react";
 
 function ProductInfo() {
     const serverIP = useSelector((state) => state.serverIP);
@@ -21,6 +22,7 @@ function ProductInfo() {
     const [totalPrice, setTotalPrice] = useState(0);
 
     const [changeMenu, setChangeMenu] = useState('detail');
+    const [reviewWrite, setReviewWrite] = useState(false);
 
     useEffect(() => {
         axios.get(`${serverIP.ip}/product/getOption?id=${loc.state.product.id}`,{
@@ -185,9 +187,67 @@ function ProductInfo() {
         setSelectedItems(updatedItems);
     };
 
+    /*후기*/
+    const [rating, setRating] = useState(0);
+    const [hover, setHover] = useState(0);
+    
+    let [reviewContent, setReviewContent] = useState('');
+    let [reviewFiles, setReviewFiles] = useState([]);
+
+    function handleData(event){
+        if(event.target.name=='reviewContent') setReviewContent(event.target.value);
+    }
+
+    function handleFileData(event){
+        const files = Array.from(event.target.files);
+
+        // 기존 선택된 파일과 합쳐서 개수 체크
+        if (files.length > 5) {
+            alert("파일은 최대 5개까지 업로드 가능합니다.");
+            setReviewFiles([]);
+            event.target.value = "";
+            return;
+        }
+
+        setReviewFiles(files);
+    }
+
+    function handleSubmit(event){
+        event.preventDefault();
+
+        console.log("별점:", rating);
+
+        if(reviewContent==''){
+            alert('후기를 입력해주세요.'); 
+            return false;
+        }
+
+        //첨부파일이 있어 Form객체를 만들어 서버에 전송해야한다.
+        let formData = new FormData();
+        formData.append("productId", loc.state.product.id); // 어떤 상품인지
+        formData.append("reviewContent", reviewContent); // 후기내용 
+        for(let idx=0; idx<reviewFiles.length; idx++){ // 첨부파일
+            formData.append("files", reviewFiles[idx]);
+        }
+        
+        axios.post(`${serverIP.ip}/review/write`, formData, {
+            headers: {
+                Authorization: `Bearer ${user.token}`
+            }
+        })
+        .then(function(response){
+            console.log(response.data);
+        })
+        .catch(function(error){
+            console.log(error);
+        })
+
+    }
+
     return (
         <>
-        <div style={{ paddingTop: "140px" }}>
+        <div style={{ paddingTop: "140px"}}>
+            
             <div className="product-info-container">
                 <div className="product-info-left">
                     <img
@@ -361,45 +421,84 @@ function ProductInfo() {
                     </ul>
                 </div>
             </div>
-
-            {/* 상세정보, 후기 메뉴 */}
+                
+            {/* 상세정보, 후기 */}
             <div style={{ paddingTop: "10%", width: '80%', margin: '0 auto' }}>
-                <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc' }} />
-                <div style={{
-                    display: 'flex',
-                    gap: '50px',  // 요소 사이 간격 추가
-                    padding: '10px 0',
-                    fontSize: '16px',
-                    fontWeight: '600'
-                }}>
-                    <div style={{padding:'0 50px'}} onClick={()=>setChangeMenu("detail")}>상세정보</div>
-                    <div style={{padding:'0 50px'}} onClick={()=>setChangeMenu("review")}>후기</div>
+                <div>
+                    <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
+                    <div style={{
+                        display: 'flex',
+                        fontSize: '16px',
+                        fontWeight: '600'
+                    }}>
+                        <div onClick={()=>setChangeMenu("detail")} className="product-div">상세정보</div>
+                        <div onClick={()=>setChangeMenu("review")} className="product-div">후기</div>
+                    </div>
+                    <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
                 </div>
-                <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc' }} />
+
+                <div>
+                    {changeMenu==="detail" &&
+                    <>
+                        {
+                            // productList.length === 0 &&
+                            <div style={{padding: '20px', textAlign: 'center'}}>등록된 정보가 없습니다.</div>
+                        }
+                        상세정보 내용 
+                    </>
+                    }
+
+                    {changeMenu==="review" &&
+                    <>
+                        {
+                            // productList.length === 0 &&
+                            <div style={{padding: '20px 0px', textAlign: 'center'}}>후기 - 등록된 정보가 없습니다.</div>
+                        }
+                            만약에 이 상품을 산 회원이라면 후기등록버튼이 보이게하기 
+                            <button onClick={() => setReviewWrite(!reviewWrite)}>후기등록하기</button>
+
+                        {/* 후기등록 */}
+                        {reviewWrite && 
+                            <div style={{border:'1px solid #ccc'}}>
+                                <form onSubmit={handleSubmit} className="reviewForm">
+
+                                    {/*별점*/}
+                                    <div className="star-rating">
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <Star
+                                                key={star}
+                                                size={30}
+                                                fill={star <= (hover || rating) ? "#FFD700" : "none"}
+                                                stroke="#FFD700"
+                                                onMouseEnter={() => setHover(star)}
+                                                onMouseLeave={() => setHover(0)}
+                                                onClick={() => setRating(star)}
+                                                className="star"
+                                            />
+                                        ))}
+                                    </div>
+
+                                    <input type="file" id="reviewFiles" name="reviewFiles" onChange={handleFileData} multiple/>
+                                    <ul style={{ listStyle: "none", padding: "0 10px" }}> {/* 선택한 파일 목록 표시 */}
+                                        {reviewFiles.map((file, index) => (
+                                            <li key={index} style={{ fontSize: "12px", color: "#333" }}>{file.name}</li>
+                                        ))}
+                                    </ul>
+                                    
+                                    <div className="reviewInputContainer">
+                                        <textarea className="reviewContent-style" id="reviewContent" name="reviewContent" value={reviewContent} onChange={handleData}></textarea>
+                                        <input type="submit" value="등록" className="reviewBtn-style"/>
+                                    </div>
+                                </form>
+                            </div>
+                        }
+
+                    </>
+                    }
+                </div>
             </div>
 
-            {/* 상세정보, 후기 메뉴 클릭시 */}
-            <div>
-                {changeMenu==="detail" &&
-                <>
-                    {
-                        // productList.length === 0 &&
-                        <div style={{padding: '20px', textAlign: 'center'}}>등록된 정보가 없습니다.</div>
-                    }
-                    상세정보 내용 
-                </>
-                }
 
-                {changeMenu==="review" &&
-                <>
-                    {
-                        // productList.length === 0 &&
-                        <div style={{padding: '20px', textAlign: 'center'}}>등록된 정보가 없습니다.</div>
-                    }
-                    후기 내용 
-                </>
-                }
-            </div>
         </div>
         </>
     );

@@ -417,11 +417,11 @@
 .product-info-container {
     width: 80%;
     margin: auto;
-    height: 40vw;
+    
     max-width: 1200px;
-    max-height: 600px;
+    
     min-width: 800px;
-    min-height: 400px;
+    
     display: grid;
     grid-template-columns: 4.5fr 5.5fr;
 }
@@ -819,4 +819,58 @@
 .pagination button:disabled {
     cursor: not-allowed;
     opacity: 0.5;
+}
+
+/* 리뷰 */
+.product-div{
+    padding: 15px 60px;
+}
+
+.product-div:hover{
+    background-color: #edfcf3;
+    cursor: pointer;
+}
+
+.reviewInputContainer {
+    display: flex;
+    align-items: stretch; /* 버튼과 textarea 높이 동일하게 */
+    gap: 10px; /* 간격 조정 */
+}
+
+.reviewContent-style {
+    flex: 1;
+    height: 100px;
+    padding: 12px;
+    background-color: #f9f9f9;
+    border: none;
+    border-radius: 20px;
+    font-size: 16px;
+    resize: none;
+    outline: none;
+    transition: box-shadow 0.3s ease-in-out;
+    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.reviewContent-style:hover {
+    box-shadow: 6px 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.reviewBtn-style {
+    width: 120px;
+    background-color: #dddddd;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.reviewBtn-style:hover {
+    box-shadow: 6px 6px 10px rgba(0, 0, 0, 0.15);
 }

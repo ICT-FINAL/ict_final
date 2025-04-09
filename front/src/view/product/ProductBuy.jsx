@@ -68,7 +68,7 @@ function ProductBuy() {
       if(user)
         tossPayments
           .requestPayment("카드", {
-            amount: finalPrice,
+            amount: parseInt(finalPrice),
             orderId,
             orderName: productName,
             customerName: user.user.username,
