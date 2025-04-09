@@ -76,6 +76,14 @@ function ProductBuy() {
             failUrl: `http://localhost:3000/payment/fail`,
           })
           .catch((error) => {
+            axios.get(`${serverIP.ip}/order/cancel?id=${res.data.id}`,{
+              headers: { Authorization: `Bearer ${user.token}` },}
+            )
+            .then(res=>{
+              console.log("결제 취소");
+            })
+            .catch(err => console.log(err));
+
             console.error("❌ 결제창 오류:", error);
           });
     })

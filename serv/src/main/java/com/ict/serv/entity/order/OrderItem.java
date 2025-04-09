@@ -19,6 +19,9 @@ public class OrderItem {
 
     private int price;
 
+    @Column(name="additional_fee")
+    private int additionalFee;
+
     @Column(name="discount_rate")
     private int discountRate;
 

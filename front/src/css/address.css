@@ -135,3 +135,49 @@
     gap: 10px;
     margin-top: 20px;
 }
+
+/* 결제성공페이지 */
+.product-payment-container {
+    padding: 100px;
+    text-align: center;
+  }
+  
+  .product-payment-header {
+    margin-bottom: 30px;
+  }
+  
+  .product-payment-info {
+    margin-bottom: 40px;
+  }
+  
+  .product-payment-order-id, 
+  .product-payment-amount, 
+  .product-payment-thank-you {
+    font-size: 18px;
+    margin: 10px 0;
+  }
+  
+  .product-payment-order-id strong, 
+  .product-payment-amount strong {
+    font-weight: bold;
+  }
+  
+  .product-payment-buttons {
+    margin-top: 30px;
+  }
+  
+  .product-payment-btn {
+    padding: 10px 20px;
+    margin: 10px;
+    background-color: #8CC7A5;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .product-payment-btn:hover {
+    background-color: #4a7b63;
+  }
+
+/* 결제성공끝 */
