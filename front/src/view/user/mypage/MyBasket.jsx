@@ -39,34 +39,38 @@ function MyBasket() {
                     headers: { Authorization: `Bearer ${user.token}` },
                 })
                 .then((res) => {
-                    console.log("장바구니리스트:", res.data);
-                    setBasketItems(res.data);
+                    console.log("장바구니리스트:", res);
+                    setBasketItems(res);
                 })
                 .catch((err) => console.log(err));
         }
     }, [user, serverIP]);
 
-    const moveBuy = (item) => {
+    const moveProductInfo = (item) => {
         console.log(item);
         navigate('/product/info', {
             state: {
-                product: item
+                product: item.productNo
             }
         });
     }
 
-    const groupedItems = useMemo(() => {
-        const grouped = {};
-        basketItems.forEach((item) => {
-            const seller = item.sellerNo.sellerNo.username;
-            if (!grouped[seller]) {
-                grouped[seller] = [];
-            }
-            grouped[seller].push(item);
-        });
-        console.log(grouped);
-        return grouped;
-    }, [basketItems]);
+    //     const groupedItems = useMemo(() => {
+    //         const grouped = {};
+    //         //basketItems.forEach((item) => {
+    //         //const sellerId = item.productNo.sellerNo.id;
+
+    //         // if (!grouped[sellerId]) {
+    //         //     grouped[sellerId] = {
+    //         //         //sellerInfo: item.productNo.sellerNo,
+    //         //         items: []
+    //         //     };
+    //         // }
+    //         // grouped[sellerId].items.push(item);
+    //     });
+    //     console.log("groupedItems:", grouped);
+    //     return grouped;
+    // }, [basketItems]);
 
     const handleAllCheck = (e) => {
         const newAllChecked = e.target.checked;
@@ -75,24 +79,36 @@ function MyBasket() {
         const newCheckedItems = {};
         if (newAllChecked) {
             basketItems.forEach((item) => {
-                newCheckedItems[item.basketNo] = true;
+                newCheckedItems[item.id] = true;
             });
         }
         setCheckedItems(newCheckedItems);
     };
 
-    const handleItemCheck = (basketNo) => {
+    const handleSellerCheck = (sellerId, checked) => {
         const newCheckedItems = { ...checkedItems };
-        if (newCheckedItems[basketNo]) {
-            delete newCheckedItems[basketNo];
+        // groupedItems[sellerId].items.forEach(item => {
+        //     if (checked) {
+        //         newCheckedItems[item.id] = true;
+        //     } else {
+        //         delete newCheckedItems[item.id];
+        //     }
+        // });
+        setCheckedItems(newCheckedItems);
+    };
+
+    const handleItemCheck = (basketId) => {
+        const newCheckedItems = { ...checkedItems };
+        if (newCheckedItems[basketId]) {
+            delete newCheckedItems[basketId];
         } else {
-            newCheckedItems[basketNo] = true;
+            newCheckedItems[basketId] = true;
         }
         setCheckedItems(newCheckedItems);
     };
 
     useEffect(() => {
-        setAllChecked(basketItems.length > 0 && basketItems.every((item) => checkedItems[item.basketNo]));
+        setAllChecked(basketItems.length > 0 && basketItems.every((item) => checkedItems[item.id]));
     }, [checkedItems, basketItems]);
 
     const formatNumber = (number) => {
@@ -108,14 +124,18 @@ function MyBasket() {
         let totalQuantity = 0;
         let sellers = new Set();
 
-        basketItems.forEach((item) => {
-            if (checkedItems[item.basketNo]) {
-                totalPrice += item.sellerNo.price * item.quantity;
-                totalShippingFee += item.sellerNo.shippingfee;
-                totalQuantity += item.quantity;
-                sellers.add(item.sellerNo.sellerNo.username);
-            }
-        });
+        // basketItems.forEach((item) => {
+        //     if (checkedItems[item.id]) {
+        //         const discountPrice = item.productNo.discountRate > 0
+        //             ? item.productNo.price * (100 - item.productNo.discountRate) / 100
+        //             : item.productNo.price;
+        //         const itemPrice = discountPrice + (item.option_no ? item.option_no.additionalPrice : 0);
+        //         totalPrice += itemPrice * item.basketQuantity;
+        //         totalShippingFee += item.productNo.shippingFee;
+        //         totalQuantity += item.basketQuantity;
+        //         //sellers.add(item.productNo.sellerNo.username);
+        //     }
+        // });
 
         return { totalPrice, totalShippingFee, totalQuantity, totalAmount: totalPrice + totalShippingFee, sellers };
     };
@@ -170,58 +190,8 @@ function MyBasket() {
                 <button type="button" onClick={handleDeleteSelected}>선택삭제</button>
                 <hr />
             </div>
-            {Object.keys(groupedItems).length > 0 ? (
-                Object.keys(groupedItems).map((seller, index) => (
-                    <div key={index} className="basket-body">
-                        <input type="checkbox" checked={groupedItems[seller].every(item => checkedItems[item.basketNo])} onChange={(e) => {
-                            if (e.target.checked) {
-                                const newChecked = { ...checkedItems };
-                                groupedItems[seller].forEach(item => {
-                                    newChecked[item.basketNo] = true;
-                                });
-                                setCheckedItems(newChecked);
-                            } else {
-                                const newChecked = { ...checkedItems };
-                                groupedItems[seller].forEach(item => {
-                                    delete newChecked[item.basketNo];
-                                });
-                                setCheckedItems(newChecked);
-                            }
-                        }} /> {seller} 님의 상품 <button type="button">쿠폰받기</button>
-                        <ul className="basket-list" style={{ fontWeight: "bold", borderBottom: "1px solid #ddd" }}>
-                            <li></li>
-                            <li>판매자</li>
-                            <li>제품</li>
-                            <li>가격</li>
-                            <li>수량</li>
-                            <li>배송비</li>
-                        </ul>
-                        {groupedItems[seller].map((item, idx) => (
-                            <ul key={idx} className="basket-list">
-                                <li><input type="checkbox" checked={checkedItems[item.basketNo] || false} onChange={() => handleItemCheck(item.basketNo)} /></li>
-                                <li>{seller}</li>
-                                <li style={{ cursor: "pointer" }} onClick={() => moveBuy(item.sellerNo)}>
-                                    <img style={{ width: '5vw', height: '5vw', borderRadius: '10px' }}
-                                        src={`${serverIP.ip}/uploads/product/${item.sellerNo.id}/${item.sellerNo.images[0].filename}`}
-                                        onClick={() => setImageIndex(idx)}
-                                    />
-                                    {item.sellerNo.productName}
-                                </li><button onClick={() => {
-                                    dispatch(setInteract(item)); // 선택된 상품 정보 저장
-                                    console.log("전달되는 아이템:", item);
-                                    dispatch(setModal({ isOpen: true, selected: 'basket-box', selectedItem: item }));
 
-                                }}>주문수정</button>
-                                <li>{formatNumber(item.sellerNo.price)}원</li>
-                                <li>{item.quantity}</li>
-                                <li>{formatNumber(item.sellerNo.shippingfee)}원</li>
-                            </ul>
-                        ))}
-                    </div>
-                ))
-            ) : (
-                <div style={{ marginTop: "10px" }}>장바구니에 담긴 상품이 없습니다.</div>
-            )}
+
             <div className="basket-body" style={{ backgroundColor: "beige", borderRadius: "10px" }}>
                 <ul className="price-list">
                     <li>선택상품금액</li>
