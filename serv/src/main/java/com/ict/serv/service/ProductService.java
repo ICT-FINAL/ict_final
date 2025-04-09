@@ -63,7 +63,10 @@ public class ProductService {
     public Optional<Product> selectProduct(Long id) {
         return repo.findById(id);
     }
+
     public List<Option> selectOptions(Product product){
         return optionRepository.findByProduct(product);
     }
+
+    public Optional<OptionCategory> selectOptionCategory(Long id) { return optionCategoryRepository.findById(id);}
 }

@@ -38,21 +38,21 @@ public class Product {
     @Column(name="product_category")
     private String productCategory;
 
-    @Column(length = 2000)
+    @Column(columnDefinition = "LONGTEXT")
     private String detail;
     private int price;
     private int quantity;
 
     @Column(name="shipping_fee")
-    private int shippingfee;
+    private int shippingFee;
 
     @CreationTimestamp
     @Column(columnDefinition = "DATETIME default now()")
     private String startDate;
     private String endDate;
 
-    @Column(columnDefinition = "float default 0.0")
-    private float discountRate;
+    @Column(columnDefinition = "int default 0.0")
+    private int discountRate;
 
     @Enumerated(EnumType.STRING)
     private ProductState state = ProductState.SELL;

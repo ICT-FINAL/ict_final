@@ -9,6 +9,7 @@ import com.ict.serv.repository.inquiry.InquiryRepository;
 import com.ict.serv.service.InquiryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -31,7 +32,7 @@ public class InquiryController {
     private final UserRepository userRepository;
     private final InquiryRepository inquiryRepository;
 
-    /*
+
     @PostMapping("/inquiryWriteOk")
     public ResponseEntity<String> InquiryWriteOk(
             @RequestParam("inquiry_subject")String inquirySubject,
@@ -86,6 +87,6 @@ public class InquiryController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body("");
             }
-        }*/
+        }
     }
 

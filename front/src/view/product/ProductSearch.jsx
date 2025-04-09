@@ -154,26 +154,40 @@ function ProductSearch() {
         </div> 
     </div>
         </div>
-            <div className="product-grid">
-                {products.map((product, index) => (
-                    <div
-                        key={`${product.id}-${index}`}
-                        className="product-card"
-                        ref={index === products.length - 1 ? ref : null}
-                    >
-                        <img style={{cursor:'pointer'}} onClick={() => {moveInfo(product)}}
-                            src={`${serverIP.ip}/uploads/product/${product.id}/${product.images[0]?.filename}`}
-                            alt={product.productName}
-                            className="w-full h-40 object-cover"
-                        />
-                        <div style={{cursor:'pointer'}} onClick={() => {moveInfo(product)}}
-                        className="product-info">
-                            <p>{product.productName}</p>
-                            <p>{product.price}원</p>
-                        </div>
-                    </div>
-                ))}
+        <div className="product-grid">
+    {products.map((product, index) => (
+        <div
+            key={`${product.id}-${index}`}
+            className="product-card"
+            ref={index === products.length - 1 ? ref : null}
+        >
+            <img style={{ cursor: 'pointer' }} onClick={() => moveInfo(product)}
+                src={`${serverIP.ip}/uploads/product/${product.id}/${product.images[0]?.filename}`}
+                alt={product.productName}
+                className="w-full h-40 object-cover"
+            />
+            <div style={{ cursor: 'pointer' }} onClick={() => moveInfo(product)} className="product-info">
+                <span style={{ fontSize: "14px", color: "#333" }}>{product.productName}</span> {/* 상품명 */} <br /> 
+                <span style={{ color: 'red', fontWeight: "700" }}>{product.discountRate}%</span> {/* 할인 */}
+                <span style={{textDecoration: "line-through", textDecorationColor: "red", textDecorationThickness: "2px", fontWeight: "700"}}>{product.price}원</span> {/* 기존 가격 */}
+                <span style={{ color: 'red', fontWeight: "700" }}>{Math.round(product.price * (1 - product.discountRate / 100))}원</span> {/* 할인된가격 */}
+
+                <br />
+                <div style={{ 
+                    marginTop: "5px", padding: "4px 8px", display: "inline-block",
+                    borderRadius: "5px", fontSize: "12px", fontWeight: "600",
+                    backgroundColor: product.shippingFee === 0 ? "#ff4d4d" : "#f2f2f2",
+                    color: product.shippingFee === 0 ? "white" : "black",
+                    minHeight: "10px",
+                    lineHeight: "10px" // 가운데 정렬
+                }}>
+                    {product.shippingFee === 0 ? "🚚 무료배송" : `배송비 ${product.shippingFee}원`} {/* 배송비 */}
+                </div>
+
             </div>
+        </div>
+    ))}
+</div>
         </div>
     );
 }
