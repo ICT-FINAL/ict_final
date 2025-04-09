@@ -142,12 +142,12 @@ function MessageBox() {
   const modalBackStyle = {
     position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
     backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
-    zIndex: 2000, opacity: modalOpen ? 1 : 0, transition: 'opacity 0.3s ease'
+    zIndex: 10000, opacity: modalOpen ? 1 : 0, transition: 'opacity 0.3s ease'
   };
 
   const modalStyle = {
     position: 'fixed', width: '600px', height: '550px', backgroundColor: '#fff',
-    zIndex: 2001, opacity: modalOpen ? 1 : 0, transform: modalTransform,
+    zIndex: 10001, opacity: modalOpen ? 1 : 0, transform: modalTransform,
     borderRadius: '12px', boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
     padding: '20px', transition: 'opacity 0.3s ease, transform 0.3s ease'
   };

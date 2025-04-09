@@ -21,6 +21,8 @@ function ProductInfo() {
     const [totalPrice, setTotalPrice] = useState(0);
     const [addBasketItems, setAddBasketItems] = useState(null);
 
+    const [changeMenu, setChangeMenu] = useState('detail');
+
     useEffect(() => {
         axios.get(`${serverIP.ip}/product/getOption?id=${loc.state.product.id}`, {
             headers: { Authorization: `Bearer ${user.token}` }
@@ -49,7 +51,7 @@ function ProductInfo() {
     }, [selectedItems, selectedCoupon, loc.state.product.price, loc.state.product.discountRate]);
 
     const moveBuy = () => {
-        if (totalPrice === 0) alert('구매하실 상품을 선택해주세요');
+        if(totalPrice - loc.state.product.shippingFee <= 0) alert('구매하실 상품을 선택해주세요');
         else
             navigate('/product/buying', {
                 state: {
@@ -222,6 +224,7 @@ function ProductInfo() {
     };
 
     return (
+        <>
         <div style={{ paddingTop: "140px" }}>
             <div className="product-info-container">
                 <div className="product-info-left">
@@ -243,6 +246,18 @@ function ProductInfo() {
                     </ul>
                 </div>
                 <div className="product-info-right">
+
+                    <div style={{ 
+                        marginTop: "5px", padding: "4px 8px", display: "inline-block",
+                        borderRadius: "5px", fontSize: "12px", fontWeight: "600",
+                        backgroundColor: loc.state.product.shippingFee === 0 ? "#ff4d4d" : "#f2f2f2",
+                        color: loc.state.product.shippingFee === 0 ? "white" : "black",
+                        minHeight: "20px",
+                        lineHeight: "20px" // 가운데 정렬
+                    }}>
+                        {loc.state.product.shippingFee === 0 ? "🚚 무료배송" : `배송비 ${loc.state.product.shippingFee}원`} {/* 배송비 */}
+                    </div>
+
                     <ul>
                         <li style={{ display: 'flex' }}>
                             <div className='product-profile-box'>
@@ -384,7 +399,47 @@ function ProductInfo() {
                     </ul>
                 </div>
             </div>
+
+            {/* 상세정보, 후기 메뉴 */}
+            <div style={{ paddingTop: "10%", width: '80%', margin: '0 auto' }}>
+                <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc' }} />
+                <div style={{
+                    display: 'flex',
+                    gap: '50px',  // 요소 사이 간격 추가
+                    padding: '10px 0',
+                    fontSize: '16px',
+                    fontWeight: '600'
+                }}>
+                    <div style={{padding:'0 50px'}} onClick={()=>setChangeMenu("detail")}>상세정보</div>
+                    <div style={{padding:'0 50px'}} onClick={()=>setChangeMenu("review")}>후기</div>
+                </div>
+                <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc' }} />
+            </div>
+
+            {/* 상세정보, 후기 메뉴 클릭시 */}
+            <div>
+                {changeMenu==="detail" &&
+                <>
+                    {
+                        // productList.length === 0 &&
+                        <div style={{padding: '20px', textAlign: 'center'}}>등록된 정보가 없습니다.</div>
+                    }
+                    상세정보 내용 
+                </>
+                }
+
+                {changeMenu==="review" &&
+                <>
+                    {
+                        // productList.length === 0 &&
+                        <div style={{padding: '20px', textAlign: 'center'}}>등록된 정보가 없습니다.</div>
+                    }
+                    후기 내용 
+                </>
+                }
+            </div>
         </div>
+        </>
     );
 }
 

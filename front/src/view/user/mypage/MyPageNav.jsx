@@ -36,8 +36,8 @@ function MyPageNav({ path }) {
             </ul>
             <ul>
                 <li>거래 내역</li>
-                <li onClick={() => navigate("/mypage/purchases")} style={path.l_name === "구매 기록" ? clickedStyle : {}}>
-                    <span style={path.l_name === "구매 기록" ? clickedStyle2 : {}}>구매 기록</span>
+                <li onClick={() => navigate("/mypage/purchases")} style={path.l_name === "주문 내역" ? clickedStyle : {}}>
+                    <span style={path.l_name === "주문 내역" ? clickedStyle2 : {}}>주문 내역</span>
                 </li>
                 <li onClick={() => navigate("/mypage/sales")} style={path.l_name === "판매 기록" ? clickedStyle : {}}>
                     <span style={path.l_name === "판매 기록" ? clickedStyle2 : {}}>판매 기록</span>

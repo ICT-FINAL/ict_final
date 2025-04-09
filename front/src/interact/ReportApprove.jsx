@@ -156,7 +156,7 @@ function ReportApprove() {
       height: '100%',
       backgroundColor: 'rgba(0,0,0,0.5)',
       backdropFilter: 'blur(5px)',
-      zIndex: 2000,
+      zIndex: 10000,
       opacity: modalOpen ? 1 : 0,
       transition: 'opacity 0.3s ease'
     }
@@ -166,7 +166,7 @@ function ReportApprove() {
       width: '500px', 
       height: '360px', 
       backgroundColor: 'white',
-      zIndex: 2001,
+      zIndex: 10001,
       opacity: modalOpen ? 1 : 0,
       transform: modalTransform,
       borderRadius: '12px',

@@ -5,7 +5,6 @@ return(
     <div className="CustomerServiceLayout-container"> 
     <div className="CenterHome-container">
         <ul className="center-menu">
-            <li><div className="center-menu1"><span><Link to="/customerservice/inquiryList">내 문의내역</Link></span></div></li>
             <li><div className="center-menu2"><span><Link to="/customerservice/inquiryWrite">1:1문의하기</Link></span></div></li>
             <li><div className="center-menu3"><span><Link to="/customerservice/faq">자주묻는질문</Link></span></div></li>
             <li><div className="center-menu4"><span>공지사항</span></div></li>

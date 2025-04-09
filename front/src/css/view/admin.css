@@ -230,3 +230,23 @@
     width:11%;
     text-align:center;
 }
+
+.report-state {
+    padding: 5px 10px;
+    display: inline-block;
+    border-radius: 3px;
+    font-weight: bold;
+    color: #fff;
+  }
+  
+.report-state-readable {
+    background-color: #dd322c;
+}
+
+.report-state-processing {
+    background-color: #ff9800; 
+}
+
+.report-state-completed {
+    background-color: #28a745;
+}

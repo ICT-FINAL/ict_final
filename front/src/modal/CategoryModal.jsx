@@ -138,7 +138,7 @@ function CategoryModal() {
         height: '100%',
         backgroundColor: 'rgba(0,0,0,0.5)',
         backdropFilter: 'blur(5px)',
-        zIndex: 3000,
+        zIndex: 10000,
         opacity: modalOpen ? 1 : 0,
         transition: 'opacity 0.3s ease'
     };
@@ -148,7 +148,7 @@ function CategoryModal() {
         width: '650px',
         maxHeight: '80vh',
         backgroundColor: 'white',
-        zIndex: 3001,
+        zIndex: 10001,
         opacity: modalOpen ? 1 : 0,
         transform: modalTransform,
         transition: 'opacity 0.3s ease, transform 0.3s ease',
