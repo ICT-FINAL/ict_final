@@ -1,20 +1,23 @@
 package com.ict.serv.controller;
 
 import com.ict.serv.controller.admin.PagingVO;
+import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.report.ReportState;
+import com.ict.serv.entity.user.Address;
+import com.ict.serv.entity.user.Guestbook;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.InteractService;
 import com.ict.serv.service.MypageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -34,5 +37,50 @@ public class MypageController {
         map.put("reportList", service.getReportByUserFrom(user,pvo));
 
         return map;
+    }
+
+    @GetMapping("/guestbookList")
+    public List<Guestbook> guestbookList(User user) {
+        return service.selectGuestbookAll(user);
+    }
+
+    @GetMapping("/replyList/{id}")
+    public List<Guestbook> replyList(@PathVariable int id) {
+        return service.selectReplyAll(id);
+    }
+
+    @PostMapping("/guestbookWrite")
+    public void guestbookWrite(@RequestBody Guestbook guestbook) {
+        service.insertGuestbook(guestbook);
+    }
+
+    @GetMapping("/guestbookDelete/{id}")
+    public void guestbookDelete(@PathVariable int id) {
+        service.deleteGuestbook(service.selectGuestbookById(id).get());
+    }
+
+    @GetMapping("/productList/{id}")
+    public List<Product> productList(@PathVariable long id) {
+        return service.selectProductBySellerNo(id);
+    }
+
+    @GetMapping("/myInfo")
+    public int myInfo(User user) {
+        // 팔로워 팔로잉 추가 필요
+        return service.getWishCount(user.getId());
+    }
+
+    @GetMapping("/getAddrList")
+    public List<Address> getAddrList(@AuthenticationPrincipal UserDetails userDetails) {
+        return service.getAddrList(interactService.selectUserByName(userDetails.getUsername()));
+    }
+    @PostMapping("/insertAddrList")
+    public Address insertAddrList(@AuthenticationPrincipal UserDetails userDetails, @RequestBody Address address) {
+        address.setUser(interactService.selectUserByName(userDetails.getUsername()));
+        address.setCreatedDate(LocalDateTime.now());
+        address.setModifiedDate(LocalDateTime.now());
+
+        System.out.println(address);
+        return service.insertAddress(address);
     }
 }

@@ -1,6 +1,7 @@
 import { useState,useRef } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import ProductEditor from "./ProductEditor";
 
 function ProductSell() {
     const serverIP = useSelector((state) => state.serverIP);
@@ -15,8 +16,76 @@ function ProductSell() {
         detail: "",
         price: "",
         quantity: "",
-        discountRate: ""
+        discountRate: "",
+        options: [],
+        shippingFee:""
     });
+    
+    const addMainOption = () => {
+        setFormData(prev => ({
+            ...prev,
+            options: [...prev.options, { mainOptionName: "", quantity: 0, subOptions: [] }]
+        }));
+    };
+
+    const removeMainOption = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            options: prev.options.filter((_, i) => i !== index)
+        }));
+    };
+
+    const handleMainOptionChange = (index, value) => {
+        const updatedOptions = [...formData.options];
+        updatedOptions[index].mainOptionName = value;
+        setFormData({ ...formData, options: updatedOptions });
+    };
+
+    const calculateTotalQuantity = () => {
+        let totalQuantity = 0;
+    
+        formData.options.forEach(option => {
+            option.subOptions.forEach(subOption => {
+                totalQuantity += subOption.quantity;
+            });
+        });
+        return totalQuantity;
+    };
+
+    const addSubOption = (index) => {
+        const updatedOptions = [...formData.options];
+        updatedOptions[index].subOptions.push({ subOptionName: "", quantity: 1, additionalPrice: "" });
+        setFormData({ ...formData, options: updatedOptions });
+    };
+
+    const removeSubOption = (mainIndex, subIndex) => {
+        const updatedOptions = [...formData.options];
+        updatedOptions[mainIndex].subOptions = updatedOptions[mainIndex].subOptions.filter((_, i) => i !== subIndex);
+        setFormData({ ...formData, options: updatedOptions });
+    };
+
+    const handleSubOptionChange = (mainIndex, subIndex, value) => {
+        const updatedOptions = [...formData.options];
+        updatedOptions[mainIndex].subOptions[subIndex].subOptionName = value;
+        setFormData({ ...formData, options: updatedOptions });
+    };
+
+    const handleSubOptionQuantityChange = (mainIndex, subIndex, value) => {
+        const updatedOptions = [...formData.options];
+        updatedOptions[mainIndex].subOptions[subIndex].quantity = parseInt(value, 10) || 0;
+        setFormData({ ...formData, options: updatedOptions });
+    };
+
+    const handleSubOptionAdditionalPriceChange = (mainIndex, subIndex, value) => {
+        // 숫자가 아닌 문자가 포함되었는지 검사
+        if (!/^\d*$/.test(value)) {
+            alert("금액은 숫자만 입력할 수 있습니다.");
+            return;
+        }
+        const updatedOptions = [...formData.options];
+        updatedOptions[mainIndex].subOptions[subIndex].additionalPrice = value;
+        setFormData({ ...formData, options: updatedOptions });
+    };
 
     const eventOptions = ["생일", "결혼", "졸업", "시험", "출산", "기타"];
     const targetOptions = ["여성", "남성", "연인", "직장동료", "부모님", "선생님", "기타"];
@@ -36,24 +105,35 @@ function ProductSell() {
     };
 
     const handleChange = (e) => {
-        console.log(formData);
-        console.log(files);
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        if (name === "discountRate") {
+            const numericValue = Math.min(40, Math.max(0, parseFloat(value)));
+            setFormData({
+              ...formData,
+              [name]: numericValue,
+            });
+          } else {
+            setFormData({
+              ...formData,
+              [name]: value,
+            });
+          }
     };
 
     const handleCategoryChange = (e) => {
         setFormData({
             ...formData,
             productCategory: e.target.value,
-            subCategories: ""
+            subCategories: "",
+            options: []
         });
     };
 
     const handleSubCategoryChange = (sub) => {
         setFormData((prev) => ({
             ...prev,
-            subCategories: sub
+            subCategories: prev.subCategories === sub ? "" : sub,
+            options: []
         }));
     };
 
@@ -81,22 +161,149 @@ function ProductSell() {
         setFiles(prevFiles => prevFiles.filter(file => file !== fileToRemove));
     };
 
+    // 대분류 옵션 입력값 유효성 검사 함수
+    const validateMainOptions = () => {
+        const emptyIndex = formData.options.findIndex(option => {
+            return !option.mainOptionName || option.mainOptionName.trim() === "";
+        });
+    
+        if (emptyIndex !== -1) {
+            alert("대분류 옵션 이름을 입력해주세요.");
+            setTimeout(() => document.getElementById(`mainOption-${emptyIndex}`)?.focus(), 0);
+            return false;
+        }
+        return true;
+    };
+
     const submitProduct = () => {
+        /* focus를 위해 각각의 id값 추가 */
+        //상품명 검사
+        if (!formData.productName) {
+            alert("상품명을 입력해주세요.");
+            setTimeout(() => document.getElementById("productName").focus(), 0);
+            return;
+        }
+
+        // 이벤트 카테고리 검사
+        if (!formData.eventCategory) {
+            alert("이벤트 카테고리를 선택해주세요.");
+            setTimeout(() => document.getElementById("eventCategory").focus(), 0);
+            return;
+        }
+
+        // 대상 카테고리 검사
+        if (!formData.targetCategory) {
+            alert("대상 카테고리를 선택해주세요.");
+            setTimeout(() => document.getElementById("targetCategory").focus(), 0);
+            return;
+        }
+
+        // 상품 카테고리 검사
+        if (!formData.productCategory) {
+            alert("상품 카테고리를 선택해주세요.");
+            setTimeout(() => document.getElementById("productCategory").focus(), 0);
+            return;
+        }
+
+        // 세부 카테고리 검사 
+        if (formData.subCategories.length === 0) {
+            alert("세부 카테고리를 선택해주세요.");
+            return;
+        }
+        if(formData.options.length === 0) {
+            alert("옵션을 추가해주세요.");
+            return;
+        }
+        // 옵션 추가 버튼 클릭시 대분류 옵션 이름이 비어있으면 검사 
+        if (!validateMainOptions()) {
+            return;
+        }
+        console.log(formData.options);
+        // 소분류 옵션 추가시에 소분휴 이름이 비어있으면 검사
+        for (let i = 0; i < formData.options.length; i++) {
+            if(formData.options[i].subOptions.length === 0) {
+                alert("소분류를 추가해주세요.");
+                return;
+            }
+            for (let j = 0; j < formData.options[i].subOptions.length; j++) {
+                let subOption = formData.options[i].subOptions[j];
+                if (subOption.subOptionName.trim() === "") {
+                    alert("소분류 옵션 이름을 입력해주세요.");
+                    return;
+                }
+        
+                if (!subOption.additionalPrice) {
+                    alert("소분류 옵션 금액을 입력해주세요.");
+                    setTimeout(() => {
+                        const inputElement = document.getElementById(`additionalPrice-${i}-${j}`);
+                        if (inputElement) {
+                            inputElement.focus();
+                        }
+                    }, 0);
+                    return;
+                }
+            }
+        }
+    
+        // 상세 설명 검사
+        if (!formData.detail) {
+            alert("상세 설명을 입력해주세요.");
+            setTimeout(() => document.getElementById("detail").focus(), 0);
+            return;
+        }
+
+        // 가격 검사 
+        if (!formData.price) {
+            alert("가격을 입력해주세요.");
+            setTimeout(() => document.getElementById("price").focus(), 0);
+            return;
+        }
+
+        if (!formData.shippingFee) {
+            alert("배송비를 입력해주세요.");
+            setTimeout(() => document.getElementById("shippingFee").focus(), 0);
+            return;
+        }
+
+        // 이미지 검사
+        if (files.length === 0) {
+            alert("이미지를 최소 1개 이상 선택해주세요.");
+            return;
+        }
+
         let new_formData = new FormData();
     
         for (let i = 0; i < files.length; i++) {
             new_formData.append("files", files[i]);
         }
 
-        new_formData.append("productName", formData.productName);
-        new_formData.append("eventCategory", formData.eventCategory);
-        new_formData.append("targetCategory", formData.targetCategory);
-        new_formData.append("productCategory", formData.productCategory);
-        new_formData.append("detail", formData.detail);
-        new_formData.append("price", parseInt(formData.price, 10) || 0);
-        new_formData.append("quantity", parseInt(formData.quantity, 10) || 0);
-        new_formData.append("discountRate", parseFloat(formData.discountRate) || 0.0);
-        
+        const productData = {
+            productName: formData.productName,
+            eventCategory: formData.eventCategory,
+            targetCategory: formData.targetCategory,
+            productCategory: formData.subCategories,
+            detail: formData.detail,
+            price: parseInt(formData.price, 10) || 0,
+            quantity: formData.options.length > 0 ? calculateTotalQuantity() : formData.quantity,
+            discountRate: parseFloat(formData.discountRate) || 0.0,
+            shippingFee:formData.shippingFee,
+            options: formData.options.map(option => ({
+              mainOptionName: option.mainOptionName,
+              quantity: option.quantity,
+              subOptions: option.subOptions.map(subOption => ({
+                subOptionName: subOption.subOptionName,
+                quantity: subOption.quantity,
+                additionalPrice: subOption.additionalPrice
+              })),
+            })),
+          };
+
+          new_formData.append("product", new Blob([JSON.stringify(productData)], {
+            type: "application/json"
+          }));
+          
+          console.log(productData);
+          
         axios.post(`${serverIP.ip}/product/write`, new_formData, {
             headers: {
                 Authorization: `Bearer ${user.token}`
@@ -109,20 +316,20 @@ function ProductSell() {
     };
 
     return (
-        <div style={{paddingTop:'100px'}}>
+        <div style={{paddingTop:'150px'}}>
         <div className="product-form-container">
             <h2 className="product-form-title">상품 등록</h2>
 
             <fieldset className="product-fieldset">
                 <legend className="product-legend">기본 정보</legend>
                 <label className="product-label">상품명</label>
-                <input type="text" name="productName" className="product-input" value={formData.productName} onChange={handleChange} />
+                <input type="text" id="productName" name="productName" className="product-input" value={formData.productName} onChange={handleChange} />
             </fieldset>
 
             <fieldset className="product-fieldset">
-                <legend className="product-legend">카테고리 선택</legend>
+                <legend className="product-legend">상품 정보</legend>
                 <label className="product-label">이벤트</label>
-                <select name="eventCategory" className="product-select" value={formData.eventCategory} onChange={handleChange}>
+                <select id="eventCategory" name="eventCategory" className="product-select" value={formData.eventCategory} onChange={handleChange}>
                     <option value="">선택</option>
                     {eventOptions.map((event) => (
                         <option key={event} value={event}>{event}</option>
@@ -130,7 +337,7 @@ function ProductSell() {
                 </select>
 
                 <label className="product-label">대상</label>
-                <select name="targetCategory" className="product-select" value={formData.targetCategory} onChange={handleChange}>
+                <select id="targetCategory" name="targetCategory" className="product-select" value={formData.targetCategory} onChange={handleChange}>
                     <option value="">선택</option>
                     {targetOptions.map((target) => (
                         <option key={target} value={target}>{target}</option>
@@ -138,47 +345,120 @@ function ProductSell() {
                 </select>
 
                 <label className="product-label">상품 카테고리</label>
-                <select name="productCategory" className="product-select" value={formData.productCategory} onChange={handleCategoryChange}>
+                <select id="productCategory" name="productCategory" className="product-select" value={formData.productCategory} onChange={handleCategoryChange}>
                     <option value="">선택</option>
                     {Object.keys(productOptions).map((category) => (
                         <option key={category} value={category}>{category}</option>
                     ))}
                 </select>
-
                 {formData.productCategory && productOptions[formData.productCategory] && (
                     <div className="product-checkbox-group">
-                        <strong>세부 카테고리 선택</strong>
+                        <div className="product-checkbox-title">세부 카테고리 선택</div>
+                        <div>
                         {productOptions[formData.productCategory].map((sub) => (
                             <label key={sub} className="product-checkbox-label">
                                 <input
-                                    type="radio"
+                                    type="checkbox"
                                     name="subCategories"
                                     value={sub}
-                                    checked={formData.subCategories === sub}
+                                    checked={formData.subCategories === sub} // 체크박스 → 한개만 선택되도록 
                                     onChange={() => handleSubCategoryChange(sub)}
                                 />
                                 {sub}
                             </label>
                         ))}
+                        </div>
                     </div>
-                )}
+                )}     
+                    {formData.subCategories && (
+                        <>
+                            <button type="button" onClick={addMainOption} className="option-button">옵션 추가</button>
+                            <div className="option-container">
+                                {formData.options.map((option, mainIndex) => (
+                                    <div key={mainIndex} style={{ marginBottom: "15px" }}>
+                                        <input
+                                            type="text"
+                                            id={`mainOption-${mainIndex}`} // 각 대분류 옵션에 고유 id 추가
+                                            value={option.optionName}
+                                            onChange={(e) => handleMainOptionChange(mainIndex, e.target.value)}
+                                            placeholder="EX) 빨강"
+                                            className="option-input-style"
+                                        />
+
+                                        <button type="button" onClick={() => addSubOption(mainIndex)} className="option-button">+ 소분류 옵션 추가</button>
+                                        <button type="button" onClick={() => removeMainOption(mainIndex)} className="option-delete-button">대분류 삭제</button>
+                                        <div style={{ marginLeft: "20px" }}>
+                                            {option.subOptions.map((subOption, subIndex) => (
+                                                <div key={subIndex}>
+                                                    <input
+                                                        type="text"
+                                                        value={subOption.subOptionName}
+                                                        onChange={(e) => handleSubOptionChange(mainIndex, subIndex, e.target.value)}
+                                                        placeholder="EX) XL"
+                                                        className="option-input-style"
+                                                    />
+                                                    <input
+                                                        type="number"
+                                                        value={subOption.quantity}
+                                                        onChange={(e) => handleSubOptionQuantityChange(mainIndex, subIndex, e.target.value)}
+                                                        placeholder="수량"
+                                                        min="1"
+                                                        className="option-input-style"
+                                                    />
+                                                    <input
+                                                        type="text"
+                                                        id={`additionalPrice-${mainIndex}-${subIndex}`} // 고유한 ID 값 설정
+                                                        value={subOption.additionalPrice}
+                                                        onChange={(e) => handleSubOptionAdditionalPriceChange(mainIndex, subIndex, e.target.value)}
+                                                        placeholder="추가 금액"
+                                                        min="1"
+                                                        className="option-input-style"
+                                                    />
+                                                     <button type="button" onClick={() => removeSubOption(mainIndex, subIndex)} className="option-delete-button">소분류 삭제</button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
+                <label className="product-label">가격</label>
+                <input type="number" id="price" name="price" className="product-input" value={formData.price} onChange={handleChange} />
+
+                <label className="product-label">수량</label>
+                <input
+                        type="number"
+                        id="quantity"
+                        name="quantity"
+                        disabled
+                        className="product-input"
+                        placeholder="수량은 옵션 선택시 자동 산정됩니다."
+                        value={formData.options.length > 0 ? calculateTotalQuantity() : formData.quantity}
+                        readOnly={formData.options.length > 0}
+                        onChange={handleChange}
+                    /> 
+                <label className="product-label">할인율</label>
+                <input 
+                    type="number" 
+                    id="discountRate" 
+                    name="discountRate" 
+                    className="product-input" 
+                    value={formData.discountRate} 
+                    onChange={handleChange} 
+                    max="40"
+                    min="0"
+                    step="1"
+                    /> 
+                    <label className="product-label">배송비</label>
+                    <input type="number" id="shippingFee" name="shippingFee" className="product-input" value={formData.shippingFee} onChange={handleChange} />
             </fieldset>
 
             <fieldset className="product-fieldset">
                 <legend className="product-legend">상세 정보</legend>
                 <label className="product-label">상세 설명</label>
-                <textarea name="detail" className="product-textarea" value={formData.detail} onChange={handleChange} rows="4"></textarea>
-
-                <label className="product-label">가격</label>
-                <input type="text" name="price" className="product-input" value={formData.price} onChange={handleChange} />
-
-                <label className="product-label">수량</label>
-                <input type="text" name="quantity" className="product-input" value={formData.quantity} onChange={handleChange} />
-
-                <label className="product-label">할인율</label>
-                <input type="text" name="discountRate" className="product-input" value={formData.discountRate} onChange={handleChange} />
-            </fieldset>
-
+                <ProductEditor id='content' formData={formData} setFormData={setFormData}/>
+                </fieldset>
             <div 
                 onDragOver={(e) => e.preventDefault()} 
                 onDrop={handleDrop}

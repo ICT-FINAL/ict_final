@@ -5,8 +5,12 @@ import { useEffect, useState } from "react";
 
 import MyBasket from "./MyBasket";
 import MyReport from "./MyReport";
+import MyPurchases from "./MyPurchases";
 
 import '../../../css/view/mypage.css';
+import MyWish from "./MyWish";
+import MyInquiryList from "./MyInquiryList";
+import UserInfo from "../UserInfo";
 
 function MyIndex(){
     const location = useLocation();
@@ -24,11 +28,12 @@ function MyIndex(){
             comments: { f_name: "나의 활동", l_name: "댓글 관리" },
             reports: { f_name: "나의 활동", l_name: "신고 내역" },
             inquiries: { f_name: "나의 활동", l_name: "문의 내역" },
-            purchases: { f_name: "거래 내역", l_name: "구매 기록" },
+            purchases: { f_name: "거래 내역", l_name: "주문 내역" },
             sales: { f_name: "거래 내역", l_name: "판매 기록" },
             basket: { f_name: "보관함", l_name: "장바구니" },
             coupons: { f_name: "보관함", l_name: "쿠폰함" },
             points: { f_name: "보관함", l_name: "적립 내역" },
+            wishlist: { f_name:"보관함", l_name:"찜 목록"},
             "stats-activity": { f_name: "통계", l_name: "활동 통계" },
             "stats-purchases": { f_name: "통계", l_name: "구매 통계" },
             "stats-sales": { f_name: "통계", l_name: "판매 통계" },
@@ -52,10 +57,13 @@ function MyIndex(){
         <MyPageNav path={path} setPath={setPath}/>
         <div className='mypage-wrap'>
             <div className='mypage-box'>
-              <div className='mypage-title'>{path.l_name}</div>
-                  {path.l_name == '장바구니' && <MyBasket/>}
             <div className='mypage-title'>{path.l_name}</div>
-            { path.l_name == '신고 내역' && <MyReport/> }
+            { path.l_name == '프로필' && <UserInfo/> }
+                  {path.l_name == '장바구니' && <MyBasket/>}
+                  { path.l_name == '신고 내역' && <MyReport/> }
+                  { path.l_name == '문의 내역' && <MyInquiryList/> }
+                  { path.l_name == '찜 목록' && <MyWish/> }
+                  { path.l_name == '주문 내역' && <MyPurchases/> }
             </div>
         </div>
     </>)

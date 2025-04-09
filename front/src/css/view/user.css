@@ -167,6 +167,15 @@
     margin: 0 auto;
     padding-top: 120px;
 }
+.terms {
+    min-width: 600px;
+    padding: 10px 0;
+}
+.terms h4 {
+    margin: 0;
+    margin-top: 30px;
+    font-size: 1.1em;
+}
 .terms-title {
     font-weight: bold;
 }
@@ -182,6 +191,18 @@
 #terms-alert {
     color: #f44;
     padding: 10px 20px;
+    font-size: 11pt;
+    display: none;
+}
+#terms-next {
+    width: 60px;
+    height: 30px;
+    margin: 30px auto;
+    background-color: #222;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
 }
 
 .sign-up-form {
@@ -245,12 +266,11 @@ input.tel {
     font-weight: 400;
 }
 #signup-btn {
-    position: relative;
-    top: 60px;
     display: block;
     width: 600px;
     height: 40px;
     margin: auto;
+    margin-top: 60px;
     color: #fff;
     background-color: #222;
     border: none;
@@ -263,7 +283,6 @@ input.tel {
     color: #222;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
     transition: all 0.2s;
-    font-size: 14pt;
 }
 
 .already-container {
@@ -306,4 +325,211 @@ input.tel {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+
+/* ========== Mypage Profile ========== */
+.profile-top, .profile-menu {
+    border: 1px solid #ccc;
+    padding: 30px;
+    margin: 20px auto;
+    display: flex;
+    min-width: 500px;
+}
+.profile-top{
+    max-width: 750px;
+    margin: 0 auto;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+.profile-info {
+    width: 100%;
+    padding: 0 10px;
+}
+.profile-info div {
+    margin: 5px;
+    padding: 5px;
+}
+.profile-follow {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+    border: 1px solid #ccc;
+}
+#follow-btn {
+    display: inline;
+    float: right;
+    height: 35px;
+    padding: 0 20px;
+    background-color: #8CC7A5;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+.profile-menu {
+    justify-content:center;
+    padding: 10px;
+    margin-bottom: 0;
+}
+.profile-menu div {
+    cursor: pointer;
+    margin: 0 8%;
+}
+.selected-menu {
+    font-weight: bold;
+    color: #419c67;
+}
+.profile-bottom {
+    padding: 30px;
+    border: 1px solid #ddd;
+    min-width: 500px;
+}
+/* ========== Mypage Guestbook ========== */
+.guestbook-item {
+    position: relative;
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    border-radius: 20px;
+}
+#writer-profile-image {
+    width: 50px;
+    height: 50px;
+    border-radius:100%;
+}
+#writer-name {
+    position: relative;
+    top: -20px;
+    left: 10px;
+    display: inline-block;
+    font-weight: bold;
+}
+#guestbook-content {
+    position: relative;
+    background-color: #d1e2d7;
+    line-height: 1.4;
+    margin: 20px 10px;
+    padding: 20px;
+    border-radius: 10px;
+    white-space: pre-line;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+.guestbook-delete-btn {
+    position: absolute;
+    top: -6px;
+    right: -4px;
+    width: 20px;
+    line-height: 20px;
+    text-align: center;
+    font-weight: bold;
+    color: #333;
+    background-color: rgb(255, 113, 113);
+    border-radius: 100%;
+    cursor: pointer;
+}
+.guestbook-write-box {
+    display: flex;
+    justify-content: center;
+    max-width: 850px;
+    margin: 0 auto;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #ccc;
+}
+.guestbook-write, #guestbook-write-btn {
+    width: calc(100% - 140px);
+    margin: 10px auto;
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    resize: none;
+    box-shadow: 0 3px 5px rgba(31, 131, 81, 0.15);
+    transition: all 0.5s;
+}
+#guestbook-write-btn {
+    width: 80px;
+    color: #333;
+    background-color: #eee;
+    font-size: 12pt;
+    cursor: pointer;
+}
+#guestbook-write-btn:hover {
+    background-color: #d1e2d7;
+}
+#guestbook-reply-btn {
+    display: block;
+    margin-top: 10px;
+    padding: 5px 10px;
+    background-color: #fff;
+    border: 1px solid #777;
+}
+
+.guestbook-reply {
+    position: relative;
+    margin: 20px 10px;
+    padding: 15px;
+    border-radius: 10px;
+    background-color: #eee;
+    box-shadow: 0 3px 10px rgba(37, 37, 37, 0.149);
+}
+.reply-delete-btn {
+    position: absolute;
+    right: -6px;
+    top: -5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 18px;
+    color: #555;
+}
+
+/* ========== Mypage Product ========== */
+.product-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 10px;
+    justify-content: center;
+    margin: 0 auto;
+    transition: all 1s ease;
+}
+.product-item {
+    width: 100%;
+    max-width: 250px;
+    height: 300px;
+    padding: 10px;
+    background-color: #eee;
+    border-radius: 10px;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: all 0.5s ease;
+}
+.product-item:hover {
+    background-color: #ccc;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+}
+@media (min-width: 600px) {
+    .product-container {
+      grid-template-columns: repeat(2, 250px);
+    }
+}
+@media (min-width: 900px) {
+    .product-container {
+      grid-template-columns: repeat(3, 250px);
+      gap: 30px;
+    }
+}
+@media (min-width: 1300px) {
+    .product-container {
+      grid-template-columns: repeat(4, 250px);
+      gap: 40px;
+    }
+}
+#product-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+#discount-sticker {
+    top: 200px;
+    left: 50px;
 }

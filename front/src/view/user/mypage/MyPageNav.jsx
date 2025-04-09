@@ -36,8 +36,8 @@ function MyPageNav({ path }) {
             </ul>
             <ul>
                 <li>거래 내역</li>
-                <li onClick={() => navigate("/mypage/purchases")} style={path.l_name === "구매 기록" ? clickedStyle : {}}>
-                    <span style={path.l_name === "구매 기록" ? clickedStyle2 : {}}>구매 기록</span>
+                <li onClick={() => navigate("/mypage/purchases")} style={path.l_name === "주문 내역" ? clickedStyle : {}}>
+                    <span style={path.l_name === "주문 내역" ? clickedStyle2 : {}}>주문 내역</span>
                 </li>
                 <li onClick={() => navigate("/mypage/sales")} style={path.l_name === "판매 기록" ? clickedStyle : {}}>
                     <span style={path.l_name === "판매 기록" ? clickedStyle2 : {}}>판매 기록</span>
@@ -47,6 +47,9 @@ function MyPageNav({ path }) {
                 <li>보관함</li>
                 <li onClick={() => navigate("/mypage/basket")} style={path.l_name === "장바구니" ? clickedStyle : {}}>
                     <span style={path.l_name === "장바구니" ? clickedStyle2 : {}}>장바구니</span>
+                </li>
+                <li onClick={() => navigate("/mypage/wishlist")} style={path.l_name === "찜 목록" ? clickedStyle : {}}>
+                    <span style={path.l_name === "찜 목록" ? clickedStyle2 : {}}>찜 목록</span>
                 </li>
                 <li onClick={() => navigate("/mypage/coupons")} style={path.l_name === "쿠폰함" ? clickedStyle : {}}>
                     <span style={path.l_name === "쿠폰함" ? clickedStyle2 : {}}>쿠폰함</span>
