@@ -1,15 +1,14 @@
 package com.ict.serv.controller;
 
+import com.ict.serv.controller.admin.PagingVO;
 import com.ict.serv.dto.OrderRequest;
 import com.ict.serv.dto.OrderRequestDto;
-import com.ict.serv.entity.order.OrderItem;
-import com.ict.serv.entity.order.Orders;
-import com.ict.serv.entity.order.OrderState;
-import com.ict.serv.entity.order.RefundState;
+import com.ict.serv.entity.order.*;
 import com.ict.serv.entity.product.Option;
 import com.ict.serv.entity.product.OptionCategory;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.user.Address;
+import com.ict.serv.entity.user.User;
 import com.ict.serv.service.InteractService;
 import com.ict.serv.service.OrderService;
 import com.ict.serv.service.ProductService;
@@ -17,6 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -27,9 +29,15 @@ public class OrderController {
     private final OrderService orderService;
     private final ProductService productService;
 
+    @GetMapping("/cancel")
+    public void cancelOrder(Long id) {
+        Orders order = orderService.selectOrders(id).get();
+        order.setState(OrderState.CANCELED);
+        orderService.insertOrder(order);
+    }
+
     @PostMapping("/setOrder")
     public Orders setOrder(@AuthenticationPrincipal UserDetails userDetails, @RequestBody OrderRequest or) {
-        System.out.println(or);
         Orders order = new Orders();
         order.setUser(interactService.selectUserByName(userDetails.getUsername()));
         order.setState(OrderState.BEFORE);
@@ -40,7 +48,8 @@ public class OrderController {
         order.setOrderNum(or.getOrderId());
         order.setCouponDiscount(or.getCouponDiscount());
         order.setShippingFee(or.getShippingFee());
-
+        OptionCategory occ = productService.selectOptionCategory(or.getOptions().get(0).getOptionCategoryId()).get();
+        order.setProductId(occ.getOption().getProduct().getId());
         Orders savedOrder = orderService.insertOrder(order);
 
         for(OrderRequestDto ord : or.getOptions()) {
@@ -58,9 +67,22 @@ public class OrderController {
             orderItem.setProductName(n_p.getProductName());
             orderItem.setOptionCategoryName(opt_c.getCategoryName());
             orderItem.setOptionName(opt.getOptionName());
+            orderItem.setAdditionalFee(opt_c.getAdditionalPrice());
             savedOrder.getOrderItems().add(orderItem);
             orderService.insertOrderItem(orderItem);
         }
         return orderService.selectOrders(savedOrder.getId()).get();
+    }
+
+    @GetMapping("/orderList")
+    public Map orderList(@AuthenticationPrincipal UserDetails userDetails, OrderPagingVO pvo) {
+        pvo.setOnePageRecord(5);
+        User user = interactService.selectUserByName(userDetails.getUsername());
+        pvo.setTotalRecord(orderService.totalOrderCount(user));
+        Map map = new HashMap();
+        map.put("pvo", pvo);
+        map.put("orderList", orderService.getOrderByUser(user,pvo));
+
+        return map;
     }
 }

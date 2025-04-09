@@ -19,50 +19,60 @@ const PaymentSuccess = () => {
     setOrderId(orderIdParam);
     setAmount(amountParam);
     if(user)
-    fetch("http://localhost:9977/payment/confirm", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${user.token}` 
-      },
-      body: JSON.stringify({
-        paymentKey,
-        orderId: orderIdParam,
-        amount: amountParam,
-        iid: iid
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("결제 성공:", data);
+      fetch("http://localhost:9977/payment/confirm", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${user.token}` 
+        },
+        body: JSON.stringify({
+          paymentKey,
+          orderId: orderIdParam,
+          amount: amountParam,
+          iid: iid
+        }),
       })
-      .catch((err) => {
-        console.error("결제 승인 실패:", err);
-      });
+        .then((res) => res.json())
+        .then((data) => {
+          console.log("결제 성공:", data);
+        })
+        .catch((err) => {
+          console.error("결제 승인 실패:", err);
+        });
   }, [searchParams]);
 
   return (
-    <div style={{ padding: "100px" }}>
-      <h2>결제가 성공적으로 완료되었습니다!</h2>
-      <p>
-        <strong>주문번호:</strong> {orderId}
-      </p>
-      <p>
-        <strong>결제금액:</strong> {amount}원
-      </p>
-      <p>'{user.user.username}'님 감사합니다 😊</p>
-      <button
-        onClick={() => navigate("/")}
-        style={{ marginTop: "30px", padding: "10px 20px" }}
-      >
-        주문 목록으로
-      </button>
-      <button
-        onClick={() => navigate("/")}
-        style={{ marginTop: "30px", padding: "10px 20px" }}
-      >
-        홈으로 돌아가기
-      </button>
+    <div className="product-payment-container" style={{paddingTop:'250px'}}>
+      <div className="product-payment-header">
+        <h2>결제가 성공적으로 완료되었습니다</h2>
+      </div>
+
+      <div className="product-payment-info">
+        <p className="product-payment-order-id">
+          <strong>주문번호:</strong> {orderId}
+        </p>
+        <p className="product-payment-amount">
+          <strong>결제금액:</strong> {amount}원
+        </p>
+        <p className="product-payment-thank-you">
+          '{user.user.username}'님 감사합니다 😊
+        </p>
+      </div>
+
+      <div className="product-payment-buttons">
+        <button
+          onClick={() => navigate("/mypage/purchases")}
+          className="product-payment-btn"
+        >
+          주문 내역으로
+        </button>
+        <button
+          onClick={() => navigate("/")}
+          className="product-payment-btn"
+        >
+          홈으로 돌아가기
+        </button>
+      </div>
     </div>
   );
 };
