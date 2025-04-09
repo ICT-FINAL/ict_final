@@ -19,11 +19,11 @@ public class AuctionRoom {
     @Enumerated(EnumType.STRING)
     private AuctionState state;
 
-    private String subject;
-
     @ManyToOne
-    @JoinColumn(name = "seller_no")
-    private User seller;
+    @JoinColumn(name="auction_product_id")
+    private AuctionProduct auctionProduct;
+
+    private String subject;
 
     private LocalDateTime createdAt;
 
@@ -32,4 +32,21 @@ public class AuctionRoom {
 
     @Column(name = "end_time")
     private LocalDateTime endTime;
+
+    @Column(name = "min_bid_increment")
+    private int minBidIncrement;
+
+    @Column(name = "first_price")
+    private int firstPrice;
+
+    @Column(name = "buy_now_price")
+    private int buyNowPrice;
+
+    @Column(name = "current_price")
+    private int currentPrice;
+
+    @Column(name = "highest_bidder_id")
+    private Long highestBidderId;
+
+    private int deposit;
 }

@@ -1,18 +1,24 @@
 package com.ict.serv.controller.auction;
 
-import com.ict.serv.entity.auction.AuctionBid;
-import com.ict.serv.entity.auction.AuctionRoom;
+import com.ict.serv.entity.auction.*;
+import com.ict.serv.entity.product.*;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.AuctionService;
 import com.ict.serv.service.InteractService;
+import com.ict.serv.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.io.File;
+import java.sql.SQLException;
+import java.util.*;
 
 @RestController
 @RequestMapping("/auction")
@@ -20,12 +26,100 @@ import java.util.UUID;
 @CrossOrigin(origins = "*")
 public class AuctionController {
 
+    private final ProductService productService;
     private final AuctionService service;
     private final InteractService inter_service;
+
+    @PostMapping("/write")
+    @Transactional(rollbackFor = {RuntimeException.class, SQLException.class})
+    public ResponseEntity<String> write(@RequestPart("auction")AuctionWriteRequest req, @RequestParam("files") MultipartFile[] files,
+                                        @AuthenticationPrincipal UserDetails userDetails) {
+        List<File> savedFiles = new ArrayList<>();
+        AuctionRoom auctionRoom = new AuctionRoom();
+        AuctionProduct auctionProduct = new AuctionProduct();
+        auctionProduct.setShippingFee(req.getShippingFee());
+        auctionProduct.setDetail(req.getDetail());
+        auctionProduct.setSellerNo(inter_service.selectUserByName(userDetails.getUsername()));
+        auctionProduct.setProductName(req.getProductName());
+        auctionProduct.setEventCategory(req.getEventCategory());
+        auctionProduct.setTargetCategory(req.getTargetCategory());
+        auctionProduct.setProductCategory(req.getProductCategory());
+        auctionProduct.setImages(new ArrayList<>());
+
+        if (req.getOptions() != null && !req.getOptions().isEmpty()) {
+            for (OptionDTO optionDTO : req.getOptions()) {
+                Option mainOption = new Option();
+                mainOption.setAuctionProduct(auctionProduct);
+                mainOption.setOptionName(optionDTO.getMainOptionName());
+                mainOption.setSubOptionCategories(new ArrayList<>());
+
+                Option savedOption = productService.saveOption(mainOption);
+
+                if (optionDTO.getSubOptions() != null && !optionDTO.getSubOptions().isEmpty()) {
+                    for (SubOptionDTO subOptionDTO : optionDTO.getSubOptions()) {
+                        OptionCategory optionCategory = new OptionCategory();
+                        optionCategory.setCategoryName(subOptionDTO.getSubOptionName());
+                        optionCategory.setQuantity(subOptionDTO.getQuantity());
+                        optionCategory.setAdditionalPrice(subOptionDTO.getAdditionalPrice());
+                        optionCategory.setOption(savedOption);
+                        productService.saveOptionCategory(optionCategory);
+                        savedOption.getSubOptionCategories().add(optionCategory);
+                    }
+                }
+                productService.saveOption(savedOption);
+            }
+        }
+        AuctionProduct savedAuctionProduct = service.saveAuctionProduct(auctionProduct);
+        try{
+            String uploadDir = System.getProperty("user.dir") + "/uploads/auction/product/" + savedAuctionProduct.getId();
+            File dir = new File(uploadDir);
+            if (!dir.exists()) dir.mkdirs();
+
+            for (MultipartFile file : files) {
+                if (file.isEmpty()) continue;
+                String originalFilename = file.getOriginalFilename();
+                if (originalFilename == null) continue;
+
+                File destFile = new File(uploadDir, originalFilename);
+                int point = originalFilename.lastIndexOf(".");
+                String baseName = originalFilename.substring(0, point);
+                String extension = originalFilename.substring(point + 1);
+
+                int count = 1;
+                while (destFile.exists()) {
+                    String newFilename = baseName + "(" + count + ")." + extension;
+                    destFile = new File(uploadDir, newFilename);
+                    count++;
+                }
+                file.transferTo(destFile);
+                savedFiles.add(destFile);
+
+                AuctionProductImage productImage = new AuctionProductImage();
+                productImage.setFilename(destFile.getName());
+                productImage.setSize((int) destFile.length());
+                productImage.setAuctionProduct(savedAuctionProduct);
+
+                savedAuctionProduct.getImages().add(productImage);
+            }
+
+            service.saveAuctionProduct(savedAuctionProduct);
+            String roomId = service.createRoom(inter_service.selectUserByName(userDetails.getUsername()), "", req, savedAuctionProduct);
+
+            return ResponseEntity.ok("상품 등록 성공");
+        } catch (Exception e) {
+            e.printStackTrace();
+            for (File delFile : savedFiles) {
+                delFile.delete();
+            }
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("상품 등록 실패");
+        }
+    }
+
     @GetMapping("/createRoom")
     public ResponseEntity<Map<String, String>> createRoom(String subject, String userid) {
 
-        String roomId = service.createRoom(inter_service.selectUserByName(userid), subject);
+        String roomId = service.createRoom(inter_service.selectUserByName(userid), subject, null,null);
         Map<String, String> response = new HashMap<>();
         response.put("roomId", roomId);
         return ResponseEntity.ok(response);

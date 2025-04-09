@@ -1,11 +1,10 @@
 package com.ict.serv.service;
 
 import com.ict.serv.context.ApplicationContextProvider;
-import com.ict.serv.entity.auction.AuctionBid;
-import com.ict.serv.entity.auction.AuctionRoom;
-import com.ict.serv.entity.auction.AuctionState;
+import com.ict.serv.entity.auction.*;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.auction.AuctionBidRepository;
+import com.ict.serv.repository.auction.AuctionProductRepository;
 import com.ict.serv.repository.auction.AuctionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -23,21 +22,27 @@ public class AuctionService {
 
     private final AuctionRepository auctionRepository;
     private final AuctionBidRepository bidRepository;
+    private final AuctionProductRepository auctionProductRepository;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final ConcurrentHashMap<String, ScheduledFuture<?>> endTasks = new ConcurrentHashMap<>();
     private final SimpMessagingTemplate messagingTemplate;
 
-    public String createRoom(User user, String subject) {
+    public String createRoom(User user, String subject, AuctionWriteRequest req, AuctionProduct product) {
         String roomId = UUID.randomUUID().toString();
         AuctionRoom room = AuctionRoom.builder()
                 .roomId(roomId)
                 .state(AuctionState.OPEN)
                 .subject(subject)
                 .createdAt(LocalDateTime.now())
-                .seller(user)
                 .lastBidTime(LocalDateTime.now())
-                .endTime(LocalDateTime.now().plusMinutes(1)) //plusDay(2) 테스트용으로 1분임
+                .endTime(req.getEndTime())
+                .minBidIncrement(1000)
+                .firstPrice(req.getFirstPrice())
+                .buyNowPrice(req.getBuyNowPrice())
+                .currentPrice(req.getFirstPrice())
+                .deposit(req.getDeposit())
+                .auctionProduct(product)
                 .build();
         auctionRepository.save(room);
 
@@ -126,5 +131,9 @@ public class AuctionService {
     public void deleteRoom(String roomId) {
         bidRepository.deleteByRoom_RoomId(roomId);
         auctionRepository.deleteById(roomId);
+    }
+
+    public AuctionProduct saveAuctionProduct(AuctionProduct auctionProduct) {
+        return auctionProductRepository.save(auctionProduct);
     }
 }

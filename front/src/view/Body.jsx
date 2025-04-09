@@ -54,6 +54,7 @@ import AuctionRoom from './auction/AuctionRoom';
 import DailyCheck from './event/coupon/DailyCheck';
 import MyInquiryList from './user/mypage/MyInquiryList';
 import InquiryView from './customerservice/InquiryView';
+import AuctionSell from './auction/AuctionSell';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -174,6 +175,7 @@ function Body() {
 
       <Route path='/auction/*' element={<AuctionIndex />}></Route>
       <Route path='/auction/room/:roomId' element={<AuctionRoom />}></Route>
+      <Route path='/auction/sell' element={<AuctionSell/>}></Route>
     </Routes>
   </>
   );

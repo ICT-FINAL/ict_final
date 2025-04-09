@@ -5,6 +5,7 @@ import com.ict.serv.entity.product.Option;
 import com.ict.serv.entity.product.OptionCategory;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.product.ProductImage;
+import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.product.OptionCategoryRepository;
 import com.ict.serv.repository.product.OptionRepository;
 import com.ict.serv.repository.product.ProductImageRepository;
@@ -69,4 +70,6 @@ public class ProductService {
     }
 
     public Optional<OptionCategory> selectOptionCategory(Long id) { return optionCategoryRepository.findById(id);}
+
+    public List<Product> selectProductByUser(User user) { return repo.findAllBySellerNo(user);}
 }

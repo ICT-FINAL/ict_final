@@ -23,6 +23,8 @@ function ProductInfo() {
 
     const [changeMenu, setChangeMenu] = useState('detail');
 
+    const [isSubOptionRegistered, setIsSubOptionRegistered] = useState(false);
+
     useEffect(() => {
         axios.get(`${serverIP.ip}/product/getOption?id=${loc.state.product.id}`, {
             headers: { Authorization: `Bearer ${user.token}` }
@@ -51,7 +53,7 @@ function ProductInfo() {
     }, [selectedItems, selectedCoupon, loc.state.product.price, loc.state.product.discountRate]);
 
     const moveBuy = () => {
-        if(totalPrice - loc.state.product.shippingFee <= 0) alert('구매하실 상품을 선택해주세요');
+        if(!isSubOptionRegistered) alert('구매하실 상품을 선택해주세요');
         else
             navigate('/product/buying', {
                 state: {
@@ -205,12 +207,20 @@ function ProductInfo() {
         setSelectedSubOptionId("");
         setSubOptions([]);
         setQuantity(1);
+        setIsSubOptionRegistered(true);
     };
 
     const removeItem = (index) => {
         const newItems = [...selectedItems];
         newItems.splice(index, 1);
+
+        const updatedItems = selectedItems.filter((_, i) => i !== index);
         setSelectedItems(newItems);
+
+        const hasRemainingSubOption = updatedItems.some(item => item.subOption !== null);
+        if (!hasRemainingSubOption) {
+            setIsSubOptionRegistered(false);
+        }
     };
 
     const handleItemQuantityChange = (index, newQuantity) => {

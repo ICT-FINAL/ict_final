@@ -262,14 +262,6 @@ button:active {
     padding: 20px;
   }
   
-.order-card {
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid #ddd;
-}
-  
 .order-header {
     font-size: 18px;
     font-weight: bold;
@@ -345,6 +337,48 @@ button:active {
 .order-card {
     border-top: 4px solid #303436;
     padding-top: 20px;
+}
+
+.order-card {
+    position: relative; /* 상위 박스를 기준으로 상태 텍스트를 위치시킵니다 */
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #fff;
+}
+
+/* 상태 텍스트를 박스 오른쪽 상단에 고정 */
+.order-state {
+    position: absolute;
+    top: 10px; /* 박스 상단에서의 거리 */
+    right: 10px; /* 박스 오른쪽에서의 거리 */
+}
+
+.order-state-label {
+    padding: 5px 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    border-radius: 12px;
+    text-align: center;
+    display: inline-block;
+}
+
+/* 상태별 색상 */
+.order-state-label[style*="color:#bdc3c7"] {
+    background-color: #bdc3c7;
+}
+
+.order-state-label[style*="color:#2ecc71"] {
+    background-color: #2ecc71;
+}
+
+.order-state-label[style*="color:#e74c3c"] {
+    background-color: #e74c3c;
+}
+
+.order-state-label[style*="color:#f39c12"] {
+    background-color: #f39c12;
 }
 
 @media (max-width: 768px) {
