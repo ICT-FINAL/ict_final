@@ -50,4 +50,7 @@ public class Orders {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<OrderItem> orderItems = new ArrayList<>();;
+
+    @Column(name="product_id")
+    private Long productId;
 }
