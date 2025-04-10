@@ -59,6 +59,10 @@ function AuctionIndex() {
         fetchRooms();
     }, []);
 
+    const moveAuctionWrite = () => {
+        navigate('/auction/sell');
+    }
+
     return (
         <div style={{ paddingTop: '100px', textAlign: 'center' }}>
             <h1>실시간 경매 시스템</h1>
@@ -75,7 +79,9 @@ function AuctionIndex() {
             }}>
                 경매 방 만들기
             </button>
-
+            <button onClick={()=>moveAuctionWrite()}>
+                경매 물품 등록
+            </button>
             <div style={{ marginTop: '50px' }}>
                 <h2>현재 개설된 경매 방</h2>
                 {rooms.length === 0 ? (
@@ -92,7 +98,7 @@ function AuctionIndex() {
                                 cursor: 'pointer'
                             }} onClick={() => navigate(`/auction/room/${room.roomId}`)}>
                                 방 제목: <strong>{room.subject}</strong><br />
-                                작성자: <strong>{room.seller.username}</strong><br />
+                                작성자: <strong>{}</strong><br />
                                 생성 시간: {new Date(room.createdAt).toLocaleString()}<br/>
                                 마감 시간: {new Date(room.endTime).toLocaleString()}
                             </li>

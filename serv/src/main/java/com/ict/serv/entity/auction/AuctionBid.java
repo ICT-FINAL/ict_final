@@ -4,6 +4,7 @@ import com.ict.serv.entity.user.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 
 @Entity
@@ -29,4 +30,7 @@ public class AuctionBid {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
     private AuctionRoom room;
+
+    @Enumerated(EnumType.STRING)
+    private BidState state = BidState.LIVE;
 }

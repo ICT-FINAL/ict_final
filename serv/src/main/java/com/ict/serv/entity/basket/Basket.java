@@ -1,6 +1,9 @@
 package com.ict.serv.entity.basket;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ict.serv.entity.product.Product;
+import com.ict.serv.entity.product.Option;
+import com.ict.serv.entity.product.OptionCategory;
 import com.ict.serv.entity.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,9 +14,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.util.List;
+
 @Data
 @Entity
-@Table
+@Table(name="basket")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Basket {
@@ -32,6 +37,10 @@ public class Basket {
 
     @Column(name="basket_quantity", nullable=false)
     private int basketQuantity;
+
+    @ManyToOne
+    @JoinColumn(name="option_category_no")
+    private OptionCategory option_no;
 
     @CreationTimestamp
     @Column(name="create_date", columnDefinition = "DATETIME default now()")

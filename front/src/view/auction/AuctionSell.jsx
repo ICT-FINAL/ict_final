@@ -1,27 +1,56 @@
-import { useState,useRef } from "react";
+import { useState,useRef, useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
-import ProductEditor from "./ProductEditor";
+import ProductEditor from '../product/ProductEditor';
 
-function ProductSell() {
+function AuctionSell() {
     const serverIP = useSelector((state) => state.serverIP);
     const user = useSelector((state) => state.auth.user);
 
     const [formData, setFormData] = useState({
+        subject:"",
         productName: "",
         eventCategory: "",
         targetCategory: "",
         productCategory: "",
         subCategories: "",
         detail: "",
-        price: "",
-        quantity: "",
-        discountRate: "",
+        first_price: "",
+        buy_now_price:"",
+        deposit:"",
         options: [],
-        shippingFee:""
+        shippingFee:"",
+        endTime:"",
     });
     
+    useEffect(() => {
+        const now = new Date();
+        const twoDaysLater = new Date(now);
+        twoDaysLater.setDate(now.getDate() + 0);  // 2일 후  나중에 +2로바꾸기 테스트용 0
+   
+        const twoDaysLaterString = twoDaysLater.toISOString().slice(0, 16);
+
+        setFormData({
+          ...formData, endTime: twoDaysLaterString,
+        });
+    }, []);
+
+     const now = new Date();
+    const oneDayLater = new Date(now);
+    oneDayLater.setDate(now.getDate() + 1);  // 1일 후
+
+    const twoDaysLater = new Date(now);
+    twoDaysLater.setDate(now.getDate() + 2);  // 2일 후
+
+    const nowString = now.toISOString().slice(0, 16);  // 현재 시간
+    const oneDayLaterString = oneDayLater.toISOString().slice(0, 16);  // 1일 후의 시간
+    const twoDaysLaterString = twoDaysLater.toISOString().slice(0, 16); 
+
     const addMainOption = () => {
+        if(formData.options.length === 1) {
+            alert("경매시 옵션은 1개만 가능합니다.");
+            return;
+        }
         setFormData(prev => ({
             ...prev,
             options: [...prev.options, { mainOptionName: "", quantity: 0, subOptions: [] }]
@@ -53,6 +82,10 @@ function ProductSell() {
     };
 
     const addSubOption = (index) => {
+        if(formData.options[index].subOptions && formData.options[index].subOptions.length===1) {
+            alert("경매시 소분류는 1개만 입력 가능합니다.");
+            return;
+        }
         const updatedOptions = [...formData.options];
         updatedOptions[index].subOptions.push({ subOptionName: "", quantity: 1, additionalPrice: "" });
         setFormData({ ...formData, options: updatedOptions });
@@ -169,6 +202,7 @@ function ProductSell() {
     
         if (emptyIndex !== -1) {
             alert("대분류 옵션 이름을 입력해주세요.");
+            setTimeout(() => document.getElementById(`mainOption-${emptyIndex}`)?.focus(), 0);
             return false;
         }
         return true;
@@ -179,24 +213,28 @@ function ProductSell() {
         //상품명 검사
         if (!formData.productName) {
             alert("상품명을 입력해주세요.");
+            setTimeout(() => document.getElementById("productName").focus(), 0);
             return;
         }
 
         // 이벤트 카테고리 검사
         if (!formData.eventCategory) {
             alert("이벤트 카테고리를 선택해주세요.");
+            setTimeout(() => document.getElementById("eventCategory").focus(), 0);
             return;
         }
 
         // 대상 카테고리 검사
         if (!formData.targetCategory) {
             alert("대상 카테고리를 선택해주세요.");
+            setTimeout(() => document.getElementById("targetCategory").focus(), 0);
             return;
         }
 
         // 상품 카테고리 검사
         if (!formData.productCategory) {
             alert("상품 카테고리를 선택해주세요.");
+            setTimeout(() => document.getElementById("productCategory").focus(), 0);
             return;
         }
 
@@ -226,26 +264,12 @@ function ProductSell() {
                     alert("소분류 옵션 이름을 입력해주세요.");
                     return;
                 }
-        
-                if (!subOption.additionalPrice) {
-                    alert("소분류 옵션 금액을 입력해주세요.");
-                    setTimeout(() => {
-                        const inputElement = document.getElementById(`additionalPrice-${i}-${j}`);
-                    }, 0);
-                    return;
-                }
             }
         }
     
         // 상세 설명 검사
         if (!formData.detail) {
             alert("상세 설명을 입력해주세요.");
-            return;
-        }
-
-        // 가격 검사 
-        if (!formData.price) {
-            alert("가격을 입력해주세요.");
             return;
         }
 
@@ -272,10 +296,11 @@ function ProductSell() {
             targetCategory: formData.targetCategory,
             productCategory: formData.subCategories,
             detail: formData.detail,
-            price: parseInt(formData.price, 10) || 0,
-            quantity: formData.options.length > 0 ? calculateTotalQuantity() : formData.quantity,
-            discountRate: parseFloat(formData.discountRate) || 0.0,
+            firstPrice: parseInt(formData.first_price, 10) || 0,
+            buyNowPrice: parseInt(formData.buy_now_price, 10) || 0,
             shippingFee:formData.shippingFee,
+            endTime:formData.endTime,
+            deposit:formData.buy_now_price*0.1,
             options: formData.options.map(option => ({
               mainOptionName: option.mainOptionName,
               quantity: option.quantity,
@@ -287,13 +312,13 @@ function ProductSell() {
             })),
           };
 
-          new_formData.append("product", new Blob([JSON.stringify(productData)], {
+          new_formData.append("auction", new Blob([JSON.stringify(productData)], {
             type: "application/json"
           }));
           
           console.log(productData);
           
-        axios.post(`${serverIP.ip}/product/write`, new_formData, {
+        axios.post(`${serverIP.ip}/auction/write`, new_formData, {
             headers: {
                 Authorization: `Bearer ${user.token}`
             }
@@ -307,7 +332,7 @@ function ProductSell() {
     return (
         <div style={{paddingTop:'150px'}}>
         <div className="product-form-container">
-            <h2 className="product-form-title">상품 등록</h2>
+            <h2 className="product-form-title">경매 상품 등록</h2>
 
             <fieldset className="product-fieldset">
                 <legend className="product-legend">기본 정보</legend>
@@ -387,21 +412,13 @@ function ProductSell() {
                                                         className="option-input-style"
                                                     />
                                                     <input
-                                                        type="number"
+                                                        type="text"
                                                         value={subOption.quantity}
                                                         onChange={(e) => handleSubOptionQuantityChange(mainIndex, subIndex, e.target.value)}
                                                         placeholder="수량"
                                                         min="1"
                                                         className="option-input-style"
-                                                    />
-                                                    <input
-                                                        type="text"
-                                                        id={`additionalPrice-${mainIndex}-${subIndex}`} // 고유한 ID 값 설정
-                                                        value={subOption.additionalPrice}
-                                                        onChange={(e) => handleSubOptionAdditionalPriceChange(mainIndex, subIndex, e.target.value)}
-                                                        placeholder="추가 금액"
-                                                        min="1"
-                                                        className="option-input-style"
+                                                        disabled
                                                     />
                                                      <button type="button" onClick={() => removeSubOption(mainIndex, subIndex)} className="option-delete-button">소분류 삭제</button>
                                                 </div>
@@ -412,9 +429,7 @@ function ProductSell() {
                             </div>
                         </>
                     )}
-                <label className="product-label">가격</label>
-                <input type="number" id="price" name="price" className="product-input" value={formData.price} onChange={handleChange} />
-
+                    
                 <label className="product-label">수량</label>
                 <input
                         type="number"
@@ -427,20 +442,28 @@ function ProductSell() {
                         readOnly={formData.options.length > 0}
                         onChange={handleChange}
                     /> 
-                <label className="product-label">할인율</label>
-                <input 
-                    type="number" 
-                    id="discountRate" 
-                    name="discountRate" 
-                    className="product-input" 
-                    value={formData.discountRate} 
-                    onChange={handleChange} 
-                    max="40"
-                    min="0"
-                    step="1"
-                    /> 
+                <label className="product-label">시작 가격</label>
+                <input type="number" id="first_price" name="first_price" className="product-input" value={formData.first_price} onChange={handleChange} />
+
+                <label className="product-label">즉시 구매 가격</label>
+                <input type="number" id="buy_now_price" name="buy_now_price" className="product-input" value={formData.buy_now_price} onChange={handleChange} />
                     <label className="product-label">배송비</label>
                     <input type="number" id="shippingFee" name="shippingFee" className="product-input" value={formData.shippingFee} onChange={handleChange} />
+                    <label className="product-label">보증금</label>
+                    <input type="number" id="deposit" name="deposit" className="product-input" readOnly value={parseInt(formData.buy_now_price*0.1)} onChange={handleChange} />
+                    <label className="product-label">시작 시간</label>
+                    <input type="text" disabled className="product-input" value={'경매 등록 시간으로 설정됩니다.'} onChange={handleChange} />
+                    <label className="product-label">종료 시간</label>
+                    <input
+                        type="datetime-local"
+                        id="endTime"
+                        name="endTime"
+                        className="product-input"
+                        value={formData.endTime}
+                        onChange={handleChange}
+                        min={oneDayLaterString}  // 최소값 현재 시간
+                        max={twoDaysLaterString}  // 최대값 2일 후의 시간
+                    />
             </fieldset>
 
             <fieldset className="product-fieldset">
@@ -536,10 +559,10 @@ function ProductSell() {
                         border: 'none', 
                         cursor: 'pointer',
                         borderRadius: '5px'
-                    }} >상품 등록</button>
+                    }} >경매 등록</button>
         </div>
         </div>
     );
 }
 
-export default ProductSell;
+export default AuctionSell;
