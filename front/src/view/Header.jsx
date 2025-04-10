@@ -139,7 +139,7 @@ function Header() {
                 ☰
                 </div>
                 {hamburgerOpen && (
-                    (user && user.user.authority === 'ROLE_USER') || user === undefined ? (
+                    (user && user.user.authority === 'ROLE_USER') || user == undefined ? (
                         <ul className="hamburger-menu">
                             <li style={{ cursor: 'pointer' }} onClick={() => movePage('/product')}>상품 검색</li>
                             <Link to='/recommend'><li>상품 추천</li></Link>
