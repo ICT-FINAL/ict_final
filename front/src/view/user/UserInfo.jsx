@@ -18,8 +18,8 @@ function UserInfo(){
     const [replyList, setReplyList] = useState({});
     const [wishCount, setWishCount] = useState(0);
     const [followState, setFollowState] = useState(false);
-    const [followerList, setFollowerList] = useState({});
-    const [followingList, setFollowingList] = useState({});
+    const [followerCount, setFollowerCount] = useState(0);
+    const [followingCount, setFollowingCount] = useState(0);
 
     useEffect(()=>{
         if (user) {
@@ -47,15 +47,14 @@ function UserInfo(){
     }, [guestbookList]);
 
     const getInfo = ()=>{
-        axios.get(`${serverIP.ip}/mypage/myInfo?id=${userNo}`, {
+        axios.get(`${serverIP.ip}/mypage/myInfoCount?id=${userNo}`, {
             headers: {
               Authorization: `Bearer ${user.token}`
             }
         })
         .then(res=>{
-            console.log("info:", res.data);
-            setFollowerList(res.data.followerList);
-            setFollowingList(res.data.followingList);
+            setFollowerCount(res.data.followerCount);
+            setFollowingCount(res.data.followingCount);
             setWishCount(res.data.wishCount);
         })
         .catch(err=>console.log(err));
@@ -212,15 +211,19 @@ function UserInfo(){
                         <span>{userinfo.username}</span>
                         {
                             userNo !== loginNo &&
-                            <button id="follow-btn" style={followState ? {background: '#d1e2d7'} : {}} onClick={followUser}>
+                            <button id={followState ? "unfollow-btn" : "follow-btn"} onClick={followUser}>
                                 {followState ? 'Following' : 'Follow'}
                             </button>
                         }
                     </div>
                     <div>별점(후기개수)</div>
                     <div className="profile-follow">
-                        <div onClick={userNo === loginNo ? ()=>navigate('/mypage/follow', { state: { followerList, followingList, selected: 'follower' } }) : undefined}>팔로워<br/><span>{followerList.length}</span></div>
-                        <div onClick={userNo === loginNo ? ()=>navigate('/mypage/follow', { state: { followerList, followingList, selected: 'following' } }) : undefined}>팔로잉<br/><span>{followingList.length}</span></div>
+                        <div onClick={userNo === loginNo ? () => navigate('/mypage/follow?tab=follower') : undefined}
+                            style={userNo === loginNo ? {cursor: 'pointer'} : {}}    
+                        >팔로워<br/><span>{followerCount}</span></div>
+                        <div onClick={userNo === loginNo ? () => navigate('/mypage/follow?tab=following') : undefined}
+                            style={userNo === loginNo ? {cursor: 'pointer'} : {}}
+                        >팔로잉<br/><span>{followingCount}</span></div>
                         <div>작품찜<br/><span>{wishCount}</span></div>
                     </div>
                 </div>
