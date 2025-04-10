@@ -1,11 +1,14 @@
 package com.ict.serv.service;
 
 import com.ict.serv.context.ApplicationContextProvider;
-import com.ict.serv.entity.auction.AuctionBid;
-import com.ict.serv.entity.auction.AuctionRoom;
-import com.ict.serv.entity.auction.AuctionState;
+import com.ict.serv.entity.Authority;
+import com.ict.serv.entity.auction.*;
+import com.ict.serv.entity.message.Message;
 import com.ict.serv.entity.user.User;
+import com.ict.serv.repository.MessageRepository;
+import com.ict.serv.repository.UserRepository;
 import com.ict.serv.repository.auction.AuctionBidRepository;
+import com.ict.serv.repository.auction.AuctionProductRepository;
 import com.ict.serv.repository.auction.AuctionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -13,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.*;
 
@@ -23,21 +28,29 @@ public class AuctionService {
 
     private final AuctionRepository auctionRepository;
     private final AuctionBidRepository bidRepository;
+    private final AuctionProductRepository auctionProductRepository;
+    private final MessageRepository messageRepository;
+    private final UserRepository userRepository;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final ConcurrentHashMap<String, ScheduledFuture<?>> endTasks = new ConcurrentHashMap<>();
     private final SimpMessagingTemplate messagingTemplate;
 
-    public String createRoom(User user, String subject) {
+    public String createRoom(User user, String subject, AuctionWriteRequest req, AuctionProduct product) {
         String roomId = UUID.randomUUID().toString();
         AuctionRoom room = AuctionRoom.builder()
                 .roomId(roomId)
                 .state(AuctionState.OPEN)
                 .subject(subject)
                 .createdAt(LocalDateTime.now())
-                .seller(user)
                 .lastBidTime(LocalDateTime.now())
-                .endTime(LocalDateTime.now().plusMinutes(1)) //plusDay(2) 테스트용으로 1분임
+                .endTime(req.getEndTime())
+                .minBidIncrement(1000)
+                .firstPrice(req.getFirstPrice())
+                .buyNowPrice(req.getBuyNowPrice())
+                .currentPrice(req.getFirstPrice())
+                .deposit(req.getDeposit())
+                .auctionProduct(product)
                 .build();
         auctionRepository.save(room);
 
@@ -53,12 +66,35 @@ public class AuctionService {
     public void saveBid(String roomId, User user, int price) {
         AuctionRoom room = auctionRepository.findById(roomId)
                 .orElseThrow(() -> new RuntimeException("Room not found"));
-
+        List<AuctionBid> bidList = bidRepository.findByRoomOrderByBidTimeAsc(room);
+        Message sender = new Message();
+        List<User> admins = userRepository.findUserByAuthority(Authority.ROLE_ADMIN);
+        for(User admin: admins) {
+            sender.setUserFrom(admin);
+            sender.setUserTo(room.getAuctionProduct().getSellerNo());
+            sender.setSubject("새로운 입찰이 등록 되었습니다.");
+            sender.setComment("'" + room.getAuctionProduct().getProductName()+"'"+": "+ price+"원"+"  \n상세 내용은 마이페이지 > 판매 입찰 내역 에서 확인해주세요.");
+            messageRepository.save(sender);
+            break;
+        }
+        for(AuctionBid mini: bidList) {
+            if(mini.getState() == BidState.LIVE) {
+                Message msg = new Message();
+                msg.setUserFrom(room.getAuctionProduct().getSellerNo());
+                msg.setUserTo(mini.getUser());
+                msg.setSubject("입찰이 취소처리 되었습니다.");
+                msg.setComment("'" + room.getAuctionProduct().getProductName()+"' 물품의 입찰이 취소되었습니다. \n보증금은 1일 내 환불처리 됩니다.");
+                messageRepository.save(msg);
+                mini.setState(BidState.DEAD);
+                bidRepository.save(mini);
+            }
+        }
         AuctionBid bid = AuctionBid.builder()
                 .room(room)
                 .user(user)
                 .price(price)
                 .bidTime(LocalDateTime.now())
+                .state(BidState.LIVE)
                 .build();
 
         bidRepository.save(bid);
@@ -68,7 +104,9 @@ public class AuctionService {
         if (room.getEndTime().isBefore(now.plusMinutes(5))) {
             room.setEndTime(room.getEndTime().plusMinutes(1));
         }
-
+        room.setCurrentPrice(price);
+        room.setHighestBidderId(user.getId());
+        room.setHit(bidList.size()+1);
         auctionRepository.save(room);
 
         scheduleAuctionEnd(roomId);
@@ -126,5 +164,16 @@ public class AuctionService {
     public void deleteRoom(String roomId) {
         bidRepository.deleteByRoom_RoomId(roomId);
         auctionRepository.deleteById(roomId);
+    }
+
+    public AuctionProduct saveAuctionProduct(AuctionProduct auctionProduct) {
+        return auctionProductRepository.save(auctionProduct);
+    }
+
+    public Optional<AuctionRoom> getAuctionRoom(String roomId) {
+        return auctionRepository.findById(roomId);
+    }
+    public Optional<AuctionProduct> getAuctionProduct(Long id) {
+        return auctionProductRepository.findById(id);
     }
 }

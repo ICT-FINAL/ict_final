@@ -3,51 +3,30 @@ import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-function MyPurchases() {
+function MySell() {
     const loc = useLocation();
     const serverIP = useSelector((state) => { return state.serverIP });
     const user = useSelector((state) => state.auth.user);
 
-    const [totalPage, setTotalPage] = useState(1);
-    const [pageNumber, setPageNumber] = useState([]);
 
     const [order, setOrder] = useState([]);
 
-    const [nowPage, setNowPage] = useState(1);
-
-    const [totalRecord, setTotalRecord] = useState(1);
-
-    const [searchOption, setSearchOption] = useState('');
+    useEffect(() => {
+        getBoardList();
+    }, []);
 
     useEffect(() => {
         getBoardList();
-        const det = document.querySelectorAll(".report-detail");
-        if (det)
-            det.forEach((det) => (det.style.display = "none"));
-    }, [nowPage]);
-
-    useEffect(() => {
-        getBoardList();
-    }, [loc, searchOption]);
+    }, [loc]);
 
     const getBoardList = () => {
         if (user)
-            axios.get(`${serverIP.ip}/order/orderList?nowPage=${nowPage}&state=${searchOption}`, {
+            axios.get(`${serverIP.ip}/order/sellList`, {
                 headers: { Authorization: `Bearer ${user.token}` }
             })
                 .then(res => {
                     console.log(res.data);
-                    const newPageNumbers = [];
-                    for (let p = res.data.pvo.startPageNum; p < res.data.pvo.startPageNum + res.data.pvo.onePageCount; p++) {
-                        if (p <= res.data.pvo.totalPage) {
-                            newPageNumbers.push(p);
-                        }
-                    }
-                    setPageNumber(newPageNumbers);
-                    setTotalPage(res.data.pvo.totalPage);
-                    setOrder(res.data.orderList);
-                    setNowPage(res.data.pvo.nowPage);
-                    setTotalRecord(res.data.pvo.totalRecord);
+                    setOrder(res.data);
                 })
                 .catch(err => console.log(err));
     };
@@ -56,7 +35,6 @@ function MyPurchases() {
         return num.toLocaleString();
     }
 
-    // 상태에 맞는 텍스트와 색상을 반환하는 함수
     const getStateLabel = (state) => {
         switch (state) {
             case 'BEFORE':
@@ -76,11 +54,6 @@ function MyPurchases() {
 
     return (
         <div className="report-box">
-            <select onChange={(e)=> setSearchOption(e.target.value)} style={{width:'120px', borderRadius:'10px', padding:'5px 10px', border:'1px solid #ddd'}}>
-                <option value="">전체</option>
-                <option value="PAID">결제 완료</option>
-                <option value="CANCELED">결제 취소</option>
-            </select>
             {
                 order.length === 0 ?
                     <div className="no-list">검색 결과가 없습니다.</div> :
@@ -94,6 +67,9 @@ function MyPurchases() {
                                     </div>
                                     <div className="order-header">
                                         <label>주문 날짜:</label> <span>{item.modifiedDate.substring(0, 19)}</span>
+                                    </div>
+                                    <div className="order-header">
+                                        <label>구매자:</label> <span className="message-who" id={`mgx-${item.user.id}`} style={{cursor:'pointer'}}>{item.user.username}</span>
                                     </div>
 
                                     <div className="order-items">
@@ -146,28 +122,8 @@ function MyPurchases() {
                         })}
                     </div>
             }
-            <ul className="admin-paging">
-                {nowPage > 1 && (
-                    <a className="page-prenext" onClick={() => setNowPage(nowPage - 1)}>
-                        <li className="page-num">◀</li>
-                    </a>
-                )}
-                {pageNumber.map((pg) => {
-                    const activeStyle = nowPage === pg ? 'page-num active' : 'page-num';
-                    return (
-                        <a className="page-num" onClick={() => setNowPage(pg)} key={pg}>
-                            <li className={activeStyle}>{pg}</li>
-                        </a>
-                    );
-                })}
-                {nowPage < totalPage && (
-                    <a className="page-prenext" onClick={() => setNowPage(nowPage + 1)}>
-                        <li className="page-num">▶</li>
-                    </a>
-                )}
-            </ul>
         </div>
     );
 }
 
-export default MyPurchases;
+export default MySell;

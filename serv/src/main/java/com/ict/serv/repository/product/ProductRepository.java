@@ -1,6 +1,7 @@
 package com.ict.serv.repository.product;
 
 import com.ict.serv.entity.product.Product;
+import com.ict.serv.entity.user.User;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -63,6 +64,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findProductsNoCategory(@Param("keyword") String keyword,
                                          @Param("eventCategory") String eventCategory,
                                          @Param("targetCategory") String targetCategory, PageRequest of);
+
+    List<Product> findAllBySellerNo(User user);
 
 
     // List<Product> findAllByProductNameContaining(String searchWord, PageRequest of);

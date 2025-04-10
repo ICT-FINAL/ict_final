@@ -17,7 +17,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -78,11 +80,23 @@ public class OrderController {
     public Map orderList(@AuthenticationPrincipal UserDetails userDetails, OrderPagingVO pvo) {
         pvo.setOnePageRecord(5);
         User user = interactService.selectUserByName(userDetails.getUsername());
-        pvo.setTotalRecord(orderService.totalOrderCount(user));
+        pvo.setTotalRecord(orderService.totalOrderCount(user, pvo));
         Map map = new HashMap();
         map.put("pvo", pvo);
         map.put("orderList", orderService.getOrderByUser(user,pvo));
 
         return map;
+    }
+
+    @GetMapping("/sellList")
+    public List<Orders> sellList(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = interactService.selectUserByName(userDetails.getUsername());
+        List<Product> productList = productService.selectProductByUser(user);
+        List<Orders> orders = new ArrayList<>();
+        for(Product product : productList) {
+            List<Orders> ods = orderService.getOrderByProduct(product.getId());
+            orders.addAll(ods);
+        }
+        return orders;
     }
 }
