@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import AddressForm from "../user/AddressForm";
 import { useSelector } from "react-redux";
@@ -6,39 +6,91 @@ import axios from "axios";
 
 function ProductBuy() {
   const location = useLocation();
-  const { productId, totalPrice, productName, selectedOptions,shippingFee,selectedCoupon } = location.state || {};
-
+  const navigate = useNavigate();
+  const { state } = location;
+  const [purchasedItems, setPurchasedItems] = useState([]); // 단일 상품 또는 장바구니 아이템 배열
+  const [isBasketPurchase, setIsBasketPurchase] = useState(false); // 장바구니 구매 여부
   const [selectedAddress, setSelectedAddress] = useState('');
   const [request, setRequest] = useState('');
   const [isGet, setIsGet] = useState(true);
-
-  const [selAddrId,setSelAddrId] = useState(0);
-
+  const [selAddrId, setSelAddrId] = useState(0);
   const user = useSelector((state) => state.auth.user);
-  const serverIP = useSelector((state)=> state.serverIP);
+  const serverIP = useSelector((state) => state.serverIP);
+  const [orderItems, setOrderItems] = useState([]);
+  const [totalPaymentAmount, setTotalPaymentAmount] = useState(0);
+  const [totalShippingFee, setTotalShippingFee] = useState(0);
+  const [totalDiscountAmount, setTotalDiscountAmount] = useState(0);
 
-  useEffect(()=> {
-    console.log(selectedOptions);
-  },[]);
+  useEffect(() => {
+    console.log("ProductBuying state:", location.state.selectedItems);
+    if (state && state.basketItems) {
+      setIsBasketPurchase(true);
+      setPurchasedItems(state.basketItems);
+    } else if (location.state && Array.isArray(location.state.selectedItems) && location.state.product) { // location.state.product 추가 확인
+      setIsBasketPurchase(false);
+      const items = location.state.selectedItems.map(item => {
+        const discountRate = location.state.product.discountRate || 0;
+        const discountedPrice = discountRate === 0
+          ? location.state.product.price
+          : location.state.product.price * (1 - discountRate / 100);
+        const itemPrice = discountedPrice + (item.subOption?.additionalPrice || 0);
+
+        return {
+          optionCategoryId: item.subOption.id,
+          productNo: location.state.product.id,
+          sellerName: location.state.product.sellerNo?.username,
+          productName: location.state.product.productName,
+          categoryName: item.option?.optionName + (item.subOption ? `  ${item.subOption.categoryName}` : ''),
+          productDiscountRate: discountRate,
+          productPrice: location.state.product.price,
+          quantity: item.quantity,
+          productShippingFee: location.state.product.shippingFee || 0,
+          additionalPrice: item.subOption?.additionalPrice || 0,
+        };
+      });
+      setPurchasedItems(items);
+    } else {
+      alert("잘못된 접근입니다.");
+      navigate('/basket');
+      return;
+    }
+  }, [state, navigate, location.state]);
+
+  useEffect(() => {
+    if (purchasedItems && purchasedItems.length > 0) {
+      setOrderItems(purchasedItems);
+      let paymentTotal = 0;
+      let shippingTotal = 0;
+      let discountTotal = 0;
+
+      purchasedItems.forEach(item => {
+        const discountedPrice = item.productDiscountRate > 0
+          ? item.productPrice * (1 - item.productDiscountRate / 100)
+          : item.productPrice;
+        paymentTotal += (discountedPrice + (item.additionalPrice || 0)) * item.quantity;
+        shippingTotal += item.productShippingFee || 0;
+        discountTotal += (item.productPrice - discountedPrice) * item.quantity;
+      });
+
+      setTotalPaymentAmount(paymentTotal + shippingTotal);
+      setTotalShippingFee(shippingTotal);
+      setTotalDiscountAmount(discountTotal);
+    }
+  }, [purchasedItems]);
 
   const handleAddAddress = (newAddress) => {
     if (user)
       axios
-          .post(`${serverIP.ip}/mypage/insertAddrList`, newAddress, {
-              headers: { Authorization: `Bearer ${user.token}` },
-          })
-          .then((res) => {
-            setIsGet(!isGet);
-          })
-          .catch((err) => {
-              console.log(err);
-          });
+        .post(`${serverIP.ip}/mypage/insertAddrList`, newAddress, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        })
+        .then(() => setIsGet(!isGet))
+        .catch((err) => console.log(err));
   };
 
-  const finalPrice = totalPrice;
   const handlePayment = () => {
-    if(selectedAddress == '' || selectedAddress == undefined) {
-      alert("배송지를 선택해주세요")
+    if (!selectedAddress) {
+      alert("배송지를 선택해주세요.");
       return;
     }
     if (!window.TossPayments) {
@@ -47,97 +99,114 @@ function ProductBuy() {
     }
     const tossPayments = window.TossPayments("test_ck_ORzdMaqN3w2RZ1XBgmxM85AkYXQG");
     const orderId = new Date().getTime();
-
-    console.log(selectedOptions);
-    let options=[];
-    for(var i=0; i<selectedOptions.length; i++) {
-      options.push({
-        optionCategoryId:selectedOptions[i].subOption.id,
-        quantity:selectedOptions[i].quantity,
-        coupon:selectedCoupon
-      })
-    }
-
-    axios.post(`${serverIP.ip}/order/setOrder`,{options:options, addrId:selAddrId, req:request, orderId:orderId
-      ,shippingFee:shippingFee, couponDiscount:selectedCoupon, productId:productId
-    },{
+    const orderName = orderItems.length > 0 ? `${orderItems[0].productName} 외 ${orderItems.length - 1}건` : "주문";
+    const productIds = orderItems.map(item => item.productNo);
+    console.log(orderItems);
+    const orderDetails = [];
+    orderItems.forEach(item => {
+      orderDetails.push({
+        optionCategoryId: item.optionCategoryId,
+        quantity: item.quantity,
+        coupon: 0
+      });
+    });
+    /*
+    if (isBasketPurchase) {
+      orderItems.forEach(item => {
+        orderDetails.push({
+          optionCategoryId: item.productNo,
+          quantity: item.quantity,
+          coupon: 0
+        });
+      });
+    } else {
+      state.selectedOptions.forEach(item => {
+        orderDetails.push({
+          optionCategoryId: item.subOption ? item.subOption.id : item.option.id,
+          quantity: item.quantity,
+          coupon: state.selectedCoupon || 0
+        });
+      });
+    }*/
+    console.log(orderDetails);
+    axios.post(`${serverIP.ip}/order/setOrder`, {
+      options: orderDetails,
+      addrId: selAddrId,
+      req: request,
+      orderId: orderId,
+      shippingFee: totalShippingFee,
+      couponDiscount: state.selectedCoupon || 0,
+      productIds: productIds
+    }, {
       headers: { Authorization: `Bearer ${user.token}` },
     })
-    .then(res => {
-      const successUrl = `http://localhost:3000/payment/success?iid=${res.data.id}`;
-      if(user)
+      .then(res => {
+        const successUrl = `http://localhost:3000/payment/success?iid=${res.data.id}`;
         tossPayments
           .requestPayment("카드", {
-            amount: parseInt(finalPrice),
+            amount: parseInt(totalPaymentAmount),
             orderId,
-            orderName: productName,
+            orderName,
             customerName: user.user.username,
-            successUrl: successUrl,
-            failUrl: `http://localhost:3000/payment/fail`,
+            successUrl,
+            failUrl: `${window.location.origin}/payment/fail`,
           })
-          .catch((error) => {
-            axios.get(`${serverIP.ip}/order/cancel?id=${res.data.id}`,{
-              headers: { Authorization: `Bearer ${user.token}` },}
-            )
-            .then(res=>{
-              console.log("결제 취소");
-            })
-            .catch(err => console.log(err));
-
-            console.error("❌ 결제창 오류:", error);
+          .catch(error => {
+            console.error("결제 실패:", error);
+            axios.get(`${serverIP.ip}/order/cancel?id=${res.data.id}`, {
+              headers: { Authorization: `Bearer ${user.token}` },
+            }).catch(cancelErr => console.error("결제 취소 실패:", cancelErr));
+            alert(`결제 실패: ${error.message}`);
           });
-    })
-    .catch(err => console.log(err));
+      })
+      .catch(err => {
+        console.error("주문 생성 실패:", err);
+        alert("주문 생성에 실패했습니다.");
+      });
   };
-  
-  function formatNumberWithCommas(num) {
-    return num.toLocaleString();
-  }
+
+  const formatNumberWithCommas = (num) => {
+    return (num === undefined || num === null) ? '0' : num.toLocaleString();
+  };
 
   return (
     <div style={{ paddingTop: '150px' }}>
       <div className="product-buy-container">
         <h2 className="product-buy-header">상품 결제</h2>
-        <div className="product-buy-info">
-          <h3 className="product-buy-name">{productName}</h3>
-          <p className="buy-price">가격: {formatNumberWithCommas(totalPrice-shippingFee + selectedCoupon)}원</p>
-          {selectedOptions && selectedOptions.length > 0 && (
-            <div className="selected-options">
-              <strong>선택된 옵션:</strong>
-              <ul>
-                {selectedOptions.map((item, index) => (
-                  <li key={index} className="selected-option-item">
-                    {item.option.optionName}
-                    {item.subOption && ` - ${item.subOption.categoryName} (+${item.subOption.additionalPrice}원)`}
-                    &nbsp;x {item.quantity} = {formatNumberWithCommas(item.option.product.price*(100-item.option.product.discountRate)/100*item.quantity)}원
-                  </li>
-                ))}
-              </ul>
+        {orderItems.length > 0 && (
+          <div className="product-buy-info">
+            {orderItems.map(item => (
+              <div key={state.selectedOptions || item.basketNo} className="order-item">
+                <h3 className="product-buy-name">{item.sellerName}님의 {item.productName}</h3>
+                <p style={{ fontSize: '20px' }}>가격: {formatNumberWithCommas(item.productPrice)}원</p>
+                <p className="buy-price">할인: {item.productDiscountRate}% (기본가격에서할인)</p>
+                <p>옵션: {item.optionName}  {item.categoryName}</p>
+                <p>수량: {item.quantity}</p>
+                <p>배송비: {formatNumberWithCommas(item.productShippingFee)}원</p>
+                {item.additionalPrice > 0 && <p>추가금액: +{formatNumberWithCommas(item.additionalPrice)}원</p>}
+              </div>
+            ))}
+
+            <div className="shipping-discount-info">
+              {totalShippingFee > 0 && <p className="shipping-fee">총 배송비: +{formatNumberWithCommas(totalShippingFee)}원</p>}
+              {totalDiscountAmount > 0 && <p className="discount-amount" style={{ color: '#d9534f' }}>총 할인 금액: -{formatNumberWithCommas(totalDiscountAmount)}원</p>}
             </div>
-          )}
-
-          <div className="shipping-discount-info">
-            {shippingFee!== 0 &&<p className="shipping-fee">배송비: +{shippingFee}원</p>}
-            {selectedCoupon!==0 && <p className="shipping-fee" style={{color:'#d9534f'}}>쿠폰: -{selectedCoupon}원</p>}
+            <div className="final-price">
+              <strong>총 결제 금액: {formatNumberWithCommas(totalPaymentAmount)}원</strong>
+            </div>
+            <div className="payment-method">
+              <strong>결제 수단 선택: </strong>
+              <select className="payment-select">
+                <option value="card">카드 결제</option>
+                {/* 다른 결제 수단 추가 가능 */}
+              </select>
+            </div>
           </div>
-
-          <div className="final-price">
-            <strong>최종 결제 금액: {formatNumberWithCommas(finalPrice)}원</strong>
-          </div>
-
-
-          <div className="payment-method">
-            <strong>결제 수단 선택: </strong>
-            <select className="payment-select">
-              <option value="card">카드 결제</option>
-            </select>
-          </div>
-        </div>
+        )}
         <div className='product-buy-info'>
-        <AddressForm setSelAddrId={setSelAddrId} isGet={isGet} onAddAddress={handleAddAddress} setRequest={setRequest} request={request} setSelectedAddresses={setSelectedAddress}/>
+          <AddressForm setSelAddrId={setSelAddrId} isGet={isGet} onAddAddress={handleAddAddress} setRequest={setRequest} request={request} setSelectedAddresses={setSelectedAddress} />
         </div>
         <button className="payment-button" onClick={handlePayment}>결제하기</button>
-
         <div className="security-notice">
           <small>이 페이지는 안전한 결제를 제공합니다. 결제 정보는 암호화되어 처리됩니다.</small>
         </div>
@@ -145,5 +214,4 @@ function ProductBuy() {
     </div>
   );
 }
-
 export default ProductBuy;

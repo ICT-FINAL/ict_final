@@ -678,6 +678,9 @@
     font-size: 24px;
     color: #444;
     font-weight: 500;
+    color : #007bff;
+    border-bottom: 1px solid #ddd;
+    padding-bottom:5px;
   }
   
   .buy-price {

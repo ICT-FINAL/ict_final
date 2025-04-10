@@ -22,7 +22,6 @@ function ProductInfo() {
     const [selectedItems, setSelectedItems] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
     const [addBasketItems, setAddBasketItems] = useState(null);
-
     const [changeMenu, setChangeMenu] = useState('detail');
     const [reviewWrite, setReviewWrite] = useState(false);
 
@@ -60,12 +59,11 @@ function ProductInfo() {
         else
             navigate('/product/buying', {
                 state: {
-                    productId: loc.state.product.id,
+                    selectedItems: selectedItems,
+                    product: loc.state.product,
                     totalPrice: totalPrice,
-                    productName: loc.state.product.productName,
-                    selectedOptions: selectedItems,
                     shippingFee: loc.state.product.shippingFee || 0,
-                    selectedCoupon: selectedCoupon || 0
+                    selectedCoupon: selectedCoupon || 0,
                 }
             });
     };
@@ -363,146 +361,159 @@ function ProductInfo() {
                     }}>
                         {loc.state.product.shippingFee === 0 ? "🚚 무료배송" : `배송비 ${loc.state.product.shippingFee}원`} {/* 배송비 */}
                     </div>
+                    <div className="product-info-right">
 
-                    <ul>
-                        <li style={{ display: 'flex' }}>
-                            <div className='product-profile-box'>
-                                <img id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' src={loc.state.product.sellerNo.uploadedProfileUrl && loc.state.product.sellerNo.uploadedProfileUrl.indexOf('http') !== -1 ? `${loc.state.product.sellerNo.uploadedProfileUrl}` : `${serverIP.ip}${loc.state.product.sellerNo.uploadedProfileUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
-                                <div id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{loc.state.product.sellerNo.username} &gt;</div>
-                            </div>
-                            <div className='product-star-rating'>
-                                ★★★★★ <span style={{ color: 'black' }}>{loc.state.product.rating}</span>
-                            </div>
-                        </li>
-                        <li style={{ display: 'flex', marginTop: '20px', fontSize: '25px', lineHeight: '30px' }}>
-                            <div className='product-info-name'>
-                                {loc.state.product.productName}
-                            </div>
-                            <div className='product-wish'>
-                                {!isWish ? (
-                                    <div className="wishlist-icon" onClick={() => { addWish() }}>
-                                        <FaHeart />
-                                        <span>좋아요</span>
-                                    </div>
-                                ) : (
-                                    <div className="wishlist-icon" onClick={() => { delWish() }} style={{ color: 'rgb(255, 70, 70)' }}>
-                                        <FaHeart />
-                                        <span>좋아요</span>
-                                    </div>
-                                )}
-                                <div className="cart-icon" onClick={() => { addBasket() }}>
-                                    <FaShoppingCart />
-                                    <span>장바구니</span>
+                        <div style={{
+                            marginTop: "5px", padding: "4px 8px", display: "inline-block",
+                            borderRadius: "5px", fontSize: "12px", fontWeight: "600",
+                            backgroundColor: loc.state.product.shippingFee === 0 ? "#ff4d4d" : "#f2f2f2",
+                            color: loc.state.product.shippingFee === 0 ? "white" : "black",
+                            minHeight: "20px",
+                            lineHeight: "20px" // 가운데 정렬
+                        }}>
+                            {loc.state.product.shippingFee === 0 ? "🚚 무료배송" : `배송비 ${loc.state.product.shippingFee}원`} {/* 배송비 */}
+                        </div>
+
+                        <ul>
+                            <li style={{ display: 'flex' }}>
+                                <div className='product-profile-box'>
+                                    <img id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' src={loc.state.product.sellerNo.uploadedProfileUrl && loc.state.product.sellerNo.uploadedProfileUrl.indexOf('http') !== -1 ? `${loc.state.product.sellerNo.uploadedProfileUrl}` : `${serverIP.ip}${loc.state.product.sellerNo.uploadedProfileUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
+                                    <div id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{loc.state.product.sellerNo.username} &gt;</div>
                                 </div>
-                            </div>
-                        </li>
-                        <li>
-                            <ul className='product-info-main-box'>
-                                {loc.state.product.discountRate !== 0 && (
-                                    <li>
-                                        <span style={{ fontSize: '20px', fontWeight: 'bold' }}>{loc.state.product.discountRate}%</span>
-                                        <span style={{ textDecoration: 'line-through', marginLeft: '15px', color: 'gray' }}>
-                                            &nbsp;{formatNumberWithCommas(loc.state.product.price)}&nbsp;
-                                        </span>
-                                    </li>
-                                )}
-                                <li><span style={{ fontWeight: 'bold', fontSize: '24px' }}>{loc.state.product.discountRate === 0 ? formatNumberWithCommas(loc.state.product.price) : formatNumberWithCommas(loc.state.product.price * (100 - loc.state.product.discountRate) / 100)}</span> 원</li>
-                                <li>
-                                    <select className='product-info-selectbox' onChange={handleCouponChange} value={selectedCoupon}>
-                                        <option value="0">쿠폰을 선택해주세요</option>
-                                        <option value="1000">1000원 쿠폰</option>
-                                        <option value="3000">3000원 쿠폰</option>
-                                    </select>
-                                </li>
-                                {(loc.state.product.discountRate !== 0 || selectedCoupon !== 0) &&
-                                    <li className='info-coupon-box' style={{ color: '#d34141', border: '1px solid #ddd', width: '76%', margin: '15px 0px 15px 20px', borderRadius: '10px' }}>
-                                        {loc.state.product.discountRate !== 0 && <div>상품 할인가: -{formatNumberWithCommas(loc.state.product.discountRate * loc.state.product.price / 100)}원</div>}
-                                        {loc.state.product.shippingFee !== 0 && <div style={{ color: '#0288D1' }}>배송비: +{formatNumberWithCommas(loc.state.product.shippingFee)}원</div>}
-                                        {selectedCoupon !== 0 && <div>쿠폰: -{selectedCoupon}원</div>}
-                                    </li>
-                                }
-                                <li>
-                                    <select className='product-info-selectbox' onChange={handleOptionChange} value={selectedOptionId}>
-                                        <option value="" disabled selected>대분류를 선택해주세요</option>
-                                        {options.map((option) => (
-                                            <option key={option.id} value={option.id}>{option.optionName}</option>
-                                        ))}
-                                    </select>
-                                    {subOptions.length > 0 && (
-                                        <>
-                                            <select style={{ marginLeft: '15px' }} className='product-info-selectbox' onChange={handleSubOptionChange} value={selectedSubOptionId}>
-                                                <option value="" disabled selected>소분류를 선택해주세요</option>
-                                                {subOptions.map((subOption) => (
-                                                    <option key={subOption.id} value={subOption.id}>
-                                                        {subOption.categoryName} (+{subOption.additionalPrice}원)
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            {selectedSubOptionId.length > 0 &&
-                                                <button type="button" className="product-select-button" onClick={handleAddItem}>등록</button>
-                                            }
-                                        </>
+                                <div className='product-star-rating'>
+                                    ★★★★★ <span style={{ color: 'black' }}>{loc.state.product.rating}</span>
+                                </div>
+                            </li>
+                            <li style={{ display: 'flex', marginTop: '20px', fontSize: '25px', lineHeight: '30px' }}>
+                                <div className='product-info-name'>
+                                    {loc.state.product.productName}
+                                </div>
+                                <div className='product-wish'>
+                                    {!isWish ? (
+                                        <div className="wishlist-icon" onClick={() => { addWish() }}>
+                                            <FaHeart />
+                                            <span>좋아요</span>
+                                        </div>
+                                    ) : (
+                                        <div className="wishlist-icon" onClick={() => { delWish() }} style={{ color: 'rgb(255, 70, 70)' }}>
+                                            <FaHeart />
+                                            <span>좋아요</span>
+                                        </div>
                                     )}
-                                </li>
-                                {selectedItems.length > 0 && (
-                                    <li style={{ marginTop: '20px', borderTop: '1px solid #ddd', paddingTop: '15px' }}>
-                                        <strong>선택된 옵션:</strong>
-                                        <ul>
-                                            {selectedItems.map((item, index) => {
-                                                const basePrice = loc.state.product.discountRate === 0
-                                                    ? loc.state.product.price
-                                                    : loc.state.product.price * (100 - loc.state.product.discountRate) / 100;
-
-                                                const subOptionPrice = item.subOption ? item.subOption.additionalPrice : 0;
-
-                                                const itemPrice = (basePrice + subOptionPrice) * item.quantity;
-
-                                                return (
-                                                    <>
-                                                        <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', marginTop: '10px' }}>
-                                                            <div>
-                                                                {item.option.optionName}
-                                                                {item.subOption && ` - ${item.subOption.categoryName} (+${formatNumberWithCommas(item.subOption.additionalPrice)}원)`}
-                                                            </div>
-                                                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                                <label htmlFor={`quantity-${index}`} style={{ marginRight: '5px' }}>수량:</label>
-                                                                <select
-                                                                    id={`quantity-${index}`}
-                                                                    value={item.quantity}
-                                                                    onChange={(e) => handleItemQuantityChange(index, e.target.value)}
-                                                                    style={{ width: '60px', height: '25px' }}
-                                                                >
-                                                                    {[...Array(item.subOption?.quantity || 10).keys()].map((num) => (
-                                                                        <option key={num} value={num + 1}>{num + 1}</option>
-                                                                    ))}
-                                                                </select>
-                                                                <button type="button" onClick={() => removeItem(index)} style={{ color: 'red', border: 'none', background: 'none', cursor: 'pointer', marginLeft: '10px' }}>
-                                                                    <FaTimes />
-                                                                </button>
-                                                            </div>
-                                                        </li>
-                                                        <li style={{ textAlign: 'right', listStyleType: 'none', fontSize: '17px' }}>
-                                                            <div>{formatNumberWithCommas(itemPrice)}원</div>
-                                                        </li>
-                                                    </>
-                                                );
-                                            })}
-                                        </ul>
+                                    <div className="cart-icon" onClick={() => { addBasket() }}>
+                                        <FaShoppingCart />
+                                        <span>장바구니</span>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <ul className='product-info-main-box'>
+                                    {loc.state.product.discountRate !== 0 && (
+                                        <li>
+                                            <span style={{ fontSize: '20px', fontWeight: 'bold' }}>{loc.state.product.discountRate}%</span>
+                                            <span style={{ textDecoration: 'line-through', marginLeft: '15px', color: 'gray' }}>
+                                                &nbsp;{formatNumberWithCommas(loc.state.product.price)}&nbsp;
+                                            </span>
+                                        </li>
+                                    )}
+                                    <li><span style={{ fontWeight: 'bold', fontSize: '24px' }}>{loc.state.product.discountRate === 0 ? formatNumberWithCommas(loc.state.product.price) : formatNumberWithCommas(loc.state.product.price * (100 - loc.state.product.discountRate) / 100)}</span> 원</li>
+                                    <li>
+                                        <select className='product-info-selectbox' onChange={handleCouponChange} value={selectedCoupon}>
+                                            <option value="0">쿠폰을 선택해주세요</option>
+                                            <option value="1000">1000원 쿠폰</option>
+                                            <option value="3000">3000원 쿠폰</option>
+                                        </select>
                                     </li>
-                                )}
-                            </ul>
-                        </li>
-                        <li>
-                            <div style={{ fontSize: '20px', padding: '15px' }} className='total-price'>
-                                <strong>총 금액:</strong> {formatNumberWithCommas(totalPrice)}원
-                            </div>
-                        </li>
-                        <li>
-                            <button className='product-buy-button' onClick={() => moveBuy()}>
-                                구매하기
-                            </button>
-                        </li>
-                    </ul>
+                                    {(loc.state.product.discountRate !== 0 || selectedCoupon !== 0) &&
+                                        <li className='info-coupon-box' style={{ color: '#d34141', border: '1px solid #ddd', width: '76%', margin: '15px 0px 15px 20px', borderRadius: '10px' }}>
+                                            {loc.state.product.discountRate !== 0 && <div>상품 할인가: -{formatNumberWithCommas(loc.state.product.discountRate * loc.state.product.price / 100)}원</div>}
+                                            {loc.state.product.shippingFee !== 0 && <div style={{ color: '#0288D1' }}>배송비: +{formatNumberWithCommas(loc.state.product.shippingFee)}원</div>}
+                                            {selectedCoupon !== 0 && <div>쿠폰: -{selectedCoupon}원</div>}
+                                        </li>
+                                    }
+                                    <li>
+                                        <select className='product-info-selectbox' onChange={handleOptionChange} value={selectedOptionId}>
+                                            <option value="" disabled selected>대분류를 선택해주세요</option>
+                                            {options.map((option) => (
+                                                <option key={option.id} value={option.id}>{option.optionName}</option>
+                                            ))}
+                                        </select>
+                                        {subOptions.length > 0 && (
+                                            <>
+                                                <select style={{ marginLeft: '15px' }} className='product-info-selectbox' onChange={handleSubOptionChange} value={selectedSubOptionId}>
+                                                    <option value="" disabled selected>소분류를 선택해주세요</option>
+                                                    {subOptions.map((subOption) => (
+                                                        <option key={subOption.id} value={subOption.id}>
+                                                            {subOption.categoryName} (+{subOption.additionalPrice}원)
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                {selectedSubOptionId.length > 0 &&
+                                                    <button type="button" className="product-select-button" onClick={handleAddItem}>등록</button>
+                                                }
+                                            </>
+                                        )}
+                                    </li>
+                                    {selectedItems.length > 0 && (
+                                        <li style={{ marginTop: '20px', borderTop: '1px solid #ddd', paddingTop: '15px' }}>
+                                            <strong>선택된 옵션:</strong>
+                                            <ul>
+                                                {selectedItems.map((item, index) => {
+                                                    const basePrice = loc.state.product.discountRate === 0
+                                                        ? loc.state.product.price
+                                                        : loc.state.product.price * (100 - loc.state.product.discountRate) / 100;
+
+                                                    const subOptionPrice = item.subOption ? item.subOption.additionalPrice : 0;
+
+                                                    const itemPrice = (basePrice + subOptionPrice) * item.quantity;
+
+                                                    return (
+                                                        <>
+                                                            <li key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', marginTop: '10px' }}>
+                                                                <div>
+                                                                    {item.option.optionName}
+                                                                    {item.subOption && ` - ${item.subOption.categoryName} (+${formatNumberWithCommas(item.subOption.additionalPrice)}원)`}
+                                                                </div>
+                                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                                    <label htmlFor={`quantity-${index}`} style={{ marginRight: '5px' }}>수량:</label>
+                                                                    <select
+                                                                        id={`quantity-${index}`}
+                                                                        value={item.quantity}
+                                                                        onChange={(e) => handleItemQuantityChange(index, e.target.value)}
+                                                                        style={{ width: '60px', height: '25px' }}
+                                                                    >
+                                                                        {[...Array(item.subOption?.quantity || 10).keys()].map((num) => (
+                                                                            <option key={num} value={num + 1}>{num + 1}</option>
+                                                                        ))}
+                                                                    </select>
+                                                                    <button type="button" onClick={() => removeItem(index)} style={{ color: 'red', border: 'none', background: 'none', cursor: 'pointer', marginLeft: '10px' }}>
+                                                                        <FaTimes />
+                                                                    </button>
+                                                                </div>
+                                                            </li>
+                                                            <li style={{ textAlign: 'right', listStyleType: 'none', fontSize: '17px' }}>
+                                                                <div>{formatNumberWithCommas(itemPrice)}원</div>
+                                                            </li>
+                                                        </>
+                                                    );
+                                                })}
+                                            </ul>
+                                        </li>
+                                    )}
+                                </ul>
+                            </li>
+                            <li>
+                                <div style={{ fontSize: '20px', padding: '15px' }} className='total-price'>
+                                    <strong>총 금액:</strong> {formatNumberWithCommas(totalPrice)}원
+                                </div>
+                            </li>
+                            <li>
+                                <button className='product-buy-button' onClick={() => moveBuy()}>
+                                    구매하기
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
                 
