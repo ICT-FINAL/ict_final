@@ -1,15 +1,12 @@
 import axios from "axios";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { setModal } from "../../../../src/store/modalSlice";
-import { setInteract } from "../../../../src/store/interactSlice";
 
 function MyBasket() {
     const user = useSelector((state) => state.auth.user);
-    const [address, setAddress] = useState("");
-    const [addressDetail, setAddressDetail] = useState("");
-    const [zipcode, setZipcode] = useState("");
+    const modalSel = useSelector((state) => state.modal);
     const [basketItems, setBasketItems] = useState([]);
     const [allChecked, setAllChecked] = useState(false);
     const [checkedItems, setCheckedItems] = useState({});
@@ -17,8 +14,21 @@ function MyBasket() {
     const navigate = useNavigate();
     const loc = useLocation();
     const [imageIndex, setImageIndex] = useState(0);
-    const [basketNo, setBasketNo] = useState();
     const dispatch = useDispatch();
+
+    const fetchBasketItems = useCallback(async () => {
+        if (user) {
+            try {
+                const response = await axios.get(`${serverIP.ip}/basket/list`, {
+                    headers: { Authorization: `Bearer ${user.token}` },
+                });
+                console.log("장바구니리스트:", response.data);
+                setBasketItems(response.data);
+            } catch (err) {
+                console.log(err);
+            }
+        }
+    }, [user, serverIP]);
 
     useEffect(() => {
         if (user) {
@@ -28,23 +38,18 @@ function MyBasket() {
                 })
                 .then((res) => {
                     console.log("유저정보:", res.data);
-                    setAddress(res.data.address);
-                    setAddressDetail(res.data.addressDetail);
-                    setZipcode(res.data.zipcode);
                 })
                 .catch((err) => console.log(err));
 
-            axios
-                .get(`${serverIP.ip}/basket/list`, {
-                    headers: { Authorization: `Bearer ${user.token}` },
-                })
-                .then((res) => {
-                    console.log("장바구니리스트:", res.data);
-                    setBasketItems(res.data);
-                })
-                .catch((err) => console.log(err));
+            fetchBasketItems();
         }
-    }, [user, serverIP]);
+    }, [user, serverIP, fetchBasketItems]);
+
+    useEffect(() => {
+        if (!modalSel.isOpen && modalSel.selected === 'basket-box') {
+            fetchBasketItems();
+        }
+    }, [modalSel, fetchBasketItems]);
 
     const moveProductInfo = (item) => {
         if (user) {
@@ -65,16 +70,15 @@ function MyBasket() {
     const groupedItems = useMemo(() => {
         const grouped = {};
         basketItems.forEach((item) => {
-            //console.log("아이템!!", item);
             const sellerNo = item.sellerNo;
             const sellerName = item.sellerName;
             const productName = item.productName;
             const productShippingFee = item.productShippingFee;
             const additionalPrice = item.additionalPrice;
             const productPrice = item.productPrice;
-            const categoryName = item.categoryName;
             const productImage = item.productImage;
             const productDiscountRate = item.productDiscountRate;
+            const optionName = item.optionName;
 
             if (!grouped[sellerNo]) {
                 grouped[sellerNo] = {
@@ -88,6 +92,7 @@ function MyBasket() {
                 };
             }
             grouped[sellerNo].items.push(item);
+            console.log("아이템 정보 봐보자!!", item);
         });
         return grouped;
     }, [basketItems]);
@@ -105,18 +110,6 @@ function MyBasket() {
         setCheckedItems(newCheckedItems);
     };
 
-    const handleSellerCheck = (sellerNo, checked) => {
-        const newCheckedItems = { ...checkedItems };
-        groupedItems[sellerNo].items.forEach(item => {
-            if (checked) {
-                newCheckedItems[item.basketNo] = true;
-            } else {
-                delete newCheckedItems[item.basketNo];
-            }
-        });
-        setCheckedItems(newCheckedItems);
-    };
-
     const handleItemCheck = (basketNo) => {
         const newCheckedItems = { ...checkedItems };
         if (newCheckedItems[basketNo]) {
@@ -131,7 +124,7 @@ function MyBasket() {
         setAllChecked(basketItems.length > 0 && basketItems.every((item) => checkedItems[item.basketNo]));
     }, [checkedItems, basketItems]);
 
-    const formatNumber = (number) => {
+    const formatNumberWithCommas = (number) => {
         if (number === undefined || number === null) {
             return "0";
         }
@@ -155,11 +148,8 @@ function MyBasket() {
                 const itemPrice = item.productPrice;
 
                 selectedPrice += (itemPrice + item.additionalPrice) * item.quantity;
-
-                totalDiscountedPrice += discountedPrice;
-
+                totalDiscountedPrice += discountedPrice * item.quantity;
                 totalShippingFee += item.productShippingFee;
-
                 sellers.add(item.sellerName);
             }
         });
@@ -174,9 +164,9 @@ function MyBasket() {
         if (sellersArray.length === 0) {
             return "주문하기";
         } else if (sellersArray.length === 1) {
-            return `${sellersArray[0]}님 주문하기`;
+            return `${sellersArray[0]}님의 상품 주문하기`;
         } else {
-            return `${sellersArray[0]}님 외 ${sellersArray.length - 1}건 주문하기`;
+            return `${sellersArray[0]}님의 상품 외 ${sellersArray.length - 1}건 주문하기`;
         }
     };
 
@@ -203,20 +193,22 @@ function MyBasket() {
         alert("선택한 장바구니 상품이 삭제되었습니다.");
     };
 
+    const handleOrder = () => {
+        const selectedItemsForOrder = basketItems.filter(item => checkedItems[item.basketNo]);
+
+        if (selectedItemsForOrder.length === 0) {
+            alert("선택된 상품이 없습니다.");
+            return;
+        }
+
+        navigate('/product/buying', { state: { basketItems: selectedItemsForOrder } });
+    };
+
     return (
         <div style={{ paddingLeft: "10px" }}>
-            <div className="basket-addr">
-                <span style={{ paddingLeft: "0px", fontSize: "17px", fontWeight: "600", color: "#555" }}>
-                    {" "}
-                    🏡 배송지 : {address}, {addressDetail}, {zipcode}
-                    <button style={{ marginLeft: "30px" }} onClick={() => { dispatch(setModal({ isOpen: true, selected: 'address-box' })) }}>변경</button>
-                </span>
-                <hr />
-            </div>
-
             <div className="basket-sel-all">
                 <input type="checkbox" checked={allChecked} onChange={handleAllCheck} /> 전체 선택 {" "}
-                <button type="button" onClick={handleDeleteSelected}>선택삭제</button>
+                <button type="button" onClick={handleDeleteSelected}>선택 삭제</button>
                 <hr />
             </div>
             {Object.keys(groupedItems).length > 0 ? (
@@ -240,7 +232,7 @@ function MyBasket() {
                                     setCheckedItems(newChecked);
                                 }
                             }}
-                        /> <b>{groupedItems[seller].sellerName}</b>  님의 상품 <button type="button">쿠폰받기</button>
+                        /> <b>{groupedItems[seller].sellerName}</b>님의 상품 <button type="button">쿠폰 받기</button>
                         <ul className="basket-list" style={{ fontWeight: "bold", borderBottom: "1px solid #ddd" }}>
                             <li></li>
                             <li>제품</li>
@@ -261,15 +253,14 @@ function MyBasket() {
                                     <div style={{ display: "flex", flexDirection: "column" }}>
                                         <span>판매자:{item.sellerName}</span>
                                         <span>{item.productName}</span>
-                                        <span>{formatNumber(item.productPrice)}원</span>
+                                        <span>{formatNumberWithCommas(item.productPrice)}원</span>
                                         <span>할인율:{item.productDiscountRate}%</span>
-
                                     </div>
                                 </li>
                                 <button style={{ marginLeft: "10px", width: '100px' }} onClick={() => { dispatch(setModal({ isOpen: true, selected: 'basket-box', selectedItem: item })) }}>주문수정</button>
-                                <li>{item.categoryName}<br /> +{formatNumber(item.additionalPrice)}원</li>
+                                <li>옵션: <br />{item.optionName} {item.categoryName}<br /> +{formatNumberWithCommas(item.additionalPrice)}원</li>
                                 <li>{item.quantity}</li>
-                                <li>{formatNumber(item.productShippingFee)}원</li>
+                                <li>{formatNumberWithCommas(item.productShippingFee)}원</li>
                             </ul>
                         ))}
                     </div>
@@ -287,11 +278,11 @@ function MyBasket() {
                     <li></li>
                 </ul>
                 <ul className="price-list">
-                    <li>{formatNumber(totals.selectedPrice)}원 ➕</li>
-                    <li>{formatNumber(totals.totalShippingFee)}원 ➖</li>
-                    <li>{formatNumber(totals.totalDiscountedPrice)}원 🟰</li>
-                    <li>{formatNumber(totals.totalAmount)}원</li>
-                    <li><button type="button">{getOrderButtonText()}</button></li>
+                    <li>{formatNumberWithCommas(totals.selectedPrice)}원 ➕</li>
+                    <li>{formatNumberWithCommas(totals.totalShippingFee)}원 ➖</li>
+                    <li>{formatNumberWithCommas(totals.totalDiscountedPrice)}원 🟰</li>
+                    <li>{formatNumberWithCommas(totals.totalAmount)}원</li>
+                    <li><button type="button" style={{ width: '100px' }} onClick={handleOrder}>{getOrderButtonText()}</button></li>
                 </ul>
             </div>
         </div>

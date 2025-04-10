@@ -13,7 +13,6 @@ import ModalIndex from '../modal/ModalIndex';
 import Modal2 from '../modal/Modal2';
 import Message from '../interact/Message';
 import MessageBox from '../interact/MessageBox';
-import AddressBox from '../interact/AddressBox';
 import BasketBox from '../interact/BasketBox';
 import Report from '../interact/Report';
 
@@ -121,7 +120,6 @@ function Body() {
     {modal.isOpen && modal.selected == '2' && <Modal2 />}
     {modal.isOpen && modal.selected == 'message' && <Message />}
     {modal.isOpen && modal.selected == 'message-box' && <MessageBox />}
-    {modal.isOpen && modal.selected == 'address-box' && <AddressBox />}
     {modal.isOpen && modal.selected == 'basket-box' && <BasketBox />}
     {modal.isOpen && modal.selected == "DaumPost" &&
       <div className='daumpost'>
@@ -135,40 +133,40 @@ function Body() {
     {interact.isOpen && <Interact />}
 
     <Routes>
-      <Route path="/" element={<Main/>} />
-      <Route path="/test" element={<Test/>} />
-      <Route path="/signup/info" element={<SignupInfo/>} />
-      <Route exact path="/login/oauth2/code/kakao" element={<SignupHandler/>}/>
-      <Route exact path="/login/oauth2/code/google" element={<GoogleSignupHandler/>}/>
-      
+      <Route path="/" element={<Main />} />
+      <Route path="/test" element={<Test />} />
+      <Route path="/signup/info" element={<SignupInfo />} />
+      <Route exact path="/login/oauth2/code/kakao" element={<SignupHandler />} />
+      <Route exact path="/login/oauth2/code/google" element={<GoogleSignupHandler />} />
+
       <Route path='/userinfo' element={<UserInfo key={location.state} />}></Route>
-      <Route path='/mypage/*' element={<MyIndex/>}></Route>
-      <Route path='/mypage/myinquirylist' element={<MyInquiryList/>}></Route>
-      
-      <Route path='/admin/*' element={<AdminIndex/>}></Route>
-      <Route path='/already' element={<Already/>}></Route>
+      <Route path='/mypage/*' element={<MyIndex />}></Route>
+      <Route path='/mypage/myinquirylist' element={<MyInquiryList />}></Route>
 
-      <Route path='/product/*' element={<ProductIndex/>}></Route>
-      <Route path='/product/search' element={<ProductSearch/>}></Route>
+      <Route path='/admin/*' element={<AdminIndex />}></Route>
+      <Route path='/already' element={<Already />}></Route>
 
-      <Route path='/customerservice/*' element={<CenterHome/>}>
-      <Route path="inquirywrite" element={<InquiryWrite/>} />
-      <Route path="faq" element={<FAQ/>} /> 
+      <Route path='/product/*' element={<ProductIndex />}></Route>
+      <Route path='/product/search' element={<ProductSearch />}></Route>
+
+      <Route path='/customerservice/*' element={<CenterHome />}>
+        <Route path="inquirywrite" element={<InquiryWrite />} />
+        <Route path="faq" element={<FAQ />} />
       </Route>
-      <Route path='/inquiry/inquiryview/:id' element={<InquiryView/>}/>
+      <Route path='/inquiry/inquiryview/:id' element={<InquiryView />} />
 
-      <Route path='/product/sell' element={<ProductSell/>}></Route>
-      <Route path='/product/info' element={<ProductInfo/>}></Route>
-      <Route path='/product/buying' element={<ProductBuy/>}></Route>
-      <Route path="/payment/success" element={<PaymentSuccess/>}></Route>
-      <Route path="/payment/fail" element={<PaymentFail/>}></Route>
+      <Route path='/product/sell' element={<ProductSell />}></Route>
+      <Route path='/product/info' element={<ProductInfo />}></Route>
+      <Route path='/product/buying' element={<ProductBuy />}></Route>
+      <Route path="/payment/success" element={<PaymentSuccess />}></Route>
+      <Route path="/payment/fail" element={<PaymentFail />}></Route>
 
       <Route path='/recommend/*' element={<RecommendIndex />}></Route>
 
-      <Route path='/event/*' element={<EventIndex/>}></Route>
-      <Route path='/event/write' element={<EventWrite/>}></Route>
-      <Route path='/event/info' element={<EventInfo/>}></Route>
-      <Route path='/event/dailycheck' element={<DailyCheck/>}></Route>
+      <Route path='/event/*' element={<EventIndex />}></Route>
+      <Route path='/event/write' element={<EventWrite />}></Route>
+      <Route path='/event/info' element={<EventInfo />}></Route>
+      <Route path='/event/dailycheck' element={<DailyCheck />}></Route>
 
       <Route path='/community/*' element={<CommunityIndex />}></Route>
 

@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,6 +27,10 @@ public class BasketService {
     private final OptionRepository optionRepository;
     private final OptionCategoryRepository optionCategoryRepository;
 
+    public void insertBasket(Basket basket) {
+        basketRepository.save(basket);
+    }
+
     public List<Map<String, Object>> getBasketItems(User user) {
         List<Basket> baskets = basketRepository.findByUserNo(user);
 
@@ -35,8 +40,10 @@ public class BasketService {
             item.put("basketNo", basket.getId());
             OptionCategory opt_c = basket.getOption_no();
             item.put("categoryName",opt_c.getCategoryName());
+            item.put("categoryQuantity",opt_c.getQuantity());
             item.put("additionalPrice",opt_c.getAdditionalPrice());
             Option opt = opt_c.getOption();
+            item.put("optionName",opt.getOptionName());
             Product prod = opt.getProduct();
             item.put("productImage",prod.getImages().get(0).getFilename());
             item.put("productNo",prod.getId());
@@ -47,17 +54,25 @@ public class BasketService {
             item.put("sellerNo", prod.getSellerNo().getId());
             item.put("sellerName",prod.getSellerNo().getUsername());
             item.put("quantity", basket.getBasketQuantity());
+            System.out.println("items!!!!"+item);
             return item;
         }).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public boolean updateBasketItemQuantity(User user, Long basketNo, int quantity) {
+        Optional<Basket> optionalBasket = basketRepository.findByIdAndUserNo(basketNo, user);
+        if (optionalBasket.isPresent()) {
+            Basket basket = optionalBasket.get();
+            basket.setBasketQuantity(quantity);
+            return true;
+        }
+        return false;
     }
 
     @Transactional
     public void deleteBasketItems(User user, List<Long> basketNos) {
         List<Basket> basketsToDelete = basketRepository.findByUserNoAndIdIn(user, basketNos);
         basketRepository.deleteAll(basketsToDelete);
-    }
-
-    public void insertBasket(Basket basket) {
-        basketRepository.save(basket);
     }
 }

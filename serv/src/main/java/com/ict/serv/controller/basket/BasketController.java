@@ -1,6 +1,7 @@
 package com.ict.serv.controller.basket;
 
 import com.ict.serv.dto.BasketItemDto;
+import com.ict.serv.dto.BasketUpdateDto;
 import com.ict.serv.entity.basket.Basket;
 import com.ict.serv.entity.product.OptionCategory;
 import com.ict.serv.entity.product.Product;
@@ -51,6 +52,21 @@ public class BasketController {
     @GetMapping("/getProduct")
     public Product getProduct(Long productId) {
         return productService.selectProduct(productId).get();
+    }
+
+    @PatchMapping("/update")
+    public ResponseEntity<String> updateBasketItem(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody BasketUpdateDto updateDto) {
+
+        User user = interactService.selectUserByName(userDetails.getUsername());
+        boolean updated = basketService.updateBasketItemQuantity(user, updateDto.getBasketNo(), updateDto.getQuantity());
+
+        if (updated) {
+            return ResponseEntity.ok("장바구니 아이템 수량이 업데이트되었습니다.");
+        } else {
+            return ResponseEntity.badRequest().body("장바구니 아이템 업데이트에 실패했습니다.");
+        }
     }
 
     @DeleteMapping("/delete")
