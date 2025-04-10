@@ -36,6 +36,7 @@ function ProductBuy() {
         const itemPrice = discountedPrice + (item.subOption?.additionalPrice || 0);
 
         return {
+          optionCategoryId: item.subOption.id,
           productNo: location.state.product.id,
           sellerName: location.state.product.sellerNo?.username,
           productName: location.state.product.productName,
@@ -100,8 +101,16 @@ function ProductBuy() {
     const orderId = new Date().getTime();
     const orderName = orderItems.length > 0 ? `${orderItems[0].productName} 외 ${orderItems.length - 1}건` : "주문";
     const productIds = orderItems.map(item => item.productNo);
-
+    console.log(orderItems);
     const orderDetails = [];
+    orderItems.forEach(item => {
+      orderDetails.push({
+        optionCategoryId: item.optionCategoryId,
+        quantity: item.quantity,
+        coupon: 0
+      });
+    });
+    /*
     if (isBasketPurchase) {
       orderItems.forEach(item => {
         orderDetails.push({
@@ -118,8 +127,8 @@ function ProductBuy() {
           coupon: state.selectedCoupon || 0
         });
       });
-    }
-
+    }*/
+    console.log(orderDetails);
     axios.post(`${serverIP.ip}/order/setOrder`, {
       options: orderDetails,
       addrId: selAddrId,

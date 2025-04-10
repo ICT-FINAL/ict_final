@@ -54,6 +54,7 @@ public class BasketService {
             item.put("sellerNo", prod.getSellerNo().getId());
             item.put("sellerName",prod.getSellerNo().getUsername());
             item.put("quantity", basket.getBasketQuantity());
+            item.put("optionCategoryId", opt_c.getId());
             System.out.println("items!!!!"+item);
             return item;
         }).collect(Collectors.toList());

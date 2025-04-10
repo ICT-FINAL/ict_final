@@ -79,6 +79,7 @@ function MyBasket() {
             const productImage = item.productImage;
             const productDiscountRate = item.productDiscountRate;
             const optionName = item.optionName;
+            const optionCategoryId = item.optionCategoryId;
 
             if (!grouped[sellerNo]) {
                 grouped[sellerNo] = {
@@ -88,6 +89,7 @@ function MyBasket() {
                     productPrice: productPrice,
                     productDiscountRate: productDiscountRate,
                     additionalPrice: additionalPrice,
+                    optionCategoryId: optionCategoryId,
                     items: []
                 };
             }
