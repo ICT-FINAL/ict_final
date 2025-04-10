@@ -43,4 +43,8 @@ public class OrderService {
     public List<Orders> getOrderByUser(User user, OrderPagingVO pvo) {
         return order_repo.findAllByUserOrderByStartDateDesc(user, PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
     }
+
+    public List<Orders> selectCheckPurchase(User user, Long productId) {
+        return order_repo.findByUserAndProductId(user, productId);
+    }
 }

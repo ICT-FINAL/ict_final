@@ -6,4 +6,5 @@ import lombok.Data;
 public class ReviewDTO {
     private Long productId;
     private String reviewContent;
+    private String rate;
 }

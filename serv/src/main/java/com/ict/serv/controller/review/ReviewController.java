@@ -1,14 +1,19 @@
 package com.ict.serv.controller.review;
 
+import com.ict.serv.entity.order.Orders;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.review.Review;
 import com.ict.serv.entity.review.ReviewDTO;
 import com.ict.serv.entity.review.ReviewImage;
+import com.ict.serv.entity.user.User;
+import com.ict.serv.entity.wish.Wishlist;
 import com.ict.serv.service.InteractService;
+import com.ict.serv.service.OrderService;
 import com.ict.serv.service.ProductService;
 import com.ict.serv.service.ReviewService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,6 +34,7 @@ import java.util.List;
 public class ReviewController {
     private final ReviewService service;
     private final InteractService interactService;
+    private final OrderService orderService;
 
     // 후기등록
     @PostMapping("/write")
@@ -39,20 +45,16 @@ public class ReviewController {
 
         Review review = new Review();
 
-        System.out.println("============");
-        System.out.println(reviewDTO);
         review.setReviewContent(reviewDTO.getReviewContent());
         review.setUser(interactService.selectUserByName(userDetails.getUsername()));
+        review.setRate(reviewDTO.getRate());
 
         Product product = new Product();
         product.setId(reviewDTO.getProductId());
         review.setProduct(product);
 
-        Review savedReview = service.saveReview(review);
-
         try {
-            //Review savedReview = service.saveReview(review);
-
+            Review savedReview = service.saveReview(review);
             String uploadDir = System.getProperty("user.dir") + "/uploads/review/" + savedReview.getId();
             File dir = new File(uploadDir);
             if(!dir.exists()) dir.mkdirs();
@@ -89,13 +91,27 @@ public class ReviewController {
         } catch (Exception e) {
             e.printStackTrace();
 
-            // 에러나면 첨부파일된 것은 모두 지워줘야 한다.
-
-            // 롤백처리
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-
-            return ResponseEntity.badRequest().body("fail"); //글등록실패
+            for (File delFile : savedFiles) {
+                delFile.delete();
+            }
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 롤백
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("후기 등록 실패");
         }
+    }
+
+    // 내가 이 상품을 구매한 사람이 맞는지 체크 (후기버튼 보이기 위해)
+    @GetMapping("/checkPurchase")
+    public List<Orders> checkPurchase(Long userId, Long productId){
+        User user = new User();
+        user.setId(userId);
+        System.out.println(user);
+
+        List<Orders> orders = orderService.selectCheckPurchase(user, productId);
+        System.out.println("=====111=======");
+        System.out.println(orders.size());
+        System.out.println("=====222=======");
+
+        return orders;
     }
 
 }

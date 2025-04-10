@@ -1,5 +1,6 @@
 package com.ict.serv.entity.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ict.serv.entity.Authority;
 import com.ict.serv.entity.product.ProductImage;
@@ -22,6 +23,7 @@ import java.util.List;
 @Table(name = "users")
 @Entity
 @EntityListeners(AuditingEntityListener.class)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
 
     @Id
