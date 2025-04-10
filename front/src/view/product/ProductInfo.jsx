@@ -1,8 +1,10 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { FaHeart, FaShoppingCart, FaTimes } from "react-icons/fa";
 import axios from "axios";
+import { Star } from "lucide-react";
+import reviewWriteBtn from '../../img/review.png';
 
 function ProductInfo() {
     const serverIP = useSelector((state) => state.serverIP);
@@ -22,6 +24,7 @@ function ProductInfo() {
     const [addBasketItems, setAddBasketItems] = useState(null);
 
     const [changeMenu, setChangeMenu] = useState('detail');
+    const [reviewWrite, setReviewWrite] = useState(false);
 
     const [isSubOptionRegistered, setIsSubOptionRegistered] = useState(false);
 
@@ -233,9 +236,101 @@ function ProductInfo() {
         setSelectedItems(updatedItems);
     };
 
+    /*후기*/
+    const [isPurchased, setIsPurchased] = useState(false); // 구매한 사람인지 여부 저장
+
+    useEffect(() => {
+        axios.get(`${serverIP.ip}/review/checkPurchase?userId=${user.user.id}&productId=${loc.state.product.id}`,{
+            headers: { Authorization: `Bearer ${user.token}` }
+        })
+        .then(function(response){  
+            console.log(response.data);
+        })
+        .catch(function(error){
+            console.log(error);
+        });
+    }, []);
+
+    const [rate, setRate] = useState(0); // 별점 
+    let [reviewContent, setReviewContent] = useState('');
+
+    function handleData(event){    
+        // if(event.target.name=='reviewContent') setReviewContent(event.target.value);
+        if (event.target.value.length > 230) {
+            alert("230글자까지 가능합니다.");
+            return;
+        }
+        setReviewContent(event.target.value);
+    }
+
+    //후기 이미지 파일 
+    const [reviewFiles, setReviewFiles] = useState([]);
+    const fileInputRef = useRef(null);
+
+    const changeFile = (e) => {
+        handleFiles(e.target.files);
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        handleFiles(e.dataTransfer.files);
+    };
+
+    const handleFiles = (selectedFiles) => {
+        const imageFiles = Array.from(selectedFiles).filter(file => file.type.startsWith("image/"));
+        if (imageFiles.length !== selectedFiles.length) {
+            alert("이미지 파일만 업로드 가능합니다.");
+        }
+        if (reviewFiles.length + imageFiles.length > 5) {
+            alert("이미지는 최대 5개까지만 등록할 수 있습니다.");
+            return;
+        }
+        setReviewFiles(prevFiles => [...prevFiles, ...imageFiles]);
+    };
+
+    const removeFile = (fileToRemove) => {
+        setReviewFiles(prevFiles => prevFiles.filter(file => file !== fileToRemove));
+    };
+
+    function handleSubmit(event){
+        event.preventDefault();
+
+        if (rate === 0) {
+            alert("별점을 선택해주세요!");
+            return;
+        }
+
+        if(reviewContent===''){
+            alert('후기를 입력해주세요.'); 
+            return false;
+        }
+
+        //첨부파일이 있어 Form객체를 만들어 서버에 전송해야한다.
+        let formData = new FormData();
+        formData.append("productId", loc.state.product.id); // 어떤 상품인지
+        formData.append("reviewContent", reviewContent); // 후기내용
+        formData.append("rate", rate); // 평점
+        for(let idx=0; idx<reviewFiles.length; idx++){ // 첨부파일
+            formData.append("files", reviewFiles[idx]);
+        }
+        
+        axios.post(`${serverIP.ip}/review/write`, formData, {
+            headers: {
+                Authorization: `Bearer ${user.token}`
+            }
+        })
+        .then(function(response){
+            console.log(response.data);
+        })
+        .catch(function(error){
+            console.log(error);
+        })
+    }
+
     return (
         <>
-        <div style={{ paddingTop: "140px" }}>
+        <div style={{ paddingTop: "140px"}}>
+            
             <div className="product-info-container">
                 <div className="product-info-left">
                     <img
@@ -410,45 +505,154 @@ function ProductInfo() {
                     </ul>
                 </div>
             </div>
-
-            {/* 상세정보, 후기 메뉴 */}
+                
+            {/* start : 상세정보, 후기 */}
             <div style={{ paddingTop: "10%", width: '80%', margin: '0 auto' }}>
-                <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc' }} />
-                <div style={{
-                    display: 'flex',
-                    gap: '50px',  // 요소 사이 간격 추가
-                    padding: '10px 0',
-                    fontSize: '16px',
-                    fontWeight: '600'
-                }}>
-                    <div style={{padding:'0 50px'}} onClick={()=>setChangeMenu("detail")}>상세정보</div>
-                    <div style={{padding:'0 50px'}} onClick={()=>setChangeMenu("review")}>후기</div>
+                <div>
+                    <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
+                    <div style={{
+                        display: 'flex',
+                        fontSize: '16px',
+                        fontWeight: '600'
+                    }}>
+                        <div onClick={()=>setChangeMenu("detail")} className="product-div">상세정보</div>
+                        <div onClick={()=>setChangeMenu("review")} className="product-div">후기</div>
+                    </div>
+                    <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
                 </div>
-                <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc' }} />
-            </div>
 
-            {/* 상세정보, 후기 메뉴 클릭시 */}
-            <div>
-                {changeMenu==="detail" &&
-                <>
-                    {
-                        // productList.length === 0 &&
-                        <div style={{padding: '20px', textAlign: 'center'}}>등록된 정보가 없습니다.</div>
+                <div>
+                    {changeMenu==="detail" &&
+                    <>
+                        {
+                            // productList.length === 0 &&
+                            <div style={{padding: '20px', textAlign: 'center'}}>등록된 정보가 없습니다.</div>
+                        }
+                        상세정보 내용 
+                    </>
                     }
-                    상세정보 내용 
-                </>
-                }
 
-                {changeMenu==="review" &&
-                <>
-                    {
-                        // productList.length === 0 &&
-                        <div style={{padding: '20px', textAlign: 'center'}}>등록된 정보가 없습니다.</div>
+                    {changeMenu==="review" &&
+                    <>
+                        {
+                            // productList.length === 0 &&
+                            <div style={{padding: '20px 0px', textAlign: 'center'}}>후기 - 등록된 정보가 없습니다.</div>
+                        }
+                            만약에 이 상품을 산 회원이라면 후기등록버튼이 보이게하기 
+                            {isPurchased && (
+                                <img onClick={() => setReviewWrite(!reviewWrite)} src={reviewWriteBtn} alt="후기등록하기버튼" style={{width:'100px', border:'1px solid #ddd', borderRadius:'50px'}} />
+                            )}
+
+                            {/* 후기등록 */}
+                            {reviewWrite && 
+                                <div className="review-container-style">
+                                    <div style={{margin:"10px 0", lineHeight: "1.8", fontWeight:"700"}}>
+                                        {user.user.username}님, <br />
+                                        구매하신 상품은 어떠셨나요?
+                                    </div>
+                                    <form onSubmit={handleSubmit} className="reviewForm">
+                                        {/* 별점 */}
+                                        <div className="review-star">
+                                            <span style={{ fontSize: '12px', fontWeight: '700' }}>별점&nbsp;&nbsp;</span>
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <Star
+                                                    key={star}
+                                                    size={20}
+                                                    fill={star <= rate ? "#FFD700" : "#ccc"}
+                                                    stroke={star <= rate ? "#FFD700" : "#ccc"}
+                                                    onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        if (rate === 1 && star === 1) {
+                                                            setRate(0);
+                                                        } else if (rate === 5 && star === 5) {
+                                                            setRate(0);
+                                                        } else {
+                                                            setRate(star);
+                                                        }
+                                                    }}
+                                                    className="star"
+                                                />
+                                            ))}
+                                        </div>
+                                        {/*내용*/}
+                                        <div><span style={{fontSize:'12px', fontWeight:'700'}}>내용</span></div>
+                                        <div style={{textAlign:'center'}}>
+                                            <textarea className="review-content-style" id="reviewContent" name="reviewContent" value={reviewContent} onChange={handleData} placeholder="후기 내용을 작성해주세요." maxLength={230}></textarea>
+                                            <div style={{ textAlign: 'right', margin: '5px 30px 5px 0' }}>
+                                                <p style={{ margin: 0, fontSize: '14px', color: '#555' }}>
+                                                {reviewContent.length} / 230
+                                                </p>
+                                            </div>
+                                        </div>
+                                        {/*파일*/}           
+                                        <div><span style={{fontSize:'12px', fontWeight:'700'}}>파일첨부</span></div>
+                                        <div style={{textAlign:'center'}}>
+                                            <div 
+                                                onDragOver={(e) => e.preventDefault()} 
+                                                onDrop={handleDrop}
+                                                style={{
+                                                    margin: '0 30px', height: '100px', 
+                                                    border: '2px dashed #ccc', display: 'flex', 
+                                                    alignItems: 'center', justifyContent: 'center', 
+                                                    marginBottom: '10px', cursor: 'pointer'
+                                                }}
+                                                onClick={() => fileInputRef.current.click()}
+                                            >
+                                                이미지를 드래그/선택하여 1~5개 첨부해주세요
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                <input
+                                                    type="file" style={{ display: 'none' }} ref={fileInputRef}
+                                                    multiple accept="image/*" onChange={changeFile}
+                                                />
+                                                <input type="button" 
+                                                    style={{ 
+                                                        backgroundColor: 'rgb(85, 85, 85)', color: 'white', padding: '8px', border: 'none', 
+                                                        cursor: 'pointer', borderRadius: '5px', fontSize:'12px'
+                                                    }} 
+                                                    onClick={() => fileInputRef.current.click()} value="이미지 선택"
+                                                />
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginTop: '15px', justifyContent:'center'}}>
+                                                {reviewFiles.map((file, idx) => (
+                                                    <div key={idx} style={{ position: 'relative', width: '100px', height: '100px' }}>
+                                                        <img 
+                                                            src={URL.createObjectURL(file)} 
+                                                            alt={file.name} 
+                                                            style={{ 
+                                                                width: '80%',  height: '80%', objectFit: 'cover', 
+                                                                borderRadius: '8px', boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                                                            }} 
+                                                        />
+                                                        <span 
+                                                            style={{
+                                                                position: 'absolute', top: '-6px', right: '3px', 
+                                                                backgroundColor: '#555', color: 'white', 
+                                                                width: '20px', height: '20px', 
+                                                                display: 'flex', alignItems: 'center', 
+                                                                justifyContent: 'center', borderRadius: '50%', 
+                                                                fontSize: '14px', cursor: 'pointer'
+                                                            }}
+                                                            onClick={() => removeFile(file)}>
+                                                            ✕
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        {/*등록버튼*/}
+                                        <div>
+                                            <input type="submit" value="등록" className="reviewBtn-style"/>
+                                        </div>
+                                    </form>
+                                </div>
+                            }
+                        </>
                     }
-                    후기 내용 
-                </>
-                }
+                </div>
             </div>
+            {/* end : 상세정보, 후기 */}
+
         </div>
         </>
     );

@@ -50,4 +50,8 @@ public class OrderService {
     public List<Orders> getOrderByProduct(Long id) {
         return order_repo.findAllByProductIdAndState(id, OrderState.PAID);
     }
+
+    public List<Orders> selectCheckPurchase(User user, Long productId) {
+        return order_repo.findByUserAndProductId(user, productId);
+    }
 }
