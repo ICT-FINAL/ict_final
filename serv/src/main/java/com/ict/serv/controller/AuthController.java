@@ -5,6 +5,7 @@ import com.ict.serv.entity.user.Account;
 import com.ict.serv.entity.Authority;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.AuthService;
+import com.ict.serv.service.InteractService;
 import com.ict.serv.util.JwtProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +14,9 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -31,36 +35,22 @@ import java.util.UUID;
 public class AuthController {
 
     private final AuthService authService;
+    private final InteractService interactService;
+
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
     @GetMapping("/auth/me")
-    public ResponseEntity<?> getCurrentUser(HttpSession session) {
-        // 세션에서 JWT 가져오기
-        String token = (String) session.getAttribute("JWT");
-
-        if (token == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 필요");
-        }
-
-        // JWT에서 사용자 아이디 추출
-        String userid = jwtProvider.getUseridFromToken(token);
-
-        // 유저 정보 조회
-        User user = authService.findByUserid(userid);
-
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("유저 정보 없음");
-        }
-
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = interactService.selectUserByName(userDetails.getUsername());
         // 유저 정보 반환 (비밀번호 제외)
-        return ResponseEntity.ok(new UserResponseDto(user.getUserid(), user.getUsername(), user.getEmail(), user.getUploadedProfileUrl()));
+        return ResponseEntity.ok(new UserResponseDto(user.getId(),user.getUserid(), user.getUsername(),
+                user.getEmail(), user.getUploadedProfileUrl(), user.getAuthority(),user.getZipcode(),user.getAddress(),user.getAddressDetail(),user.getGrade(),user.getGradePoint()));
     }
 
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequest, HttpServletRequest request) {
         User user = authService.findByUserid(loginRequest.getUserid());
-
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유저가 존재하지 않습니다.");
         }
@@ -68,17 +58,26 @@ public class AuthController {
         if (!passwordEncoder.matches(loginRequest.getUserpw(), user.getUserpw())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
         }
-
+        if(user.getAuthority() == Authority.ROLE_BANNED) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("정지된 사용자입니다.");
+        }
         String token = jwtProvider.createToken(user.getUserid());
 
         HttpSession session = request.getSession();
         session.setAttribute("JWT", token);
 
         UserResponseDto userResponse = new UserResponseDto(
+                user.getId(),
                 user.getUserid(),
                 user.getUsername(),
                 user.getEmail(),
-                user.getUploadedProfileUrl()
+                user.getProfileImageUrl(),
+                user.getAuthority(),
+                user.getZipcode(),
+                user.getAddress(),
+                user.getAddressDetail(),
+                user.getGrade(),
+                user.getGradePoint()
         );
         return ResponseEntity.ok(new LoginResponseDto(token, "로그인 성공", userResponse));
     }
@@ -130,13 +129,25 @@ public class AuthController {
         return account;
     }
 
+    @GetMapping("/signup/duplicateCheck")
+    public int duplicateCheck(String userid) {
+        return authService.idDuplicateCheck(userid);
+    }
+
     @PostMapping("/signup/doSignUp")
-    public ResponseEntity<String> doSignUp(@RequestParam("userid") String userid, @RequestParam("username") String username, @RequestParam("email") String email, @RequestParam("userpw") String userpw, @RequestParam(value = "profileImage", required = false) MultipartFile profileImage, @RequestParam(value = "kakaoProfileUrl", required = false) String kakaoProfileUrl) {
+    public ResponseEntity<String> doSignUp(@RequestParam("userid") String userid, @RequestParam("username") String username,
+                                           @RequestParam("email") String email, @RequestParam("userpw") String userpw,
+                                           @RequestParam("tel") String tel, @RequestParam("address") String address,
+                                           @RequestParam("addressDetail") String addressDetail, @RequestParam("zipcode") String zipcode,
+                                           @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
+                                           @RequestParam(value = "kakaoProfileUrl", required = false) String kakaoProfileUrl)
+    {
+        System.out.println(username);
         try {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             String encryptedPassword = passwordEncoder.encode(userpw);
 
-            String uploadDir = System.getProperty("user.dir") + "/uploads/user/profile";
+            String uploadDir = System.getProperty("user.dir") + "/uploads/user/profile";    //path는 무조건 이 경로
             File dir = new File(uploadDir);
             if (!dir.exists()) {
                 dir.mkdirs();
@@ -158,6 +169,10 @@ public class AuthController {
                     .username(username)
                     .email(email)
                     .userpw(encryptedPassword)
+                    .tel(tel)
+                    .address(address)
+                    .addressDetail(addressDetail)
+                    .zipcode(zipcode)
                     .kakaoProfileUrl(kakaoProfileUrl)
                     .uploadedProfileUrl(finalProfileUrl)
                     .authority(Authority.ROLE_USER)
@@ -199,4 +214,69 @@ public class AuthController {
         signUpResponseDto.setResult("가입이 완료되었습니다.");
         return ResponseEntity.ok().headers(headers).body(signUpResponseDto);
     }*/
+    @PostMapping("/auth/send-code")
+    public ResponseEntity<?> sendVerificationCode(@RequestBody EmailRequestDto request) {
+        User user = authService.findUserByEmail(request.getEmail());
+        if(user == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("해당 이메일의 사용자가 없습니다.");
+        }
+        try {
+            authService.sendVerificationCode(request.getEmail());
+            return ResponseEntity.ok("인증번호가 전송되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("이메일 전송 실패: " + Optional.ofNullable(e.getMessage()).orElse("알 수 없는 오류"));
+        }
+    }
+
+    @PostMapping("/auth/find-id/verify")
+    public ResponseEntity<Map<String, String>> verifyCodeAndFindId(@RequestParam String email, @RequestParam String code) {
+        if (!authService.verifyCode(email, code)) {
+            return ResponseEntity.badRequest().body(Map.of("message", "인증번호가 올바르지 않습니다."));
+        }
+
+        User user = authService.findUserByEmail(email);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "해당 이메일로 가입된 계정을 찾을 수 없습니다."));
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "message", "아이디를 찾았습니다.",
+                "userid", user.getUserid()
+        ));
+    }
+
+    @PostMapping("/auth/reset-password/request")
+    public ResponseEntity<Map<String, String>> requestPasswordReset(@RequestParam String userid, @RequestParam String email) {
+        User user = authService.findByUserid(userid);
+
+        if (user == null || !user.getEmail().equals(email)) {
+            return ResponseEntity.badRequest().body(Map.of("message", "아이디와 이메일이 일치하지 않습니다."));
+        }
+
+        String verificationCode = authService.sendVerificationCode(email);
+        return ResponseEntity.ok(Map.of("message", "비밀번호 재설정 인증번호가 이메일로 전송되었습니다."));
+    }
+
+    @PostMapping("/auth/reset-password/verify")
+    public ResponseEntity<Map<String, String>> verifyResetCode(@RequestParam String email, @RequestParam String code) {
+        if (!authService.verifyCode(email, code)) {
+            return ResponseEntity.badRequest().body(Map.of("message", "인증번호가 올바르지 않습니다."));
+        }
+        return ResponseEntity.ok(Map.of("message", "인증 성공"));
+    }
+
+    @PostMapping("/auth/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestParam String email, @RequestParam String newPassword) {
+        User user = authService.findUserByEmail(email);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 이메일의 사용자를 찾을 수 없습니다.");
+        }
+        user.setUserpw(passwordEncoder.encode(newPassword));
+        authService.saveUser(user);
+        return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다.");
+    }
+
+
 }

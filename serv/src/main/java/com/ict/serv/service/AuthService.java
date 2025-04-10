@@ -21,6 +21,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
+
     @Value("${kakao.client-id}")
     String KAKAO_CLIENT_ID;
 
@@ -32,10 +33,31 @@ public class AuthService {
 
     @Value("${google.client-secret}")
     String GOOGLE_CLIENT_SECRET;
+    private final MailService mailService;
+
+    private final Map<String, String> verificationCodes = new HashMap<>();
+
 
     public User findByUserid(String userid) {
         return (User) userRepository.findByUserid(userid)
                 .orElse(null);
+    }
+    public String sendVerificationCode(String email) {
+        String code = mailService.generateVerificationCode();
+        mailService.sendVerificationCode(email, code);
+        verificationCodes.put(email, code);  // 인증번호 저장
+        System.out.println("발송 및 저장된 인증번호: " + code);  // 디버깅용
+        return code;
+    }
+
+    public boolean verifyCode(String email, String code) {
+        String savedCode = verificationCodes.get(email);
+        if (savedCode == null) {
+            System.out.println("저장된 인증번호 없음");
+            return false;
+        }
+        System.out.println("입력 코드: " + code + ", 저장 코드: " + savedCode);
+        return savedCode.equals(code);
     }
 
     public Map<String, Object> getGoogleUserInfo(String accessToken) {
@@ -194,5 +216,9 @@ public class AuthService {
     }
     public void saveUser(User user) {
         userRepository.save(user);
+    }
+
+    public int idDuplicateCheck(String userid) {
+        return userRepository.countByUserid(userid);
     }
 }

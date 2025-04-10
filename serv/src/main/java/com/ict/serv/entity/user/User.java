@@ -1,6 +1,9 @@
 package com.ict.serv.entity.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ict.serv.entity.Authority;
+import com.ict.serv.entity.product.ProductImage;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -8,6 +11,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,6 +23,7 @@ import java.time.LocalDateTime;
 @Table(name = "users")
 @Entity
 @EntityListeners(AuditingEntityListener.class)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
 
     @Id
@@ -27,14 +33,29 @@ public class User {
     @Column(name="user_id", nullable = false, unique = true)
     private String userid;
 
-    @Column(nullable = false, unique = true)
-    private String email;
-
     @Column(name="user_name")
     private String username;
 
+    @Column(nullable = false, unique = true)
+    private String email;
+
     @Column(name="user_pw", nullable = false)
     private String userpw;
+
+    @Column(nullable = false)
+    private String tel;
+
+    @Column(nullable = false)
+    private String address;
+
+    @Column(name="address_detail", nullable = false)
+    private String addressDetail;
+
+    @Column(nullable = false)
+    private String zipcode;
+
+    @Column(name="info_text")
+    private String infoText;
 
     @Column
     @Enumerated(EnumType.STRING)
@@ -52,6 +73,17 @@ public class User {
 
     @LastModifiedDate
     private LocalDateTime modifiedDate;
+
+    @Column(columnDefinition = "int default 0")
+    private int grade;
+
+    @Column(name="grade_point", columnDefinition = "int default 0")
+    private int gradePoint;
+
+    @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    @Builder.Default
+    private List<Address> addressList = new ArrayList<>();
 
     public String getProfileImageUrl() {
         return (uploadedProfileUrl != null && !uploadedProfileUrl.trim().isEmpty())
