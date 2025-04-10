@@ -2,7 +2,9 @@ package com.ict.serv.service;
 
 import com.ict.serv.context.ApplicationContextProvider;
 import com.ict.serv.entity.auction.*;
+import com.ict.serv.entity.message.Message;
 import com.ict.serv.entity.user.User;
+import com.ict.serv.repository.MessageRepository;
 import com.ict.serv.repository.auction.AuctionBidRepository;
 import com.ict.serv.repository.auction.AuctionProductRepository;
 import com.ict.serv.repository.auction.AuctionRepository;
@@ -24,6 +26,7 @@ public class AuctionService {
     private final AuctionRepository auctionRepository;
     private final AuctionBidRepository bidRepository;
     private final AuctionProductRepository auctionProductRepository;
+    private final MessageRepository messageRepository;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final ConcurrentHashMap<String, ScheduledFuture<?>> endTasks = new ConcurrentHashMap<>();
@@ -61,8 +64,16 @@ public class AuctionService {
                 .orElseThrow(() -> new RuntimeException("Room not found"));
         List<AuctionBid> bidList = bidRepository.findByRoomOrderByBidTimeAsc(room);
         for(AuctionBid mini: bidList) {
-            mini.setState(BidState.DEAD);
-            bidRepository.save(mini);
+            if(mini.getState() == BidState.LIVE) {
+                Message msg = new Message();
+                msg.setUserFrom(room.getAuctionProduct().getSellerNo());
+                msg.setUserTo(mini.getUser());
+                msg.setSubject("입찰이 취소처리 되었습니다.");
+                msg.setComment("'" + room.getAuctionProduct().getProductName()+"' 물품의 입찰이 취소되었습니다. \n보증금은 1일 내 환불처리 됩니다.");
+                messageRepository.save(msg);
+                mini.setState(BidState.DEAD);
+                bidRepository.save(mini);
+            }
         }
         AuctionBid bid = AuctionBid.builder()
                 .room(room)
