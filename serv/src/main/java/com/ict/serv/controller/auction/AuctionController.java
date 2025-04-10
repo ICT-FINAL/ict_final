@@ -141,4 +141,8 @@ public class AuctionController {
         service.deleteRoom(roomId);
         return ResponseEntity.ok().build();
     }
+    @GetMapping("/getAuctionItem/{roomId}")
+    public ResponseEntity<AuctionRoom> getAuctionItem(@PathVariable String roomId){
+        return ResponseEntity.ok(service.getAuctionRoom(roomId).get());
+    }
 }

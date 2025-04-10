@@ -259,6 +259,7 @@ function ProductInfo() {
 
                     <div style={{ 
                         marginTop: "5px", padding: "4px 8px", display: "inline-block",
+                        marginLeft:'50px',
                         borderRadius: "5px", fontSize: "12px", fontWeight: "600",
                         backgroundColor: loc.state.product.shippingFee === 0 ? "#ff4d4d" : "#f2f2f2",
                         color: loc.state.product.shippingFee === 0 ? "white" : "black",

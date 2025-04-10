@@ -25,14 +25,9 @@ function AuctionSell() {
     
     useEffect(() => {
         const now = new Date();
-        const oneDayLater = new Date(now);
-        oneDayLater.setDate(now.getDate() + 1);  // 1일 후
-    
         const twoDaysLater = new Date(now);
-        twoDaysLater.setDate(now.getDate() + 2);  // 2일 후
-    
-        const nowString = now.toISOString().slice(0, 16);  // 현재 시간
-        const oneDayLaterString = oneDayLater.toISOString().slice(0, 16);  // 1일 후의 시간
+        twoDaysLater.setDate(now.getDate() + 0);  // 2일 후  나중에 +2로바꾸기 테스트용 0
+   
         const twoDaysLaterString = twoDaysLater.toISOString().slice(0, 16);
 
         setFormData({
