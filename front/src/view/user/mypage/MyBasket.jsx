@@ -70,31 +70,21 @@ function MyBasket() {
     const groupedItems = useMemo(() => {
         const grouped = {};
         basketItems.forEach((item) => {
-            const sellerNo = item.sellerNo;
-            const sellerName = item.sellerName;
-            const productName = item.productName;
-            const productShippingFee = item.productShippingFee;
-            const additionalPrice = item.additionalPrice;
-            const productPrice = item.productPrice;
-            const productImage = item.productImage;
-            const productDiscountRate = item.productDiscountRate;
-            const optionName = item.optionName;
-            const optionCategoryId = item.optionCategoryId;
-
-            if (!grouped[sellerNo]) {
-                grouped[sellerNo] = {
-                    sellerName: sellerName,
-                    productName: productName,
-                    productImage: productImage,
-                    productPrice: productPrice,
-                    productDiscountRate: productDiscountRate,
-                    additionalPrice: additionalPrice,
-                    optionCategoryId: optionCategoryId,
-                    items: []
+            const productKey = item.productNo;
+            if (!grouped[productKey]) {
+                grouped[productKey] = {
+                    productNo: item.productNo,
+                    productName: item.productName,
+                    productImage: item.productImage,
+                    productPrice: item.productPrice,
+                    productDiscountRate: item.productDiscountRate,
+                    productShippingFee: item.productShippingFee,
+                    sellerName: item.sellerName,
+                    sellerNo: item.sellerNo,
+                    items: [],
                 };
             }
-            grouped[sellerNo].items.push(item);
-            console.log("아이템 정보 봐보자!!", item);
+            grouped[productKey].items.push(item);
         });
         return grouped;
     }, [basketItems]);
@@ -137,27 +127,39 @@ function MyBasket() {
         let selectedPrice = 0;
         let totalDiscountedPrice = 0;
         let totalShippingFee = 0;
-        let totalQuantity = 0;
-        let discountedPrice = 0;
         let sellers = new Set();
-
+        const countedProductNos = new Set();
+    
         basketItems.forEach((item) => {
             if (checkedItems[item.basketNo]) {
                 const discountedPrice = item.productDiscountRate > 0
                     ? item.productPrice * item.productDiscountRate / 100
                     : item.productPrice;
-
+    
                 const itemPrice = item.productPrice;
-
+    
                 selectedPrice += (itemPrice + item.additionalPrice) * item.quantity;
                 totalDiscountedPrice += discountedPrice * item.quantity;
-                totalShippingFee += item.productShippingFee;
+    
+                if (!countedProductNos.has(item.productNo)) {
+                    totalShippingFee += item.productShippingFee;
+                    countedProductNos.add(item.productNo);
+                }
+    
                 sellers.add(item.sellerName);
             }
         });
-
-        return { selectedPrice, totalDiscountedPrice, totalShippingFee, totalQuantity, totalAmount: selectedPrice + totalShippingFee - totalDiscountedPrice, sellers };
+    
+        return {
+            selectedPrice,
+            totalDiscountedPrice,
+            totalShippingFee,
+            totalAmount: selectedPrice + totalShippingFee - totalDiscountedPrice,
+            sellers
+        };
     };
+    
+    
 
     const totals = calculateTotals();
 
@@ -214,62 +216,75 @@ function MyBasket() {
                 <hr />
             </div>
             {Object.keys(groupedItems).length > 0 ? (
-                Object.keys(groupedItems).map((seller, index) => (
-                    <div key={index} className="basket-body">
-                        <input
-                            type="checkbox"
-                            checked={groupedItems[seller].items.every(item => checkedItems[item.basketNo])}
-                            onChange={(e) => {
+            Object.values(groupedItems).map((group, index) => (
+                <div key={index} className="basket-body">
+                    <input
+                        type="checkbox"
+                        checked={group.items.every(item => checkedItems[item.basketNo])}
+                        onChange={(e) => {
+                            const newChecked = { ...checkedItems };
+                            group.items.forEach(item => {
                                 if (e.target.checked) {
-                                    const newChecked = { ...checkedItems };
-                                    groupedItems[seller].items.forEach(item => {
-                                        newChecked[item.basketNo] = true;
-                                    });
-                                    setCheckedItems(newChecked);
+                                    newChecked[item.basketNo] = true;
                                 } else {
-                                    const newChecked = { ...checkedItems };
-                                    groupedItems[seller].items.forEach(item => {
-                                        delete newChecked[item.basketNo];
-                                    });
-                                    setCheckedItems(newChecked);
+                                    delete newChecked[item.basketNo];
                                 }
-                            }}
-                        /> <b>{groupedItems[seller].sellerName}</b>님의 상품 <button type="button">쿠폰 받기</button>
-                        <ul className="basket-list" style={{ fontWeight: "bold", borderBottom: "1px solid #ddd" }}>
-                            <li></li>
-                            <li>제품</li>
-                            <li></li>
-                            <li>가격</li>
-                            <li>수량</li>
-                            <li>배송비</li>
-                        </ul>
-                        {groupedItems[seller].items.map((item, idx) => (
-                            <ul key={idx} className="basket-list">
-                                <li><input type="checkbox" checked={checkedItems[item.basketNo] || false} onChange={() => handleItemCheck(item.basketNo)} /></li>
-                                <li style={{ cursor: "pointer", display: "flex", alignItems: "center" }} onClick={() => moveProductInfo(item.productNo)}>
-                                    <img style={{ width: '10vw', height: '10vw', borderRadius: '10px', marginRight: '10px' }}
-                                        src={`${serverIP.ip}/uploads/product/${item.sellerNo}/${item.productImage}`}
-                                        onError={(e) => { e.target.src = 'default.jpg'; }}
-                                        onClick={() => setImageIndex(idx)}
+                            });
+                            setCheckedItems(newChecked);
+                        }}
+                    /> <b>{group.sellerName}</b>님의 상품
+
+                    <ul className="basket-list">
+                        <li></li>
+                        <li>제품</li>
+                        <li></li>
+                        <li>옵션</li>
+                        <li>수량</li>
+                        <li>배송비</li>
+                    </ul>
+
+                    <ul className="basket-list">
+                        <li></li>
+                        <li style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
+                            onClick={() => moveProductInfo(group.productNo)}>
+                            <img
+                                src={`${serverIP.ip}/uploads/product/${group.sellerNo}/${group.productImage}`}
+                                style={{ width: '10vw', height: '10vw', borderRadius: '10px', marginRight: '10px' }}
+                            />
+                            <div>
+                                <span>상품명: {group.productName}</span><br />
+                                <span>가격: {formatNumberWithCommas(group.productPrice)}원</span><br />
+                                <span>할인율: {group.productDiscountRate}%</span>
+                            </div>
+                        </li>
+                        <li></li>
+                        <li colSpan={3}>
+                            {group.items.map((item, idx) => (
+                                <div key={idx} style={{ borderBottom: '1px solid #ddd', padding: '5px 0' }}>
+                                    <input
+                                        type="checkbox"
+                                        checked={checkedItems[item.basketNo] || false}
+                                        onChange={() => handleItemCheck(item.basketNo)}
                                     />
-                                    <div style={{ display: "flex", flexDirection: "column" }}>
-                                        <span>판매자:{item.sellerName}</span>
-                                        <span>{item.productName}</span>
-                                        <span>{formatNumberWithCommas(item.productPrice)}원</span>
-                                        <span>할인율:{item.productDiscountRate}%</span>
-                                    </div>
-                                </li>
-                                <button style={{ marginLeft: "10px", width: '100px' }} onClick={() => { dispatch(setModal({ isOpen: true, selected: 'basket-box', selectedItem: item })) }}>주문수정</button>
-                                <li>옵션: <br />{item.optionName} {item.categoryName}<br /> +{formatNumberWithCommas(item.additionalPrice)}원</li>
-                                <li>{item.quantity}</li>
-                                <li>{formatNumberWithCommas(item.productShippingFee)}원</li>
-                            </ul>
-                        ))}
-                    </div>
-                ))
-            ) : (
-                <div style={{ marginTop: "10px" }}>장바구니에 담긴 상품이 없습니다.</div>
-            )}
+                                    옵션: {item.optionName} / {item.categoryName} - 추가금액 +{formatNumberWithCommas(item.additionalPrice)}원
+                                    <br />수량: {item.quantity}
+                                    <button
+                                        style={{ marginLeft: "10px" }}
+                                        onClick={() => dispatch(setModal({ isOpen: true, selected: 'basket-box', selectedItem: item }))}
+                                    >
+                                        주문수정
+                                    </button>
+                                </div>
+                            ))}
+                        </li>
+                        <li>{formatNumberWithCommas(group.productShippingFee)}원</li>
+                    </ul>
+                </div>
+            ))
+        ) : (
+            <div style={{ marginTop: "10px" }}>장바구니에 담긴 상품이 없습니다.</div>
+        )}
+
 
             <div className="basket-body" style={{ backgroundColor: "beige", borderRadius: "10px" }}>
                 <ul className="price-list">

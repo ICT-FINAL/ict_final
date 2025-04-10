@@ -32,6 +32,7 @@ function Header() {
     const [messageList, setMessageList] = useState([]);
 
     const [grade, setGrade] = useState(['✊','☝️','✌️','🖐️']);
+    const [hamburgerOpen, setHamburgerOpen] = useState(false);
 
     function handleLogout() {
         localStorage.removeItem("token");
@@ -134,6 +135,25 @@ function Header() {
                         <input type='text' className="search-input" placeholder="검색어를 입력해주세요" onChange={changeSearch} onKeyDown={handleSearch} />
                     </div>
                 </li>
+                <div className="hamburger" onClick={() => setHamburgerOpen(prev => !prev)}>
+                ☰
+                </div>
+                {hamburgerOpen && (
+                    (user && user.user.authority === 'ROLE_USER') || user == undefined ? (
+                        <ul className="hamburger-menu">
+                            <li style={{ cursor: 'pointer' }} onClick={() => movePage('/product')}>상품 검색</li>
+                            <Link to='/recommend'><li>상품 추천</li></Link>
+                            <Link to='/event'><li>이벤트</li></Link>
+                            <Link to='/auction'><li>실시간 경매</li></Link>
+                            <Link to='/community'><li>커뮤니티</li></Link>
+                        </ul>
+                    ) : (
+                        <ul className="hamburger-menu">
+                            <Link to='/admin/reportlist'><li>관리자 페이지</li></Link>
+                            <Link to='/event'><li>이벤트 관리</li></Link>
+                        </ul>
+                    )
+                )}
             </ul>
 
             <motion.div

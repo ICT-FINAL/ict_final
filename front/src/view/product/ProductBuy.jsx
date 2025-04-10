@@ -21,6 +21,27 @@ function ProductBuy() {
   const [totalShippingFee, setTotalShippingFee] = useState(0);
   const [totalDiscountAmount, setTotalDiscountAmount] = useState(0);
 
+  const groupedItems = orderItems.reduce((acc, item) => {
+    const key = item.productNo;
+    if (!acc[key]) {
+      acc[key] = {
+        productNo: item.productNo,
+        sellerName: item.sellerName,
+        productName: item.productName,
+        productPrice: item.productPrice,
+        productDiscountRate: item.productDiscountRate,
+        productShippingFee: item.productShippingFee,
+        options: []
+      };
+    }
+    acc[key].options.push({
+      categoryName: item.categoryName,
+      quantity: item.quantity,
+      additionalPrice: item.additionalPrice
+    });
+    return acc;
+  }, {});
+
   useEffect(() => {
     console.log("ProductBuying state:", location.state.selectedItems);
     if (state && state.basketItems) {
@@ -60,23 +81,31 @@ function ProductBuy() {
     if (purchasedItems && purchasedItems.length > 0) {
       setOrderItems(purchasedItems);
       let paymentTotal = 0;
-      let shippingTotal = 0;
       let discountTotal = 0;
-
+      let shippingTotal = 0;
+  
+      const countedProductNos = new Set();
+  
       purchasedItems.forEach(item => {
         const discountedPrice = item.productDiscountRate > 0
           ? item.productPrice * (1 - item.productDiscountRate / 100)
           : item.productPrice;
+  
         paymentTotal += (discountedPrice + (item.additionalPrice || 0)) * item.quantity;
-        shippingTotal += item.productShippingFee || 0;
         discountTotal += (item.productPrice - discountedPrice) * item.quantity;
+  
+        if (!countedProductNos.has(item.productNo)) {
+          shippingTotal += item.productShippingFee || 0;
+          countedProductNos.add(item.productNo);
+        }
       });
-
+  
       setTotalPaymentAmount(paymentTotal + shippingTotal);
       setTotalShippingFee(shippingTotal);
       setTotalDiscountAmount(discountTotal);
     }
   }, [purchasedItems]);
+  
 
   const handleAddAddress = (newAddress) => {
     if (user)
@@ -103,12 +132,15 @@ function ProductBuy() {
     const productIds = orderItems.map(item => item.productNo);
     console.log(orderItems);
     const orderDetails = [];
+    const usedProductNos = new Set();
     orderItems.forEach(item => {
       orderDetails.push({
         optionCategoryId: item.optionCategoryId,
         quantity: item.quantity,
-        coupon: 0
+        coupon: 0,
+        shippingFee: usedProductNos.has(item.productNo) ? 0 : item.productShippingFee || 0
       });
+      usedProductNos.add(item.productNo);
     });
     /*
     if (isBasketPurchase) {
@@ -129,6 +161,7 @@ function ProductBuy() {
       });
     }*/
     console.log(orderDetails);
+    console.log(productIds);
     axios.post(`${serverIP.ip}/order/setOrder`, {
       options: orderDetails,
       addrId: selAddrId,
@@ -141,23 +174,24 @@ function ProductBuy() {
       headers: { Authorization: `Bearer ${user.token}` },
     })
       .then(res => {
-        const successUrl = `http://localhost:3000/payment/success?iid=${res.data.id}`;
-        tossPayments
-          .requestPayment("카드", {
-            amount: parseInt(totalPaymentAmount),
-            orderId,
-            orderName,
-            customerName: user.user.username,
-            successUrl,
-            failUrl: `${window.location.origin}/payment/fail`,
-          })
-          .catch(error => {
-            console.error("결제 실패:", error);
-            axios.get(`${serverIP.ip}/order/cancel?id=${res.data.id}`, {
-              headers: { Authorization: `Bearer ${user.token}` },
-            }).catch(cancelErr => console.error("결제 취소 실패:", cancelErr));
-            alert(`결제 실패: ${error.message}`);
-          });
+        console.log(res.data);
+          const successUrl = `http://localhost:3000/payment/success?iid=${res.data.id}`;
+          tossPayments
+            .requestPayment("카드", {
+              amount: parseInt(totalPaymentAmount),
+              orderId,
+              orderName,
+              customerName: user.user.username,
+              successUrl,
+              failUrl: `${window.location.origin}/payment/fail`,
+            })
+            .catch(error => {
+              console.error("결제 실패:", error);
+              axios.get(`${serverIP.ip}/order/cancel?orderGroupId=${res.data.id}`, {
+                headers: { Authorization: `Bearer ${user.token}` },
+              }).catch(cancelErr => console.error("결제 취소 실패:", cancelErr));
+              alert(`결제 실패: ${error.message}`);
+            });
       })
       .catch(err => {
         console.error("주문 생성 실패:", err);
@@ -175,18 +209,30 @@ function ProductBuy() {
         <h2 className="product-buy-header">상품 결제</h2>
         {orderItems.length > 0 && (
           <div className="product-buy-info">
-            {orderItems.map(item => (
-              <div key={state.selectedOptions || item.basketNo} className="order-item">
-                <h3 className="product-buy-name">{item.sellerName}님의 {item.productName}</h3>
-                <p style={{ fontSize: '20px' }}>가격: {formatNumberWithCommas(item.productPrice)}원</p>
-                <p className="buy-price">할인: {item.productDiscountRate}% (기본가격에서할인)</p>
-                <p>옵션: {item.optionName}  {item.categoryName}</p>
-                <p>수량: {item.quantity}</p>
-                <p>배송비: {formatNumberWithCommas(item.productShippingFee)}원</p>
-                {item.additionalPrice > 0 && <p>추가금액: +{formatNumberWithCommas(item.additionalPrice)}원</p>}
-              </div>
-            ))}
+                    {Object.values(groupedItems).map((group, index) => (
+                      <div key={index} className="order-item">
+                        <h3 className="product-buy-name">{group.productName}</h3>
+                        <p style={{ fontSize: '20px' }}>가격: <strong style={{textDecoration:'line-through'}}>{formatNumberWithCommas(group.productPrice)}</strong> 원</p>
+                        <p className="buy-price">할인: <span style={{color:'#d9534f', fontWeight:'bold', fontSize:'19px'}}>{group.productDiscountRate}%</span></p>
+                        { group.productDiscountRate !== 0 && <p style={{borderBottom:'1px solid #ddd', paddingBottom:'10px'}}>할인가: <span style={{fontSize:'20px', fontWeight:'bold'}}>{formatNumberWithCommas(group.productPrice*((100-group.productDiscountRate)/100))}</span> 원</p>}
+                        {group.options.map((opt, idx) => (
+                          <div key={idx} className="option-detail" style={{ marginLeft: '10px', padding: '5px 0' }}>
+                            <p><span style={{fontWeight:'bold'}}>옵션</span>: {opt.categoryName} x {opt.quantity} (+{formatNumberWithCommas(opt.additionalPrice)} 원) = <span style={{fontSize:'20px',fontWeight:'bold', color:'#4a7b63'}}>{formatNumberWithCommas((group.productPrice*((100-group.productDiscountRate)/100) + opt.additionalPrice)*opt.quantity)}</span> 원</p>
+                          </div>
+                        ))}
 
+                        <p>배송비: <strong style={{color:'#1976d2'}}>{formatNumberWithCommas(group.productShippingFee)}</strong>원</p>
+                        <span>
+                          합계: <strong style={{fontWeight:'bold', fontSize:'20px'}}>{formatNumberWithCommas(
+                            group.options.reduce((sum, opt) => {
+                              const discountedPrice = group.productPrice * (1 - group.productDiscountRate / 100);
+                              return sum + (discountedPrice + opt.additionalPrice) * opt.quantity;
+                            }, 0) + group.productShippingFee
+                          )}</strong> 원
+                        </span>
+                      </div>
+                    ))}
+  
             <div className="shipping-discount-info">
               {totalShippingFee > 0 && <p className="shipping-fee">총 배송비: +{formatNumberWithCommas(totalShippingFee)}원</p>}
               {totalDiscountAmount > 0 && <p className="discount-amount" style={{ color: '#d9534f' }}>총 할인 금액: -{formatNumberWithCommas(totalDiscountAmount)}원</p>}
