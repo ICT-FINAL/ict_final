@@ -59,12 +59,17 @@ public class AuctionService {
     public void saveBid(String roomId, User user, int price) {
         AuctionRoom room = auctionRepository.findById(roomId)
                 .orElseThrow(() -> new RuntimeException("Room not found"));
-
+        List<AuctionBid> bidList = bidRepository.findByRoomOrderByBidTimeAsc(room);
+        for(AuctionBid mini: bidList) {
+            mini.setState(BidState.DEAD);
+            bidRepository.save(mini);
+        }
         AuctionBid bid = AuctionBid.builder()
                 .room(room)
                 .user(user)
                 .price(price)
                 .bidTime(LocalDateTime.now())
+                .state(BidState.LIVE)
                 .build();
 
         bidRepository.save(bid);
@@ -74,7 +79,9 @@ public class AuctionService {
         if (room.getEndTime().isBefore(now.plusMinutes(5))) {
             room.setEndTime(room.getEndTime().plusMinutes(1));
         }
-
+        room.setCurrentPrice(price);
+        room.setHighestBidderId(user.getId());
+        room.setHit(bidList.size()+1);
         auctionRepository.save(room);
 
         scheduleAuctionEnd(roomId);

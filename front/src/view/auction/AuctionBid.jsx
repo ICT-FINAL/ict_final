@@ -47,24 +47,30 @@ function AuctionBid() {
 
     const handleBidSubmit = () => {
         if (!selectedBid) return;
-
-        const client = stompClientRef.current;
-        if (client && client.connected) {
-            client.send(
-                `/app/auction/${roomInfo.id}`,
-                {},
-                JSON.stringify({
-                    urd: user.user,
-                    price: selectedBid,
-                    roomId: roomInfo.id
-                })
-            );
-
-          //  alert(`${formatNumber(selectedBid)}원에 입찰 완료!`);
-          //  navigate(-1); // 이전 페이지로 이동 (AuctionRoom)
-        } else {
-            alert('서버와 연결되지 않았습니다.');
+    
+        if (!window.TossPayments) {
+            alert("TossPayments SDK가 로드되지 않았습니다.");
+            return;
         }
+    
+        const tossPayments = window.TossPayments("test_ck_ORzdMaqN3w2RZ1XBgmxM85AkYXQG");
+        const orderId = new Date().getTime();
+    
+        const successUrl = `http://localhost:3000/auction/bid/success?orderId=${orderId}&bid=${selectedBid}&roomId=${roomInfo.roomId}`;
+        const failUrl = `http://localhost:3000/auction/bid/fail`;
+    
+        tossPayments
+            .requestPayment("카드", {
+                amount: roomInfo.deposit,
+                orderId: orderId.toString(),
+                orderName: `경매 보증금 - ${roomInfo.title || "상품"}`,
+                customerName: user.user.username,
+                successUrl,
+                failUrl
+            })
+            .catch((error) => {
+                console.error("❌ 결제 실패 또는 취소됨:", error);
+            });
     };
 
     return (
