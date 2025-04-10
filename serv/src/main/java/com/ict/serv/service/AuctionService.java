@@ -1,10 +1,12 @@
 package com.ict.serv.service;
 
 import com.ict.serv.context.ApplicationContextProvider;
+import com.ict.serv.entity.Authority;
 import com.ict.serv.entity.auction.*;
 import com.ict.serv.entity.message.Message;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.MessageRepository;
+import com.ict.serv.repository.UserRepository;
 import com.ict.serv.repository.auction.AuctionBidRepository;
 import com.ict.serv.repository.auction.AuctionProductRepository;
 import com.ict.serv.repository.auction.AuctionRepository;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,6 +30,7 @@ public class AuctionService {
     private final AuctionBidRepository bidRepository;
     private final AuctionProductRepository auctionProductRepository;
     private final MessageRepository messageRepository;
+    private final UserRepository userRepository;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final ConcurrentHashMap<String, ScheduledFuture<?>> endTasks = new ConcurrentHashMap<>();
@@ -63,6 +67,16 @@ public class AuctionService {
         AuctionRoom room = auctionRepository.findById(roomId)
                 .orElseThrow(() -> new RuntimeException("Room not found"));
         List<AuctionBid> bidList = bidRepository.findByRoomOrderByBidTimeAsc(room);
+        Message sender = new Message();
+        List<User> admins = userRepository.findUserByAuthority(Authority.ROLE_ADMIN);
+        for(User admin: admins) {
+            sender.setUserFrom(admin);
+            sender.setUserTo(room.getAuctionProduct().getSellerNo());
+            sender.setSubject("새로운 입찰이 등록 되었습니다.");
+            sender.setComment("'" + room.getAuctionProduct().getProductName()+"'"+": "+ price+"원"+"  \n상세 내용은 마이페이지 > 판매 입찰 내역 에서 확인해주세요.");
+            messageRepository.save(sender);
+            break;
+        }
         for(AuctionBid mini: bidList) {
             if(mini.getState() == BidState.LIVE) {
                 Message msg = new Message();
