@@ -11,6 +11,7 @@ import '../../../css/view/mypage.css';
 import MyWish from "./MyWish";
 import MyInquiryList from "./MyInquiryList";
 import UserInfo from "../UserInfo";
+import MySell from "./MySell";
 
 function MyIndex(){
     const location = useLocation();
@@ -29,7 +30,7 @@ function MyIndex(){
             reports: { f_name: "나의 활동", l_name: "신고 내역" },
             inquiries: { f_name: "나의 활동", l_name: "문의 내역" },
             purchases: { f_name: "거래 내역", l_name: "주문 내역" },
-            sales: { f_name: "거래 내역", l_name: "판매 기록" },
+            sales: { f_name: "거래 내역", l_name: "판매 내역" },
             basket: { f_name: "보관함", l_name: "장바구니" },
             coupons: { f_name: "보관함", l_name: "쿠폰함" },
             points: { f_name: "보관함", l_name: "적립 내역" },
@@ -64,6 +65,7 @@ function MyIndex(){
                   { path.l_name == '문의 내역' && <MyInquiryList/> }
                   { path.l_name == '찜 목록' && <MyWish/> }
                   { path.l_name == '주문 내역' && <MyPurchases/> }
+                  { path.l_name == '판매 내역' && <MySell/> }
             </div>
         </div>
     </>)

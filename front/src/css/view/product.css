@@ -417,11 +417,11 @@
 .product-info-container {
     width: 80%;
     margin: auto;
-    height: 40vw;
+    
     max-width: 1200px;
-    max-height: 600px;
+    
     min-width: 800px;
-    min-height: 400px;
+    
     display: grid;
     grid-template-columns: 4.5fr 5.5fr;
 }
@@ -822,4 +822,117 @@
 .pagination button:disabled {
     cursor: not-allowed;
     opacity: 0.5;
+}
+
+/* 리뷰 */
+.product-div{
+    padding: 15px 60px;
+}
+
+.product-div:hover{
+    background-color: #edfcf3;
+    cursor: pointer;
+}
+
+.review-container-style{
+    background-color: #F6F7F8;
+    padding: 10px;
+    border-radius: 20px;
+}
+
+.review-star{
+    display: flex;
+    align-items: center;
+}
+
+.file-upload-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 15px;
+    background-color: #E9ECEE;
+    color: #333;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    border: 1px solid #ccc;
+    margin-left: 30px;
+}
+
+.file-upload-label:hover {
+    background-color: #b3b5b6;
+}
+
+.file-container-style {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column; 
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.file-text-style {
+    font-size: 12px;
+    color: #555;
+    font-weight: 500;
+    padding-left: 10px;
+    margin-left: 30px;
+}
+
+.file-upload-style {
+    padding: 0 10px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    display: none;
+}
+
+.file-ul-style {
+    width: 100%;
+    list-style: none;
+    margin: 3px 0 0 30px;
+    padding: 0 10px 10px 10px;
+}
+
+.file-ul-style li {
+    font-size: 12px;
+    color: #333;
+    width: 90%;
+    margin-bottom: 2px;
+}
+
+.review-content-style {
+    border-radius: 10px;
+    resize: none;
+    outline: none;
+    border: 1px solid #ccc;
+    width: calc(100% - 80px);
+    height: 150px;
+    padding: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+.reviewBtn-style {
+    margin: 15px 25px 0 0;
+    width: 140px;
+    height: 45px;
+    background-color: #b3b5b6;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.reviewBtn-style:hover {
+    background-color: rgb(85, 85, 85);
 }

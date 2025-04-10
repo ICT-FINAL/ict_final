@@ -4,6 +4,7 @@ package com.ict.serv.service;
 import com.ict.serv.controller.admin.PagingVO;
 import com.ict.serv.entity.order.OrderItem;
 import com.ict.serv.entity.order.OrderPagingVO;
+import com.ict.serv.entity.order.OrderState;
 import com.ict.serv.entity.order.Orders;
 import com.ict.serv.entity.report.Report;
 import com.ict.serv.entity.user.User;
@@ -37,10 +38,20 @@ public class OrderService {
     public Optional<OrderItem> selectOrderItem(Long id) {
         return order_item_repo.findById(id);
     }
-    public int totalOrderCount(User user){
-        return order_repo.countIdByUser(user);
+    public int totalOrderCount(User user, OrderPagingVO pvo){
+        if(pvo.getState() == null) return order_repo.countIdByUser(user);
+        else return order_repo.countIdByUserAndState(user, pvo.getState());
     }
     public List<Orders> getOrderByUser(User user, OrderPagingVO pvo) {
-        return order_repo.findAllByUserOrderByStartDateDesc(user, PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+        if(pvo.getState() == null) return order_repo.findAllByUserOrderByStartDateDesc(user, PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+        else return order_repo.findAllByUserAndStateOrderByStartDateDesc(user,pvo.getState(), PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+    }
+
+    public List<Orders> getOrderByProduct(Long id) {
+        return order_repo.findAllByProductIdAndState(id, OrderState.PAID);
+    }
+
+    public List<Orders> selectCheckPurchase(User user, Long productId) {
+        return order_repo.findByUserAndProductId(user, productId);
     }
 }

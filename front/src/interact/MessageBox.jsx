@@ -285,7 +285,8 @@ function MessageBox() {
                       marginBottom: '15px',
                       color: '#555',
                       fontSize: '14px',
-                      lineHeight: '1.5'
+                      lineHeight: '1.5',
+                      whiteSpace:'pre-wrap'
                     }}>
                       {item.comment}
                     </div>
