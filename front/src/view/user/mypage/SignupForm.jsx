@@ -199,19 +199,10 @@ function SignupForm() {
     };
 
     const doSignUp = () => {
-        // for (const key of Object.keys(alert)) {
-        //     console.log(alert);
-        //     if (!alert[key].state) {  // 유효하지 않은 항목 찾기
-        //         console.log(key);
-        //         setAlert(({...alert, [key]: { content: validationRules[key].message}}));
-        //         break;
-        //     }
-        // }
-
         if (!validateForm()) {
             return;
         }
-        
+
         if (!idCheck) {
             window.alert("아이디 중복 확인을 해주세요.");
             return;

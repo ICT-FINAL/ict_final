@@ -28,6 +28,7 @@
     left: 0;
     width: 300px;
     top: 140px;
+    z-index: 1000;
     height: calc(100vh - 140px);
     max-height: calc(100vh - 140px);
     padding-bottom: 20px;
@@ -37,6 +38,7 @@
     border-right: 1px solid #eee;
     background-color: white;
 }
+
 .mypage-nav > ul {
     list-style-type: none;
     padding:0;
@@ -60,12 +62,53 @@
     font-weight: 700;
     padding-left: 20px;
 }
-
-.mypage-wrap{
+.mypage-wrap, .mypage-wrap-with-nav {
     padding-top:140px;
     padding-left:300px;
 }
-
+.mypage-wrap-with-nav {
+    padding-left:0;
+}
+.mypage-hamburger {
+    position: fixed;
+    display: none;
+    top: 89px;
+    left: 20px;
+    font-size: 20pt;
+    z-index: 3000;
+    cursor: pointer;
+}
+@media(max-width:1280px) {
+    .mypage-header {
+        padding-left: 60px;
+    }
+    .mypage-hamburger {
+        display: block;
+    }
+    .mypage-nav  {
+        display: none;
+    }
+    .mypage-nav.open {
+        display: block;
+    }
+    .mypage-wrap {
+        padding-left:0;
+    }
+}
+.mypage-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.3);
+    z-index: 50;
+}
+@media(min-width:1281px) {
+    .mypage-overlay {
+        display: none;
+    }
+}
 .mypage-box{
     background-color: white;
     width:85%;
@@ -112,22 +155,26 @@
 }
 
 .basket-list > li:nth-child(2) {
-    width:15%
+    width:50%
 }
 
 .basket-list > li:nth-child(3) {
-    width:50%;
+    width:10%;
+    padding-right:30px;
 }
 
 .basket-list > li:nth-child(4) {
-    width:10%;
-    text-align:center;
+    width:20%;
+    text-align:left;
 }
+
 .basket-list > li:nth-child(5) {
     width:10%;
     text-align:center;
-}.basket-list > li:nth-child(6) {
-    width:10%;
+}
+
+.basket-list > li:nth-child(6) {
+    width:5%;
     text-align:center;
 }
 
@@ -144,27 +191,27 @@
 
 .price-list > li:nth-child(1) {
     width:20%;
-    text-align:right;
+    text-align:center;
 }
 
 .price-list > li:nth-child(2) {
     width:20%;
-    text-align:right;
+    text-align:center;
 }
 
 .price-list > li:nth-child(3) {
     width:20%;
-    text-align:right;
+    text-align:center;
 }
 
 .price-list > li:nth-child(4) {
     width:20%;
-    text-align:right;
+    text-align:center;
 }
 
 .price-list > li:nth-child(5) {
     width:20%;
-    text-align:right;
+    text-align:center;
 }
 
 -wish-state {
@@ -196,21 +243,6 @@
     border: 1px solid #2e7d32;
 }
 
-/* button {
-    background-color: #b2f1cf;
-    border: 0.5px solid #bdbdbd;
-    padding: 10px 20px;
-    border-radius: 10px;
-    width:100px;
-    transition: background-color 0.1s, transform 0.1s, box-shadow 0.1s;
-  }
-  
-button:active {
-    background-color: #cbf7de    ;
-    transform: scale(0.95);
-    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
-  } */
-/* 찜 목록 */
 
 .mypage-wish-list{
     list-style-type: none;
@@ -255,149 +287,91 @@ button:active {
 
 /* 주문 내역 */
 
-.order-list {
+.order-group-list {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    padding: 20px;
+    gap: 2rem;
+    margin-top: 2rem;
   }
   
-.order-header {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 15px;
-    color: #333;
-}
-
-.order-items {
-    margin-bottom: 20px;
-}
-
-.order-item {
-    margin-bottom: 10px;
-    padding: 10px;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.product-details {
-    font-size: 14px;
-    color: #555;
-}
-
-.item-price {
-    color: #007bff;
-    font-weight: bold;
-}
-
-.order-summary {
-    margin-top: 20px;
-    font-size: 16px;
-    color: #333;
-}
-
-.order-summary strong {
-    font-weight: bold;
-}
-
-.discount {
-    color: #e74c3c;
-}
-
-.shipping-fee {
-    color: #f39c12;
-}
-
-.final-total {
-    color: #2ecc71;
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.order-info {
-    margin-top: 20px;
-    font-size: 14px;
-    color: #555;
-}
-
-.order-info div {
-    margin-bottom: 10px;
-}
-
-.order-summary div,
-.order-info div {
-    font-size: 16px;
-    color: #333;
-}
-
-.order-summary .final-total {
-    margin-top:10px;
-    font-size: 18px;
-}
-
-.order-card {
-    border-top: 4px solid #303436;
-    padding-top: 20px;
-}
-
-.order-card {
-    position: relative; /* 상위 박스를 기준으로 상태 텍스트를 위치시킵니다 */
-    border: 1px solid #ddd;
+  .order-group-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
     padding: 20px;
-    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     background-color: #fff;
-}
-
-/* 상태 텍스트를 박스 오른쪽 상단에 고정 */
-.order-state {
-    position: absolute;
-    top: 10px; /* 박스 상단에서의 거리 */
-    right: 10px; /* 박스 오른쪽에서의 거리 */
-}
-
-.order-state-label {
-    padding: 5px 10px;
-    font-size: 18px;
-    font-weight: bold;
-    color: white;
+  }
+  
+  .group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    font-size: 1rem;
+  }
+  
+  .order-state-label {
+    color: #fff;
+    padding: 5px 12px;
     border-radius: 12px;
-    text-align: center;
-    display: inline-block;
-}
-
-/* 상태별 색상 */
-.order-state-label[style*="color:#bdc3c7"] {
-    background-color: #bdc3c7;
-}
-
-.order-state-label[style*="color:#2ecc71"] {
-    background-color: #2ecc71;
-}
-
-.order-state-label[style*="color:#e74c3c"] {
-    background-color: #e74c3c;
-}
-
-.order-state-label[style*="color:#f39c12"] {
-    background-color: #f39c12;
-}
-
-@media (max-width: 768px) {
-.order-list {
-    padding: 10px;
-}
-
-.order-card {
+    font-size: 0.9rem;
+    font-weight: bold;
+  }
+  
+  .order-section {
+    margin-bottom: 20px;
     padding: 15px;
-}
-
-.order-summary {
-    font-size: 14px;
-}
-
-.order-info {
-    font-size: 12px;
-}
-}
-
-
+    background-color: #fafafa;
+    border-radius: 10px;
+  }
+  
+  .order-info {
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+    line-height: 1.6;
+  }
+  
+  .order-item {
+    border-top: 1px dashed #ccc;
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .product-details {
+    font-size: 0.95rem;
+    color: #333;
+  }
+  
+  .order-total, .group-summary {
+    margin-top: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #2d3436;
+  }
+  
+  .shipping-fee, .discount {
+    margin-top: 5px;
+    color: #636e72;
+    font-weight: normal;
+  }
+  
+  .final-total {
+    font-size: 1.1rem;
+    color: #4a7b63;
+    font-weight: bold;
+    margin-top: 10px;
+    border-top: 1px solid #ccc;
+    padding-top: 8px;
+  }
+  
+  .no-list {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #636e72;
+    margin-top: 50px;
+  }
+  
 /* 주문 내역 끝 */

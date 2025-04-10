@@ -355,20 +355,28 @@ input.tel {
     text-align: center;
     border: 1px solid #ccc;
 }
-#follow-btn {
+#follow-btn, #unfollow-btn {
     display: inline;
     float: right;
     height: 35px;
     padding: 0 20px;
-    background-color: #8CC7A5;
+    background-color: #52a575;
     border: none;
     border-radius: 10px;
     cursor: pointer;
+    transition: all 0.5s;
+}
+#unfollow-btn {
+    background-color: #d1e2d7;
+}
+#follow-btn:hover, #unfollow-btn:hover {
+    background-color: #8CC7A5;
 }
 .profile-menu {
     justify-content:center;
     padding: 10px;
     margin-bottom: 0;
+    
 }
 .profile-menu div {
     cursor: pointer;
@@ -532,4 +540,47 @@ input.tel {
 #discount-sticker {
     top: 200px;
     left: 50px;
+}
+
+/* ========== Mypage Follow ========== */
+.follow-container {
+    min-width: 500px;
+    max-width: 1200px;
+}
+.follow-menu, .follow-menu>li {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+.follow-menu {
+    height: 55px;
+    display: flex;
+    justify-content: center;
+    gap: 10%;
+    font-size: 14pt;
+}
+.follow-menu>li {
+    margin-bottom: 20px;
+    padding: 10px 0;
+    border-bottom: 1px solid #999;
+    text-align: center;
+    cursor: pointer;
+}
+.follow-list {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 20px;
+    text-align: center;
+}
+
+@media (max-width: 1280px) {
+    .follow-list {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+.follow-user-img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 100%;
 }

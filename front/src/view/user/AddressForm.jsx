@@ -4,7 +4,7 @@ import axios from "axios";
 import '../../css/address.css';
 import { setModal } from "../../store/modalSlice";
 
-function AddressForm({ setSelAddrId, onAddAddress, isGet, setSelectedAddresses, setRequest, request}) {
+function AddressForm({ setSelAddrId, onAddAddress, isGet, setSelectedAddresses, setRequest, request }) {
     const [recipientName, setRecipientName] = useState("");
     const [address, setAddress] = useState("");
     const [addressDetail, setAddressDetail] = useState("");
@@ -20,7 +20,7 @@ function AddressForm({ setSelAddrId, onAddAddress, isGet, setSelectedAddresses, 
     const modal = useSelector((state) => state.modal);
 
     useEffect(() => {
-        if (user) 
+        if (user)
             axios
                 .get(`${serverIP.ip}/mypage/getAddrList`, {
                     headers: { Authorization: `Bearer ${user.token}` },
@@ -34,7 +34,7 @@ function AddressForm({ setSelAddrId, onAddAddress, isGet, setSelectedAddresses, 
     }, [user, serverIP]);
 
     useEffect(() => {
-        if (user) 
+        if (user)
             axios
                 .get(`${serverIP.ip}/mypage/getAddrList`, {
                     headers: { Authorization: `Bearer ${user.token}` },
@@ -70,8 +70,8 @@ function AddressForm({ setSelAddrId, onAddAddress, isGet, setSelectedAddresses, 
             return;
         }
 
-        for(var i = 0; i < addressList.length; i++) {
-            if(addressList[i].id == selectedAddressId) {
+        for (var i = 0; i < addressList.length; i++) {
+            if (addressList[i].id == selectedAddressId) {
                 setSelectedAddress(addressList[i]);
                 setSelectedAddresses(addressList[i]);
                 return;
@@ -80,9 +80,9 @@ function AddressForm({ setSelAddrId, onAddAddress, isGet, setSelectedAddresses, 
     };
 
     function ENUUUM(a) {
-        if(a === 'HOME') return '집'
-        if(a === 'COMPANY') return '회사'
-        if(a === 'OTHER') return '기타'
+        if (a === 'HOME') return '집'
+        if (a === 'COMPANY') return '회사'
+        if (a === 'OTHER') return '기타'
     }
 
     const dispatch = useDispatch();
@@ -104,7 +104,7 @@ function AddressForm({ setSelAddrId, onAddAddress, isGet, setSelectedAddresses, 
                             </option>
                         ))}
                     </select>
-                    <button className="add-address-button" onClick={() => setIsAddressFormVisible(true)}>+ 배송지 등록</button>    
+                    <button className="add-address-button" onClick={() => setIsAddressFormVisible(true)}>+ 배송지 등록</button>
                 </div>
             ) : (
                 <div>
@@ -114,7 +114,7 @@ function AddressForm({ setSelAddrId, onAddAddress, isGet, setSelectedAddresses, 
             )}
 
             {selectedAddress && (
-                <div style={{border:'1px solid #ddd', marginTop:'10px', paddingLeft:'10px'}}>
+                <div style={{ border: '1px solid #ddd', marginTop: '10px', paddingLeft: '10px' }}>
                     <p>이름: {selectedAddress.recipientName}</p>
                     <p>주소: {selectedAddress.address}</p>
                     <p>상세 주소: {selectedAddress.addressDetail}</p>
@@ -146,7 +146,7 @@ function AddressForm({ setSelAddrId, onAddAddress, isGet, setSelectedAddresses, 
                             <input style={{ width: '90%' }}
                                 className="input-field"
                                 type="text"
-                                value={modal.info && modal.info.address} 
+                                value={modal.info && modal.info.address}
                                 readOnly
                             />
                         </div>
@@ -198,9 +198,9 @@ function AddressForm({ setSelAddrId, onAddAddress, isGet, setSelectedAddresses, 
                 </div>
             )}
             <h3>요청사항</h3>
-            <textarea value={request} 
-            style={{ whiteSpace: 'pre-wrap', width: '100%', height: '150px',resize:'none' }}
-            onChange={(e) => setRequest(e.target.value)}/>
+            <textarea value={request}
+                style={{ whiteSpace: 'pre-wrap', width: '100%', height: '150px', resize: 'none' }}
+                onChange={(e) => setRequest(e.target.value)} />
         </div>
     );
 }

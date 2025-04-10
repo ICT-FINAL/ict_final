@@ -662,9 +662,20 @@
   .product-buy-header {
     font-size: 28px;
     font-weight: bold;
-    color: #333;
     margin-bottom: 30px;
+    color: #333;
+    text-align: center;
   }
+
+  .order-item {
+    background: #f9f9f9;
+    padding: 20px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
+  }
+
   .product-buy-info {
     background: #ffffff;
     padding: 20px;
@@ -675,16 +686,16 @@
   }
   
   .product-buy-name {
-    font-size: 24px;
-    color: #444;
-    font-weight: 500;
+    font-size: 23px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #4a7b63;
   }
   
   .buy-price {
-    font-size: 20px;
+    font-size: 16px;
     color: black;
     margin: 10px 0;
-    border-bottom: 1px solid #ddd;
     padding-bottom:5px;
   }
   
@@ -721,23 +732,25 @@
     background-color: #4a7b63;
 }
 
+.discount-amount {
+    font-weight: bold;
+}
+  
+
 .shipping-discount-info {
     margin-top: 20px;
     font-size: 16px;
     color: #666;
 }
   
-.shipping-fee,
+.shipping-fee {
+    color: #1976d2;
+    font-weight: 700;
+}
+
 .discount {
     margin: 5px 0;
-    font-weight: 500;
-}
-  
-.shipping-fee {
-    color: #007bff;
-}
-  
-.discount {
+    font-weight: 700;
     color: #d9534f;
 }
 
@@ -932,4 +945,9 @@
 
 .reviewBtn-style:hover {
     background-color: rgb(85, 85, 85);
+}
+
+.option-detail {
+    font-size: 16px;
+    color: #444;
 }

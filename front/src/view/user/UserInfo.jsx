@@ -10,23 +10,33 @@ function UserInfo(){
     const navigate = useNavigate();
     
     const [userNo, setUserNo] = useState(0);
+    const [loginNo, setLoginNo] = useState(0);
     const [userinfo, setUserinfo] = useState({});
     const [profileMenu, setProfileMenu] = useState('guestbook');
     const [guestbookList, setGuestbookList] = useState([]);
     const [productList, setProductList] = useState([]);
     const [replyList, setReplyList] = useState({});
     const [wishCount, setWishCount] = useState(0);
+    const [followState, setFollowState] = useState(false);
+    const [followerCount, setFollowerCount] = useState(0);
+    const [followingCount, setFollowingCount] = useState(0);
 
     useEffect(()=>{
-        setUserNo(loc.state === null ? user.user.id : loc.state);
+        if (user) {
+            setUserNo(loc.state === null ? user.user.id : loc.state);
+            setLoginNo(user.user.id);
+        }
     },[]);
 
     useEffect(()=>{
-        getGuestbookList();
-        getProductList();
-        getUserInfo();
-        getInfo();
-    },[userNo])
+        if (loginNo !== 0) {
+            getGuestbookList();
+            getProductList();
+            getUserInfo();
+            getInfo();
+            getFollowState();
+        }
+    },[loginNo])
 
     useEffect(() => {
         guestbookList.forEach(item => {
@@ -37,14 +47,15 @@ function UserInfo(){
     }, [guestbookList]);
 
     const getInfo = ()=>{
-        axios.get(`${serverIP.ip}/mypage/myInfo?id=${userNo}`, {
+        axios.get(`${serverIP.ip}/mypage/myInfoCount?id=${userNo}`, {
             headers: {
               Authorization: `Bearer ${user.token}`
             }
         })
         .then(res=>{
-            console.log("작품찜 수:", res.data);
-            setWishCount(res.data);
+            setFollowerCount(res.data.followerCount);
+            setFollowingCount(res.data.followingCount);
+            setWishCount(res.data.wishCount);
         })
         .catch(err=>console.log(err));
     }
@@ -56,7 +67,7 @@ function UserInfo(){
               }
         })
         .then(res=>{
-            console.log(res.data);
+            console.log("User: ",res.data);
             setUserinfo(res.data);
         })
         .catch(err=>console.log(err));
@@ -65,7 +76,7 @@ function UserInfo(){
     const getGuestbookList = ()=>{
         axios.get(`${serverIP.ip}/mypage/guestbookList?id=${userNo}`, {
             headers: {
-              Authorization: `Bearer ${user.token}`
+                Authorization: `Bearer ${user.token}`
             }
         })
         .then(res=>{
@@ -132,7 +143,7 @@ function UserInfo(){
             }
         })
         .then(res=>{
-            console.log(res.data);
+            console.log("판매작품:", res.data);
             setProductList(res.data);
         })
         .catch(err=>console.log(err));
@@ -165,18 +176,54 @@ function UserInfo(){
         navigate('/product/info',{state:{product:prod}});
     }
     
+    const getFollowState = ()=>{
+        if (userNo !== loginNo) {
+            axios.get(`${serverIP.ip}/interact/getFollowState?from=${loginNo}&to=${userNo}`, {
+                headers: {
+                  Authorization: `Bearer ${user.token}`
+                }
+            })
+            .then(res=>{
+                setFollowState(res.data);
+            })
+            .catch(err=>console.log(err));
+        }
+    }
+    const followUser = ()=>{
+        if (followState && !window.confirm("언팔로우 하시겠습니까?")) return;
+        axios.get(`${serverIP.ip}/interact/followUser?from=${loginNo}&to=${userNo}&state=${followState}`, {
+            headers: {
+              Authorization: `Bearer ${user.token}`
+            }
+        })
+        .then(()=>{
+            getFollowState();
+        })
+        .catch(err=>console.log(err));
+    }
+
     return (
         <div className="profile-container" style={loc.state !== null ? { paddingTop: '140px' } : {}}>
             <div className="profile-top">
                 {userinfo.imgUrl && <img src = {userinfo.imgUrl.indexOf('http') !==-1 ? `${userinfo.imgUrl}`:`${serverIP.ip}${userinfo.imgUrl}`} alt='' width={140} height={140}/>}
                 <div className="profile-info">
-                    <div style={{fontWeight: 'bold', fontSize: '1.2em'}}>{userinfo.username}
-                        <button id="follow-btn">팔로우</button>
+                    <div style={{fontWeight: 'bold', fontSize: '1.2em'}}>
+                        <span>{userinfo.username}</span>
+                        {
+                            userNo !== loginNo &&
+                            <button id={followState ? "unfollow-btn" : "follow-btn"} onClick={followUser}>
+                                {followState ? 'Following' : 'Follow'}
+                            </button>
+                        }
                     </div>
                     <div>별점(후기개수)</div>
                     <div className="profile-follow">
-                        <div>팔로워<br/><span>100</span></div>
-                        <div>팔로잉<br/><span>300</span></div>
+                        <div onClick={userNo === loginNo ? () => navigate('/mypage/follow?tab=follower') : undefined}
+                            style={userNo === loginNo ? {cursor: 'pointer'} : {}}    
+                        >팔로워<br/><span>{followerCount}</span></div>
+                        <div onClick={userNo === loginNo ? () => navigate('/mypage/follow?tab=following') : undefined}
+                            style={userNo === loginNo ? {cursor: 'pointer'} : {}}
+                        >팔로잉<br/><span>{followingCount}</span></div>
                         <div>작품찜<br/><span>{wishCount}</span></div>
                     </div>
                 </div>
@@ -205,7 +252,7 @@ function UserInfo(){
                     {
                         guestbookList.map(item=>{
                             return (
-                                <div className="guestbook-item">
+                                <div key={item.id} className="guestbook-item">
                                     <img id="writer-profile-image" src = {item.writer.uploadedProfileUrl.indexOf('http') !==-1 ? `${item.writer.uploadedProfileUrl}`:`${serverIP.ip}${item.writer.uploadedProfileUrl}`} alt=''/>
                                     <div id={`mgx-${item.writer.id}`}
                                         className='message-who'
@@ -221,13 +268,13 @@ function UserInfo(){
                                         <span style={{fontSize: '14px'}}> &gt;</span>
                                     </div>
                                     <div style={{position: 'absolute', display: 'inline', top: '55px', left: '80px', fontSize: '11pt'}}>{item.writedate.slice(0,16)}</div>
-                                    <div id="guestbook-content" style={user.user.id === item.writer.id ? {background: '#9dc0a9'} : {}}><span>{item.content}</span>
+                                    <div id="guestbook-content" style={ loginNo === item.writer.id ? {background: '#9dc0a9'} : {}}><span>{item.content}</span>
                                         {
-                                            user.user.id === item.writer.id &&
+                                            loginNo === item.writer.id &&
                                             <div className="guestbook-delete-btn" onClick={()=>guestbookDelete(item.id)}>×</div>
                                         }
                                         {
-                                            userNo === user.user.id && replyList[item.id]?.length === 0 &&
+                                            userNo === loginNo && replyList[item.id]?.length === 0 &&
                                             <>
                                                 <button id="guestbook-reply-btn" onClick={()=>replyToggle(item.id)}>답글</button>
                                                 <div className="guestbook-write-box" id={`guestbook-${item.id}`} style={{display: 'none', border: 'none', padding: '0'}}>
@@ -241,10 +288,9 @@ function UserInfo(){
                                     {
                                         replyList[item.id]?.map(reply => {
                                             return (
-                                                <>
-                                                <div key={reply.id} className="guestbook-reply" style={user.user.id === reply.writer.id ? {background: '#ddd'} : {}}>
+                                                <div key={reply.id} className="guestbook-reply" style={loginNo === reply.writer.id ? {background: '#ddd'} : {}}>
                                                     <span>┗ </span>
-                                                    <span style={user.user.id === reply.writer.id ? {fontWeight: 'bold'} : {}}>{reply.writer.username}</span>: 
+                                                    <span style={loginNo === reply.writer.id ? {fontWeight: 'bold'} : {}}>{reply.writer.username}</span>: 
                                                     <span style={{lineHeight: '1.4'}}>{reply.content}</span>
                                                     <span style={{
                                                             position: 'absolute',
@@ -254,12 +300,10 @@ function UserInfo(){
                                                             color: '#666'
                                                         }}>{reply.writedate.slice(0,16)}</span>
                                                     {
-                                                        user.user.id === reply.writer.id &&
+                                                        loginNo === reply.writer.id &&
                                                         <div className="reply-delete-btn" onClick={()=>guestbookDelete(reply.id, item.id)}>×</div>
                                                     }
                                                 </div>
-                                                </>
-
                                             )
                                         })
                                     }
@@ -280,7 +324,7 @@ function UserInfo(){
                     {
                         productList.map(product=>{
                             return (
-                                <div className="product-item" onClick={() => {moveInfo(product)}}>
+                                <div key={product.id} className="product-item" onClick={() => {moveInfo(product)}}>
                                     <img id="product-img" src={`${serverIP.ip}/uploads/product/${product.id}/${product.images[0].filename}`} alt='상품이미지준비중'/>
                                     {
                                         product.discountRate !== 0 &&

@@ -2,6 +2,7 @@ package com.ict.serv.controller;
 
 import com.ict.serv.dto.UserResponseDto;
 import com.ict.serv.entity.report.ReportState;
+import com.ict.serv.entity.user.Follow;
 import com.ict.serv.entity.wish.WishPagingVO;
 import com.ict.serv.entity.wish.Wishlist;
 import com.ict.serv.entity.message.Message;
@@ -144,5 +145,24 @@ public class InteractController {
         map.put("pvo",pvo);
         map.put("wishList", service.getAllWishList(pvo,user));
         return map;
+    }
+
+    @GetMapping("/getFollowState")
+    public boolean getFollowState(Long from, Long to) {
+        return service.selectFollow(from, to) != null; // 있으면 true, 없으면 false
+    }
+
+    @GetMapping("/followUser")
+    public void followUser(Long from, Long to, boolean state) {
+        System.out.println(state);
+        if (!state) {
+            Follow follow = new Follow();
+            follow.setUserFrom(service.selectUser(from));
+            follow.setUserTo(service.selectUser(to));
+
+            service.insertFollow(follow);
+        } else {
+            service.deleteFollow(service.selectFollow(from, to));
+        }
     }
 }

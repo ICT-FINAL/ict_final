@@ -7,4 +7,5 @@ public class OrderRequestDto {
     private Long optionCategoryId;
     private int quantity;
     private int coupon;
+    private int shippingFee;
 }
