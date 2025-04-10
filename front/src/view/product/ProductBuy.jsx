@@ -25,7 +25,7 @@ function ProductBuy() {
         failUrl: `http://localhost:3000/payment/fail`,
       })
       .catch((error) => {
-        console.error("❌ 결제창 오류:", error);
+        console.error("결제창 오류:", error);
       });
   };
 
@@ -34,7 +34,7 @@ function ProductBuy() {
       <h2>상품 결제</h2>
       <p>상품명: {productName}</p>
       <p>가격: {price}원</p>
-      <button onClick={handlePayment}>💳 결제하기</button>
+      <button onClick={handlePayment}>결제하기</button>
     </div>
   );
 }

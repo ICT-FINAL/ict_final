@@ -19,7 +19,7 @@ public class PaymentController {
 
     @PostMapping("/confirm")
     public ResponseEntity<?> confirmPayment(@RequestBody Map<String, String> requestMap) {
-        String secretKey = "test_sk_d46qopOB8972zE2BNblgVZmM75y0"; // 시크릿 키
+        String secretKey = "test_sk_d46qopOB8972zE2BNblgVZmM75y0"; // 토스 시크릿키
         String paymentKey = requestMap.get("paymentKey");
         String orderId = requestMap.get("orderId");
         int amount = Integer.parseInt(requestMap.get("amount"));
@@ -36,14 +36,18 @@ public class PaymentController {
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
 
         try {
-            ResponseEntity<String> response = restTemplate.postForEntity(
+            ResponseEntity<String> tossResponse = restTemplate.postForEntity(
                     "https://api.tosspayments.com/v1/payments/confirm",
                     request,
                     String.class
             );
-            return ResponseEntity.ok(response.getBody());
+
+            return ResponseEntity.ok(tossResponse.getBody());
+            
         } catch (HttpClientErrorException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류: " + ex.getMessage());
         }
     }
 }

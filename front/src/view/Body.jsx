@@ -38,8 +38,12 @@ import ReportApprove from '../interact/ReportApprove';
 import CategoryModal from '../modal/CategoryModal';
 import ProductInfo from './product/ProductInfo';
 import ProductBuy from './product/ProductBuy';
-import PaymentSuccess from './product/PaymentSuccess';
-import PaymentFail from './product/PaymentFail';
+
+import PaymentSuccess from './payment/PaymentSuccess';
+import PaymentFail from './payment/PaymentFail';
+
+import ShippingTracker from "./shipping/ShippingTracker";
+
 import RecommendIndex from './recommend/RecommendIndex';
 import EventIndex from './event/EventIndex';
 import CommunityIndex from './community/CommunityIndex';
@@ -149,8 +153,11 @@ function Body() {
       <Route path='/product/sell' element={<ProductSell/>}></Route>
       <Route path='/product/info' element={<ProductInfo/>}></Route>
       <Route path='/product/buying' element={<ProductBuy/>}></Route>
+
       <Route path="/payment/success" element={<PaymentSuccess/>}></Route>
       <Route path="/payment/fail" element={<PaymentFail/>}></Route>
+
+      <Route path="/shipping/track" element={<ShippingTracker/>}></Route>
 
       <Route path='/recommend/*' element={<RecommendIndex/>}></Route>
 
