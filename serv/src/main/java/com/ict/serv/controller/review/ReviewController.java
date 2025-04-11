@@ -1,5 +1,8 @@
 package com.ict.serv.controller.review;
 
+import com.ict.serv.dto.ReviewLikeDto;
+import com.ict.serv.dto.ReviewResponseDto;
+import com.ict.serv.entity.order.OrderState;
 import com.ict.serv.entity.order.Orders;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.review.Review;
@@ -26,6 +29,7 @@ import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,6 +39,7 @@ public class ReviewController {
     private final ReviewService service;
     private final InteractService interactService;
     private final OrderService orderService;
+    private final ReviewService reviewService;
 
     // 후기등록
     @PostMapping("/write")
@@ -101,17 +106,45 @@ public class ReviewController {
 
     // 내가 이 상품을 구매한 사람이 맞는지 체크 (후기버튼 보이기 위해)
     @GetMapping("/checkPurchase")
-    public List<Orders> checkPurchase(Long userId, Long productId){
+    public ReviewResponseDto checkPurchase(@RequestParam Long userId, @RequestParam Long productId){
         User user = new User();
         user.setId(userId);
-        System.out.println(user);
 
         List<Orders> orders = orderService.selectCheckPurchase(user, productId);
-        System.out.println("=====111=======");
-        System.out.println(orders.size());
-        System.out.println("=====222=======");
+        boolean orderIsOk = false;
+        for(Orders order:orders) {
+            orderIsOk= orderService.selectOrderGroup(order.getOrderGroup().getId()).get().getState() == OrderState.PAID;
+        }
 
-        return orders;
+        // 리뷰를 이미 쓴 사람인지 체크!
+        Product product = new Product();
+        product.setId(productId);
+
+        boolean reviewIsOk = reviewService.selectCheckReview(user, product);
+
+        return new ReviewResponseDto(orderIsOk, reviewIsOk);
+    }
+
+    @GetMapping("/productReviewList")
+    public ResponseEntity<?> productReviewList(@RequestParam Long productId, @RequestParam Long userId){
+        Product product = new Product();
+        product.setId(productId);
+
+        List<Review> reviewList = reviewService.productReviewList(product);
+
+        if (reviewList.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("리뷰가 없습니다.");
+        }
+
+        return ResponseEntity.ok(reviewList);
+    }
+
+    @PostMapping("/like")
+    public ResponseEntity<Map<String, Integer>> like(@RequestBody ReviewLikeDto reviewLikeDto) {
+        System.out.println("=======reviewId================reviewId=========");
+        System.out.println(reviewLikeDto);
+        System.out.println("=======reviewId================reviewId=========");
+        return null;
     }
 
 }

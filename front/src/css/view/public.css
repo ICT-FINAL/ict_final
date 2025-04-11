@@ -276,6 +276,18 @@ body{
     }
 }
 
+@media(min-width:1024px) {
+    .event-date-badge{
+        font-size:18px;
+    }
+    .event-button{
+        font-size:18px;
+    }
+    .main-coupon-badge{
+        font-size: 18px;
+    }
+}
+
 /* 메인 이벤트 배너 끝 */
 
 /* 로딩 스피너 */

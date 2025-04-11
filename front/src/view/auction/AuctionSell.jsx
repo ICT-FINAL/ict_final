@@ -443,12 +443,12 @@ function AuctionSell() {
                         onChange={handleChange}
                     /> 
                 <label className="product-label">시작 가격</label>
-                <input type="number" id="first_price" name="first_price" className="product-input" value={formData.first_price} onChange={handleChange} />
+                <input type="text" id="first_price" name="first_price" className="product-input" value={formData.first_price} onChange={handleChange} />
 
                 <label className="product-label">즉시 구매 가격</label>
-                <input type="number" id="buy_now_price" name="buy_now_price" className="product-input" value={formData.buy_now_price} onChange={handleChange} />
+                <input type="text" id="buy_now_price" name="buy_now_price" className="product-input" value={formData.buy_now_price} onChange={handleChange} />
                     <label className="product-label">배송비</label>
-                    <input type="number" id="shippingFee" name="shippingFee" className="product-input" value={formData.shippingFee} onChange={handleChange} />
+                    <input type="text" id="shippingFee" name="shippingFee" className="product-input" value={formData.shippingFee} onChange={handleChange} />
                     <label className="product-label">보증금</label>
                     <input type="number" id="deposit" name="deposit" className="product-input" readOnly value={parseInt(formData.buy_now_price*0.1)} onChange={handleChange} />
                     <label className="product-label">시작 시간</label>

@@ -248,7 +248,7 @@ function MyBasket() {
                         <li style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
                             onClick={() => moveProductInfo(group.productNo)}>
                             <img
-                                src={`${serverIP.ip}/uploads/product/${group.sellerNo}/${group.productImage}`}
+                                src={`${serverIP.ip}/uploads/product/${group.productNo}/${group.productImage}`}
                                 style={{ width: '10vw', height: '10vw', borderRadius: '10px', marginRight: '10px' }}
                             />
                             <div>

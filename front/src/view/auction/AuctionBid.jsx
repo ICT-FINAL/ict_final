@@ -56,8 +56,8 @@ function AuctionBid() {
         const tossPayments = window.TossPayments("test_ck_ORzdMaqN3w2RZ1XBgmxM85AkYXQG");
         const orderId = new Date().getTime();
     
-        const successUrl = `http://localhost:3000/auction/bid/success?orderId=${orderId}&bid=${selectedBid}&roomId=${roomInfo.roomId}`;
-        const failUrl = `http://localhost:3000/auction/bid/fail`;
+        const successUrl = `${serverIP.front}/auction/bid/success?orderId=${orderId}&bid=${selectedBid}&roomId=${roomInfo.roomId}`;
+        const failUrl = `${serverIP.front}/auction/bid/fail`;
     
         tossPayments
             .requestPayment("카드", {
