@@ -175,7 +175,7 @@ function ProductBuy() {
     })
       .then(res => {
         console.log(res.data);
-          const successUrl = `http://localhost:3000/payment/success?iid=${res.data.id}`;
+          const successUrl = `${serverIP.front}/payment/success?iid=${res.data.id}`;
           tossPayments
             .requestPayment("카드", {
               amount: parseInt(totalPaymentAmount),

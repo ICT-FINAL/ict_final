@@ -210,21 +210,8 @@ function AuctionRoom() {
                                     <div className='product-info-name'>
                                         {roomInfo.auctionProduct.productName}
                                     </div>
-                                    <div className='product-wish'>
-                                        {!isWish ? (
-                                            <div className="wishlist-icon">
-                                                <FaHeart />
-                                                <span>좋아요</span>
-                                            </div>
-                                        ) : (
-                                            <div className="wishlist-icon" style={{ color: 'rgb(255, 70, 70)' }}>
-                                                <FaHeart />
-                                                <span>좋아요</span>
-                                            </div>
-                                        )}
-                                    </div>
                                 </li>
-                                <li style={{ marginBottom:'20px', color:'#444'}}>
+                                <li style={{ marginTop:'10px',marginBottom:'20px', color:'#444'}}>
                                     {formatDateTime(roomInfo.createdAt)}
                                 </li>
                                 <li>

@@ -6,6 +6,8 @@ const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
+  const serverIP = useSelector((state)=>state.serverIP);
+
   const [orderId, setOrderId] = useState("");
   const [amount, setAmount] = useState("");
 
@@ -19,7 +21,7 @@ const PaymentSuccess = () => {
     setOrderId(orderIdParam);
     setAmount(amountParam);
     if(user)
-      fetch("http://localhost:9977/payment/confirm", {
+      fetch(`${serverIP.ip}/payment/confirm`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

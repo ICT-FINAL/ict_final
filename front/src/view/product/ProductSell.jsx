@@ -413,7 +413,7 @@ function ProductSell() {
                         </>
                     )}
                 <label className="product-label">가격</label>
-                <input type="number" id="price" name="price" className="product-input" value={formData.price} onChange={handleChange} />
+                <input type="text" id="price" name="price" className="product-input" value={formData.price} onChange={handleChange} />
 
                 <label className="product-label">수량</label>
                 <input
@@ -440,7 +440,7 @@ function ProductSell() {
                     step="1"
                     /> 
                     <label className="product-label">배송비</label>
-                    <input type="number" id="shippingFee" name="shippingFee" className="product-input" value={formData.shippingFee} onChange={handleChange} />
+                    <input type="text" id="shippingFee" name="shippingFee" className="product-input" value={formData.shippingFee} onChange={handleChange} />
             </fieldset>
 
             <fieldset className="product-fieldset">

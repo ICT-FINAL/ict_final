@@ -56,6 +56,7 @@ import InquiryView from './customerservice/InquiryView';
 import AuctionSell from './auction/AuctionSell';
 import AuctionBid from './auction/AuctionBid';
 import AuctionBidSuccess from './auction/AuctionBidSuccess';
+import ShippingTracker from './shipping/ShippingTracker';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -76,12 +77,17 @@ function Body() {
     }
   }, [modal]); //모달 열리면 상호작용 그거 닫힘
 
+  useEffect(()=>{
+    dispatch(setInteract({...interact, isOpen:false}));
+    dispatch(setMenuModal(false));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  },[location]);
+
   useEffect(() => {
     if (!al_mount.current) {
       al_mount.current = true;
 
       const handleClick = (e) => {
-        console.log(e.target.className);
         if (e.target.className === 'message-who' || e.target.className === 'msg-who') {
           /*
           axios.post(`${serverIP}/tech/selUser`, {
@@ -103,8 +109,9 @@ function Body() {
               headers: { Authorization: `Bearer ${user.token}` }
             })
               .then(res => {
-                if (e.target.id.split('-')[1] != res.data.id)
-                  dispatch(setInteract({ ...interact, selected: e.target.id.split('-')[1], select: res.data.id, pageX: e.pageX, pageY: e.pageY, isOpen: true }));
+                if (e.target.id.split('-')[1] != res.data.id){
+                    dispatch(setInteract({ ...interact, selected: e.target.id.split('-')[1], select: res.data.id, pageX: e.pageX, pageY: e.pageY, isOpen: true }));
+                }
               })
               .catch(err => console.log(err))
         }
@@ -178,6 +185,8 @@ function Body() {
       <Route path='/auction/sell' element={<AuctionSell/>}></Route>
       <Route path='/auction/bid' element={<AuctionBid/>}></Route>
       <Route path="/auction/bid/success" element={<AuctionBidSuccess/>} />
+
+      <Route path="/shipping/track" element={<ShippingTracker/>}></Route>
     </Routes>
   </>
   );

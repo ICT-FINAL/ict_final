@@ -1,15 +1,20 @@
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
 function MySell() {
     const loc = useLocation();
-    const serverIP = useSelector((state) => { return state.serverIP });
+    const serverIP = useSelector((state) => state.serverIP);
     const user = useSelector((state) => state.auth.user);
 
+    const [nowPage, setNowPage] = useState(1);
+    const [totalPage, setTotalPage] = useState(1);
+    const [totalRecord, setTotalRecord] = useState(1);
+    const [orderList, setOrderList] = useState([]);
 
-    const [order, setOrder] = useState([]);
+    const pageSize = 5;
+    const pagedOrderList = orderList.slice((nowPage - 1) * pageSize, nowPage * pageSize);
 
     useEffect(() => {
         getBoardList();
@@ -19,14 +24,18 @@ function MySell() {
         getBoardList();
     }, [loc]);
 
+    useEffect(() => {
+        setTotalPage(Math.ceil(orderList.length / pageSize));
+    }, [orderList]);
+
     const getBoardList = () => {
         if (user)
             axios.get(`${serverIP.ip}/order/sellList`, {
                 headers: { Authorization: `Bearer ${user.token}` }
             })
                 .then(res => {
-                    console.log(res.data);
-                    setOrder(res.data);
+                    setOrderList(res.data);
+                    setTotalRecord(res.data.length);
                 })
                 .catch(err => console.log(err));
     };
@@ -35,91 +44,75 @@ function MySell() {
         return num.toLocaleString();
     }
 
-    const getStateLabel = (state) => {
-        switch (state) {
-            case 'BEFORE':
-                return { label: '결제 전', color: '#bdc3c7' };
-            case 'PAID':
-                return { label: '결제 완료', color: '#2ecc71' };
-            case 'CANCELED':
-                return { label: '결제 취소', color: '#e74c3c' };
-            case 'FAILED':
-                return { label: '결제 실패', color: '#e74c3c' };
-            case 'RETURNED':
-                return { label: '환불 됨', color: '#f39c12' }; 
-            default:
-                return { label: '알 수 없음', color: '#7f8c8d' };
-        }
-    };
-
     return (
         <div className="report-box">
             {
-                order.length === 0 ?
+                orderList.length === 0 ?
                     <div className="no-list">검색 결과가 없습니다.</div> :
                     <div className="order-list">
-                        {order.map((item) => {
-                            let sum = 0;
+                        {pagedOrderList.map((order) => {
+                            let orderSum = 0;
                             return (
-                                <div className="order-card" key={item.orderNum}>
-                                    <div className="order-header">
-                                        <label>주문 번호:</label> <span>{item.orderNum}</span>
-                                    </div>
-                                    <div className="order-header">
-                                        <label>주문 날짜:</label> <span>{item.modifiedDate.substring(0, 19)}</span>
-                                    </div>
-                                    <div className="order-header">
-                                        <label>구매자:</label> <span className="message-who" id={`mgx-${item.user.id}`} style={{cursor:'pointer'}}>{item.user.username}</span>
+                                <div className="order-section" key={order.id} style={{ border: '1px solid #ddd' }}>
+                                    <div className="order-info">
+                                        <strong>주문번호:</strong> {order.orderNum}<br />
+                                        <strong>배송지:</strong> {order.address.address} / {order.address.addressDetail}<br />
+                                        <strong>구매자:</strong> <span style={{ cursor: 'pointer' }} className="message-who" id={`mgx-${order.user.id}`}>{order.user.username}</span><br />
+                                        <strong>수령인:</strong> {order.address.recipientName}<br />
+                                        <strong>전화번호:</strong> {order.address.tel}<br />
+                                        <strong>요청사항:</strong> {order.request}<br />
                                     </div>
 
-                                    <div className="order-items">
-                                        {item.orderItems.map((oi) => {
-                                            const itemTotal = (oi.price * (100 - oi.discountRate) / 100 + oi.additionalFee) * oi.quantity;
-                                            sum += itemTotal;
-                                            return (
-                                                <div className="order-item" key={oi.productName + oi.optionName}>
-                                                    <div className="product-details">
-                                                        <strong>{oi.productName} - {oi.optionName}</strong>
-                                                        <div className="item-price" style={{ marginTop: '5px' }}>
-                                                            {oi.optionCategoryName}(+{oi.additionalFee}원) x {oi.quantity} = {formatNumberWithCommas(itemTotal)}원
-                                                        </div>
+                                    {order.orderItems.map((oi) => {
+                                        const itemTotal = (oi.price * (100 - oi.discountRate) / 100 + oi.additionalFee) * oi.quantity;
+                                        orderSum += itemTotal;
+                                        return (
+                                            <div className="order-item" key={oi.id}>
+                                                <div className="product-details">
+                                                    <strong>{oi.productName} - {oi.optionName}</strong>
+                                                    <div style={{ marginTop: '5px' }}>
+                                                        {oi.optionCategoryName} : {formatNumberWithCommas(oi.price)}원 <strong style={{ color: '#e74c3c' }}>(-{formatNumberWithCommas(oi.discountRate * oi.price / 100)}원)</strong> <strong style={{ color: '#1976d2' }}>(+{oi.additionalFee}원)</strong> x {oi.quantity} = <strong>{formatNumberWithCommas(itemTotal)}</strong>원
                                                     </div>
                                                 </div>
-                                            );
-                                        })}
-                                    </div>
-
-                                    <div className="order-summary">
-                                        <div><strong>합계:</strong> {formatNumberWithCommas(sum)}원</div>
-                                        {item.couponDiscount !== 0 && (
-                                            <div className="discount">
-                                                <strong>쿠폰 할인:</strong> <span style={{ color: '#007bff' }}>-{formatNumberWithCommas(item.couponDiscount)}원</span>
                                             </div>
-                                        )}
-                                        {item.shippingFee !== 0 && (
+                                        );
+                                    })}
+
+                                    <div className="order-total">
+                                        <div><strong>소계:</strong> {formatNumberWithCommas(orderSum)}원</div>
+                                        {order.shippingFee !== 0 && (
                                             <div className="shipping-fee">
-                                                <strong>배송비:</strong> <span style={{ color: '#e74c3c' }}>+{formatNumberWithCommas(item.shippingFee)}원</span>
+                                                <strong>배송비:</strong> +{formatNumberWithCommas(order.shippingFee)}원
                                             </div>
                                         )}
-                                        <div className="final-total">
-                                            <strong>최종 결제 금액:</strong> {formatNumberWithCommas(sum - item.couponDiscount + item.shippingFee)}원
-                                        </div>
                                     </div>
-
-                                    <div className="order-info">
-                                        <div><strong>요청사항:</strong> {item.request}</div>
-                                        <div><strong>배송지:</strong> {item.address.address} / {item.address.addressDetail}</div>
-                                        <div className="order-state">
-                                            <span className="order-state-label" style={{ backgroundColor: getStateLabel(item.state).color }}>
-                                                {getStateLabel(item.state).label}
-                                            </span>
-                                        </div>
-                                        <div><strong>수령인:</strong> {item.address.recipientName}</div>
-                                        <div><strong>전화번호:</strong> {item.address.tel}</div>
+                                    <div className="final-total">
+                                        <strong>최종 결제 금액:</strong> {formatNumberWithCommas(orderSum + order.shippingFee)}원
                                     </div>
                                 </div>
                             );
                         })}
+
+                        <ul className="admin-paging">
+                            {nowPage > 1 && (
+                                <a className="page-prenext" onClick={() => setNowPage(nowPage - 1)}>
+                                    <li className="page-num">◀</li>
+                                </a>
+                            )}
+                            {Array.from({ length: totalPage }, (_, i) => i + 1).map((pg) => {
+                                const activeStyle = nowPage === pg ? 'page-num active' : 'page-num';
+                                return (
+                                    <a className="page-num" onClick={() => setNowPage(pg)} key={pg}>
+                                        <li className={activeStyle}>{pg}</li>
+                                    </a>
+                                );
+                            })}
+                            {nowPage < totalPage && (
+                                <a className="page-prenext" onClick={() => setNowPage(nowPage + 1)}>
+                                    <li className="page-num">▶</li>
+                                </a>
+                            )}
+                        </ul>
                     </div>
             }
         </div>
