@@ -221,4 +221,8 @@ public class AuthService {
     public int idDuplicateCheck(String userid) {
         return userRepository.countByUserid(userid);
     }
+
+    public int telCheck(String tel) {
+        return userRepository.countByTel(tel);
+    }
 }

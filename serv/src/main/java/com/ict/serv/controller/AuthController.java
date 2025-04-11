@@ -134,6 +134,11 @@ public class AuthController {
         return authService.idDuplicateCheck(userid);
     }
 
+    @GetMapping("/signup/telCheck")
+    public int telCheck(String tel) {
+        return authService.telCheck(tel);
+    }
+
     @PostMapping("/signup/doSignUp")
     public ResponseEntity<String> doSignUp(@RequestParam("userid") String userid, @RequestParam("username") String username,
                                            @RequestParam("email") String email, @RequestParam("userpw") String userpw,
