@@ -76,12 +76,17 @@ function Body() {
     }
   }, [modal]); //모달 열리면 상호작용 그거 닫힘
 
+  useEffect(()=>{
+    dispatch(setInteract({...interact, isOpen:false}));
+    dispatch(setMenuModal(false));
+  },[location]);
+
   useEffect(() => {
     if (!al_mount.current) {
       al_mount.current = true;
 
       const handleClick = (e) => {
-        console.log(e.target.className);
+        console.log(modal);
         if (e.target.className === 'message-who' || e.target.className === 'msg-who') {
           /*
           axios.post(`${serverIP}/tech/selUser`, {
@@ -103,8 +108,9 @@ function Body() {
               headers: { Authorization: `Bearer ${user.token}` }
             })
               .then(res => {
-                if (e.target.id.split('-')[1] != res.data.id)
-                  dispatch(setInteract({ ...interact, selected: e.target.id.split('-')[1], select: res.data.id, pageX: e.pageX, pageY: e.pageY, isOpen: true }));
+                if (e.target.id.split('-')[1] != res.data.id){
+                    dispatch(setInteract({ ...interact, selected: e.target.id.split('-')[1], select: res.data.id, pageX: e.pageX, pageY: e.pageY, isOpen: true }));
+                }
               })
               .catch(err => console.log(err))
         }

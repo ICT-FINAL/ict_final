@@ -437,7 +437,7 @@ function ProductInfo() {
                                                     ))}
                                                 </select>
                                                 {selectedSubOptionId.length > 0 &&
-                                                    <button type="button" className="product-select-button" onClick={handleAddItem}>등록</button>
+                                                    <button type="button" className="product-select-button" onClick={handleAddItem}>선택</button>
                                                 }
                                             </>
                                         )}
