@@ -56,6 +56,7 @@ import InquiryView from './customerservice/InquiryView';
 import AuctionSell from './auction/AuctionSell';
 import AuctionBid from './auction/AuctionBid';
 import AuctionBidSuccess from './auction/AuctionBidSuccess';
+import ShippingTracker from './shipping/ShippingTracker';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -87,7 +88,6 @@ function Body() {
       al_mount.current = true;
 
       const handleClick = (e) => {
-        console.log(modal);
         if (e.target.className === 'message-who' || e.target.className === 'msg-who') {
           /*
           axios.post(`${serverIP}/tech/selUser`, {
@@ -185,6 +185,8 @@ function Body() {
       <Route path='/auction/sell' element={<AuctionSell/>}></Route>
       <Route path='/auction/bid' element={<AuctionBid/>}></Route>
       <Route path="/auction/bid/success" element={<AuctionBidSuccess/>} />
+
+      <Route path="/shipping/track" element={<ShippingTracker/>}></Route>
     </Routes>
   </>
   );
