@@ -8,8 +8,6 @@ const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const serverIP = useSelector((state)=>state.serverIP);
-
   const [orderId, setOrderId] = useState("");
   const [amount, setAmount] = useState("");
 
