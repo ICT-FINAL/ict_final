@@ -355,20 +355,28 @@ input.tel {
     text-align: center;
     border: 1px solid #ccc;
 }
-#follow-btn {
+#follow-btn, #unfollow-btn {
     display: inline;
     float: right;
     height: 35px;
     padding: 0 20px;
-    background-color: #8CC7A5;
+    background-color: #52a575;
     border: none;
     border-radius: 10px;
     cursor: pointer;
+    transition: all 0.5s;
+}
+#unfollow-btn {
+    background-color: #d1e2d7;
+}
+#follow-btn:hover, #unfollow-btn:hover {
+    background-color: #8CC7A5;
 }
 .profile-menu {
     justify-content:center;
-    padding: 10px;
+    padding: 10px 30px;
     margin-bottom: 0;
+    
 }
 .profile-menu div {
     cursor: pointer;
@@ -484,17 +492,17 @@ input.tel {
 /* ========== Mypage Product ========== */
 .product-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1%;
     padding: 10px;
     justify-content: center;
-    margin: 0 auto;
     transition: all 1s ease;
 }
 .product-item {
     width: 100%;
-    max-width: 250px;
-    height: 300px;
+    max-width: 200px;
+    height: 250px;
+    margin: 0 auto;
     padding: 10px;
     background-color: #eee;
     border-radius: 10px;
@@ -507,29 +515,65 @@ input.tel {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     transform: translateY(-4px);
 }
-@media (min-width: 600px) {
+@media (max-width: 1500px) {
     .product-container {
-      grid-template-columns: repeat(2, 250px);
+      grid-template-columns: repeat(3, 1fr);
     }
 }
-@media (min-width: 900px) {
+@media (max-width: 1000px) {
     .product-container {
-      grid-template-columns: repeat(3, 250px);
-      gap: 30px;
-    }
-}
-@media (min-width: 1300px) {
-    .product-container {
-      grid-template-columns: repeat(4, 250px);
-      gap: 40px;
+      grid-template-columns: repeat(2, 1fr);
     }
 }
 #product-img {
     width: 100%;
-    height: 200px;
+    height: 160px;
     object-fit: cover;
 }
 #discount-sticker {
     top: 200px;
     left: 50px;
+}
+
+/* ========== Mypage Follow ========== */
+.follow-container {
+    min-width: 500px;
+    max-width: 1400px;
+}
+.follow-menu, .follow-menu>li {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+.follow-menu {
+    height: 55px;
+    display: flex;
+    justify-content: center;
+    gap: 10%;
+    font-size: 14pt;
+}
+.follow-menu>li {
+    margin-bottom: 20px;
+    padding: 10px 0;
+    border-bottom: 1px solid #999;
+    text-align: center;
+    cursor: pointer;
+}
+.follow-list {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 20px;
+    text-align: center;
+}
+
+@media (max-width: 1000px) {
+    .follow-list {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+.follow-user-img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 100%;
 }

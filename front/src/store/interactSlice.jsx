@@ -6,6 +6,7 @@ const initialState = {
   select:0,
   pageX:0,
   pageY:0,
+  zIndex:2000,
 };
 
 const interactSlice = createSlice({

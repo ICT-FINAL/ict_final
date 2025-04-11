@@ -60,9 +60,6 @@ public class AuthService {
         return savedCode.equals(code);
     }
 
-
-
-
     public Map<String, Object> getGoogleUserInfo(String accessToken) {
         String userInfoUrl = "https://www.googleapis.com/oauth2/v2/userinfo";
 
@@ -223,5 +220,9 @@ public class AuthService {
 
     public int idDuplicateCheck(String userid) {
         return userRepository.countByUserid(userid);
+    }
+
+    public int telCheck(String tel) {
+        return userRepository.countByTel(tel);
     }
 }

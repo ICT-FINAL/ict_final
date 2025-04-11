@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setInteract } from "../store/interactSlice";
 import { setModal } from "../store/modalSlice";
@@ -7,6 +7,8 @@ import { setModal } from "../store/modalSlice";
 function Interact() {
     const [dm, setDm] = useState(false);
     const [report, setReport] = useState(false);
+
+    const loc = useLocation();
 
     const navigate = useNavigate();
 
@@ -30,7 +32,7 @@ function Interact() {
 
     return (
         <>
-            <div className="interact-popup" style={{ left: interact.pageX, top: interact.pageY }}>
+            <div className="interact-popup" style={{ left: interact.pageX, top: interact.pageY, zIndex:modal.isOpen ? 10005 : 2000  }}>
                 <div className="interact-exit" onClick={closePopup}>x</div>
                 <ul className="interact-list">
                     <li className="interact-item" onClick={()=> moveInfo(interact.selected)}>정보 보기</li>

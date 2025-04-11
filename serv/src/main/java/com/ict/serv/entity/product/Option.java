@@ -1,6 +1,7 @@
 package com.ict.serv.entity.product;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.ict.serv.entity.auction.AuctionProduct;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,6 +26,10 @@ public class Option {
     @ManyToOne
     @JoinColumn(name = "PRODUCT_ID")
     private Product product;
+
+    @ManyToOne
+    @JoinColumn(name = "AUCTION_PRODUCT_ID")
+    private AuctionProduct auctionProduct;
 
     @OneToMany(mappedBy = "option", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference

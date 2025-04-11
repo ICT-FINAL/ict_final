@@ -32,6 +32,7 @@ function Header() {
     const [messageList, setMessageList] = useState([]);
 
     const [grade, setGrade] = useState(['✊','☝️','✌️','🖐️']);
+    const [hamburgerOpen, setHamburgerOpen] = useState(false);
 
     function handleLogout() {
         localStorage.removeItem("token");
@@ -99,19 +100,19 @@ function Header() {
                         <img src={Logo} width='100' className="header-logo"/>
                     </Link>
                 </li>
-                { (user && user.user.authority == 'ROLE_USER') || user==undefined?
+                { user && user.user.authority == 'ROLE_ADMIN' ?
                 <li className='header-center'>
+                    <ul>
+                        <Link to='/admin/reportlist'><li>관리자 페이지</li></Link>
+                        <Link to='/event'><li>이벤트 관리</li></Link>
+                    </ul>
+                </li> : <li className='header-center'>
                     <ul>
                         <li style={{cursor:'pointer'}}onClick={()=>movePage('/product')}>상품 검색</li>
                         <Link to='/recommend'><li>상품 추천</li></Link>
                         <Link to='/event'><li>이벤트</li></Link>
                         <Link to='/auction'><li>실시간 경매</li></Link>
                         <Link to='/community'><li>커뮤니티</li></Link>
-                    </ul>
-                </li> : <li className='header-center'>
-                    <ul>
-                        <Link to='/admin/reportlist'><li>관리자 페이지</li></Link>
-                        <Link to='/event'><li>이벤트 관리</li></Link>
                     </ul>
                 </li>
                 }
@@ -134,6 +135,31 @@ function Header() {
                         <input type='text' className="search-input" placeholder="검색어를 입력해주세요" onChange={changeSearch} onKeyDown={handleSearch} />
                     </div>
                 </li>
+                <div 
+                    className="hamburger-wrapper"
+                    style={{width: '80ox', lineHeight: '80px'}}
+                    onMouseEnter={() => setHamburgerOpen(true)} 
+                    onMouseLeave={() => setHamburgerOpen(false)}
+                >
+                    <div className="hamburger">☰</div>
+                    
+                    {hamburgerOpen && (
+                        user && user.user.authority === 'ROLE_ADMIN' ? (
+                            <ul className="hamburger-menu">
+                                <Link to='/admin/reportlist'><li>관리자 페이지</li></Link>
+                                <Link to='/event'><li>이벤트 관리</li></Link>
+                            </ul>
+                        ) : (
+                            <ul className="hamburger-menu">
+                                <li style={{ cursor: 'pointer' }} onClick={() => movePage('/product')}>상품 검색</li>
+                                <Link to='/recommend'><li>상품 추천</li></Link>
+                                <Link to='/event'><li>이벤트</li></Link>
+                                <Link to='/auction'><li>실시간 경매</li></Link>
+                                <Link to='/community'><li>커뮤니티</li></Link>
+                            </ul>
+                        )
+                    )}
+                </div>
             </ul>
 
             <motion.div
@@ -141,7 +167,7 @@ function Header() {
                 className={`dropdown-menu ${menuModal ? "show" : ""}`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: menuModal ? 1 : 0 }}
-                style={{ top: `${menuPosition.top+10}px`, left: `${menuPosition.left-30}px` }}
+                style={{ top: `${menuPosition.top+10}px`, left: `${menuPosition.left-55}px` }}
             >
                     <div className="menu-grid">
                     <div className="menu-item" onClick={()=> movePage('/mypage/profile')}>
