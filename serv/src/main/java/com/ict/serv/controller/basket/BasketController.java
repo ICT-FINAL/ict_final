@@ -36,7 +36,7 @@ public class BasketController {
             basket.setUserNo(interactService.selectUserByName(userDetails.getUsername()));
             OptionCategory opt = new OptionCategory();
             opt.setId(item.getSubOptionId());
-            basket.setOption_no(opt);
+            basket.setOptionNo(opt);
             basketService.insertBasket(basket);
         }
         return "success";
@@ -46,7 +46,7 @@ public class BasketController {
     public ResponseEntity<List<Map<String, Object>>> getBasketItems(@AuthenticationPrincipal UserDetails userDetails) {
         User user = interactService.selectUserByName(userDetails.getUsername());
         List<Map<String, Object>> basketItems = basketService.getBasketItems(user);
-        System.out.println("바스켓서비스=>"+basketItems);
+        //System.out.println("바스켓서비스=>"+basketItems);
         return ResponseEntity.ok(basketItems);
     }
     @GetMapping("/getProduct")
@@ -83,5 +83,17 @@ public class BasketController {
         basketService.deleteBasketItems(user, basketNos);
 
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/paid/delete")
+    public ResponseEntity<String> deletePaidBasketItems(@AuthenticationPrincipal UserDetails userDetails, @RequestBody Map<String, List<Long>> requestBody) {
+        List<Long> basketNos = requestBody.get("basketNos");
+        if (basketNos == null || basketNos.isEmpty()) {
+            return ResponseEntity.badRequest().body("삭제할 장바구니 항목이 없습니다.");
+        }
+        User user = interactService.selectUserByName(userDetails.getUsername());
+        basketService.deleteBasketItems(user, basketNos);
+
+        return ResponseEntity.ok("선택한 장바구니 상품이 삭제되었습니다.");
     }
 }

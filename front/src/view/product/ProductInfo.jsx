@@ -443,7 +443,7 @@ function ProductInfo() {
                                         <li>
                                             <span style={{ fontSize: '20px', fontWeight: 'bold' }}>{loc.state.product.discountRate}%</span>
                                             <span style={{ textDecoration: 'line-through', marginLeft: '15px', color: 'gray' }}>
-                                                &nbsp;{formatNumberWithCommas(loc.state.product.price)}&nbsp;
+                                                &nbsp;{formatNumberWithCommas(loc.state.product.price)}원&nbsp;
                                             </span>
                                         </li>
                                     )}
@@ -475,7 +475,7 @@ function ProductInfo() {
                                                     <option value="" disabled selected>소분류를 선택해주세요</option>
                                                     {subOptions.map((subOption) => (
                                                         <option key={subOption.id} value={subOption.id}>
-                                                            {subOption.categoryName} (+{subOption.additionalPrice}원)
+                                                            {subOption.categoryName} (+{formatNumberWithCommas(subOption.additionalPrice)}원)
                                                         </option>
                                                     ))}
                                                 </select>
