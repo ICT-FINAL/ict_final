@@ -79,6 +79,7 @@ function Body() {
   useEffect(()=>{
     dispatch(setInteract({...interact, isOpen:false}));
     dispatch(setMenuModal(false));
+    window.scrollTo({ top: 0, behavior: "smooth" });
   },[location]);
 
   useEffect(() => {
