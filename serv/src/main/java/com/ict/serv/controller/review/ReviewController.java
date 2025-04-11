@@ -126,7 +126,7 @@ public class ReviewController {
     }
 
     @GetMapping("/productReviewList")
-    public ResponseEntity<?> productReviewList(@RequestParam Long productId, @RequestParam Long userId){
+    public ResponseEntity<?> productReviewList(Long productId){
         Product product = new Product();
         product.setId(productId);
 
