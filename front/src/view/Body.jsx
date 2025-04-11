@@ -54,6 +54,7 @@ import AuctionRoom from './auction/AuctionRoom';
 import DailyCheck from './event/coupon/DailyCheck';
 import MyInquiryList from './user/mypage/MyInquiryList';
 import InquiryView from './customerservice/InquiryView';
+import InquiryModal from '../modal/InquiryModal';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -132,6 +133,7 @@ function Body() {
     {modal.isOpen && modal.selected == 'report' && <Report />}
     {modal.isOpen && modal.selected == 'reportapprove' && <ReportApprove />}
     {modal.isOpen && modal.selected == 'categorymodal' && <CategoryModal />}
+    {modal.isOpen && modal.selected == 'inquiry-box' && <InquiryModal />}
     {interact.isOpen && <Interact />}
 
     <Routes>
