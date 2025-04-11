@@ -236,17 +236,22 @@ function ProductInfo() {
 
     /*후기*/
     const [isPurchased, setIsPurchased] = useState(false); // 구매한 사람인지 여부 저장
+    const [isReview, setIsReview] = useState(false); // 리뷰를 이미 작성한 사람인지 여부 저장 
 
     useEffect(() => {
         axios.get(`${serverIP.ip}/review/checkPurchase?userId=${user.user.id}&productId=${loc.state.product.id}`, {
             headers: { Authorization: `Bearer ${user.token}` }
         })
-            .then(function (response) {
-                console.log(response.data);
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
+        .then(function(response) {  
+            //  console.log(response.data.purchased);
+            //  console.log(response.data.review);
+            if (response.data.purchased === true) {
+                setIsPurchased(true);
+            }
+        })
+        .catch(function(error) {
+            console.log(error);
+        });
     }, []);
 
     const [rate, setRate] = useState(0); // 별점 
@@ -317,13 +322,50 @@ function ProductInfo() {
                 Authorization: `Bearer ${user.token}`
             }
         })
-            .then(function (response) {
-                console.log(response.data);
-            })
-            .catch(function (error) {
-                console.log(error);
-            })
+        .then(function (response) {
+            console.log(response.data);
+        })
+        .catch(function (error) {
+            console.log(error);
+        })
     }
+
+    // 선택된 상품에 대한 후기 리스트 불러오기
+    let [reviewList, setReviewList] = useState({});
+    const [likedReviews, setLikedReviews] = useState(new Set());
+
+    useEffect(() => {
+        axios.get(`${serverIP.ip}/review/productReviewList?productId=${loc.state.product.id}`, {
+            headers: { Authorization: `Bearer ${user.token}` }
+        })
+        .then(response => {
+            setReviewList(response.data);
+        })
+        .catch(error => {
+            console.error(error);
+        });
+    }, [serverIP, loc, user]);
+
+    const handleLike = async (reviewId, userId) => { 
+        console.log("userId : ");
+        console.log(userId);
+        try {
+            const response = await axios.post(
+                `${serverIP.ip}/review/like`, 
+                { reviewId, userId },  // reviewId와 userId 함께 전송
+                { headers: { Authorization: `Bearer ${user.token}` } }
+            );
+    
+            // 서버에서 최신 좋아요 개수를 받아서 상태 업데이트
+            const updatedReviewList = reviewList.map(review =>
+                review.id === reviewId ? { ...review, likes: response.data.likes } : review
+            );
+    
+            setReviewList(updatedReviewList);
+        } catch (error) {
+            console.error("좋아요 처리 중 오류 발생:", error);
+        }
+    };
 
     return (
         <>
@@ -532,13 +574,8 @@ function ProductInfo() {
 
                         {changeMenu === "review" &&
                             <>
-                                {
-                                    // productList.length === 0 &&
-                                    <div style={{ padding: '20px 0px', textAlign: 'center' }}>후기 - 등록된 정보가 없습니다.</div>
-                                }
-                                만약에 이 상품을 산 회원이라면 후기등록버튼이 보이게하기
                                 {isPurchased && (
-                                    <img onClick={() => setReviewWrite(!reviewWrite)} src={reviewWriteBtn} alt="후기등록하기버튼" style={{ width: '100px', border: '1px solid #ddd', borderRadius: '50px' }} />
+                                    <div style={{textAlign:'right'}}><img onClick={() => setReviewWrite(!reviewWrite)} src={reviewWriteBtn} alt="후기등록하기버튼" style={{ width: '80px', border: '1px solid #ddd', borderRadius: '50px' }} /></div>
                                 )}
 
                                 {/* 후기등록 */}
@@ -645,12 +682,48 @@ function ProductInfo() {
                                         </form>
                                     </div>
                                 }
+                                {/* 현재 상품에 대한 후기 전체 리스트 */}
+                                <div className="review-container">
+                                    <h2 className="review-title">상품 후기</h2>
+                                    <div className="review-grid">
+                                        {reviewList.length > 0 ? (
+                                            reviewList.map((review, index) => (
+                                                <div key={index} className="review-card">
+                                                    <div className="review-header">
+                                                        {review.user.kakaoProfileUrl && 
+                                                        <img src={review.user.kakaoProfileUrl.indexOf('http') !== -1 ? `${review.user.kakaoProfileUrl}` : `${serverIP.ip}${review.user.kakaoProfileUrl}`} 
+                                                            alt="profile" 
+                                                            className="profile-img"
+                                                        />}
+                                                        <div>
+                                                            <p className="message-who" id={`mgx-${review.user.id}`} style={{cursor:'pointer'}}>{review.user.username}</p>
+                                                            <p className="review-date">{new Date(review.reviewWritedate).toLocaleDateString()}</p>
+                                                        </div>
+                                                    </div>
+                                                    <p className="review-rating">⭐ {review.rate}</p>
+                                                    <p className="review-content">{review.reviewContent}</p>
+                                                    {review.images && review.images.length > 0 && (
+                                                        <div className="review-images">
+                                                            {review.images.map((img, imgIndex) => (
+                                                                <img key={imgIndex} src={`${serverIP.ip}/uploads/review/${review.id}/${img.filename}`} alt={`review-${imgIndex}`} className="review-image" />
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                    <button className="like-button" onClick={() => handleLike(review.id, review.user.id)}>
+                                                        👍 {review.likes || 0}
+                                                    </button>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="review-empty">아직 후기가 없습니다.</p>
+                                        )}
+                                    </div>
+                                </div>
                             </>
                         }
                     </div>
                 </div>
                 {/* end : 상세정보, 후기 */}
-
             </div>
         </>
     );

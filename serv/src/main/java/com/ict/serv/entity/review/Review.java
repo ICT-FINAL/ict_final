@@ -1,5 +1,6 @@
 package com.ict.serv.entity.review;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.product.ProductImage;
@@ -11,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = {"product", "images"}) // 순환 참조 방지
 @Table(name="REVIEW")
 public class Review {
     @Id
@@ -29,6 +32,7 @@ public class Review {
 
     @ManyToOne
     @JoinColumn(name = "PRODUCT_ID")
+    @JsonIgnore  // 무한 루프 방지!
     private Product product;
 
     @ManyToOne
