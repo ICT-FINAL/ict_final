@@ -335,16 +335,17 @@ function ProductInfo() {
     const [likedReviews, setLikedReviews] = useState(new Set());
 
     useEffect(() => {
-        axios.get(`${serverIP.ip}/review/productReviewList?productId=${loc.state.product.id}`, {
-            headers: { Authorization: `Bearer ${user.token}` }
-        })
-        .then(response => {
-            setReviewList(response.data);
-        })
-        .catch(error => {
-            console.error(error);
-        });
-    }, [serverIP, loc, user]);
+        if(user)
+            axios.get(`${serverIP.ip}/review/productReviewList?productId=${loc.state.product.id}`, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            })
+            .then(response => {
+                setReviewList(response.data);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        }, [serverIP, loc, user]);
 
     const handleLike = async (reviewId, userId) => { 
         console.log("userId : ");
