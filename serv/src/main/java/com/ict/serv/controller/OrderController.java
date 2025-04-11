@@ -138,16 +138,18 @@ public class OrderController {
         return map;
     }
 
-    /*
     @GetMapping("/sellList")
     public List<Orders> sellList(@AuthenticationPrincipal UserDetails userDetails) {
         User user = interactService.selectUserByName(userDetails.getUsername());
-        List<Product> productList = productService.selectProductByUser(user);
+        List<Product> products = productService.selectProductByUser(user);
         List<Orders> orders = new ArrayList<>();
-        for(Product product : productList) {
-            List<Orders> ods = orderService.getOrderByProduct(product.getId());
-            orders.addAll(ods);
+        for(Product product:products) {
+            List<Orders> order = orderService.getOrderByProduct(product.getId());
+            for(Orders mini:order) {
+                if(mini.getOrderGroup().getState()==OrderState.PAID) orders.add(mini);
+            }
         }
         return orders;
-    }*/
+    }
+
 }

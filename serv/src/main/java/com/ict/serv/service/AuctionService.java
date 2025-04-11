@@ -38,6 +38,10 @@ public class AuctionService {
 
     public String createRoom(User user, String subject, AuctionWriteRequest req, AuctionProduct product) {
         String roomId = UUID.randomUUID().toString();
+
+        int rawIncrement = (req.getFirstPrice() + req.getBuyNowPrice()) / 20;
+        int minBidIncrement = ((rawIncrement + 99) / 100) * 100;
+
         AuctionRoom room = AuctionRoom.builder()
                 .roomId(roomId)
                 .state(AuctionState.OPEN)
@@ -45,7 +49,7 @@ public class AuctionService {
                 .createdAt(LocalDateTime.now())
                 .lastBidTime(LocalDateTime.now())
                 .endTime(req.getEndTime())
-                .minBidIncrement(1000)
+                .minBidIncrement(minBidIncrement)
                 .firstPrice(req.getFirstPrice())
                 .buyNowPrice(req.getBuyNowPrice())
                 .currentPrice(req.getFirstPrice())

@@ -158,25 +158,24 @@ function ProductBuy() {
     })
       .then(res => {
         console.log(res.data);
-        const basketNos = orderDetails.map(item => item.basketNo).join(',');
-        const successUrl = `${window.location.origin}/payment/success?iid=${res.data.id}&basketNos=${basketNos}`;
-        //const successUrl = `http://localhost:3000/payment/success?iid=${res.data.id}`;
-        tossPayments
-          .requestPayment("카드", {
-            amount: parseInt(totalPaymentAmount),
-            orderId,
-            orderName,
-            customerName: user.user.username,
-            successUrl,
-            failUrl: `${window.location.origin}/payment/fail`,
-          })
-          .catch(error => {
-            console.error("결제 실패:", error);
-            axios.get(`${serverIP.ip}/order/cancel?orderGroupId=${res.data.id}`, {
-              headers: { Authorization: `Bearer ${user.token}` },
-            }).catch(cancelErr => console.error("결제 취소 실패:", cancelErr));
-            alert(`결제 실패: ${error.message}`);
-          });
+          const basketNos = orderDetails.map(item => item.basketNo).join(',');
+          const successUrl = `${serverIP.front}/payment/success?iid=${res.data.id}&basketNos=${basketNos}`;
+          tossPayments
+            .requestPayment("카드", {
+              amount: parseInt(totalPaymentAmount),
+              orderId,
+              orderName,
+              customerName: user.user.username,
+              successUrl,
+              failUrl: `${window.location.origin}/payment/fail`,
+            })
+            .catch(error => {
+              console.error("결제 실패:", error);
+              axios.get(`${serverIP.ip}/order/cancel?orderGroupId=${res.data.id}`, {
+                headers: { Authorization: `Bearer ${user.token}` },
+              }).catch(cancelErr => console.error("결제 취소 실패:", cancelErr));
+              alert(`결제 실패: ${error.message}`);
+            });
       })
       .catch(err => {
         console.error("주문 생성 실패:", err);
