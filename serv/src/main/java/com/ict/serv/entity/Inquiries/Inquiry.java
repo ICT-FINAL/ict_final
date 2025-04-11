@@ -49,4 +49,7 @@ public class Inquiry {
     @OneToMany(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<InquiryImage> images = new ArrayList<>();
+
+    @OneToOne(mappedBy = "inquiry", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private Response response;
 }
