@@ -1,5 +1,6 @@
 package com.ict.serv.entity.review;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.ict.serv.entity.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,7 @@ public class ReviewLike {
 
     @ManyToOne
     @JoinColumn(name = "REVIEW_ID", nullable = false)
+    @JsonBackReference
     private Review review;
 
     @ManyToOne

@@ -335,6 +335,10 @@ function ProductInfo() {
     const [likedReviews, setLikedReviews] = useState(new Set());
 
     useEffect(() => {
+        getReviewList();
+    }, [serverIP, loc, user]);
+
+    const getReviewList = () => {
         if(user)
             axios.get(`${serverIP.ip}/review/productReviewList?productId=${loc.state.product.id}`, {
                 headers: { Authorization: `Bearer ${user.token}` }
@@ -345,21 +349,32 @@ function ProductInfo() {
             .catch(error => {
                 console.error(error);
             });
-        }, [serverIP, loc, user]);
+    }
 
-    const handleLike = async (reviewId, userId) => { 
-        console.log("userId : ");
-        console.log(userId);
+    const handleLike = async (reviewId, userId,review) => {
         try {
-            const response = await axios.post(
-                `${serverIP.ip}/review/like`, 
-                { reviewId, userId },  // reviewId와 userId 함께 전송
-                { headers: { Authorization: `Bearer ${user.token}` } }
-            );
+            console.log(review.likes)
+            for(let i=0;i<review.likes.length;i++) {
+                if(review.likes[i].user.id == user.user.id) {
+                    //여기서 좋아요 삭제
+                    // review.likes[i].id --> 좋아요 아이디
+
+                    return;
+                }
+            }
+            // 좋아요 +1
+            const response = await axios.post(`${serverIP.ip}/review/like`, null, {
+                params: { reviewId, userId },
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
     
-            // 서버에서 최신 좋아요 개수를 받아서 상태 업데이트
+            getReviewList();
+
+            const { likes, liked } = response.data;
+    
+            // 상태 업데이트 (리뷰 리스트에서 해당 리뷰만 수정)
             const updatedReviewList = reviewList.map(review =>
-                review.id === reviewId ? { ...review, likes: response.data.likes } : review
+                review.id === reviewId ? { ...review, likes, liked } : review
             );
     
             setReviewList(updatedReviewList);
@@ -710,8 +725,8 @@ function ProductInfo() {
                                                             ))}
                                                         </div>
                                                     )}
-                                                    <button className="like-button" onClick={() => handleLike(review.id, review.user.id)}>
-                                                        👍 {review.likes || 0}
+                                                    <button className="like-button" onClick={() => handleLike(review.id, user.user.id,review)}>
+                                                        👍 { 0 || review.likes.length}
                                                     </button>
                                                 </div>
                                             ))

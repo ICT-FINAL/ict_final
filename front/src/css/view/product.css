@@ -1017,3 +1017,16 @@
     text-align: center;
     color: gray;
 }
+
+.like-button {
+    background-color: white;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.like-button.liked {
+    background-color: #ff7675; /* 좋아요 눌렀을 때 색 변경 */
+    color: white;
+}
