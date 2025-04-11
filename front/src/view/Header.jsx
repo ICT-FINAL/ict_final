@@ -93,7 +93,7 @@ function Header() {
     }
 
     return (
-        <div className='header-container'>
+        <div className={ user && user.user.authority == 'ROLE_ADMIN' ? 'header-container-admin' : 'header-container'}>
             <ul className='header-nav'>
                 <li className='header-left'>
                     <Link to='/'>

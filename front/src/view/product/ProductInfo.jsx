@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { FaHeart, FaShoppingCart, FaTimes } from "react-icons/fa";
+import { FaHeart, FaShoppingCart, FaTimes, FaRocketchat } from "react-icons/fa";
 import axios from "axios";
 import { Star } from "lucide-react";
 import reviewWriteBtn from '../../img/review.png';
@@ -367,6 +367,19 @@ function ProductInfo() {
         }
     };
 
+    const inquiry = ()=>{
+
+        axios.get(`${serverIP.ip}/chat/createChatRoom?productId=${loc.state.product.id}`, {
+            headers: { Authorization: `Bearer ${user.token}` }
+        })
+        .then(res=>{
+            console.log(res.data);
+            navigate(`/product/chat/${res.data}`)
+        })
+
+
+    }
+    
     return (
         <>
             <div style={{ paddingTop: "140px" }}>
@@ -433,6 +446,10 @@ function ProductInfo() {
                                     <div className="cart-icon" onClick={() => { addBasket() }}>
                                         <FaShoppingCart />
                                         <span>장바구니</span>
+                                    </div>
+                                    <div className="inquiry-icon" onClick={() => { inquiry() }}>
+                                        <FaRocketchat />
+                                        <span>문의하기</span>
                                     </div>
                                 </div>
                             </li>
