@@ -425,6 +425,14 @@ function ProductInfo() {
 
     const [enlargedImage, setEnlargedImage] = useState(null);
 
+    function handleReviewEdit(){
+        //리뷰수정 
+    }
+
+    function handleReviewDelete(){
+        //리뷰삭제
+    }
+
     return (
         <>
             <div style={{ paddingTop: "140px" }}>
@@ -849,6 +857,12 @@ function ProductInfo() {
                                                             </div>
                                                         )}
                                                     </div>
+                                                    {user.user.id === review.user.id && (
+                                                        <div className="review-action-buttons">
+                                                            <button className="edit-button" onClick={() => handleReviewEdit(review.id)}>수정</button>
+                                                            <button className="delete-button" onClick={() => handleReviewDelete(review.id)}>삭제</button>
+                                                        </div>
+                                                    )}
                                                     <button className="like-button" onClick={(e) => {e.stopPropagation(); handleLike(review.id, user.user.id, review);}}>
                                                         {review.likes?.some(like => like.user.id === user.user.id) ? '❤️' : '🤍'} {review.likes?.length || 0}
                                                     </button>

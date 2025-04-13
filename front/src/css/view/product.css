@@ -1189,3 +1189,24 @@
     height: 32px;
     cursor: pointer;
   }
+
+  .review-action-buttons {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  
+  .edit-button,
+  .delete-button {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  
+  .edit-button:hover, .delete-button:hover {
+    background-color: #d1d1d1;
+  }
