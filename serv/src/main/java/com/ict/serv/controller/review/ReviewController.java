@@ -142,9 +142,6 @@ public class ReviewController {
 
     @PostMapping("/like")
     public ResponseEntity<Map<String, Object>> like(@RequestParam("reviewId") Long reviewId, @RequestParam("userId") Long userId) {
-        System.out.println("reviewId: " + reviewId);
-        System.out.println("userId: " + userId);
-
         User user = new User();
         user.setId(userId);
 
@@ -160,14 +157,8 @@ public class ReviewController {
 
         // 최신 좋아요 개수 가져오기
         int updatedLikes = service.getLikeCountByReviewId(reviewId);
-        System.out.println("111111111111111");
-        System.out.println(updatedLikes);
-        System.out.println("111111111111111");
 
         boolean liked = service.isUserLikedReview(userId, reviewId); // 유저가 좋아요 했는지 확인
-        System.out.println("222222222222222222");
-        System.out.println(liked);
-        System.out.println("222222222222222222");
 
         // 프론트에 보낼 데이터 구성
         Map<String, Object> response = new HashMap<>();
@@ -175,6 +166,19 @@ public class ReviewController {
         response.put("liked", liked);
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/likeDelete")
+    public int likeDelete(@RequestParam("reviewId") Long reviewId, @RequestParam("likedId") Long likedId){
+        Review review = new Review();
+        review.setId(reviewId);
+
+        User user = new User();
+        user.setId(likedId);
+
+        int likeDelState = service.likeDelete(review, user);
+
+        return likeDelState;
     }
 
 }

@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 import { FaHeart, FaShoppingCart, FaTimes } from "react-icons/fa";
 import axios from "axios";
 import { Star } from "lucide-react";
-import reviewWriteBtn from '../../img/review.png';
 
 function ProductInfo() {
     const serverIP = useSelector((state) => state.serverIP);
@@ -234,7 +233,7 @@ function ProductInfo() {
         setSelectedItems(updatedItems);
     };
 
-    /*후기*/
+    /*리뷰*/
     const [isPurchased, setIsPurchased] = useState(false); // 구매한 사람인지 여부 저장
     const [isReview, setIsReview] = useState(false); // 리뷰를 이미 작성한 사람인지 여부 저장 
 
@@ -266,7 +265,7 @@ function ProductInfo() {
         setReviewContent(event.target.value);
     }
 
-    //후기 이미지 파일 
+    //리뷰 이미지 파일 
     const [reviewFiles, setReviewFiles] = useState([]);
     const fileInputRef = useRef(null);
 
@@ -304,14 +303,14 @@ function ProductInfo() {
         }
 
         if (reviewContent === '') {
-            alert('후기를 입력해주세요.');
+            alert('리뷰 내용을 입력해주세요.');
             return false;
         }
 
         //첨부파일이 있어 Form객체를 만들어 서버에 전송해야한다.
         let formData = new FormData();
         formData.append("productId", loc.state.product.id); // 어떤 상품인지
-        formData.append("reviewContent", reviewContent); // 후기내용
+        formData.append("reviewContent", reviewContent); // 리뷰내용
         formData.append("rate", rate); // 평점
         for (let idx = 0; idx < reviewFiles.length; idx++) { // 첨부파일
             formData.append("files", reviewFiles[idx]);
@@ -330,14 +329,11 @@ function ProductInfo() {
         })
     }
 
-    // 선택된 상품에 대한 후기 리스트 불러오기
+    // 선택된 상품에 대한 리뷰 리스트 불러오기
     let [reviewList, setReviewList] = useState({});
-    const [likedReviews, setLikedReviews] = useState(new Set());
-
     useEffect(() => {
         getReviewList();
     }, [serverIP, loc, user]);
-
     const getReviewList = () => {
         if(user)
             axios.get(`${serverIP.ip}/review/productReviewList?productId=${loc.state.product.id}`, {
@@ -351,37 +347,83 @@ function ProductInfo() {
             });
     }
 
-    const handleLike = async (reviewId, userId,review) => {
+    //리뷰좋아요버튼 
+    const handleLike = async (reviewId, userId, review) => {
         try {
-            console.log(review.likes)
-            for(let i=0;i<review.likes.length;i++) {
-                if(review.likes[i].user.id == user.user.id) {
-                    //여기서 좋아요 삭제
-                    // review.likes[i].id --> 좋아요 아이디
-
+            let updatedLikes = review.likes;
+    
+            for (let i = 0; i < review.likes.length; i++) {
+                if (review.likes[i].user.id === user.user.id) {
+                    // 이미 좋아요를 눌렀다면 삭제 처리
+                    const likedId = review.likes[i].user.id;
+                    
+                    updatedLikes = updatedLikes.filter(like => like.user.id !== user.user.id);
+    
+                    setReviewList(prevReviewList => 
+                        prevReviewList.map(r => r.id === reviewId ? { ...r, likes: updatedLikes } : r)
+                    );
+    
+                    await axios.post(`${serverIP.ip}/review/likeDelete`, null, {
+                        params: { reviewId, likedId },
+                        headers: { Authorization: `Bearer ${user.token}` }
+                    });
+    
+                    getReviewList();
                     return;
                 }
             }
-            // 좋아요 +1
-            const response = await axios.post(`${serverIP.ip}/review/like`, null, {
+    
+            // 좋아요를 추가 처리
+            updatedLikes = [...review.likes, { user: { id: user.user.id, username: user.user.username } }];
+            
+            // UI 먼저 업데이트 (좋아요 추가)
+            setReviewList(prevReviewList => 
+                prevReviewList.map(r => r.id === reviewId ? { ...r, likes: updatedLikes } : r)
+            );
+    
+            await axios.post(`${serverIP.ip}/review/like`, null, {
                 params: { reviewId, userId },
                 headers: { Authorization: `Bearer ${user.token}` }
             });
     
             getReviewList();
-
-            const { likes, liked } = response.data;
-    
-            // 상태 업데이트 (리뷰 리스트에서 해당 리뷰만 수정)
-            const updatedReviewList = reviewList.map(review =>
-                review.id === reviewId ? { ...review, likes, liked } : review
-            );
-    
-            setReviewList(updatedReviewList);
         } catch (error) {
             console.error("좋아요 처리 중 오류 발생:", error);
         }
     };
+
+    // 리뷰 이미지
+    const [imageIndexes, setImageIndexes] = useState([]);
+
+    useEffect(() => {
+        setImageIndexes((prev) => {
+            const updated = [...prev];
+            for (let i = 0; i < reviewList.length; i++) {
+                if (updated[i] === undefined) {
+                    updated[i] = 0;
+                }
+            }
+            return updated;
+        });
+    }, [reviewList]);
+
+    const handlePrev = (reviewIndex, imagesLength) => {
+        setImageIndexes((prev) => {
+        const updated = [...prev];
+        updated[reviewIndex] = updated[reviewIndex] === 0 ? imagesLength - 1 : updated[reviewIndex] - 1;
+        return updated;
+        });
+    };
+
+    const handleNext = (reviewIndex, imagesLength) => {
+        setImageIndexes((prev) => {
+        const updated = [...prev];
+        updated[reviewIndex] = updated[reviewIndex] === imagesLength - 1 ? 0 : updated[reviewIndex] + 1;
+        return updated;
+        });
+    };
+
+    const [enlargedImage, setEnlargedImage] = useState(null);
 
     return (
         <>
@@ -562,7 +604,7 @@ function ProductInfo() {
                     </div>
                 </div>
 
-                {/* start : 상세정보, 후기 */}
+                {/* start : 상세정보, 리뷰 */}
                 <div style={{ paddingTop: "10%", width: '80%', margin: '0 auto' }}>
                     <div>
                         <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
@@ -572,7 +614,7 @@ function ProductInfo() {
                             fontWeight: '600'
                         }}>
                             <div onClick={() => setChangeMenu("detail")} className="product-div">상세정보</div>
-                            <div onClick={() => setChangeMenu("review")} className="product-div">후기</div>
+                            <div onClick={() => setChangeMenu("review")} className="product-div">리뷰</div>
                         </div>
                         <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
                     </div>
@@ -591,10 +633,12 @@ function ProductInfo() {
                         {changeMenu === "review" &&
                             <>
                                 {isPurchased && (
-                                    <div style={{textAlign:'right'}}><img onClick={() => setReviewWrite(!reviewWrite)} src={reviewWriteBtn} alt="후기등록하기버튼" style={{ width: '80px', border: '1px solid #ddd', borderRadius: '50px' }} /></div>
+                                    <div style={{textAlign:'right'}}>
+                                        <a onClick={() => setReviewWrite(!reviewWrite)} className="reviewWriteBtn">리뷰작성</a>    
+                                    </div>
                                 )}
 
-                                {/* 후기등록 */}
+                                {/* 리뷰등록 */}
                                 {reviewWrite &&
                                     <div className="review-container-style">
                                         <div style={{ margin: "10px 0", lineHeight: "1.8", fontWeight: "700" }}>
@@ -628,7 +672,7 @@ function ProductInfo() {
                                             {/*내용*/}
                                             <div><span style={{ fontSize: '12px', fontWeight: '700' }}>내용</span></div>
                                             <div style={{ textAlign: 'center' }}>
-                                                <textarea className="review-content-style" id="reviewContent" name="reviewContent" value={reviewContent} onChange={handleData} placeholder="후기 내용을 작성해주세요." maxLength={230}></textarea>
+                                                <textarea className="review-content-style" id="reviewContent" name="reviewContent" value={reviewContent} onChange={handleData} placeholder="리뷰 내용을 작성해주세요." maxLength={230}></textarea>
                                                 <div style={{ textAlign: 'right', margin: '5px 30px 5px 0' }}>
                                                     <p style={{ margin: 0, fontSize: '14px', color: '#555' }}>
                                                         {reviewContent.length} / 230
@@ -698,9 +742,8 @@ function ProductInfo() {
                                         </form>
                                     </div>
                                 }
-                                {/* 현재 상품에 대한 후기 전체 리스트 */}
+                                {/* 현재 상품에 대한 리뷰 전체 리스트 */}
                                 <div className="review-container">
-                                    <h2 className="review-title">상품 후기</h2>
                                     <div className="review-grid">
                                         {reviewList.length > 0 ? (
                                             reviewList.map((review, index) => (
@@ -716,22 +759,104 @@ function ProductInfo() {
                                                             <p className="review-date">{new Date(review.reviewWritedate).toLocaleDateString()}</p>
                                                         </div>
                                                     </div>
-                                                    <p className="review-rating">⭐ {review.rate}</p>
+                                                    <p className="review-rating">
+                                                        {Array.from({ length: review.rate }, (_, i) => (
+                                                            <span key={i}>⭐</span>
+                                                        ))}
+                                                    </p>
                                                     <p className="review-content">{review.reviewContent}</p>
-                                                    {review.images && review.images.length > 0 && (
-                                                        <div className="review-images">
-                                                            {review.images.map((img, imgIndex) => (
-                                                                <img key={imgIndex} src={`${serverIP.ip}/uploads/review/${review.id}/${img.filename}`} alt={`review-${imgIndex}`} className="review-image" />
-                                                            ))}
+                                                    {/* 리뷰 이미지 */}
+                                                    <div className="review-images-wrapper">
+                                                        <div className="review-slider-container">
+                                                            <button className="slider-arrow left" onClick={() => handlePrev(index, review.images.length)}>
+                                                                ‹
+                                                            </button>
+                                                            <div className="review-slider-image-wrapper">
+                                                            {review.images[imageIndexes[index]] && (
+                                                                <img
+                                                                    src={`${serverIP.ip}/uploads/review/${review.id}/${review.images[imageIndexes[index]].filename}`}
+                                                                    alt={`review-img-${imageIndexes[index]}`}
+                                                                    className="review-custom-slider-image"
+                                                                    onClick={() => setEnlargedImage({ reviewIndex: index, imageIndex: imageIndexes[index] })}
+                                                                />
+                                                            )}
+                                                            </div>
+                                                            <button className="slider-arrow right" onClick={() => handleNext(index, review.images.length)}>
+                                                                ›
+                                                            </button>
+                                                            {/* 슬라이더 점 표시 */}
+                                                            <div className="slider-dots">
+                                                                {review.images.map((_, dotIndex) => (
+                                                                <span
+                                                                    key={dotIndex}
+                                                                    className={`dot ${dotIndex === imageIndexes[index] ? 'active' : ''}`}
+                                                                ></span>
+                                                                ))}
+                                                            </div>
                                                         </div>
-                                                    )}
-                                                    <button className="like-button" onClick={() => handleLike(review.id, user.user.id,review)}>
-                                                        👍 { 0 || review.likes.length}
+
+                                                        {/* 확대 이미지 오버레이 */}
+                                                        {enlargedImage?.reviewIndex === index && (
+                                                            <div className="image-overlay" onClick={() => setEnlargedImage(null)}>
+                                                                {/* 왼쪽 화살표 */}
+                                                                <button
+                                                                    className="overlay-arrow left"
+                                                                    onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setEnlargedImage((prev) => {
+                                                                        const total = review.images.length;
+                                                                        const newIndex = prev.imageIndex === 0 ? total - 1 : prev.imageIndex - 1;
+                                                                        return { ...prev, imageIndex: newIndex };
+                                                                    });
+                                                                    }}
+                                                                >
+                                                                    ‹
+                                                                </button>
+
+                                                                {/* 확대된 이미지 */}
+                                                                <img
+                                                                    src={`${serverIP.ip}/uploads/review/${review.id}/${review.images[enlargedImage.imageIndex].filename}`}
+                                                                    alt="enlarged"
+                                                                    className="popup-image"
+                                                                    onClick={(e) => e.stopPropagation()}
+                                                                />
+
+                                                                {/* 닫기 X 버튼 */}
+                                                                <button
+                                                                className="overlay-close"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation(); // 클릭 시 이벤트 전파 방지
+                                                                    setEnlargedImage(null); // 이미지 닫기
+                                                                }}
+                                                                >
+                                                                X
+                                                                </button>
+
+                                                                {/* 오른쪽 화살표 */}
+                                                                <button
+                                                                    className="overlay-arrow right"
+                                                                    onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setEnlargedImage((prev) => {
+                                                                        const total = review.images.length;
+                                                                        const newIndex = prev.imageIndex === total - 1 ? 0 : prev.imageIndex + 1;
+                                                                        return { ...prev, imageIndex: newIndex };
+                                                                    });
+                                                                    }}
+                                                                >
+                                                                    ›
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <button className="like-button" onClick={(e) => {e.stopPropagation(); handleLike(review.id, user.user.id, review);}}>
+                                                        {review.likes?.some(like => like.user.id === user.user.id) ? '❤️' : '🤍'} {review.likes?.length || 0}
                                                     </button>
+                                                    {index < reviewList.length - 1 && <hr style={{border:'none', borderTop:'1px solid #ddd', margin:'24px 0'}}/>}
                                                 </div>
                                             ))
                                         ) : (
-                                            <p className="review-empty">아직 후기가 없습니다.</p>
+                                            <p className="review-empty">작성된 리뷰가 없습니다.</p>
                                         )}
                                     </div>
                                 </div>
@@ -739,7 +864,7 @@ function ProductInfo() {
                         }
                     </div>
                 </div>
-                {/* end : 상세정보, 후기 */}
+                {/* end : 상세정보, 리뷰 */}
             </div>
         </>
     );
