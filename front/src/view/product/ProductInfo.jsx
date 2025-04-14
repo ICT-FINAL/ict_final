@@ -368,16 +368,13 @@ function ProductInfo() {
     };
 
     const inquiry = ()=>{
-
         axios.get(`${serverIP.ip}/chat/createChatRoom?productId=${loc.state.product.id}`, {
             headers: { Authorization: `Bearer ${user.token}` }
         })
         .then(res=>{
-            console.log(res.data);
+            console.log("roomId", res.data);
             navigate(`/product/chat/${res.data}`)
         })
-
-
     }
     
     return (
@@ -447,10 +444,13 @@ function ProductInfo() {
                                         <FaShoppingCart />
                                         <span>장바구니</span>
                                     </div>
-                                    <div className="inquiry-icon" onClick={() => { inquiry() }}>
-                                        <FaRocketchat />
-                                        <span>문의하기</span>
-                                    </div>
+                                    {
+                                        user.user.id !== loc.state.product.sellerNo.id &&
+                                        <div className="inquiry-icon" onClick={() => { inquiry() }}>
+                                            <FaRocketchat />
+                                            <span>문의하기</span>
+                                        </div>
+                                    }
                                 </div>
                             </li>
                             <li>

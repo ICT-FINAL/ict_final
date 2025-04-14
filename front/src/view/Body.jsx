@@ -159,7 +159,7 @@ function Body() {
 
       <Route path='/product/*' element={<ProductIndex />}></Route>
       <Route path='/product/search' element={<ProductSearch />}></Route>
-      <Route path='/product/chat' element={<Chatting />}></Route>
+      <Route path='/product/chat/:roomId' element={<Chatting />}></Route>
 
       <Route path='/customerservice/*' element={<CenterHome />}>
         <Route path="inquirywrite" element={<InquiryWrite />} />
