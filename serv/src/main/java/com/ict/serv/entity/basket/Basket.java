@@ -40,7 +40,7 @@ public class Basket {
 
     @ManyToOne
     @JoinColumn(name="option_category_no")
-    private OptionCategory option_no;
+    private OptionCategory optionNo;
 
     @CreationTimestamp
     @Column(name="create_date", columnDefinition = "DATETIME default now()")
