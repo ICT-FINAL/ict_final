@@ -1,0 +1,411 @@
+/* 리뷰 */
+
+.reviewWriteBtn {
+    display: inline-block;
+    padding: 8px 20px;
+    border: 1px solid #ccc;
+    color: #333;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    background-color: transparent;
+    margin: 10px 0;
+}
+  
+.reviewWriteBtn:hover {
+    border-color: #222;
+    color: #000;
+    font-weight: 600;
+}
+
+.review-container-style{
+    background-color: #F6F7F8;
+    padding: 10px;
+    border-radius: 20px;
+}
+
+.review-star{
+    display: flex;
+    align-items: center;
+}
+
+.file-upload-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 15px;
+    background-color: #E9ECEE;
+    color: #333;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    border: 1px solid #ccc;
+    margin-left: 30px;
+}
+
+.file-upload-label:hover {
+    background-color: #b3b5b6;
+}
+
+.file-container-style {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column; 
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.file-text-style {
+    font-size: 12px;
+    color: #555;
+    font-weight: 500;
+    padding-left: 10px;
+    margin-left: 30px;
+}
+
+.file-upload-style {
+    padding: 0 10px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    display: none;
+}
+
+.file-ul-style {
+    width: 100%;
+    list-style: none;
+    margin: 3px 0 0 30px;
+    padding: 0 10px 10px 10px;
+}
+
+.file-ul-style li {
+    font-size: 12px;
+    color: #333;
+    width: 90%;
+    margin-bottom: 2px;
+}
+
+.review-content-style {
+    border-radius: 10px;
+    resize: none;
+    outline: none;
+    border: 1px solid #ccc;
+    width: calc(100% - 80px);
+    height: 150px;
+    padding: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+.reviewBtn-style {
+    margin: 15px 25px 0 0;
+    width: 140px;
+    height: 45px;
+    background-color: #b3b5b6;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.reviewBtn-style:hover {
+    background-color: rgb(85, 85, 85);
+}
+
+.option-detail {
+    font-size: 16px;
+    color: #444;
+}
+
+.review-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    margin: 0 auto;
+}
+
+.review-item {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.review-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.review-user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-weight: bold;
+}
+
+.review-date {
+    font-size: 14px;
+    color: gray;
+}
+
+.review-rating {
+    color: #FFD700;
+    font-size: 16px;
+}
+
+.review-content {
+    font-size: 16px;
+    color: #333;
+    line-height: 1.5;
+}
+
+.review-images-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .review-slider-container {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  .review-slider-image-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: flex-start; /* 이미지를 왼쪽 정렬 */
+    align-items: center;
+  }
+  
+  .slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255,255,255,0.8);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    color: #333;
+    z-index: 1;
+    transition: background-color 0.2s;
+  }
+  
+  .slider-arrow:hover {
+    background-color: rgba(255,255,255,1);
+  }
+  
+  .slider-arrow.left {
+    left: 8px;
+  }
+  
+  .slider-arrow.right {
+    right: 8px;
+  }
+  
+  .slider-dots {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 10;
+  }
+  
+  .dot {
+    width: 8px;
+    height: 8px;
+    background-color: #ccc;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+  }
+  
+  .dot.active {
+    background-color: #6ECEDA;
+  }
+
+  .review-custom-slider-image {
+    height: 100%;
+    width: auto; /* 너비 자동으로 */
+    max-width: 100%; /* 컨테이너 초과 방지 */
+    object-fit: contain;
+    transition: all 0.3s ease-in-out;
+    border-radius: 12px;
+  }
+  
+  .review-custom-slider-image.enlarged {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    max-width: 80vw;
+    max-height: 80vh;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    border-radius: 8px;
+  }
+  
+  .image-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6); /* 어두운 반투명 배경 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    cursor: pointer;
+  }
+  
+  .popup-image {
+    max-width: 80vw;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .overlay-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 3rem;
+    color: white;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 1000;
+    user-select: none;
+  }
+  
+  .overlay-arrow.left {
+    left: 30px;
+  }
+  
+  .overlay-arrow.right {
+    right: 30px;
+  }
+  
+  .overlay-arrow:hover {
+    color: #ccc;
+  }
+
+  .like-button {
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    color: #333; 
+    cursor: pointer;
+    margin-top: 5px;
+  }
+
+  .overlay-close {
+    position: absolute;
+    top: 100px;
+    right: 70px;
+    font-size: 24px;
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.6);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+  }
+
+  .review-action-buttons {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  
+  .edit-button,
+  .del-button {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  
+  .edit-button:hover, .del-button:hover {
+    background-color: #d1d1d1;
+  }
+
+
+/* 별점 */
+.star-rating-wrapper {
+    display: flex;
+    align-items: center;
+    font-size: 24px;
+  }
+  
+  .star-label {
+    font-size: 12px;
+    font-weight: 700;
+    margin-right: 5px;
+  }
+  
+  .star {
+    display: inline-block;
+    position: relative;
+    width: 24px;
+    height: 24px;
+    
+  }
+
+  .star-full {
+    color: #FFD700;
+  }
+  
+  .click-half {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+    z-index: 2;
+  }
+  
+  .click-half.left {
+    left: 0;
+  }
+  
+  .click-half.right {
+    right: 0;
+  }
+  
