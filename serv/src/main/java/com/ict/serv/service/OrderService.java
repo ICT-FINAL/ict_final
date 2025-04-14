@@ -1,6 +1,7 @@
 package com.ict.serv.service;
 
 import com.ict.serv.entity.order.*;
+import com.ict.serv.entity.product.HotCategoryDTO;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.order.OrderGroupRepository;
 import com.ict.serv.repository.order.OrderItemRepository;
@@ -9,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,5 +71,22 @@ public class OrderService {
 
     public List<Orders> getOrderByProduct(Long id) {
         return order_repo.findAllByProductIdOrderByStartDateDesc(id);
+    }
+    public List<HotCategoryDTO> getHotCategory() {
+        List<Object[]> result = order_repo.countProductCategoryFromPaidOrdersWithinTwoWeeks();
+
+        List<HotCategoryDTO> hotCategoryList = new ArrayList<>();
+        for (Object[] row : result) {
+            String productCategory = (String) row[0];
+            Long count = (Long) row[1];
+
+            HotCategoryDTO dto = new HotCategoryDTO();
+            dto.setProductCategory(productCategory);
+            dto.setCount(count);
+
+            hotCategoryList.add(dto);
+        }
+
+        return hotCategoryList;
     }
 }
