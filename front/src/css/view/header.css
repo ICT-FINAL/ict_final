@@ -1,4 +1,4 @@
-.header-container {
+.header-container, .header-container-admin {
     position: fixed;
     background: linear-gradient(180deg, #2a2a2a, #1b1b1b);
     width: 100%;
@@ -13,7 +13,9 @@
     inset 0 3px 5px rgba(255, 255, 255, 0.15);
     z-index: 2006;
 }
-
+.header-container-admin {
+    background: linear-gradient(180deg, #2a2a2a,#7171d4);
+}
 .header-nav {
     position: relative;
     display: flex;

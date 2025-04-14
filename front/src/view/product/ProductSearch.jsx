@@ -181,7 +181,6 @@ function ProductSearch() {
                             }}>
                                 {product.shippingFee === 0 ? "🚚 무료배송" : `배송비 ${product.shippingFee}원`} {/* 배송비 */}
                             </div>
-
                         </div>
                     </div>
                 ))}
