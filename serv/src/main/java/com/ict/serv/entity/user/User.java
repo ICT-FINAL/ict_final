@@ -1,5 +1,6 @@
 package com.ict.serv.entity.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ict.serv.entity.Authority;
@@ -40,6 +41,7 @@ public class User {
     private String email;
 
     @Column(name="user_pw", nullable = false)
+    @JsonIgnore
     private String userpw;
 
     @Column(nullable = false)

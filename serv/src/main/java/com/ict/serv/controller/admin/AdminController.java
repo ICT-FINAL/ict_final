@@ -27,6 +27,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -106,15 +108,36 @@ public class AdminController {
         return map;
     }
 
-    @GetMapping("/inquiry/{id}")
-    public ResponseEntity<?> getAdminInquiryDetail(@PathVariable Long id) {
-        try {
-            Inquiry inquiry = service.getAdminInquiryDetailById(id);
-            return ResponseEntity.ok(inquiry);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
-        } catch (Exception e) {
-            throw e;
+    @GetMapping("/getUsers")
+    public ResponseEntity<Map<String, Object>> getUsersWithSearch(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String authority
+    ) {
+        List<User> users;
+        Map<String, Object> response = new HashMap<>();
+
+        long totalUserCount = userRepository.countByAuthority(Authority.ROLE_USER);
+        response.put("total", totalUserCount);
+
+        if(keyword == null && authority == null) {
+            users = userRepository.findAll();
         }
+        else if ("전체".equals(authority)) {
+          users = userRepository.findByUseridContainingOrUsernameContaining(keyword, keyword);
+        } else if ("관리자".equals(authority)) {
+            Authority adminAuthority = Authority.ROLE_ADMIN;
+            users = userRepository.findByAuthorityAndUseridContainingOrAuthorityAndUsernameContaining(
+                    adminAuthority, keyword, adminAuthority, keyword);
+        } else if ("사용자".equals(authority)) {
+            Authority adminAuthority = Authority.ROLE_USER;
+            users = userRepository.findByAuthorityAndUseridContainingOrAuthorityAndUsernameContaining(
+                    adminAuthority, keyword, adminAuthority, keyword);
+        } else {
+            response.put("message", "잘못된 권한 필터입니다.");
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+        response.put("users", users);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
+
