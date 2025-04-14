@@ -5,6 +5,7 @@ import com.ict.serv.entity.order.OrderItem;
 import com.ict.serv.entity.order.OrderState;
 import com.ict.serv.entity.order.Orders;
 import com.ict.serv.entity.product.OptionCategory;
+import com.ict.serv.entity.product.Product;
 import com.ict.serv.service.OrderService;
 import com.ict.serv.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -61,12 +62,15 @@ public class PaymentController {
             List<Orders> ordersList = orderService.selectOrdersByOrderGroup(orderGroup);
             for(Orders orders:ordersList) {
                 List<OrderItem> items = orderService.selectOrderItemList(orders);
+                Product product = productService.selectProduct(orders.getProductId()).get();
                 for (OrderItem item : items) {
                     OptionCategory optionCategory = productService.selectOptionCategory(item.getOptionCategoryId()).get();
                     int quantity = optionCategory.getQuantity() - item.getQuantity();
+                    product.setQuantity(product.getQuantity() - item.getQuantity());
                     optionCategory.setQuantity(quantity);
                     productService.saveOptionCategory(optionCategory);
                 }
+                productService.saveProduct(product);
             }
 
             return ResponseEntity.ok(response.getBody());

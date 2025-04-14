@@ -53,11 +53,13 @@ import AuctionRoom from './auction/AuctionRoom';
 import DailyCheck from './event/coupon/DailyCheck';
 import MyInquiryList from './user/mypage/MyInquiryList';
 import InquiryView from './customerservice/InquiryView';
+import InquiryModal from '../modal/InquiryModal';
 import AuctionSell from './auction/AuctionSell';
 import AuctionBid from './auction/AuctionBid';
 import AuctionBidSuccess from './auction/AuctionBidSuccess';
 import ShippingTracker from './shipping/ShippingTracker';
 import Chatting from './product/Chatting';
+import DeleteModal from '../modal/DeleteModal';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -116,6 +118,13 @@ function Body() {
               })
               .catch(err => console.log(err))
         }
+        else if(e.target.id.indexOf('delll') !== -1) {
+          const selected_id = e.target.id.split('-')[3];
+          if(selected_id === undefined)
+            dispatch(setModal({isOpen:true, selected:e.target.id}));
+          else
+            dispatch(setModal({isOpen:true, selected:e.target.id, selectedItem:selected_id}));
+          }
       };
 
       window.addEventListener('click', handleClick);
@@ -141,8 +150,9 @@ function Body() {
     {modal.isOpen && modal.selected == 'report' && <Report />}
     {modal.isOpen && modal.selected == 'reportapprove' && <ReportApprove />}
     {modal.isOpen && modal.selected == 'categorymodal' && <CategoryModal />}
+    {modal.isOpen && modal.selected == 'inquiry-box' && <InquiryModal />}
     {interact.isOpen && <Interact />}
-
+    {modal.isOpen && modal.selected.indexOf('delll') !== -1 && <DeleteModal/>}
     <Routes>
       <Route path="/" element={<Main />} />
       <Route path="/test" element={<Test />} />

@@ -1,10 +1,11 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { FaHeart, FaShoppingCart, FaTimes, FaRocketchat } from "react-icons/fa";
+import { setLoginView } from "../../store/loginSlice";
+
 import axios from "axios";
-import { Star } from "lucide-react";
-import reviewWriteBtn from '../../img/review.png';
+import ProductReview from './ProductReview';
 
 function ProductInfo() {
     const serverIP = useSelector((state) => state.serverIP);
@@ -23,15 +24,17 @@ function ProductInfo() {
     const [totalPrice, setTotalPrice] = useState(0);
     const [addBasketItems, setAddBasketItems] = useState(null);
     const [changeMenu, setChangeMenu] = useState('detail');
-    const [reviewWrite, setReviewWrite] = useState(false);
 
     const [isSubOptionRegistered, setIsSubOptionRegistered] = useState(false);
+    const [totalQuantity, setTotalQuantity] = useState(0);
+
+    const dispatch = useDispatch();
 
     useEffect(() => {
         axios.get(`${serverIP.ip}/product/getOption?id=${loc.state.product.id}`, {
-            headers: { Authorization: `Bearer ${user.token}` }
         })
             .then(res => {
+                setTotalQuantity(res.data[0].product.quantity);
                 setOptions(res.data);
             })
             .catch(err => console.log(err));
@@ -56,38 +59,58 @@ function ProductInfo() {
 
     const moveBuy = () => {
         if (!isSubOptionRegistered) alert('구매하실 상품을 선택해주세요');
-        else
-            navigate('/product/buying', {
-                state: {
-                    selectedItems: selectedItems,
-                    product: loc.state.product,
-                    totalPrice: totalPrice,
-                    shippingFee: loc.state.product.shippingFee || 0,
-                    selectedCoupon: selectedCoupon || 0,
+        else {
+            if(!user) {
+                dispatch(setLoginView(true));
+            }
+            else {
+                if(user.user.id !== loc.state.product.sellerNo.id)
+                    navigate('/product/buying', {
+                        state: {
+                            selectedItems: selectedItems,
+                            product: loc.state.product,
+                            totalPrice: totalPrice,
+                            shippingFee: loc.state.product.shippingFee || 0,
+                            selectedCoupon: selectedCoupon || 0,
+                        }
+                    });
+                else {
+                    alert('본인의 상품입니다');
                 }
-            });
+            }
+        }
     };
 
     const getWish = () => {
-        axios.get(`${serverIP.ip}/interact/getWish?userId=${user.user.id}&productId=${loc.state.product.id}`, {
-            headers: { Authorization: `Bearer ${user.token}` }
-        })
-            .then(res => {
-                if (res.data === undefined || res.data === '') {
-                    setIsWish(false);
-                } else {
-                    setIsWish(true);
-                }
+        if(user)
+            axios.get(`${serverIP.ip}/interact/getWish?userId=${user.user.id}&productId=${loc.state.product.id}`, {
+                headers: { Authorization: `Bearer ${user.token}` }
             })
-            .catch(err => console.log(err));
+                .then(res => {
+                    if (res.data === undefined || res.data === '') {
+                        setIsWish(false);
+                    } else {
+                        setIsWish(true);
+                    }
+                })
+                .catch(err => console.log(err));
     };
 
     const addWish = () => {
-        axios.get(`${serverIP.ip}/interact/addWish?userId=${user.user.id}&productId=${loc.state.product.id}`, {
-            headers: { Authorization: `Bearer ${user.token}` }
-        })
-            .then(res => setIsWish(true))
-            .catch(err => console.log(err));
+        if(user){
+            if(user.user.id !== loc.state.product.sellerNo.id)
+                axios.get(`${serverIP.ip}/interact/addWish?userId=${user.user.id}&productId=${loc.state.product.id}`, {
+                    headers: { Authorization: `Bearer ${user.token}` }
+                })
+                    .then(res => setIsWish(true))
+                    .catch(err => console.log(err));
+            else {
+                alert('본인의 상품입니다')
+            }
+        }
+        else {
+            dispatch(setLoginView(true));
+        }
     };
 
     const delWish = () => {
@@ -99,40 +122,41 @@ function ProductInfo() {
     };
 
     const addBasket = () => {
+        if(!user) {
+            dispatch(setLoginView(true));
+            return;
+        }
         if (selectedItems.length === 0) {
             alert("장바구니에 담을 상품을 선택해주세요.");
             return;
         }
+        if(user.user.id !== loc.state.product.sellerNo.id) {
+            const basketItems = selectedItems.map(item => ({
+                optionId: item.option.id,
+                subOptionId: item.subOption ? item.subOption.id : null,
+                quantity: item.quantity
+            }));
 
-        const basketItems = selectedItems.map(item => ({
-            optionId: item.option.id,
-            subOptionId: item.subOption ? item.subOption.id : null,
-            quantity: item.quantity
-        }));
-
-        console.log("장바구니 추가 요청 데이터:", {
-            userId: user.user.id,
-            productId: loc.state.product.id,
-            items: basketItems
-        });
-
-        axios.post(`${serverIP.ip}/basket/add`, basketItems, {
-            headers: { Authorization: `Bearer ${user.token}` }
-        })
-            .then(res => {
-                console.log("장바구니 추가 성공:", res.data);
-                setAddBasketItems(res.data);
-                if ("success") {
-                    alert("장바구니에 상품이 담겼습니다.");
-                    navigate('/mypage/basket');
-                } else {
-                    alert("장바구니 담기에 실패했습니다.");
-                }
+            axios.post(`${serverIP.ip}/basket/add`, basketItems, {
+                headers: { Authorization: `Bearer ${user.token}` }
             })
-            .catch(err => {
-                console.error("장바구니 추가 오류:", err);
-                alert("장바구니 담기 중 오류가 발생했습니다.");
-            });
+                .then(res => {
+                    console.log("장바구니 추가 성공:", res.data);
+                    setAddBasketItems(res.data);
+                    if ("success") {
+                        alert("장바구니에 상품이 담겼습니다.");
+                    } else {
+                        alert("장바구니 담기에 실패했습니다.");
+                    }
+                })
+                .catch(err => {
+                    console.error("장바구니 추가 오류:", err);
+                    alert("장바구니 담기 중 오류가 발생했습니다.");
+                });
+        }
+        else {
+            alert('본인의 상품입니다');
+        }
     };
 
     function formatNumberWithCommas(num) {
@@ -234,138 +258,6 @@ function ProductInfo() {
         setSelectedItems(updatedItems);
     };
 
-    /*후기*/
-    const [isPurchased, setIsPurchased] = useState(false); // 구매한 사람인지 여부 저장
-    const [isReview, setIsReview] = useState(false); // 리뷰를 이미 작성한 사람인지 여부 저장 
-
-    useEffect(() => {
-        axios.get(`${serverIP.ip}/review/checkPurchase?userId=${user.user.id}&productId=${loc.state.product.id}`, {
-            headers: { Authorization: `Bearer ${user.token}` }
-        })
-        .then(function(response) {  
-            //  console.log(response.data.purchased);
-            //  console.log(response.data.review);
-            if (response.data.purchased === true) {
-                setIsPurchased(true);
-            }
-        })
-        .catch(function(error) {
-            console.log(error);
-        });
-    }, []);
-
-    const [rate, setRate] = useState(0); // 별점 
-    let [reviewContent, setReviewContent] = useState('');
-
-    function handleData(event) {
-        // if(event.target.name=='reviewContent') setReviewContent(event.target.value);
-        if (event.target.value.length > 230) {
-            alert("230글자까지 가능합니다.");
-            return;
-        }
-        setReviewContent(event.target.value);
-    }
-
-    //후기 이미지 파일 
-    const [reviewFiles, setReviewFiles] = useState([]);
-    const fileInputRef = useRef(null);
-
-    const changeFile = (e) => {
-        handleFiles(e.target.files);
-    };
-
-    const handleDrop = (e) => {
-        e.preventDefault();
-        handleFiles(e.dataTransfer.files);
-    };
-
-    const handleFiles = (selectedFiles) => {
-        const imageFiles = Array.from(selectedFiles).filter(file => file.type.startsWith("image/"));
-        if (imageFiles.length !== selectedFiles.length) {
-            alert("이미지 파일만 업로드 가능합니다.");
-        }
-        if (reviewFiles.length + imageFiles.length > 5) {
-            alert("이미지는 최대 5개까지만 등록할 수 있습니다.");
-            return;
-        }
-        setReviewFiles(prevFiles => [...prevFiles, ...imageFiles]);
-    };
-
-    const removeFile = (fileToRemove) => {
-        setReviewFiles(prevFiles => prevFiles.filter(file => file !== fileToRemove));
-    };
-
-    function handleSubmit(event) {
-        event.preventDefault();
-
-        if (rate === 0) {
-            alert("별점을 선택해주세요!");
-            return;
-        }
-
-        if (reviewContent === '') {
-            alert('후기를 입력해주세요.');
-            return false;
-        }
-
-        //첨부파일이 있어 Form객체를 만들어 서버에 전송해야한다.
-        let formData = new FormData();
-        formData.append("productId", loc.state.product.id); // 어떤 상품인지
-        formData.append("reviewContent", reviewContent); // 후기내용
-        formData.append("rate", rate); // 평점
-        for (let idx = 0; idx < reviewFiles.length; idx++) { // 첨부파일
-            formData.append("files", reviewFiles[idx]);
-        }
-
-        axios.post(`${serverIP.ip}/review/write`, formData, {
-            headers: {
-                Authorization: `Bearer ${user.token}`
-            }
-        })
-        .then(function (response) {
-            console.log(response.data);
-        })
-        .catch(function (error) {
-            console.log(error);
-        })
-    }
-
-    // 선택된 상품에 대한 후기 리스트 불러오기
-    let [reviewList, setReviewList] = useState({});
-    const [likedReviews, setLikedReviews] = useState(new Set());
-
-    useEffect(() => {
-        axios.get(`${serverIP.ip}/review/productReviewList?productId=${loc.state.product.id}`, {
-            headers: { Authorization: `Bearer ${user.token}` }
-        })
-        .then(response => {
-            setReviewList(response.data);
-        })
-        .catch(error => {
-            console.error(error);
-        });
-    }, [serverIP, loc, user]);
-
-    const handleLike = async (reviewId, userId) => { 
-        console.log("userId : ");
-        console.log(userId);
-        try {
-            const response = await axios.post(
-                `${serverIP.ip}/review/like`, 
-                { reviewId, userId },  // reviewId와 userId 함께 전송
-                { headers: { Authorization: `Bearer ${user.token}` } }
-            );
-    
-            // 서버에서 최신 좋아요 개수를 받아서 상태 업데이트
-            const updatedReviewList = reviewList.map(review =>
-                review.id === reviewId ? { ...review, likes: response.data.likes } : review
-            );
-    
-            setReviewList(updatedReviewList);
-        } catch (error) {
-            console.error("좋아요 처리 중 오류 발생:", error);
-        }
-    };
 
     const inquiry = ()=>{
         axios.get(`${serverIP.ip}/chat/createChatRoom?productId=${loc.state.product.id}`, {
@@ -413,7 +305,19 @@ function ProductInfo() {
                         }}>
                             {loc.state.product.shippingFee === 0 ? "🚚 무료배송" : `배송비 ${loc.state.product.shippingFee}원`} {/* 배송비 */}
                         </div>
-
+                        {totalQuantity === 0 && 
+                        <div style={{
+                            marginTop: "5px", padding: "4px 8px", display: "inline-block",
+                            marginLeft: '10px',
+                            borderRadius: "5px", fontSize: "12px", fontWeight: "600",
+                            backgroundColor: 'gray',
+                            color: loc.state.product.shippingFee === 0 ? "white" : "black",
+                            minHeight: "20px",
+                            lineHeight: "20px" // 가운데 정렬
+                        }}>
+                            품절
+                        </div>
+                        }
                         <ul>
                             <li style={{ display: 'flex' }}>
                                 <div className='product-profile-box'>
@@ -459,7 +363,7 @@ function ProductInfo() {
                                         <li>
                                             <span style={{ fontSize: '20px', fontWeight: 'bold' }}>{loc.state.product.discountRate}%</span>
                                             <span style={{ textDecoration: 'line-through', marginLeft: '15px', color: 'gray' }}>
-                                                &nbsp;{formatNumberWithCommas(loc.state.product.price)}&nbsp;
+                                                &nbsp;{formatNumberWithCommas(loc.state.product.price)}원&nbsp;
                                             </span>
                                         </li>
                                     )}
@@ -486,19 +390,28 @@ function ProductInfo() {
                                             ))}
                                         </select>
                                         {subOptions.length > 0 && (
-                                            <>
-                                                <select style={{ marginLeft: '15px' }} className='product-info-selectbox' onChange={handleSubOptionChange} value={selectedSubOptionId}>
-                                                    <option value="" disabled selected>소분류를 선택해주세요</option>
-                                                    {subOptions.map((subOption) => (
-                                                        <option key={subOption.id} value={subOption.id}>
-                                                            {subOption.categoryName} (+{subOption.additionalPrice}원)
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                                {selectedSubOptionId.length > 0 &&
-                                                    <button type="button" className="product-select-button" onClick={handleAddItem}>선택</button>
-                                                }
-                                            </>
+                                        <>
+                                            <select
+                                            style={{ marginLeft: '15px' }}
+                                            className="product-info-selectbox"
+                                            onChange={handleSubOptionChange}
+                                            value={selectedSubOptionId}
+                                            >
+                                            <option value="" disabled selected>소분류를 선택해주세요</option>
+                                            {subOptions
+                                                .filter(subOption => subOption.quantity > 0)
+                                                .map((subOption) => (
+                                                <option key={subOption.id} value={subOption.id}>
+                                                    {subOption.categoryName} (+{formatNumberWithCommas(subOption.additionalPrice)}원)
+                                                </option>
+                                                ))}
+                                            </select>
+                                            {selectedSubOptionId.length > 0 && (
+                                            <button type="button" className="product-select-button" onClick={handleAddItem}>
+                                                선택
+                                            </button>
+                                            )}
+                                        </>
                                         )}
                                     </li>
                                     {selectedItems.length > 0 && (
@@ -522,20 +435,79 @@ function ProductInfo() {
                                                                     {item.subOption && ` - ${item.subOption.categoryName} (+${formatNumberWithCommas(item.subOption.additionalPrice)}원)`}
                                                                 </div>
                                                                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                                    <label htmlFor={`quantity-${index}`} style={{ marginRight: '5px' }}>수량:</label>
-                                                                    <select
-                                                                        id={`quantity-${index}`}
-                                                                        value={item.quantity}
-                                                                        onChange={(e) => handleItemQuantityChange(index, e.target.value)}
-                                                                        style={{ width: '60px', height: '25px' }}
-                                                                    >
-                                                                        {[...Array(item.subOption?.quantity || 10).keys()].map((num) => (
-                                                                            <option key={num} value={num + 1}>{num + 1}</option>
-                                                                        ))}
-                                                                    </select>
-                                                                    <button type="button" onClick={() => removeItem(index)} style={{ color: 'red', border: 'none', background: 'none', cursor: 'pointer', marginLeft: '10px' }}>
-                                                                        <FaTimes />
-                                                                    </button>
+                                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                        <label style={{ marginRight: '5px' }}>수량:</label>
+                                                        <div style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        border: '1px solid #ccc',
+                                                        borderRadius: '6px',
+                                                        overflow: 'hidden',
+                                                        height: '32px',
+                                                        }}>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleItemQuantityChange(index, item.quantity - 1)}
+                                                            disabled={item.quantity <= 1}
+                                                            style={{
+                                                            width: '32px',
+                                                            height: '32px',
+                                                            backgroundColor: '#f5f5f5',
+                                                            border: 'none',
+                                                            borderRight: '1px solid #ccc',
+                                                            fontSize: '18px',
+                                                            cursor: item.quantity <= 1 ? 'not-allowed' : 'pointer',
+                                                            color: item.quantity <= 1 ? '#aaa' : '#333',
+                                                            }}
+                                                        >
+                                                            -
+                                                        </button>
+
+                                                        <div style={{
+                                                            width: '40px',
+                                                            textAlign: 'center',
+                                                            fontWeight: '500',
+                                                            fontSize: '15px',
+                                                            lineHeight: '32px',
+                                                            backgroundColor: 'white',
+                                                        }}>
+                                                            {item.quantity}
+                                                        </div>
+
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleItemQuantityChange(index, item.quantity + 1)}
+                                                            disabled={item.quantity >= (item.subOption?.quantity || 10)}
+                                                            style={{
+                                                            width: '32px',
+                                                            height: '32px',
+                                                            backgroundColor: '#f5f5f5',
+                                                            border: 'none',
+                                                            borderLeft: '1px solid #ccc',
+                                                            fontSize: '18px',
+                                                            cursor: item.quantity >= (item.subOption?.quantity || 10) ? 'not-allowed' : 'pointer',
+                                                            color: item.quantity >= (item.subOption?.quantity || 10) ? '#aaa' : '#333',
+                                                            }}
+                                                        >
+                                                            +
+                                                        </button>
+                                                        </div>
+
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeItem(index)}
+                                                            style={{
+                                                            color: 'red',
+                                                            border: 'none',
+                                                            background: 'none',
+                                                            cursor: 'pointer',
+                                                            marginLeft: '10px',
+                                                            }}
+                                                        >
+                                                            <FaTimes />
+                                                        </button>
+                                                        </div>
+
                                                                 </div>
                                                             </li>
                                                             <li style={{ textAlign: 'right', listStyleType: 'none', fontSize: '17px' }}>
@@ -563,7 +535,7 @@ function ProductInfo() {
                     </div>
                 </div>
 
-                {/* start : 상세정보, 후기 */}
+                {/* start : 상세정보, 리뷰 */}
                 <div style={{ paddingTop: "10%", width: '80%', margin: '0 auto' }}>
                     <div>
                         <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
@@ -573,7 +545,7 @@ function ProductInfo() {
                             fontWeight: '600'
                         }}>
                             <div onClick={() => setChangeMenu("detail")} className="product-div">상세정보</div>
-                            <div onClick={() => setChangeMenu("review")} className="product-div">후기</div>
+                            <div onClick={() => setChangeMenu("review")} className="product-div">리뷰</div>
                         </div>
                         <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
                     </div>
@@ -589,158 +561,13 @@ function ProductInfo() {
                             </>
                         }
 
-                        {changeMenu === "review" &&
-                            <>
-                                {isPurchased && (
-                                    <div style={{textAlign:'right'}}><img onClick={() => setReviewWrite(!reviewWrite)} src={reviewWriteBtn} alt="후기등록하기버튼" style={{ width: '80px', border: '1px solid #ddd', borderRadius: '50px' }} /></div>
-                                )}
+                        {changeMenu === "review" && (
+                            <ProductReview/>
+                        )}
 
-                                {/* 후기등록 */}
-                                {reviewWrite &&
-                                    <div className="review-container-style">
-                                        <div style={{ margin: "10px 0", lineHeight: "1.8", fontWeight: "700" }}>
-                                            {user.user.username}님, <br />
-                                            구매하신 상품은 어떠셨나요?
-                                        </div>
-                                        <form onSubmit={handleSubmit} className="reviewForm">
-                                            {/* 별점 */}
-                                            <div className="review-star">
-                                                <span style={{ fontSize: '12px', fontWeight: '700' }}>별점&nbsp;&nbsp;</span>
-                                                {[1, 2, 3, 4, 5].map((star) => (
-                                                    <Star
-                                                        key={star}
-                                                        size={20}
-                                                        fill={star <= rate ? "#FFD700" : "#ccc"}
-                                                        stroke={star <= rate ? "#FFD700" : "#ccc"}
-                                                        onClick={(event) => {
-                                                            event.stopPropagation();
-                                                            if (rate === 1 && star === 1) {
-                                                                setRate(0);
-                                                            } else if (rate === 5 && star === 5) {
-                                                                setRate(0);
-                                                            } else {
-                                                                setRate(star);
-                                                            }
-                                                        }}
-                                                        className="star"
-                                                    />
-                                                ))}
-                                            </div>
-                                            {/*내용*/}
-                                            <div><span style={{ fontSize: '12px', fontWeight: '700' }}>내용</span></div>
-                                            <div style={{ textAlign: 'center' }}>
-                                                <textarea className="review-content-style" id="reviewContent" name="reviewContent" value={reviewContent} onChange={handleData} placeholder="후기 내용을 작성해주세요." maxLength={230}></textarea>
-                                                <div style={{ textAlign: 'right', margin: '5px 30px 5px 0' }}>
-                                                    <p style={{ margin: 0, fontSize: '14px', color: '#555' }}>
-                                                        {reviewContent.length} / 230
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            {/*파일*/}
-                                            <div><span style={{ fontSize: '12px', fontWeight: '700' }}>파일첨부</span></div>
-                                            <div style={{ textAlign: 'center' }}>
-                                                <div
-                                                    onDragOver={(e) => e.preventDefault()}
-                                                    onDrop={handleDrop}
-                                                    style={{
-                                                        margin: '0 30px', height: '100px',
-                                                        border: '2px dashed #ccc', display: 'flex',
-                                                        alignItems: 'center', justifyContent: 'center',
-                                                        marginBottom: '10px', cursor: 'pointer'
-                                                    }}
-                                                    onClick={() => fileInputRef.current.click()}
-                                                >
-                                                    이미지를 드래그/선택하여 1~5개 첨부해주세요
-                                                </div>
-                                                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                                    <input
-                                                        type="file" style={{ display: 'none' }} ref={fileInputRef}
-                                                        multiple accept="image/*" onChange={changeFile}
-                                                    />
-                                                    <input type="button"
-                                                        style={{
-                                                            backgroundColor: 'rgb(85, 85, 85)', color: 'white', padding: '8px', border: 'none',
-                                                            cursor: 'pointer', borderRadius: '5px', fontSize: '12px'
-                                                        }}
-                                                        onClick={() => fileInputRef.current.click()} value="이미지 선택"
-                                                    />
-                                                </div>
-                                                <div style={{ display: 'flex', gap: '5px', flexWrap: 'wrap', marginTop: '15px', justifyContent: 'center' }}>
-                                                    {reviewFiles.map((file, idx) => (
-                                                        <div key={idx} style={{ position: 'relative', width: '100px', height: '100px' }}>
-                                                            <img
-                                                                src={URL.createObjectURL(file)}
-                                                                alt={file.name}
-                                                                style={{
-                                                                    width: '80%', height: '80%', objectFit: 'cover',
-                                                                    borderRadius: '8px', boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
-                                                                }}
-                                                            />
-                                                            <span
-                                                                style={{
-                                                                    position: 'absolute', top: '-6px', right: '3px',
-                                                                    backgroundColor: '#555', color: 'white',
-                                                                    width: '20px', height: '20px',
-                                                                    display: 'flex', alignItems: 'center',
-                                                                    justifyContent: 'center', borderRadius: '50%',
-                                                                    fontSize: '14px', cursor: 'pointer'
-                                                                }}
-                                                                onClick={() => removeFile(file)}>
-                                                                ✕
-                                                            </span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                            {/*등록버튼*/}
-                                            <div>
-                                                <input type="submit" value="등록" className="reviewBtn-style" />
-                                            </div>
-                                        </form>
-                                    </div>
-                                }
-                                {/* 현재 상품에 대한 후기 전체 리스트 */}
-                                <div className="review-container">
-                                    <h2 className="review-title">상품 후기</h2>
-                                    <div className="review-grid">
-                                        {reviewList.length > 0 ? (
-                                            reviewList.map((review, index) => (
-                                                <div key={index} className="review-card">
-                                                    <div className="review-header">
-                                                        {review.user.kakaoProfileUrl && 
-                                                        <img src={review.user.kakaoProfileUrl.indexOf('http') !== -1 ? `${review.user.kakaoProfileUrl}` : `${serverIP.ip}${review.user.kakaoProfileUrl}`} 
-                                                            alt="profile" 
-                                                            className="profile-img"
-                                                        />}
-                                                        <div>
-                                                            <p className="message-who" id={`mgx-${review.user.id}`} style={{cursor:'pointer'}}>{review.user.username}</p>
-                                                            <p className="review-date">{new Date(review.reviewWritedate).toLocaleDateString()}</p>
-                                                        </div>
-                                                    </div>
-                                                    <p className="review-rating">⭐ {review.rate}</p>
-                                                    <p className="review-content">{review.reviewContent}</p>
-                                                    {review.images && review.images.length > 0 && (
-                                                        <div className="review-images">
-                                                            {review.images.map((img, imgIndex) => (
-                                                                <img key={imgIndex} src={`${serverIP.ip}/uploads/review/${review.id}/${img.filename}`} alt={`review-${imgIndex}`} className="review-image" />
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                    <button className="like-button" onClick={() => handleLike(review.id, review.user.id)}>
-                                                        👍 {review.likes || 0}
-                                                    </button>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <p className="review-empty">아직 후기가 없습니다.</p>
-                                        )}
-                                    </div>
-                                </div>
-                            </>
-                        }
                     </div>
                 </div>
-                {/* end : 상세정보, 후기 */}
+                {/* end : 상세정보, 리뷰 */}
             </div>
         </>
     );

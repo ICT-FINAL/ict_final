@@ -4,7 +4,8 @@ const initialState = {
   isOpen: false,
   selected: '',
   info: {},
-  selectedItem: null
+  selectedItem: null,
+  delCheck:''
 };
 
 const modalSlice = createSlice({
@@ -16,6 +17,7 @@ const modalSlice = createSlice({
       state.selected = action.payload.selected;
       state.info = action.payload.info;
       state.selectedItem = action.payload.selectedItem;
+      state.delCheck = action.payload.delCheck;
     },
   },
 });

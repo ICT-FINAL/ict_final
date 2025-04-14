@@ -1,4 +1,4 @@
-import { useSelector,useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useInView } from "react-intersection-observer";
@@ -58,19 +58,17 @@ function ProductSearch() {
 
     const moveInfo = (prod) => {
         console.log(prod);
-        navigate('/product/info',{state:{product:prod}});
+        navigate('/product/info', { state: { product: prod } });
     }
 
     const changeSearchWord = (e) => {
-        dispatch(setSearch({...search, searchWord:e.target.value}));
+        dispatch(setSearch({ ...search, searchWord: e.target.value }));
     }
-
 
     const getProductList = (page) => {
         axios
             .get(
                 `${serverIP.ip}/product/search?searchWord=${search.searchWord}&eventCategory=${search.eventCategory}&targetCategory=${search.targetCategory}&productCategory=${search.productCategory}&nowPage=${page}`,
-                { headers: { Authorization: `Bearer ${user.token}` } }
             )
             .then((res) => {
                 const { pvo, productList } = res.data;
@@ -90,39 +88,39 @@ function ProductSearch() {
 
     return (
         <div className="product-grid-container">
-            <h2 style={{fontSize:'28px'}}>{search.searchWord&&`'${search.searchWord}'`} 상품 검색 결과</h2>
-            <div style={{maxWidth:'1200px', margin:'auto'}}>
+            <h2 style={{ fontSize: '28px' }}>{search.searchWord && `'${search.searchWord}'`} 상품 검색 결과</h2>
+            <div style={{ maxWidth: '1200px', margin: 'auto' }}>
                 <div className="search-options-container">
-                    <select 
+                    <select
                         value={search.eventCategory}
-                        onChange={(e) => dispatch(setSearch({...search, eventCategory:e.target.value}))} 
+                        onChange={(e) => dispatch(setSearch({ ...search, eventCategory: e.target.value }))}
                         className="search-selectbox-style"
-                    > 
+                    >
                         <option value="">이벤트 선택</option>
                         {eventOptions.map((event, index) => (
                             <option key={index} value={event}>{event}</option>
                         ))}
                     </select>
-                        
-                    <select 
+
+                    <select
                         value={search.targetCategory}
-                        onChange={(e) => dispatch(setSearch({...search, targetCategory:e.target.value}))} 
+                        onChange={(e) => dispatch(setSearch({ ...search, targetCategory: e.target.value }))}
                         className="search-selectbox-style"
-                    > 
+                    >
                         <option value="">대상 선택</option>
                         {targetOptions.map((target, index) => (
                             <option key={index} value={target}>{target}</option>
                         ))}
                     </select>
 
-                    <button 
+                    <button
                         onClick={() => dispatch(setModal({
                             ...modal,
                             isOpen: true,
                             selected: "categorymodal",
                             info: productOptions,
-                        }))} 
-                        className="search-selectbox-style" 
+                        }))}
+                        className="search-selectbox-style"
                         style={{
                             fontSize: '12px',
                             overflow: 'hidden',
@@ -131,7 +129,7 @@ function ProductSearch() {
                             display: 'inline-block'
                         }}
                     >
-                        { search.productCategory.length === 0 
+                        {search.productCategory.length === 0
                             ? '카테고리 선택'
                             : search.productCategory.map((item, index) => (
                                 <span key={index}> #{item}</span>
@@ -141,22 +139,21 @@ function ProductSearch() {
 
                     <div className="search-container">
                         <svg className="search-icon-two" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="10" cy="10" r="7" stroke="#555" strokeWidth="2"/>
-                            <line x1="15" y1="15" x2="22" y2="22" stroke="#555" strokeWidth="2" strokeLinecap="round"/>
+                            <circle cx="10" cy="10" r="7" stroke="#555" strokeWidth="2" />
+                            <line x1="15" y1="15" x2="22" y2="22" stroke="#555" strokeWidth="2" strokeLinecap="round" />
                         </svg>
-                        <input 
-                            className="search-info-style" 
-                            type="text" 
-                            value={search.searchWord} 
-                            placeholder="검색어 입력" 
+                        <input
+                            className="search-info-style"
+                            type="text"
+                            value={search.searchWord}
+                            placeholder="검색어 입력"
                             onChange={changeSearchWord}
                         />
-                    </div> 
+                    </div>
                 </div>
             </div>
             <div className="product-grid">
-                {
-                    products.map((product, index) => (
+                {products.map((product, index) => (
                     <div
                         key={`${product.id}-${index}`}
                         className="product-card"
@@ -168,13 +165,13 @@ function ProductSearch() {
                             className="w-full h-40 object-cover"
                         />
                         <div style={{ cursor: 'pointer' }} onClick={() => moveInfo(product)} className="product-info">
-                            <span style={{ fontSize: "14px", color: "#333" }}>{product.productName}</span> {/* 상품명 */} <br /> 
+                            <span style={{ fontSize: "14px", color: "#333" }}>{product.productName}</span> {/* 상품명 */} <br />
                             <span style={{ color: 'red', fontWeight: "700" }}>{product.discountRate}%</span> {/* 할인 */}
-                            <span style={{textDecoration: "line-through", textDecorationColor: "red", textDecorationThickness: "2px", fontWeight: "700"}}>{product.price}원</span> {/* 기존 가격 */}
+                            <span style={{ textDecoration: "line-through", textDecorationColor: "red", textDecorationThickness: "2px", fontWeight: "700" }}>{product.price}원</span> {/* 기존 가격 */}
                             <span style={{ color: 'red', fontWeight: "700" }}>{Math.round(product.price * (1 - product.discountRate / 100))}원</span> {/* 할인된가격 */}
 
                             <br />
-                            <div style={{ 
+                            <div style={{
                                 marginTop: "5px", padding: "4px 8px", display: "inline-block",
                                 borderRadius: "5px", fontSize: "12px", fontWeight: "600",
                                 backgroundColor: product.shippingFee === 0 ? "#ff4d4d" : "#f2f2f2",
