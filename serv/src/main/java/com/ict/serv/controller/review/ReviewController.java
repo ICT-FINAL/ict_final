@@ -1,6 +1,5 @@
 package com.ict.serv.controller.review;
 
-import com.ict.serv.dto.ReviewLikeDto;
 import com.ict.serv.dto.ReviewResponseDto;
 import com.ict.serv.entity.order.OrderState;
 import com.ict.serv.entity.order.Orders;
@@ -8,6 +7,7 @@ import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.review.Review;
 import com.ict.serv.entity.review.ReviewDTO;
 import com.ict.serv.entity.review.ReviewImage;
+import com.ict.serv.entity.review.ReviewLike;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.entity.wish.Wishlist;
 import com.ict.serv.service.InteractService;
@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -140,11 +141,44 @@ public class ReviewController {
     }
 
     @PostMapping("/like")
-    public ResponseEntity<Map<String, Integer>> like(@RequestBody ReviewLikeDto reviewLikeDto) {
-        System.out.println("=======reviewId================reviewId=========");
-        System.out.println(reviewLikeDto);
-        System.out.println("=======reviewId================reviewId=========");
-        return null;
+    public ResponseEntity<Map<String, Object>> like(@RequestParam("reviewId") Long reviewId, @RequestParam("userId") Long userId) {
+        User user = new User();
+        user.setId(userId);
+
+        Review review = new Review();
+        review.setId(reviewId);
+
+        ReviewLike reviewLike = new ReviewLike();
+        reviewLike.setUser(user);
+        reviewLike.setReview(review);
+
+        // 좋아요 저장
+        ReviewLike result = service.likeInsert(reviewLike);
+
+        // 최신 좋아요 개수 가져오기
+        int updatedLikes = service.getLikeCountByReviewId(reviewId);
+
+        boolean liked = service.isUserLikedReview(userId, reviewId); // 유저가 좋아요 했는지 확인
+
+        // 프론트에 보낼 데이터 구성
+        Map<String, Object> response = new HashMap<>();
+        response.put("likes", updatedLikes);
+        response.put("liked", liked);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/likeDelete")
+    public int likeDelete(@RequestParam("reviewId") Long reviewId, @RequestParam("likedId") Long likedId){
+        Review review = new Review();
+        review.setId(reviewId);
+
+        User user = new User();
+        user.setId(likedId);
+
+        int likeDelState = service.likeDelete(review, user);
+
+        return likeDelState;
     }
 
 }
