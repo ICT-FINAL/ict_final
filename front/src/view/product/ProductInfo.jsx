@@ -332,6 +332,7 @@ function ProductInfo() {
                                 <div className='product-info-name'>
                                     {loc.state.product.productName}
                                 </div>
+                                {user.user.id !== loc.state.product.sellerNo.id &&
                                 <div className='product-wish'>
                                     {!isWish ? (
                                         <div className="wishlist-icon" onClick={() => { addWish() }}>
@@ -348,14 +349,11 @@ function ProductInfo() {
                                         <FaShoppingCart />
                                         <span>장바구니</span>
                                     </div>
-                                    {
-                                        user.user.id !== loc.state.product.sellerNo.id &&
-                                        <div className="inquiry-icon" onClick={() => { inquiry() }}>
-                                            <FaRocketchat />
-                                            <span>문의하기</span>
-                                        </div>
-                                    }
-                                </div>
+                                    <div className="inquiry-icon" onClick={() => { inquiry() }}>
+                                        <FaRocketchat />
+                                        <span>문의하기</span>
+                                    </div>
+                                </div>}
                             </li>
                             <li>
                                 <ul className='product-info-main-box'>
