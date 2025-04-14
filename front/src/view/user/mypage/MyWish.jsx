@@ -91,22 +91,22 @@ function MyWish(){
                 
                 wishList.map(item => {
                     return (<ul className='mypage-wish-list'>
-                        <li style={{cursor:'pointer'}} onClick={()=>moveProduct(item.product)}>
+                        <li style={{cursor:'pointer', lineHeight:'80px'}} onClick={()=>moveProduct(item.product)}>
                            {item.product.productName}
                         </li>   
-                        <li>
+                        <li style={{lineHeight:'80px'}}>
                             {item.product.price}
                         </li>
-                        <li className='message-who' id={`mgx-${item.product.sellerNo.id}`} style={{cursor:'pointer'}}>
+                        <li className='message-who' id={`mgx-${item.product.sellerNo.id}`} style={{cursor:'pointer',lineHeight:'80px'}}>
                             {item.product.sellerNo.username}
                         </li>
-                        <li>
+                        <li style={{lineHeight:'80px'}}>
                             {item.startDate.substring(0,16)}
                         </li>
-                        <li>
-                            <img width='30' height='30' src={`${serverIP.ip}/uploads/product/${item.product.id}/${item.product.images[0].filename}`}/>
+                        <li className='wish-image' style={{width:'80px', height:'80px'}}>
+                            <img style={{width:'100%',height:'100%'}} src={`${serverIP.ip}/uploads/product/${item.product.id}/${item.product.images[0].filename}`}/>
                         </li>
-                        <li id={`wish-delll-${item.product.id}`} style={{cursor:'pointer', fontSize:'26px'}}>
+                        <li id={`wish-delll-${item.product.id}`} style={{cursor:'pointer', fontSize:'26px',lineHeight:'80px'}}>
                             x
                         </li>
                     </ul>

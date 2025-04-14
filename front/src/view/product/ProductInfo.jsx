@@ -1,6 +1,8 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setLoginView } from "../../store/loginSlice";
+
 import { FaHeart, FaShoppingCart, FaTimes } from "react-icons/fa";
 import axios from "axios";
 import ProductReview from './ProductReview';
@@ -24,12 +26,15 @@ function ProductInfo() {
     const [changeMenu, setChangeMenu] = useState('detail');
 
     const [isSubOptionRegistered, setIsSubOptionRegistered] = useState(false);
+    const [totalQuantity, setTotalQuantity] = useState(0);
+
+    const dispatch = useDispatch();
 
     useEffect(() => {
         axios.get(`${serverIP.ip}/product/getOption?id=${loc.state.product.id}`, {
-            headers: { Authorization: `Bearer ${user.token}` }
         })
             .then(res => {
+                setTotalQuantity(res.data[0].product.quantity);
                 setOptions(res.data);
             })
             .catch(err => console.log(err));
@@ -54,38 +59,58 @@ function ProductInfo() {
 
     const moveBuy = () => {
         if (!isSubOptionRegistered) alert('구매하실 상품을 선택해주세요');
-        else
-            navigate('/product/buying', {
-                state: {
-                    selectedItems: selectedItems,
-                    product: loc.state.product,
-                    totalPrice: totalPrice,
-                    shippingFee: loc.state.product.shippingFee || 0,
-                    selectedCoupon: selectedCoupon || 0,
+        else {
+            if(!user) {
+                dispatch(setLoginView(true));
+            }
+            else {
+                if(user.user.id !== loc.state.product.sellerNo.id)
+                    navigate('/product/buying', {
+                        state: {
+                            selectedItems: selectedItems,
+                            product: loc.state.product,
+                            totalPrice: totalPrice,
+                            shippingFee: loc.state.product.shippingFee || 0,
+                            selectedCoupon: selectedCoupon || 0,
+                        }
+                    });
+                else {
+                    alert('본인의 상품입니다');
                 }
-            });
+            }
+        }
     };
 
     const getWish = () => {
-        axios.get(`${serverIP.ip}/interact/getWish?userId=${user.user.id}&productId=${loc.state.product.id}`, {
-            headers: { Authorization: `Bearer ${user.token}` }
-        })
-            .then(res => {
-                if (res.data === undefined || res.data === '') {
-                    setIsWish(false);
-                } else {
-                    setIsWish(true);
-                }
+        if(user)
+            axios.get(`${serverIP.ip}/interact/getWish?userId=${user.user.id}&productId=${loc.state.product.id}`, {
+                headers: { Authorization: `Bearer ${user.token}` }
             })
-            .catch(err => console.log(err));
+                .then(res => {
+                    if (res.data === undefined || res.data === '') {
+                        setIsWish(false);
+                    } else {
+                        setIsWish(true);
+                    }
+                })
+                .catch(err => console.log(err));
     };
 
     const addWish = () => {
-        axios.get(`${serverIP.ip}/interact/addWish?userId=${user.user.id}&productId=${loc.state.product.id}`, {
-            headers: { Authorization: `Bearer ${user.token}` }
-        })
-            .then(res => setIsWish(true))
-            .catch(err => console.log(err));
+        if(user){
+            if(user.user.id !== loc.state.product.sellerNo.id)
+                axios.get(`${serverIP.ip}/interact/addWish?userId=${user.user.id}&productId=${loc.state.product.id}`, {
+                    headers: { Authorization: `Bearer ${user.token}` }
+                })
+                    .then(res => setIsWish(true))
+                    .catch(err => console.log(err));
+            else {
+                alert('본인의 상품입니다')
+            }
+        }
+        else {
+            dispatch(setLoginView(true));
+        }
     };
 
     const delWish = () => {
@@ -97,40 +122,41 @@ function ProductInfo() {
     };
 
     const addBasket = () => {
+        if(!user) {
+            dispatch(setLoginView(true));
+            return;
+        }
         if (selectedItems.length === 0) {
             alert("장바구니에 담을 상품을 선택해주세요.");
             return;
         }
+        if(user.user.id !== loc.state.product.sellerNo.id) {
+            const basketItems = selectedItems.map(item => ({
+                optionId: item.option.id,
+                subOptionId: item.subOption ? item.subOption.id : null,
+                quantity: item.quantity
+            }));
 
-        const basketItems = selectedItems.map(item => ({
-            optionId: item.option.id,
-            subOptionId: item.subOption ? item.subOption.id : null,
-            quantity: item.quantity
-        }));
-
-        console.log("장바구니 추가 요청 데이터:", {
-            userId: user.user.id,
-            productId: loc.state.product.id,
-            items: basketItems
-        });
-
-        axios.post(`${serverIP.ip}/basket/add`, basketItems, {
-            headers: { Authorization: `Bearer ${user.token}` }
-        })
-            .then(res => {
-                console.log("장바구니 추가 성공:", res.data);
-                setAddBasketItems(res.data);
-                if ("success") {
-                    alert("장바구니에 상품이 담겼습니다.");
-                    navigate('/mypage/basket');
-                } else {
-                    alert("장바구니 담기에 실패했습니다.");
-                }
+            axios.post(`${serverIP.ip}/basket/add`, basketItems, {
+                headers: { Authorization: `Bearer ${user.token}` }
             })
-            .catch(err => {
-                console.error("장바구니 추가 오류:", err);
-                alert("장바구니 담기 중 오류가 발생했습니다.");
-            });
+                .then(res => {
+                    console.log("장바구니 추가 성공:", res.data);
+                    setAddBasketItems(res.data);
+                    if ("success") {
+                        alert("장바구니에 상품이 담겼습니다.");
+                    } else {
+                        alert("장바구니 담기에 실패했습니다.");
+                    }
+                })
+                .catch(err => {
+                    console.error("장바구니 추가 오류:", err);
+                    alert("장바구니 담기 중 오류가 발생했습니다.");
+                });
+        }
+        else {
+            alert('본인의 상품입니다');
+        }
     };
 
     function formatNumberWithCommas(num) {
@@ -268,7 +294,19 @@ function ProductInfo() {
                         }}>
                             {loc.state.product.shippingFee === 0 ? "🚚 무료배송" : `배송비 ${loc.state.product.shippingFee}원`} {/* 배송비 */}
                         </div>
-
+                        {totalQuantity === 0 && 
+                        <div style={{
+                            marginTop: "5px", padding: "4px 8px", display: "inline-block",
+                            marginLeft: '10px',
+                            borderRadius: "5px", fontSize: "12px", fontWeight: "600",
+                            backgroundColor: 'gray',
+                            color: loc.state.product.shippingFee === 0 ? "white" : "black",
+                            minHeight: "20px",
+                            lineHeight: "20px" // 가운데 정렬
+                        }}>
+                            품절
+                        </div>
+                        }
                         <ul>
                             <li style={{ display: 'flex' }}>
                                 <div className='product-profile-box'>
@@ -334,19 +372,28 @@ function ProductInfo() {
                                             ))}
                                         </select>
                                         {subOptions.length > 0 && (
-                                            <>
-                                                <select style={{ marginLeft: '15px' }} className='product-info-selectbox' onChange={handleSubOptionChange} value={selectedSubOptionId}>
-                                                    <option value="" disabled selected>소분류를 선택해주세요</option>
-                                                    {subOptions.map((subOption) => (
-                                                        <option key={subOption.id} value={subOption.id}>
-                                                            {subOption.categoryName} (+{formatNumberWithCommas(subOption.additionalPrice)}원)
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                                {selectedSubOptionId.length > 0 &&
-                                                    <button type="button" className="product-select-button" onClick={handleAddItem}>선택</button>
-                                                }
-                                            </>
+                                        <>
+                                            <select
+                                            style={{ marginLeft: '15px' }}
+                                            className="product-info-selectbox"
+                                            onChange={handleSubOptionChange}
+                                            value={selectedSubOptionId}
+                                            >
+                                            <option value="" disabled selected>소분류를 선택해주세요</option>
+                                            {subOptions
+                                                .filter(subOption => subOption.quantity > 0)
+                                                .map((subOption) => (
+                                                <option key={subOption.id} value={subOption.id}>
+                                                    {subOption.categoryName} (+{formatNumberWithCommas(subOption.additionalPrice)}원)
+                                                </option>
+                                                ))}
+                                            </select>
+                                            {selectedSubOptionId.length > 0 && (
+                                            <button type="button" className="product-select-button" onClick={handleAddItem}>
+                                                선택
+                                            </button>
+                                            )}
+                                        </>
                                         )}
                                     </li>
                                     {selectedItems.length > 0 && (
@@ -370,20 +417,79 @@ function ProductInfo() {
                                                                     {item.subOption && ` - ${item.subOption.categoryName} (+${formatNumberWithCommas(item.subOption.additionalPrice)}원)`}
                                                                 </div>
                                                                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                                    <label htmlFor={`quantity-${index}`} style={{ marginRight: '5px' }}>수량:</label>
-                                                                    <select
-                                                                        id={`quantity-${index}`}
-                                                                        value={item.quantity}
-                                                                        onChange={(e) => handleItemQuantityChange(index, e.target.value)}
-                                                                        style={{ width: '60px', height: '25px' }}
-                                                                    >
-                                                                        {[...Array(item.subOption?.quantity || 10).keys()].map((num) => (
-                                                                            <option key={num} value={num + 1}>{num + 1}</option>
-                                                                        ))}
-                                                                    </select>
-                                                                    <button type="button" onClick={() => removeItem(index)} style={{ color: 'red', border: 'none', background: 'none', cursor: 'pointer', marginLeft: '10px' }}>
-                                                                        <FaTimes />
-                                                                    </button>
+                                                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                        <label style={{ marginRight: '5px' }}>수량:</label>
+                                                        <div style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        border: '1px solid #ccc',
+                                                        borderRadius: '6px',
+                                                        overflow: 'hidden',
+                                                        height: '32px',
+                                                        }}>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleItemQuantityChange(index, item.quantity - 1)}
+                                                            disabled={item.quantity <= 1}
+                                                            style={{
+                                                            width: '32px',
+                                                            height: '32px',
+                                                            backgroundColor: '#f5f5f5',
+                                                            border: 'none',
+                                                            borderRight: '1px solid #ccc',
+                                                            fontSize: '18px',
+                                                            cursor: item.quantity <= 1 ? 'not-allowed' : 'pointer',
+                                                            color: item.quantity <= 1 ? '#aaa' : '#333',
+                                                            }}
+                                                        >
+                                                            -
+                                                        </button>
+
+                                                        <div style={{
+                                                            width: '40px',
+                                                            textAlign: 'center',
+                                                            fontWeight: '500',
+                                                            fontSize: '15px',
+                                                            lineHeight: '32px',
+                                                            backgroundColor: 'white',
+                                                        }}>
+                                                            {item.quantity}
+                                                        </div>
+
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleItemQuantityChange(index, item.quantity + 1)}
+                                                            disabled={item.quantity >= (item.subOption?.quantity || 10)}
+                                                            style={{
+                                                            width: '32px',
+                                                            height: '32px',
+                                                            backgroundColor: '#f5f5f5',
+                                                            border: 'none',
+                                                            borderLeft: '1px solid #ccc',
+                                                            fontSize: '18px',
+                                                            cursor: item.quantity >= (item.subOption?.quantity || 10) ? 'not-allowed' : 'pointer',
+                                                            color: item.quantity >= (item.subOption?.quantity || 10) ? '#aaa' : '#333',
+                                                            }}
+                                                        >
+                                                            +
+                                                        </button>
+                                                        </div>
+
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeItem(index)}
+                                                            style={{
+                                                            color: 'red',
+                                                            border: 'none',
+                                                            background: 'none',
+                                                            cursor: 'pointer',
+                                                            marginLeft: '10px',
+                                                            }}
+                                                        >
+                                                            <FaTimes />
+                                                        </button>
+                                                        </div>
+
                                                                 </div>
                                                             </li>
                                                             <li style={{ textAlign: 'right', listStyleType: 'none', fontSize: '17px' }}>
