@@ -24,10 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -39,7 +36,7 @@ public class ReviewController {
     private final OrderService orderService;
     private final ReviewService reviewService;
 
-    // 후기등록
+    // 리뷰 등록
     @PostMapping("/write")
     @Transactional(rollbackFor = {RuntimeException.class, SQLException.class})
     public ResponseEntity<String> write(@AuthenticationPrincipal UserDetails userDetails, ReviewDTO reviewDTO, @RequestParam("files") MultipartFile[] files){
@@ -90,7 +87,7 @@ public class ReviewController {
 
             service.saveReview(savedReview);
 
-            return ResponseEntity.ok("후기 등록 성공");
+            return ResponseEntity.ok("리뷰 등록 성공");
         } catch (Exception e) {
             e.printStackTrace();
 
@@ -98,11 +95,11 @@ public class ReviewController {
                 delFile.delete();
             }
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly(); // 롤백
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("후기 등록 실패");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("리뷰 등록 실패");
         }
     }
 
-    // 내가 이 상품을 구매한 사람이 맞는지 체크 (후기버튼 보이기 위해)
+    // 내가 이 상품을 구매한 사람이 맞는지 체크 (리뷰버튼 보이기 위해)
     @GetMapping("/checkPurchase")
     public ReviewResponseDto checkPurchase(@RequestParam Long userId, @RequestParam Long productId){
         User user = new User();
@@ -123,6 +120,7 @@ public class ReviewController {
         return new ReviewResponseDto(orderIsOk, reviewIsOk);
     }
 
+    // 전체 리뷰 리스트
     @GetMapping("/productReviewList")
     public ResponseEntity<?> productReviewList(Long productId){
         Product product = new Product();
@@ -137,6 +135,7 @@ public class ReviewController {
         return ResponseEntity.ok(reviewList);
     }
 
+    // 리뷰 좋아요
     @PostMapping("/like")
     public ResponseEntity<Map<String, Object>> like(@RequestParam("reviewId") Long reviewId, @RequestParam("userId") Long userId) {
         User user = new User();
@@ -165,6 +164,7 @@ public class ReviewController {
         return ResponseEntity.ok(response);
     }
 
+    // 리뷰 좋아요 삭제
     @PostMapping("/likeDelete")
     public int likeDelete(@RequestParam("reviewId") Long reviewId, @RequestParam("likedId") Long likedId){
         Review review = new Review();
@@ -177,5 +177,49 @@ public class ReviewController {
 
         return likeDelState;
     }
+
+    // 리뷰 수정
+    @PostMapping("/modify/{id}")
+    @Transactional(rollbackFor = {RuntimeException.class, SQLException.class})
+    public ResponseEntity<String> modifyReview(@PathVariable Long id, ReviewDTO reviewModifyDTO) {
+
+        System.out.println("=====================");
+        System.out.println(id); // 고유한 리뷰 아이디
+        System.out.println(reviewModifyDTO); // ex) ReviewDTO(productId=3, reviewContent=짱구 귀여워요~22222222ㅋ, rate=2.5)
+
+        // 수정하기전에 원래의 게시글 모든 데이터를 가져와야 save할때 원하는 부분만 수정할 수 있다.
+        Optional<Review> selectReviewData = service.selectReviewId(id);
+
+        Review review = new Review();
+        review.setId(id);
+        review.setRate(reviewModifyDTO.getRate());
+        review.setReviewContent(reviewModifyDTO.getReviewContent());
+        review.setReviewWritedate(selectReviewData.get().getReviewWritedate());
+        review.setProduct(selectReviewData.get().getProduct());
+        review.setUser(selectReviewData.get().getUser());
+
+        service.saveReview(review);
+
+        System.out.println("=====================");
+
+        return ResponseEntity.ok("Review updated successfully.");
+    }
+
+    @GetMapping("/getReviewAndFile")
+    public Map selectReview(Long reviewId){
+        Review review = service.selectReviewId(reviewId).get();
+        List<ReviewImage> images = review.getImages();
+        List<File> files = new ArrayList<>();
+        for(ReviewImage image : images) {
+            String fileDir = System.getProperty("user.dir") + "/uploads/review/" + reviewId + "/" + image.getFilename();
+            File file = new File(fileDir);
+            files.add(file);
+        }
+        Map map = new HashMap();
+        map.put("files", files);
+        map.put("review", review);
+        return map;
+    }
+
 
 }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -46,5 +47,9 @@ public class ReviewService {
 
     public int likeDelete(Review review, User user) {
         return like_repository.deleteByReviewAndUser(review, user);
+    }
+
+    public Optional<Review> selectReviewId(Long id) {
+        return repository.findById(id);
     }
 }
