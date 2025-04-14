@@ -9,12 +9,9 @@ import com.ict.serv.entity.review.ReviewDTO;
 import com.ict.serv.entity.review.ReviewImage;
 import com.ict.serv.entity.review.ReviewLike;
 import com.ict.serv.entity.user.User;
-import com.ict.serv.entity.wish.Wishlist;
 import com.ict.serv.service.InteractService;
 import com.ict.serv.service.OrderService;
-import com.ict.serv.service.ProductService;
 import com.ict.serv.service.ReviewService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -134,7 +131,7 @@ public class ReviewController {
         List<Review> reviewList = reviewService.productReviewList(product);
 
         if (reviewList.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("리뷰가 없습니다.");
+            return ResponseEntity.ok(new ArrayList<>()); // 이렇게 변경!
         }
 
         return ResponseEntity.ok(reviewList);

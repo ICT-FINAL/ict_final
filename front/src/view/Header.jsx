@@ -56,7 +56,7 @@ function Header() {
                     setMessageCount(cnt);
                 })
                 .catch(err => console.log(err))
-
+        if(user)
         axios.get(`${serverIP.ip}/basket/list`, {
             headers: { Authorization: `Bearer ${user.token}` }
         })
