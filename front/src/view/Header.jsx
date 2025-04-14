@@ -57,13 +57,14 @@ function Header() {
                 })
                 .catch(err => console.log(err))
 
-        axios.get(`${serverIP.ip}/basket/list`, {
-            headers: { Authorization: `Bearer ${user.token}` }
-        })
-            .then(res => {
-                setBasketCount(res.data.length);
+        if(user)
+            axios.get(`${serverIP.ip}/basket/list`, {
+                headers: { Authorization: `Bearer ${user.token}` }
             })
-            .catch(err => console.log(err));
+                .then(res => {
+                    setBasketCount(res.data.length);
+                })
+                .catch(err => console.log(err));
 
         function updateMenuPosition() {
             if (menuButtonRef.current) {

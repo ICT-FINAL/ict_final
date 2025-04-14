@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { setModal } from "../../../store/modalSlice";
 
 function MyWish(){
     const [totalPage, setTotalPage] = useState(1);
@@ -15,6 +16,9 @@ function MyWish(){
 
     const user = useSelector((state)=> state.auth.user);
     const serverIP = useSelector((state)=> state.serverIP);
+    const modal = useSelector((state)=>state.modal);
+
+    const dispatch = useDispatch();
 
     const navigate = useNavigate();
 
@@ -48,15 +52,18 @@ function MyWish(){
             .catch(err => console.log(err))
     }
 
-    const delWish = (productId) => {
-        axios.get(`${serverIP.ip}/interact/delWish?userId=${user.user.id}&productId=${productId}`,{
-            headers: { Authorization: `Bearer ${user.token}` } 
-        })
-        .then(res=>{
-            getWishList();
-        })
-        .catch(err => console.log(err));
-    }
+    useEffect(()=>{
+        if(modal.delCheck==='wish') {
+            axios.get(`${serverIP.ip}/interact/delWish?userId=${user.user.id}&productId=${modal.selected.split('-')[2]}`,{
+                headers: { Authorization: `Bearer ${user.token}` } 
+            })
+            .then(res=>{
+                getWishList();
+                dispatch(setModal({delCheck:''}));
+            })
+            .catch(err => console.log(err));
+        }
+    },[modal.delCheck])
 
     return(<div className="report-box">
         <ul className='mypage-wish-list' style={{fontWeight:'bold', borderBottom:'1px solid #ddd'}}>
@@ -84,22 +91,22 @@ function MyWish(){
                 
                 wishList.map(item => {
                     return (<ul className='mypage-wish-list'>
-                        <li style={{cursor:'pointer'}} onClick={()=>moveProduct(item.product)}>
+                        <li style={{cursor:'pointer', lineHeight:'80px'}} onClick={()=>moveProduct(item.product)}>
                            {item.product.productName}
                         </li>   
-                        <li>
+                        <li style={{lineHeight:'80px'}}>
                             {item.product.price}
                         </li>
-                        <li className='message-who' id={`mgx-${item.product.sellerNo.id}`} style={{cursor:'pointer'}}>
+                        <li className='message-who' id={`mgx-${item.product.sellerNo.id}`} style={{cursor:'pointer',lineHeight:'80px'}}>
                             {item.product.sellerNo.username}
                         </li>
-                        <li>
+                        <li style={{lineHeight:'80px'}}>
                             {item.startDate.substring(0,16)}
                         </li>
-                        <li>
-                            <img width='30' height='30' src={`${serverIP.ip}/uploads/product/${item.product.id}/${item.product.images[0].filename}`}/>
+                        <li className='wish-image' style={{width:'80px', height:'80px'}}>
+                            <img style={{width:'100%',height:'100%'}} src={`${serverIP.ip}/uploads/product/${item.product.id}/${item.product.images[0].filename}`}/>
                         </li>
-                        <li style={{cursor:'pointer', fontSize:'26px'}} onClick={()=>delWish(item.product.id)}>
+                        <li id={`wish-delll-${item.product.id}`} style={{cursor:'pointer', fontSize:'26px',lineHeight:'80px'}}>
                             x
                         </li>
                     </ul>

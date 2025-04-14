@@ -274,6 +274,11 @@
     text-align:center;
 }
 
+.wish-image:hover{
+    transition: all 0.5s ease-in-out;
+    transform: scale(3.5);
+}
+
 /* 찜 목록 끝 */
 
 /* 주문 내역 */

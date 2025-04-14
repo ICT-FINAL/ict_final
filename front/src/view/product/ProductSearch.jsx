@@ -69,7 +69,6 @@ function ProductSearch() {
         axios
             .get(
                 `${serverIP.ip}/product/search?searchWord=${search.searchWord}&eventCategory=${search.eventCategory}&targetCategory=${search.targetCategory}&productCategory=${search.productCategory}&nowPage=${page}`,
-                { headers: { Authorization: `Bearer ${user.token}` } }
             )
             .then((res) => {
                 const { pvo, productList } = res.data;
