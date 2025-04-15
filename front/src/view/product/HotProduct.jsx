@@ -11,7 +11,7 @@ function HotProduct() {
     const [currentSlide, setCurrentSlide] = useState(0);
 
     const itemsPerPage = 4;
-    const cardWidth = 282.5;
+    const cardWidth = 284;
     const serverIP = useSelector((state) => state.serverIP);
     const navigate = useNavigate();
 

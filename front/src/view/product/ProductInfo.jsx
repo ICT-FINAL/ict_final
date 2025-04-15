@@ -181,10 +181,6 @@ function ProductInfo() {
         setQuantity(1);
     };
 
-    const handleCouponChange = (e) => {
-        setSelectedCoupon(Number(e.target.value));
-    };
-
     const handleAddItem = () => {
         if (!selectedOptionId) {
             alert("대분류를 선택해주세요.");
@@ -371,11 +367,6 @@ function ProductInfo() {
                                     )}
                                     <li><span style={{ fontWeight: 'bold', fontSize: '24px' }}>{loc.state.product.discountRate === 0 ? formatNumberWithCommas(loc.state.product.price) : formatNumberWithCommas(loc.state.product.price * (100 - loc.state.product.discountRate) / 100)}</span> 원</li>
                                     <li>
-                                        <select className='product-info-selectbox' onChange={handleCouponChange} value={selectedCoupon}>
-                                            <option value="0">쿠폰을 선택해주세요</option>
-                                            <option value="1000">1000원 쿠폰</option>
-                                            <option value="3000">3000원 쿠폰</option>
-                                        </select>
                                     </li>
                                     {(loc.state.product.discountRate !== 0 || selectedCoupon !== 0) &&
                                         <li className='info-coupon-box' style={{ color: '#d34141', border: '1px solid #ddd', width: '76%', margin: '15px 0px 15px 20px', borderRadius: '10px' }}>

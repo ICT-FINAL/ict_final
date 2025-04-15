@@ -1,5 +1,6 @@
 package com.ict.serv.service;
 
+import com.ict.serv.entity.PointType;
 import com.ict.serv.entity.UserPoint;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.UserPointRepository;
@@ -76,7 +77,7 @@ public class RouletteService {
         if (user == null) throw new RuntimeException("User not found for userId: " + userId);
 
         UserPoint userPoint = userPointRepository.findByUserId(user.getId())
-                .orElseGet(() -> new UserPoint(user.getId(), 0, null));
+                .orElseGet(() -> new UserPoint(user.getId(), 0, null, PointType.ROULETTE));
 
         if (userPoint.getLastSpinDate() != null && userPoint.getLastSpinDate().equals(LocalDate.now())) {
             throw new IllegalStateException("오늘 이미 돌렸습니다.");
@@ -90,6 +91,8 @@ public class RouletteService {
 
         try {
             userPointRepository.save(userPoint);
+            user.setGradePoint(user.getGradePoint()+100);
+            userRepository.save(user);
         } catch (Exception e) {
             log.error("Failed to save UserPoint for userId: {}, error: {}", user.getId(), e.getMessage(), e);
             throw new RuntimeException("Failed to save points: " + e.getMessage());

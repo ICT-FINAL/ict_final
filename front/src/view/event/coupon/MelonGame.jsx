@@ -163,13 +163,12 @@ function MelonGame() {
     ct = 1;
     axios.get(`${serverIP.ip}/event/getMelonRank`)
     .then(res => {
-        console.log(res.data);
         for(var zt=0;zt<res.data.length;zt++) {
             if(zt<10)
                 rankBox.innerHTML += "<div id='rank-info'>"+(zt+1)+"위: "+res.data[zt].user.username+" > "+res.data[zt].score+"점</div>";
-            if(user) {
-                if(user.user.id === res.data[zt].user.id) setIsJoin(true);
-            }
+            // if(user) {
+            //     if(user.user.id === res.data[zt].user.id) setIsJoin(true);
+            // }
         }
     })
     .catch(err => {
@@ -350,7 +349,9 @@ function MelonGame() {
                     headers:{Authorization:`Bearer ${user.token}`}
                 })
                 .then(res => {
-                    console.log(res.data);
+                    if(res.data != 'ok') {
+                        alert(res.data);
+                    }
                 })
                 .catch(err => {
                     console.log(err);
@@ -612,8 +613,8 @@ function MelonGame() {
               <div id='melon-text'>
               게임실행에 문제가 있는경우 새로고침 후 시작을 눌러주세요<br/>
               시간은 2분이 주어지며 종료시 스코어가 나옵니다.<br/>
-              하루에 한 번 참여 가능하며, 점수만큼 등급 포인트가 지급됩니다. <br/>
-              100점 이상: 1000원 쿠폰 / 150점 이상: 3000원 쿠폰 <br/>
+              하루에 한 번 점수만큼 등급 포인트가 지급됩니다. <br/>
+              100점 이상 -&gt; 1000원 쿠폰 지급!<br/>
               쿠폰은 최대 1회만 지급 됩니다.
             </div>
         <br/>
