@@ -2,26 +2,34 @@ import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { clearUser } from "../store/authSlice";
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-
+import { useEffect, useState, useRef } from "react";
+import { useInView } from "react-intersection-observer";
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 function Main() {
+    const [activeTab, setActiveTab] = useState("ongoing");
+    const [visibleSubMenus, setVisibleSubMenus] = useState(5);
+    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+    const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
+    const isFetching = useRef(false);
+    const { ref, inView } = useInView({ triggerOnce: false, threshold: 0.1 });
+    const [ongoingSubMenus, setOngoingSubMenus] = useState([]);
+    const [endedSubMenus, setEndedSubMenus] = useState([]);
     let serverIP = useSelector((state) => state.serverIP);
     let dispatch = useDispatch();
     const user = useSelector((state) => state.auth.user);
     const navigate = useNavigate();
-
     const [event_list, setEvent_list] = useState([]);
+
     function testfunc() {
-        if(user)
+        if (user)
             axios.get(`${serverIP.ip}/test`, {
                 headers: { Authorization: `Bearer ${user.token}` }, //유저 정보 백에서 쓰고싶으면 이거 넘기기
             })
-            .then((res) => console.log(res.data))
-            .catch((err) => console.log(err));
+                .then((res) => console.log(res.data))
+                .catch((err) => console.log(err));
     }
 
     function handleLogout() {
@@ -30,8 +38,8 @@ function Main() {
     }
 
     const moveToEvent = (tar) => {
-        if(tar.state==='NOCOUPON') {
-            navigate('/event/info', {state:tar});
+        if (tar.state === 'NOCOUPON') {
+            navigate('/event/info', { state: tar });
         }
         else {
             navigate(tar.redirectUrl);
@@ -42,23 +50,23 @@ function Main() {
         console.log("현재 로그인된 사용자:", user);
     }, [user]);
 
-    useEffect(()=> {
+    useEffect(() => {
         const now = new Date();
         axios.get(`${serverIP.ip}/event/getEventList`)
-        .then(res => {
-            const ongoing = res.data.filter(event => {
-                const start = new Date(event.startDate);
-                const end = new Date(event.endDate);
-                return start <= now && now <= end;
+            .then(res => {
+                const ongoing = res.data.filter(event => {
+                    const start = new Date(event.startDate);
+                    const end = new Date(event.endDate);
+                    return start <= now && now <= end;
+                })
+                    .map(event => ({
+                        ...event,
+                        src: `${serverIP.ip}/uploads/event/${event.id}/${event.filename}`
+                    }));
+                setEvent_list(ongoing);
             })
-            .map(event => ({
-                ...event,
-                src: `${serverIP.ip}/uploads/event/${event.id}/${event.filename}`
-            }));
-            setEvent_list(ongoing);
-        })
-        .catch(err => console.log(err))
-    },[])
+            .catch(err => console.log(err))
+    }, [])
 
     const settings = {
         dots: true,
@@ -71,54 +79,140 @@ function Main() {
         autoplay: true,
         autoplaySpeed: 5000,
         appendDots: (dots) => (
-          <div
-            style={{
-              width: '100%',
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <ul> {dots} </ul>
-          </div>
+            <div
+                style={{
+                    width: '100%',
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}
+            >
+                <ul> {dots} </ul>
+            </div>
         ),
         dotsClass: 'dots_custom'
-  };
+    };
+
+    useEffect(() => {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        axios.get(`${serverIP.ip}/submenu/getSubMenuList`, {
+            headers: { Authorization: `Bearer ${user.token}` },
+        })
+            .then(res => {
+                const ongoing = res.data.filter(submenu => {
+                    const end = new Date(submenu.endDate);
+                    return end >= now;
+                }).map(submenu => ({
+                    ...submenu,
+                    src: `${serverIP.ip}/uploads/submenu/${submenu.id}/${submenu.filename}`
+                }));
+
+                const ended = res.data.filter(submenu => {
+                    const end = new Date(submenu.endDate);
+                    return end < now;
+                }).map(submenu => ({
+                    ...submenu,
+                    src: `${serverIP.ip}/uploads/submenu/${submenu.id}/${submenu.filename}`
+                }));
+
+                setOngoingSubMenus(ongoing);
+                setEndedSubMenus(ended);
+            })
+            .catch(err => console.log(err));
+    }, []);
+
+    const allSubMenus = activeTab === "ongoing" ? ongoingSubMenus : endedSubMenus;
+
+    const handlePrevMonth = () => {
+        if (currentMonth === 1) {
+            setCurrentMonth(12);
+            setCurrentYear(prev => prev - 1);
+        } else {
+            setCurrentMonth(prev => prev - 1);
+        }
+    };
+
+    const handleNextMonth = () => {
+        if (currentMonth === 12) {
+            setCurrentMonth(1);
+            setCurrentYear(prev => prev + 1);
+        } else {
+            setCurrentMonth(prev => prev + 1);
+        }
+    };
+
+    const filteredSubMenus = allSubMenus.filter((submenu) => {
+        const subMenuStart = new Date(submenu.startDate);
+        const subMenuEnd = new Date(submenu.endDate);
+        const selectedMonthStart = new Date(currentYear, currentMonth - 1, 1);
+        const selectedMonthEnd = new Date(currentYear, currentMonth, 0);
+        selectedMonthEnd.setHours(23, 59, 59, 999);
+
+        return (subMenuStart <= selectedMonthEnd && subMenuEnd >= selectedMonthStart);
+    });
+
+    const visibleList = filteredSubMenus.slice(0, visibleSubMenus);
+
+    useEffect(() => {
+        if (inView && visibleSubMenus < filteredSubMenus.length && !isFetching.current) {
+            isFetching.current = true;
+            setTimeout(() => {
+                setVisibleSubMenus(prev => Math.min(prev + 3, filteredSubMenus.length));
+                isFetching.current = false;
+            }, 500);
+        }
+    }, [inView, filteredSubMenus]);
+
+    useEffect(() => {
+        setVisibleSubMenus(5);
+    }, [activeTab, currentMonth, currentYear]);
+
+    const moveSubMenu = (tar) => {
+
+    }
 
     return (
-        <div style={{height:'1000px',paddingTop:'140px'}}>
+        <div style={{ height: '1000px', paddingTop: '140px' }}>
             <div className="slider-container">
-            <Slider {...settings}>
-                {event_list.map((item, idx) => (
-                    <div key={idx} className="slider-image-banner">
-                        <img 
-                            className="slider-image" 
-                            src={item.src} 
-                            alt={item.eventName} 
-                        />
+                <Slider {...settings}>
+                    {event_list.map((item, idx) => (
+                        <div key={idx} className="slider-image-banner">
+                            <img
+                                className="slider-image"
+                                src={item.src}
+                                alt={item.eventName}
+                            />
 
-                        <div className="event-date-badge">
-                            📅 {item.startDate.substring(0, 10)} ~ 📅 {item.endDate.substring(0, 10)}
+                            <div className="event-date-badge">
+                                📅 {item.startDate.substring(0, 10)} ~ 📅 {item.endDate.substring(0, 10)}
+                            </div>
+
+                            {item.state === "COUPON" && <div className="main-coupon-badge">쿠폰 지급!</div>}
+
+                            <div className="event-button" onClick={() => moveToEvent(item)}>자세히보기 ▶</div>
                         </div>
+                    ))}
+                </Slider>
+            </div>
 
-                        {item.state === "COUPON" && <div className="main-coupon-badge">쿠폰 지급!</div>}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', textAlign: 'center', justifyContent: 'flex-start' }} >
+                {visibleList.length > 0 ? (
+                    visibleList.map((submenu) => (
+                        <div onClick={() => moveSubMenu(submenu)} key={submenu.id} style={{ marginLeft: '100px', width: 'calc(10%)' }}>
+                            <img src={submenu.src} alt={submenu.subMenuName} />
+                            <div>{submenu.subMenuName}</div>
+                        </div>
+                    ))
+                ) : (
+                    <div className="no-events">📌 해당 월에는 서브메뉴가 없습니다.</div>
+                )}
+            </div>
 
-                        <div className="event-button" onClick={()=> moveToEvent(item)}>자세히보기 ▶</div>
-                    </div>
-                ))}
-            </Slider>
-          </div>
-          {user ? (
-                <>
-                    <img src = {user.user.imgUrl.indexOf('http') !==-1 ? `${user.user.imgUrl}`:`${serverIP.ip}${user.user.imgUrl}`} alt='' width={100}/>
-                    <h5>환영합니다, {user.user.username}님!</h5>
-                </>
-            ) : (<>
-            <Link to="/test">테스트</Link><br/></>
-            )}
-            <button onClick={testfunc}>jwt 슛</button>
-            <Link to="/test">테스트</Link><br/>
+
+
         </div>
     );
 }

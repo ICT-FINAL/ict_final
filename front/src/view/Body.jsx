@@ -43,9 +43,12 @@ import PaymentSuccess from './product/PaymentSuccess';
 import PaymentFail from './product/PaymentFail';
 import RecommendIndex from './recommend/RecommendIndex';
 import EventIndex from './event/EventIndex';
-import CommunityIndex from './community/CommunityIndex';
 import EventWrite from './event/EventWrite';
 import EventInfo from './event/EventInfo';
+import SubMenuIndex from './submenu/SubMenuIndex';
+import SubMenuWrite from './submenu/SubMenuWrite';
+import SubMenuInfo from './submenu/SubMenuInfo';
+import CommunityIndex from './community/CommunityIndex';
 import UserInfo from './user/UserInfo';
 
 import AuctionIndex from './auction/AuctionIndex';
@@ -58,8 +61,10 @@ import AuctionSell from './auction/AuctionSell';
 import AuctionBid from './auction/AuctionBid';
 import AuctionBidSuccess from './auction/AuctionBidSuccess';
 import ShippingTracker from './shipping/ShippingTracker';
+import Notice from './customerservice/Notice';
 import Chatting from './product/Chatting';
 import DeleteModal from '../modal/DeleteModal';
+import MelonGame from './event/coupon/MelonGame';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -80,11 +85,11 @@ function Body() {
     }
   }, [modal]); //모달 열리면 상호작용 그거 닫힘
 
-  useEffect(()=>{
-    dispatch(setInteract({...interact, isOpen:false}));
+  useEffect(() => {
+    dispatch(setInteract({ ...interact, isOpen: false }));
     dispatch(setMenuModal(false));
     window.scrollTo({ top: 0, behavior: "smooth" });
-  },[location]);
+  }, [location]);
 
   useEffect(() => {
     if (!al_mount.current) {
@@ -112,19 +117,19 @@ function Body() {
               headers: { Authorization: `Bearer ${user.token}` }
             })
               .then(res => {
-                if (e.target.id.split('-')[1] != res.data.id){
-                    dispatch(setInteract({ ...interact, selected: e.target.id.split('-')[1], select: res.data.id, pageX: e.pageX, pageY: e.pageY, isOpen: true }));
+                if (e.target.id.split('-')[1] != res.data.id) {
+                  dispatch(setInteract({ ...interact, selected: e.target.id.split('-')[1], select: res.data.id, pageX: e.pageX, pageY: e.pageY, isOpen: true }));
                 }
               })
               .catch(err => console.log(err))
         }
-        else if(e.target.id.indexOf('delll') !== -1) {
+        else if (e.target.id.indexOf('delll') !== -1) {
           const selected_id = e.target.id.split('-')[3];
-          if(selected_id === undefined)
-            dispatch(setModal({isOpen:true, selected:e.target.id}));
+          if (selected_id === undefined)
+            dispatch(setModal({ isOpen: true, selected: e.target.id }));
           else
-            dispatch(setModal({isOpen:true, selected:e.target.id, selectedItem:selected_id}));
-          }
+            dispatch(setModal({ isOpen: true, selected: e.target.id, selectedItem: selected_id }));
+        }
       };
 
       window.addEventListener('click', handleClick);
@@ -152,7 +157,7 @@ function Body() {
     {modal.isOpen && modal.selected == 'categorymodal' && <CategoryModal />}
     {modal.isOpen && modal.selected == 'inquiry-box' && <InquiryModal />}
     {interact.isOpen && <Interact />}
-    {modal.isOpen && modal.selected.indexOf('delll') !== -1 && <DeleteModal/>}
+    {modal.isOpen && modal.selected.indexOf('delll') !== -1 && <DeleteModal />}
     <Routes>
       <Route path="/" element={<Main />} />
       <Route path="/test" element={<Test />} />
@@ -174,6 +179,7 @@ function Body() {
       <Route path='/customerservice/*' element={<CenterHome />}>
         <Route path="inquirywrite" element={<InquiryWrite />} />
         <Route path="faq" element={<FAQ />} />
+        <Route path="notice" element={<Notice />} />
       </Route>
       <Route path='/inquiry/inquiryview/:id' element={<InquiryView />} />
 
@@ -189,16 +195,21 @@ function Body() {
       <Route path='/event/write' element={<EventWrite />}></Route>
       <Route path='/event/info' element={<EventInfo />}></Route>
       <Route path='/event/dailycheck' element={<DailyCheck />}></Route>
+      <Route path='/event/melongame' element={<MelonGame/>}></Route>
+
+      <Route path='/submenu/*' element={<SubMenuIndex />}></Route>
+      <Route path='/submenu/write' element={<SubMenuWrite />}></Route>
+      <Route path='/submenu/info' element={<SubMenuInfo />}></Route>
 
       <Route path='/community/*' element={<CommunityIndex />}></Route>
 
       <Route path='/auction/*' element={<AuctionIndex />}></Route>
       <Route path='/auction/room/:roomId' element={<AuctionRoom />}></Route>
-      <Route path='/auction/sell' element={<AuctionSell/>}></Route>
-      <Route path='/auction/bid' element={<AuctionBid/>}></Route>
-      <Route path="/auction/bid/success" element={<AuctionBidSuccess/>} />
+      <Route path='/auction/sell' element={<AuctionSell />}></Route>
+      <Route path='/auction/bid' element={<AuctionBid />}></Route>
+      <Route path="/auction/bid/success" element={<AuctionBidSuccess />} />
 
-      <Route path="/shipping/track" element={<ShippingTracker/>}></Route>
+      <Route path="/shipping/track" element={<ShippingTracker />}></Route>
     </Routes>
   </>
   );

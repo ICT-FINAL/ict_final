@@ -140,30 +140,30 @@
 
 .admin-user-list > li:nth-child(1) {
     width:5%;
-    text-align:left;
+    text-align:center;
 }
 
 .admin-user-list > li:nth-child(2) {
     width:10%;
-    text-align:left;
+    text-align:center;
 }
 
 .admin-user-list > li:nth-child(3) {
     width:10%;
-    text-align:left;
+    text-align:center;
 }
 
 .admin-user-list > li:nth-child(4) {
     width:10%;
-    text-align:left;
+    text-align:center;
 }
 .admin-user-list > li:nth-child(5) {
     width:45%;
-    text-align:left;
+    text-align:center;
 }
 .admin-user-list > li:nth-child(6) {
     width:20%;
-    text-align:left;
+    text-align:center;
 }
 
 .admin-paging {

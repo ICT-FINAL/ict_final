@@ -23,8 +23,6 @@ function ProductInfo() {
     const [selectedItems, setSelectedItems] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
     const [addBasketItems, setAddBasketItems] = useState(null);
-    const [changeMenu, setChangeMenu] = useState('detail');
-
     const [isSubOptionRegistered, setIsSubOptionRegistered] = useState(false);
     const [totalQuantity, setTotalQuantity] = useState(0);
 
@@ -181,10 +179,6 @@ function ProductInfo() {
         setQuantity(1);
     };
 
-    const handleCouponChange = (e) => {
-        setSelectedCoupon(Number(e.target.value));
-    };
-
     const handleAddItem = () => {
         if (!selectedOptionId) {
             alert("대분류를 선택해주세요.");
@@ -272,6 +266,21 @@ function ProductInfo() {
             navigate(`/product/chat/${res.data}`)
         })
     }
+
+    // changMenu 상태 추가 (상세정보, 리뷰 등등 탭에 들어갈 메뉴들)
+    const [changeMenu, setChangeMenu] = useState("detail");
+    useEffect(()=>{
+        const savedMenu = localStorage.getItem("changeMenu");
+        if(savedMenu){
+            setChangeMenu(savedMenu);
+            localStorage.removeItem("changeMenu");
+        }
+    }, []);
+
+    const handleChangeMenu = (menuName) => {
+        setChangeMenu(menuName);
+        localStorage.setItem("changeMenu", menuName); // 현재 메뉴 저장
+    };
     
     return (
         <>
@@ -371,11 +380,6 @@ function ProductInfo() {
                                     )}
                                     <li><span style={{ fontWeight: 'bold', fontSize: '24px' }}>{loc.state.product.discountRate === 0 ? formatNumberWithCommas(loc.state.product.price) : formatNumberWithCommas(loc.state.product.price * (100 - loc.state.product.discountRate) / 100)}</span> 원</li>
                                     <li>
-                                        <select className='product-info-selectbox' onChange={handleCouponChange} value={selectedCoupon}>
-                                            <option value="0">쿠폰을 선택해주세요</option>
-                                            <option value="1000">1000원 쿠폰</option>
-                                            <option value="3000">3000원 쿠폰</option>
-                                        </select>
                                     </li>
                                     {(loc.state.product.discountRate !== 0 || selectedCoupon !== 0) &&
                                         <li className='info-coupon-box' style={{ color: '#d34141', border: '1px solid #ddd', width: '76%', margin: '15px 0px 15px 20px', borderRadius: '10px' }}>
@@ -546,8 +550,8 @@ function ProductInfo() {
                             fontSize: '16px',
                             fontWeight: '600'
                         }}>
-                            <div onClick={() => setChangeMenu("detail")} className="product-div">상세정보</div>
-                            <div onClick={() => setChangeMenu("review")} className="product-div">리뷰</div>
+                            <div onClick={() => handleChangeMenu("detail")} className="product-div">상세정보</div>
+                            <div onClick={() => handleChangeMenu("review")} className="product-div">리뷰</div>
                         </div>
                         <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
                     </div>
