@@ -72,9 +72,10 @@
 .mypage-hamburger {
     position: fixed;
     display: none;
-    top: 89px;
+    top: 92px;
     left: 20px;
-    font-size: 20pt;
+    font-weight: bold;
+    font-size: 18pt;
     z-index: 3000;
     cursor: pointer;
 }
@@ -272,6 +273,11 @@
 .mypage-wish-list > li:nth-child(6) {
     width:5%;
     text-align:center;
+}
+
+.wish-image:hover{
+    transition: all 0.5s ease-in-out;
+    transform: scale(3.5);
 }
 
 /* 찜 목록 끝 */

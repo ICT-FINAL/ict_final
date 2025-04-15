@@ -192,10 +192,10 @@ function MyBasket() {
                     setBasketItems(basketItems.filter((item) => !selectedBasketNos.includes(String(item.basketNo))));
                     setCheckedItems({});
                     setAllChecked(false);
+                    alert("선택한 장바구니 상품이 삭제되었습니다.");
                 })
                 .catch((err) => console.log(err));
         }
-        alert("선택한 장바구니 상품이 삭제되었습니다.");
     };
 
     const handleOrder = () => {

@@ -33,9 +33,36 @@ public class BasketService {
     private final OptionCategoryRepository optionCategoryRepository;
     private final OrderGroupRepository orderGroupRepository;
 
+    @Transactional
     public void insertBasket(Basket basket) {
+        User user = basket.getUserNo();
+        Long optionCategoryId = basket.getOptionNo().getId();
 
-        basketRepository.save(basket);
+        List<Basket> existingBaskets = basketRepository.findByUserNo(user);
+        Basket existingBasket = existingBaskets.stream()
+                .filter(b -> b.getOptionNo().getId().equals(optionCategoryId))
+                .findFirst()
+                .orElse(null);
+
+        OptionCategory optionCategory = optionCategoryRepository.findById(optionCategoryId).orElse(null);
+        if (optionCategory == null) {
+            throw new IllegalArgumentException("해당 옵션이 존재하지 않습니다.");
+        }
+
+        int currentBasketQty = existingBasket != null ? existingBasket.getBasketQuantity() : 0;
+        int totalRequestedQty = currentBasketQty + basket.getBasketQuantity();
+
+        if (totalRequestedQty > optionCategory.getQuantity()) {
+            System.out.println("장바구니 재고 만땅 상태인데 추가!!!!!! 노노 할 수 없삼");
+            throw new IllegalArgumentException("재고 수량을 초과하여 장바구니에 담을 수 없습니다.");
+        }
+
+        if (existingBasket != null) {
+            existingBasket.setBasketQuantity(totalRequestedQty);
+            basketRepository.save(existingBasket);
+        } else {
+            basketRepository.save(basket);
+        }
     }
 
     public List<Map<String, Object>> getBasketItems(User user) {

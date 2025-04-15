@@ -58,6 +58,7 @@ import AuctionSell from './auction/AuctionSell';
 import AuctionBid from './auction/AuctionBid';
 import AuctionBidSuccess from './auction/AuctionBidSuccess';
 import ShippingTracker from './shipping/ShippingTracker';
+import Chatting from './product/Chatting';
 import DeleteModal from '../modal/DeleteModal';
 
 function Body() {
@@ -168,6 +169,7 @@ function Body() {
 
       <Route path='/product/*' element={<ProductIndex />}></Route>
       <Route path='/product/search' element={<ProductSearch />}></Route>
+      <Route path='/product/chat/:roomId' element={<Chatting />}></Route>
 
       <Route path='/customerservice/*' element={<CenterHome />}>
         <Route path="inquirywrite" element={<InquiryWrite />} />

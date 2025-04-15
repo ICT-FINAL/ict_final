@@ -54,6 +54,10 @@ public class ProductService {
         }else return repo.findProductsAllCategory(pvo.getSearchWord(),pvo.getEventCategory(),pvo.getTargetCategory(), categories,PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
     }
 
+    public List<Product> searchAllNoPaging(List<String> categories) {
+        return repo.findProductsAllCategoryNoPaging(categories);
+    }
+
     public Option saveOption(Option option) {
         return optionRepository.save(option);
     }

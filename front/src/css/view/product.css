@@ -526,14 +526,16 @@
 }
 
 .wishlist-icon,
-.cart-icon {
+.cart-icon,
+.inquiry-icon {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
 .wishlist-icon span,
-.cart-icon span {
+.cart-icon span,
+.inquiry-icon span {
     font-size: 12px;
     margin-top: 5px;
     white-space: nowrap;
@@ -590,7 +592,6 @@
     appearance: none;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
-    margin: 10px;
     /* 드롭다운 화살표 */
     background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23666"><path d="M7 10l5 5 5-5H7z"/></svg>');
     background-repeat: no-repeat;
@@ -600,7 +601,6 @@
 
 .search-options-container {
     display: inline-block; /* 한 줄로 배치 */
-    width: 100%;
     text-align: center;
 }
 
@@ -608,7 +608,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 20px;
     width: 100%;
     flex-wrap: nowrap;
     margin-bottom:40px;
@@ -623,7 +623,7 @@
 
 .search-info-style {
     min-width: 150px;
-    width: 70%;
+    width: 100%;
     padding: 10px 15px 10px 40px;
     font-size: 15px;
     font-weight: 500;
