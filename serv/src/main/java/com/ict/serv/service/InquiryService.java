@@ -3,7 +3,9 @@ package com.ict.serv.service;
 
 import com.ict.serv.entity.Authority;
 import com.ict.serv.entity.Inquiries.*;
+import com.ict.serv.entity.message.Message;
 import com.ict.serv.entity.user.User;
+import com.ict.serv.repository.MessageRepository;
 import com.ict.serv.repository.UserRepository;
 import com.ict.serv.repository.inquiry.InquiryImageRepository;
 import com.ict.serv.repository.inquiry.InquiryRepository;
@@ -37,6 +39,7 @@ public class InquiryService {
     private final InquiryImageRepository inquiryImageRepository;
     private final ResponseRepository responseRepository;
     private final UserRepository userRepository;
+    private final MessageRepository messageRepository;
 
     @Transactional(readOnly = true)
     public InquiryViewResponseDTO getInquiryDetails(Long inquiryId, User currentUser) {
@@ -100,20 +103,6 @@ public class InquiryService {
         log.info("Successfully deleted inquiry with ID: {}", inquiryId);
     }
 
-    @Transactional
-    public Inquiry modifyInquiry(Long inquiryId, User currentUser) {
-        Inquiry inquiry = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new EntityNotFoundException("Inquiry not found with ID: " + inquiryId));
-        if (!inquiry.getUser().getId().equals(currentUser.getId())) {
-            throw new AccessDeniedException("You do not have permission to modify this inquiry.");
-        }
-        if (inquiry.getInquiryStatus() != null && inquiry.getInquiryStatus() == InquiryState.ANSWER) {
-            throw new IllegalStateException("Cannot modify an answered inquiry.");
-        }
-        log.warn("Inquiry modification endpoint called for ID {}, but not fully implemented.", inquiryId);
-        return inquiry;
-    }
-
     @Transactional(readOnly = true)
     public List<Inquiry> getInquiriesByUserList(User user, PageRequest pageRequest) {
         return inquiryRepository.findByUserOrderByInquiryWritedateDesc(user, pageRequest);
@@ -151,5 +140,45 @@ public class InquiryService {
             if (!inquiryImages.isEmpty()) { inquiryImageRepository.saveAll(inquiryImages); }
         }
         return savedInquiry;
+    }
+    @Transactional
+    public void addResponse(Long inquiryId, String content, String responseUsername) {
+
+        User responseUser = userRepository.findUserByUserid(responseUsername);
+        if (responseUser == null) {
+            throw new EntityNotFoundException("응답자 정보를 찾을 수 없습니다: " + responseUsername);
+        }
+
+
+        Inquiry inquiry = inquiryRepository.findById(inquiryId)
+                .orElseThrow(() -> new EntityNotFoundException("답변 대상 문의를 찾을 수 없습니다: ID " + inquiryId));
+
+        Optional<Response> existingResponse = responseRepository.findByInquiry(inquiry);
+        if (existingResponse.isPresent()) {
+            throw new IllegalStateException("해당 문의에 이미 답변이 등록되어 있습니다.");
+        }
+
+        Response newResponse = new Response();
+        newResponse.setResponseContent(content);
+        newResponse.setInquiry(inquiry);
+        newResponse.setUser(responseUser);
+
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        newResponse.setResponseWritedate(now.format(formatter));
+
+        responseRepository.save(newResponse);
+        log.info("Response added for inquiry ID: {} by user: {}", inquiryId, responseUsername);
+
+        inquiry.setInquiryStatus(InquiryState.ANSWER);
+        inquiryRepository.save(inquiry);
+
+        Message message = new Message();
+        message.setUserFrom(responseUser); // 관리자
+        message.setUserTo(inquiry.getUser()); // 문의 작성자
+        message.setSubject("문의 답변이 등록되었습니다.");
+        message.setComment("고객님이 등록한 '" + inquiry.getInquirySubject() + "' 문의에 답변이 등록되었습니다.\n"
+                + "자세한 내용은 내 정보 > 문의 내역에서 확인해주세요.");
+        messageRepository.save(message);
     }
 }

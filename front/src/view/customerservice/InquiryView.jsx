@@ -89,10 +89,6 @@ function InquiryView() {
         }
     };
 
-    const handleModify = () => {
-        navigate(`/inquiry/modify/${id}`, { state: { inquiryData: inquiry, images: inquiryImages } });
-    };
-
     const handleDelete = () => {
         if (window.confirm("문의를 삭제하시겠습니까?")) {
             axios.delete(`${serverIP.ip}/inquiry/deleteInquiry/${id}`, {
@@ -180,7 +176,6 @@ function InquiryView() {
              <div className="button-container">
                 {!adminResponse && (
                     <>
-                        <button onClick={handleModify} className="modify-button">수정</button>
                         <button onClick={handleDelete} className="delete-button">삭제</button>
                     </>
                 )}
@@ -192,7 +187,7 @@ function InquiryView() {
                     <div className="admin-response-details">
                         <dl>
                             <dt>답변 일시</dt>
-                            <dd>{formatDate(adminResponse.responseDate)}</dd>
+                            <dd>{formatDate(adminResponse.responseWritedate)}</dd>
                             <dt>답변 내용</dt>
                             <dd className="response-content">{adminResponse.responseContent}</dd>
                         </dl>
