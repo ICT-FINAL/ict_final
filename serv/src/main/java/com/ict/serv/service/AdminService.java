@@ -28,7 +28,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AdminService {
     private final ReportRepository report_repo;
-    private final InquiryRepository inquiryRepository; // 기존 Repository 재사용
+    private final InquiryRepository inquiryRepository;
     private final EntityManager entityManager;
 
     public Optional<Report> selectReport(Long id) {
