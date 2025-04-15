@@ -417,11 +417,11 @@
 .product-info-container {
     width: 80%;
     margin: auto;
-    height: 40vw;
+    
     max-width: 1200px;
-    max-height: 600px;
+    
     min-width: 800px;
-    min-height: 400px;
+    
     display: grid;
     grid-template-columns: 4.5fr 5.5fr;
 }
@@ -526,14 +526,16 @@
 }
 
 .wishlist-icon,
-.cart-icon {
+.cart-icon,
+.inquiry-icon {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
 .wishlist-icon span,
-.cart-icon span {
+.cart-icon span,
+.inquiry-icon span {
     font-size: 12px;
     margin-top: 5px;
     white-space: nowrap;
@@ -590,7 +592,6 @@
     appearance: none;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
-    margin: 10px;
     /* 드롭다운 화살표 */
     background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23666"><path d="M7 10l5 5 5-5H7z"/></svg>');
     background-repeat: no-repeat;
@@ -600,7 +601,6 @@
 
 .search-options-container {
     display: inline-block; /* 한 줄로 배치 */
-    width: 100%;
     text-align: center;
 }
 
@@ -608,7 +608,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 20px;
     width: 100%;
     flex-wrap: nowrap;
     margin-bottom:40px;
@@ -623,7 +623,7 @@
 
 .search-info-style {
     min-width: 150px;
-    width: 70%;
+    width: 100%;
     padding: 10px 15px 10px 40px;
     font-size: 15px;
     font-weight: 500;
@@ -662,9 +662,20 @@
   .product-buy-header {
     font-size: 28px;
     font-weight: bold;
-    color: #333;
     margin-bottom: 30px;
+    color: #333;
+    text-align: center;
   }
+
+  .order-item {
+    background: #f9f9f9;
+    padding: 20px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
+  }
+
   .product-buy-info {
     background: #ffffff;
     padding: 20px;
@@ -675,16 +686,16 @@
   }
   
   .product-buy-name {
-    font-size: 24px;
-    color: #444;
-    font-weight: 500;
+    font-size: 23px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #4a7b63;
   }
   
   .buy-price {
-    font-size: 20px;
+    font-size: 16px;
     color: black;
     margin: 10px 0;
-    border-bottom: 1px solid #ddd;
     padding-bottom:5px;
   }
   
@@ -721,23 +732,25 @@
     background-color: #4a7b63;
 }
 
+.discount-amount {
+    font-weight: bold;
+}
+  
+
 .shipping-discount-info {
     margin-top: 20px;
     font-size: 16px;
     color: #666;
 }
   
-.shipping-fee,
+.shipping-fee {
+    color: #1976d2;
+    font-weight: 700;
+}
+
 .discount {
     margin: 5px 0;
-    font-weight: 500;
-}
-  
-.shipping-fee {
-    color: #007bff;
-}
-  
-.discount {
+    font-weight: 700;
     color: #d9534f;
 }
 
@@ -819,4 +832,14 @@
 .pagination button:disabled {
     cursor: not-allowed;
     opacity: 0.5;
+}
+
+/* 상세정보, 리뷰....... 등 Tab */
+.product-div{
+    padding: 15px 60px;
+}
+
+.product-div:hover{
+    background-color: #edfcf3;
+    cursor: pointer;
 }

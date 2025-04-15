@@ -12,8 +12,8 @@ function AdminNav({ path }) {
                 <li onClick={() => navigate("/admin/reportlist")} style={path.l_name === "신고 목록" ? clickedStyle : {}}>
                     <span style={path.l_name === "신고 목록" ? clickedStyle2 : {}}>신고 목록</span>
                 </li>
-                <li onClick={() => navigate("/admin/edit")} style={path.l_name === "개인 정보 수정" ? clickedStyle : {}}>
-                    <span style={path.l_name === "개인 정보 수정" ? clickedStyle2 : {}}>문의 목록</span>
+                <li onClick={() => navigate("/admin/inquirylist")} style={path.l_name === "문의 목록" ? clickedStyle : {}}>
+                    <span style={path.l_name === "문의 목록" ? clickedStyle2 : {}}>문의 목록</span>
                 </li>
                 <li onClick={() => navigate("/admin/edit")} style={path.l_name === "개인 정보 수정" ? clickedStyle : {}}>
                     <span style={path.l_name === "개인 정보 수정" ? clickedStyle2 : {}}>회원 목록</span>

@@ -32,49 +32,99 @@ public class OrderController {
     private final ProductService productService;
 
     @GetMapping("/cancel")
-    public void cancelOrder(Long id) {
-        Orders order = orderService.selectOrders(id).get();
-        order.setState(OrderState.CANCELED);
-        orderService.insertOrder(order);
+    public void cancelOrder(@RequestParam Long orderGroupId) {
+        OrderGroup orderGroup = orderService.selectOrderGroup(orderGroupId)
+                .orElseThrow(() -> new RuntimeException("주문 그룹이 존재하지 않습니다."));
+
+        orderGroup.setState(OrderState.CANCELED);
+        orderService.saveOrderGroup(orderGroup); // 변경 감지로 orders까지 반영
     }
+
 
     @PostMapping("/setOrder")
-    public Orders setOrder(@AuthenticationPrincipal UserDetails userDetails, @RequestBody OrderRequest or) {
-        Orders order = new Orders();
-        order.setUser(interactService.selectUserByName(userDetails.getUsername()));
-        order.setState(OrderState.BEFORE);
-        order.setRequest(or.getReq());
+    public OrderGroup setOrder(@AuthenticationPrincipal UserDetails userDetails, @RequestBody OrderRequest or) {
+        User user = interactService.selectUserByName(userDetails.getUsername());
         Address address = new Address();
         address.setId(Long.valueOf(or.getAddrId()));
-        order.setAddress(address);
-        order.setOrderNum(or.getOrderId());
-        order.setCouponDiscount(or.getCouponDiscount());
-        order.setShippingFee(or.getShippingFee());
-        OptionCategory occ = productService.selectOptionCategory(or.getOptions().get(0).getOptionCategoryId()).get();
-        order.setProductId(occ.getOption().getProduct().getId());
-        Orders savedOrder = orderService.insertOrder(order);
 
-        for(OrderRequestDto ord : or.getOptions()) {
-            OrderItem orderItem = new OrderItem();
-            OptionCategory opt_c = productService.selectOptionCategory(ord.getOptionCategoryId()).get();
-            Option opt = opt_c.getOption();
-            Product n_p = opt.getProduct();
-            int price = n_p.getPrice();
-            orderItem.setPrice(price);
-            orderItem.setQuantity(ord.getQuantity());
-            orderItem.setDiscountRate(n_p.getDiscountRate());
-            orderItem.setRefundState(RefundState.NONE);
-            orderItem.setOrder(savedOrder);
-            orderItem.setOptionCategoryId(ord.getOptionCategoryId());
-            orderItem.setProductName(n_p.getProductName());
-            orderItem.setOptionCategoryName(opt_c.getCategoryName());
-            orderItem.setOptionName(opt.getOptionName());
-            orderItem.setAdditionalFee(opt_c.getAdditionalPrice());
-            savedOrder.getOrderItems().add(orderItem);
-            orderService.insertOrderItem(orderItem);
+        OrderGroup orderGroup = new OrderGroup();
+        orderGroup.setUser(user);
+        orderGroup.setState(OrderState.BEFORE);
+        orderGroup.setTotalPrice(0);
+        orderGroup.setTotalShippingFee(0);
+        orderGroup.setOrders(new ArrayList<>());
+        orderGroup.setCouponDiscount(or.getCouponDiscount());
+        Map<Long, List<OrderRequestDto>> groupedByProduct = new HashMap<>();
+
+        for (OrderRequestDto ord : or.getOptions()) {
+            Long productId = productService.selectOptionCategory(ord.getOptionCategoryId())
+                    .orElseThrow()
+                    .getOption()
+                    .getProduct()
+                    .getId();
+            groupedByProduct.computeIfAbsent(productId, k -> new ArrayList<>()).add(ord);
         }
-        return orderService.selectOrders(savedOrder.getId()).get();
+
+        int index = 1;
+        int totalPrice = 0;
+        int totalShipping = 0;
+
+        for (Map.Entry<Long, List<OrderRequestDto>> entry : groupedByProduct.entrySet()) {
+            Long productId = entry.getKey();
+            List<OrderRequestDto> orderDtos = entry.getValue();
+
+            Orders order = new Orders();
+            order.setUser(user);
+            order.setRequest(or.getReq());
+            order.setAddress(address);
+            order.setOrderNum(or.getOrderId() + "-" + index++);
+            order.setShippingFee(orderDtos.stream().mapToInt(OrderRequestDto::getShippingFee).sum());
+            order.setProductId(productId);
+            order.setOrderGroup(orderGroup);
+            order.setOrderItems(new ArrayList<>());
+
+            int orderTotal = 0;
+
+            for (OrderRequestDto ord : orderDtos) {
+                OptionCategory optCat = productService.selectOptionCategory(ord.getOptionCategoryId()).orElseThrow();
+                Option opt = optCat.getOption();
+                Product prod = opt.getProduct();
+
+                int originPrice = prod.getPrice();
+                int discountRate = prod.getDiscountRate();
+                int discountedPrice = (int) Math.round(originPrice * (1 - discountRate / 100.0));
+                int additional = optCat.getAdditionalPrice();
+                int quantity = ord.getQuantity();
+                int itemTotal = (discountedPrice + additional) * quantity;
+
+                OrderItem item = new OrderItem();
+                item.setOrder(order);
+                item.setQuantity(quantity);
+                item.setPrice(originPrice);
+                item.setDiscountRate(discountRate);
+                item.setRefundState(RefundState.NONE);
+                item.setOptionCategoryId(ord.getOptionCategoryId());
+                item.setProductName(prod.getProductName());
+                item.setOptionName(opt.getOptionName());
+                item.setOptionCategoryName(optCat.getCategoryName());
+                item.setAdditionalFee(additional);
+
+                order.getOrderItems().add(item);
+                orderTotal += itemTotal;
+            }
+
+            totalPrice += orderTotal;
+            totalShipping += order.getShippingFee();
+            orderGroup.getOrders().add(order);
+        }
+
+        orderGroup.setTotalPrice(totalPrice);
+        orderGroup.setTotalShippingFee(totalShipping);
+
+        return orderService.saveOrderGroup(orderGroup);
     }
+
+
 
     @GetMapping("/orderList")
     public Map orderList(@AuthenticationPrincipal UserDetails userDetails, OrderPagingVO pvo) {
@@ -83,7 +133,7 @@ public class OrderController {
         pvo.setTotalRecord(orderService.totalOrderCount(user, pvo));
         Map map = new HashMap();
         map.put("pvo", pvo);
-        map.put("orderList", orderService.getOrderByUser(user,pvo));
+        map.put("orderList", orderService.getOrderByUser(user, pvo));
 
         return map;
     }
@@ -91,12 +141,15 @@ public class OrderController {
     @GetMapping("/sellList")
     public List<Orders> sellList(@AuthenticationPrincipal UserDetails userDetails) {
         User user = interactService.selectUserByName(userDetails.getUsername());
-        List<Product> productList = productService.selectProductByUser(user);
+        List<Product> products = productService.selectProductByUser(user);
         List<Orders> orders = new ArrayList<>();
-        for(Product product : productList) {
-            List<Orders> ods = orderService.getOrderByProduct(product.getId());
-            orders.addAll(ods);
+        for(Product product:products) {
+            List<Orders> order = orderService.getOrderByProduct(product.getId());
+            for(Orders mini:order) {
+                if(mini.getOrderGroup().getState()==OrderState.PAID) orders.add(mini);
+            }
         }
         return orders;
     }
+
 }

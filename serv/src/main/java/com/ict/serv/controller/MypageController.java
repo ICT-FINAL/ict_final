@@ -64,10 +64,30 @@ public class MypageController {
         return service.selectProductBySellerNo(id);
     }
 
-    @GetMapping("/myInfo")
-    public int myInfo(User user) {
-        // 팔로워 팔로잉 추가 필요
-        return service.getWishCount(user.getId());
+    @GetMapping("/myInfoCount")
+    public Map<String, Integer> myInfoCount(User user) {
+        int followerCount = interactService.getFollowerList(user.getId()).size();
+        int followingCount = interactService.getFollowingList(user.getId()).size();
+        int wishCount = service.getWishCount(user.getId());
+
+        Map<String, Integer> info = new HashMap<>();
+        info.put("followerCount", followerCount);
+        info.put("followingCount", followingCount);
+        info.put("wishCount", wishCount);
+
+        return info;
+    }
+
+    @GetMapping("/myFollow")
+    public Map<String, List<User>> myFollow(User user) {
+        List<User> followerList = interactService.getFollowerList(user.getId());
+        List<User> followingList = interactService.getFollowingList(user.getId());
+
+        Map<String, List<User>> myFollow = new HashMap<>();
+        myFollow.put("followerList", followerList);
+        myFollow.put("followingList", followingList);
+
+        return myFollow;
     }
 
     @GetMapping("/getAddrList")

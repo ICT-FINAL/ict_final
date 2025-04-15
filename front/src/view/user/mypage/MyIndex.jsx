@@ -11,11 +11,23 @@ import '../../../css/view/mypage.css';
 import MyWish from "./MyWish";
 import MyInquiryList from "./MyInquiryList";
 import UserInfo from "../UserInfo";
+import MyFollow from "./MyFollow";
 import MySell from "./MySell";
+import MyChatting from "./MyChatting";
 
 function MyIndex(){
     const location = useLocation();
     const [path, setPath] = useState({f_name:'',l_name:''});
+    const [hamburgerOpen, setHamburgerOpen] = useState(false);
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    const isDesktop = windowWidth >= 1280;
+
+useEffect(() => {
+  const handleResize = () => setWindowWidth(window.innerWidth);
+
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
     
     useEffect(() => {
         window.scrollTo({top:0,left:0,behavior:'smooth'});
@@ -29,6 +41,8 @@ function MyIndex(){
             comments: { f_name: "나의 활동", l_name: "댓글 관리" },
             reports: { f_name: "나의 활동", l_name: "신고 내역" },
             inquiries: { f_name: "나의 활동", l_name: "문의 내역" },
+            chatting: { f_name: "나의 활동", l_name: "채팅 내역" },
+            follow: { f_name: "나의 활동", l_name: "팔로우 목록" },
             purchases: { f_name: "거래 내역", l_name: "주문 내역" },
             sales: { f_name: "거래 내역", l_name: "판매 내역" },
             basket: { f_name: "보관함", l_name: "장바구니" },
@@ -50,25 +64,45 @@ function MyIndex(){
         }
     }, [location]);
 
+    useEffect(() => {
+        const handleResize = () => setWindowWidth(window.innerWidth);
+      
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+      }, []);
 
-    return(<>
-        <div className='mypage-container'>
-        </div>
-        <MyPageHeader path={path} setPath={setPath}/>
-        <MyPageNav path={path} setPath={setPath}/>
-        <div className='mypage-wrap'>
-            <div className='mypage-box'>
-            <div className='mypage-title'>{path.l_name}</div>
-            { path.l_name == '프로필' && <UserInfo/> }
-                  {path.l_name == '장바구니' && <MyBasket/>}
-                  { path.l_name == '신고 내역' && <MyReport/> }
-                  { path.l_name == '문의 내역' && <MyInquiryList/> }
-                  { path.l_name == '찜 목록' && <MyWish/> }
-                  { path.l_name == '주문 내역' && <MyPurchases/> }
-                  { path.l_name == '판매 내역' && <MySell/> }
+      useEffect(() => {
+        if (isDesktop) {
+            setHamburgerOpen(true);
+        } else {
+            setHamburgerOpen(false);
+        }
+      }, [isDesktop]);
+
+    return(
+        <>
+            <div className='mypage-container'>
             </div>
-        </div>
-    </>)
+            <div className="mypage-hamburger" onClick={() => setHamburgerOpen(prev => !prev)}>☰</div>
+            <MyPageHeader path={path} setPath={setPath}/>
+            <MyPageNav path={path} setPath={setPath}
+                isOpen={isDesktop || hamburgerOpen} closeNav={() => setHamburgerOpen(false)}/>
+            <div className={isDesktop || hamburgerOpen ? 'mypage-wrap' : 'mypage-wrap-with-nav'}>
+                <div className='mypage-box'>
+                <div className='mypage-title'>{path.l_name}</div>
+                { path.l_name == '프로필' && <UserInfo/> }
+                    {path.l_name == '장바구니' && <MyBasket/>}
+                    { path.l_name == '신고 내역' && <MyReport/> }
+                    { path.l_name == '문의 내역' && <MyInquiryList/> }
+                    { path.l_name == '찜 목록' && <MyWish/> }
+                    { path.l_name == '주문 내역' && <MyPurchases/> }
+                    { path.l_name == '채팅 내역' && <MyChatting/> }
+                    { path.l_name == '팔로우 목록' && <MyFollow/> }
+                    { path.l_name == '판매 내역' && <MySell/> }
+                </div>
+            </div>
+        </>
+    )
 }
 
 export default MyIndex;

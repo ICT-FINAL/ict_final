@@ -1,9 +1,11 @@
 package com.ict.serv.controller.payment;
 
+import com.ict.serv.entity.order.OrderGroup;
 import com.ict.serv.entity.order.OrderItem;
 import com.ict.serv.entity.order.OrderState;
 import com.ict.serv.entity.order.Orders;
 import com.ict.serv.entity.product.OptionCategory;
+import com.ict.serv.entity.product.Product;
 import com.ict.serv.service.OrderService;
 import com.ict.serv.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +32,9 @@ public class PaymentController {
         String paymentKey = requestMap.get("paymentKey");
         String orderId = requestMap.get("orderId");
         String iid = requestMap.get("iid");
-        Orders orders = orderService.selectOrders(Long.valueOf(iid)).get();
 
+        //Orders orders = orderService.selectOrders(Long.valueOf(iid)).get();
+        OrderGroup orderGroup = orderService.selectOrderGroup(Long.valueOf(iid)).get();
         int amount = Integer.parseInt(requestMap.get("amount"));
 
         HttpHeaders headers = new HttpHeaders();
@@ -51,18 +54,29 @@ public class PaymentController {
                     request,
                     String.class
             );
-            orders.setState(OrderState.PAID);
-            List<OrderItem> items = orderService.selectOrderItemList(orders);
-            for(OrderItem item : items) {
-                OptionCategory optionCategory = productService.selectOptionCategory(item.getOptionCategoryId()).get();
-                int quantity = optionCategory.getQuantity() - item.getQuantity();
-                optionCategory.setQuantity(quantity);
-                productService.saveOptionCategory(optionCategory);
+
+            // 주문 상태는 OrderGroup 단위로 변경
+            orderGroup.setState(OrderState.PAID);
+
+            // 재고 차감
+            List<Orders> ordersList = orderService.selectOrdersByOrderGroup(orderGroup);
+            for(Orders orders:ordersList) {
+                List<OrderItem> items = orderService.selectOrderItemList(orders);
+                Product product = productService.selectProduct(orders.getProductId()).get();
+                for (OrderItem item : items) {
+                    OptionCategory optionCategory = productService.selectOptionCategory(item.getOptionCategoryId()).get();
+                    int quantity = optionCategory.getQuantity() - item.getQuantity();
+                    product.setQuantity(product.getQuantity() - item.getQuantity());
+                    optionCategory.setQuantity(quantity);
+                    productService.saveOptionCategory(optionCategory);
+                }
+                productService.saveProduct(product);
             }
-            orderService.insertOrder(orders);
+
             return ResponseEntity.ok(response.getBody());
         } catch (HttpClientErrorException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
         }
+
     }
 }

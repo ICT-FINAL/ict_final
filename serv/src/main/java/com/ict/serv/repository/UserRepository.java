@@ -1,8 +1,10 @@
 package com.ict.serv.repository;
 
+import com.ict.serv.entity.Authority;
 import com.ict.serv.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -11,6 +13,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findByEmail(String email);
     User findUserById(long id);
     User findUserByUserid(String userid);
-
+    List<User> findUserByAuthority(Authority authority);
     int countByUserid(String userid);
+    int countByTel(String tel);
+    long countByAuthority(Authority authority);
+    List<User> findByUseridContainingOrUsernameContaining(String useridKeyword, String usernameKeyword);
+    List<User> findByAuthorityAndUseridContainingOrAuthorityAndUsernameContaining(Authority authority1, String useridKeyword, Authority authority2, String usernameKeyword);
 }

@@ -169,7 +169,6 @@ function ProductSell() {
     
         if (emptyIndex !== -1) {
             alert("대분류 옵션 이름을 입력해주세요.");
-            setTimeout(() => document.getElementById(`mainOption-${emptyIndex}`)?.focus(), 0);
             return false;
         }
         return true;
@@ -180,28 +179,24 @@ function ProductSell() {
         //상품명 검사
         if (!formData.productName) {
             alert("상품명을 입력해주세요.");
-            setTimeout(() => document.getElementById("productName").focus(), 0);
             return;
         }
 
         // 이벤트 카테고리 검사
         if (!formData.eventCategory) {
             alert("이벤트 카테고리를 선택해주세요.");
-            setTimeout(() => document.getElementById("eventCategory").focus(), 0);
             return;
         }
 
         // 대상 카테고리 검사
         if (!formData.targetCategory) {
             alert("대상 카테고리를 선택해주세요.");
-            setTimeout(() => document.getElementById("targetCategory").focus(), 0);
             return;
         }
 
         // 상품 카테고리 검사
         if (!formData.productCategory) {
             alert("상품 카테고리를 선택해주세요.");
-            setTimeout(() => document.getElementById("productCategory").focus(), 0);
             return;
         }
 
@@ -236,9 +231,6 @@ function ProductSell() {
                     alert("소분류 옵션 금액을 입력해주세요.");
                     setTimeout(() => {
                         const inputElement = document.getElementById(`additionalPrice-${i}-${j}`);
-                        if (inputElement) {
-                            inputElement.focus();
-                        }
                     }, 0);
                     return;
                 }
@@ -248,20 +240,17 @@ function ProductSell() {
         // 상세 설명 검사
         if (!formData.detail) {
             alert("상세 설명을 입력해주세요.");
-            setTimeout(() => document.getElementById("detail").focus(), 0);
             return;
         }
 
         // 가격 검사 
         if (!formData.price) {
             alert("가격을 입력해주세요.");
-            setTimeout(() => document.getElementById("price").focus(), 0);
             return;
         }
 
         if (!formData.shippingFee) {
             alert("배송비를 입력해주세요.");
-            setTimeout(() => document.getElementById("shippingFee").focus(), 0);
             return;
         }
 
@@ -424,7 +413,7 @@ function ProductSell() {
                         </>
                     )}
                 <label className="product-label">가격</label>
-                <input type="number" id="price" name="price" className="product-input" value={formData.price} onChange={handleChange} />
+                <input type="text" id="price" name="price" className="product-input" value={formData.price} onChange={handleChange} />
 
                 <label className="product-label">수량</label>
                 <input
@@ -451,7 +440,7 @@ function ProductSell() {
                     step="1"
                     /> 
                     <label className="product-label">배송비</label>
-                    <input type="number" id="shippingFee" name="shippingFee" className="product-input" value={formData.shippingFee} onChange={handleChange} />
+                    <input type="text" id="shippingFee" name="shippingFee" className="product-input" value={formData.shippingFee} onChange={handleChange} />
             </fieldset>
 
             <fieldset className="product-fieldset">

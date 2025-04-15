@@ -1,6 +1,7 @@
 package com.ict.serv.controller;
 
 import com.ict.serv.entity.event.Event;
+import com.ict.serv.entity.event.Melon;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.EventService;
 import com.ict.serv.service.InteractService;
@@ -71,5 +72,19 @@ public class EventController {
     @GetMapping("/getEventList")
     public List<Event> getEventList(){
         return eventService.getAllEvent();
+    }
+
+    @GetMapping("/melonRank")
+    public String melonRank(@AuthenticationPrincipal UserDetails userDetails, Melon melon) {
+        User user = interactService.selectUserByName(userDetails.getUsername());
+        user.setGrade(user.getGrade()+ melon.getScore());
+        melon.setUser(user);
+        melon.setStartDate(LocalDateTime.now());
+        eventService.saveMelon(melon);
+        return "ok";
+    }
+    @GetMapping("/getMelonRank")
+    public List<Melon> getMelonRank() {
+        return eventService.getMelonList();
     }
 }

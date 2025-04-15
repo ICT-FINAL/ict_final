@@ -39,13 +39,14 @@ function AuctionRoom() {
         stompClient.connect({ Authorization: `Bearer ${user.token}` }, () => {
             stompClient.subscribe(`/topic/auction/${roomId}`, (message) => {
                 const body = JSON.parse(message.body);
-                console.log(body);
+                /*
                 setMessages(prev => [...prev, body]);
                 setBidHistory(prev => [...prev, {
                     username: body.urd.username,
                     price: body.price,
                     bidTime: new Date().toISOString() //추후 정렬용
-                }]);
+                }]);*/
+                getRoomInfo();
             });
 
             stompClient.subscribe(`/topic/auction/${roomId}/end`, (message) => {
@@ -84,15 +85,18 @@ function AuctionRoom() {
         fetchPreviousBids();
     }, [roomId]);
 
-    useEffect(()=> {
+    const getRoomInfo =()=>{
         axios.get(`${serverIP.ip}/auction/getAuctionItem/${roomId}`,
             { headers: {Authorization: `Bearer ${user.token}`}}
         )
         .then(res => {
-            console.log(res.data)
             setRoomInfo(res.data);
         })
         .catch(err => console.log(err));
+    }
+
+    useEffect(()=> {
+        getRoomInfo();
     },[]);
 
     const sendBid = () => {
@@ -206,21 +210,8 @@ function AuctionRoom() {
                                     <div className='product-info-name'>
                                         {roomInfo.auctionProduct.productName}
                                     </div>
-                                    <div className='product-wish'>
-                                        {!isWish ? (
-                                            <div className="wishlist-icon">
-                                                <FaHeart />
-                                                <span>좋아요</span>
-                                            </div>
-                                        ) : (
-                                            <div className="wishlist-icon" style={{ color: 'rgb(255, 70, 70)' }}>
-                                                <FaHeart />
-                                                <span>좋아요</span>
-                                            </div>
-                                        )}
-                                    </div>
                                 </li>
-                                <li style={{ marginBottom:'20px', color:'#444'}}>
+                                <li style={{ marginTop:'10px',marginBottom:'20px', color:'#444'}}>
                                     {formatDateTime(roomInfo.createdAt)}
                                 </li>
                                 <li>
@@ -236,7 +227,7 @@ function AuctionRoom() {
                                         </span> 
                                     </li>
                                     <li>
-                                        <span>입찰 수: 0</span>
+                                        <span>입찰 인원: {roomInfo.hit} 명</span>
                                     </li>
                                     <li>
                                         <span>

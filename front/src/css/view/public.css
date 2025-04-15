@@ -276,6 +276,18 @@ body{
     }
 }
 
+@media(min-width:1024px) {
+    .event-date-badge{
+        font-size:18px;
+    }
+    .event-button{
+        font-size:18px;
+    }
+    .main-coupon-badge{
+        font-size: 18px;
+    }
+}
+
 /* 메인 이벤트 배너 끝 */
 
 /* 로딩 스피너 */
@@ -295,3 +307,43 @@ body{
   }
 
   /* 로딩 스피너 끝 */
+
+  /* 삭제모달 */
+.deletemodal-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.deletemodal-text {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 30px;
+}
+
+.deletemodal-buttons {
+    display: flex;
+    gap: 20px;
+}
+
+.deletemodal-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.deletemodal-btn.delete {
+    background-color: #e74c3c;
+    color: white;
+}
+  
+.deletemodal-btn.cancel {
+    background-color: #bdc3c7;
+    color: black;
+}
+
+/* 삭제모달 끝 */

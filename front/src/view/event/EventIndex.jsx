@@ -19,35 +19,27 @@ function EventIndex() {
 
     useEffect(() => {
         const now = new Date();
+        now.setHours(0, 0, 0, 0);
+    
         axios.get(`${serverIP.ip}/event/getEventList`)
             .then(res => {
-                console.log(res.data);
                 const ongoing = res.data.filter(event => {
-                    const start = new Date(event.startDate);
                     const end = new Date(event.endDate);
-
-                    const selectedMonthStart = new Date(currentYear, currentMonth - 1, 1);
-                    selectedMonthStart.setHours(0, 0, 0, 0);
-    
-                    const selectedMonthEnd = new Date(currentYear, currentMonth, 0);
-                    selectedMonthEnd.setHours(23, 59, 59, 999);
-    
-                    return (start <= selectedMonthEnd && end >= selectedMonthStart);
-                })
-                .map(event => ({
+                    return end >= now;
+                }).map(event => ({
                     ...event,
                     src: `${serverIP.ip}/uploads/event/${event.id}/${event.filename}`
                 }));
-                setOngoingEvents(ongoing);
-                console.log(ongoing);
+    
                 const ended = res.data.filter(event => {
                     const end = new Date(event.endDate);
                     return end < now;
-                })
-                .map(event => ({
+                }).map(event => ({
                     ...event,
                     src: `${serverIP.ip}/uploads/event/${event.id}/${event.filename}`
                 }));
+    
+                setOngoingEvents(ongoing);
                 setEndedEvents(ended);
             })
             .catch(err => console.log(err));
@@ -77,10 +69,9 @@ function EventIndex() {
         const eventStart = new Date(event.startDate);
         const eventEnd = new Date(event.endDate);
         const selectedMonthStart = new Date(currentYear, currentMonth - 1, 1);
-        selectedMonthStart.setHours(0, 0, 0, 0);
-    
         const selectedMonthEnd = new Date(currentYear, currentMonth, 0);
         selectedMonthEnd.setHours(23, 59, 59, 999);
+    
         return (eventStart <= selectedMonthEnd && eventEnd >= selectedMonthStart);
     });
 

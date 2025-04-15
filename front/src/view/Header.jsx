@@ -20,10 +20,10 @@ function Header() {
     const [searchWord, setSearchWord] = useState('');
     const navigate = useNavigate();
 
-    const menuModal = useSelector((state)=> state.menuModal);
+    const menuModal = useSelector((state) => state.menuModal);
 
     const user = useSelector((state) => state.auth.user);
-    const loginView = useSelector((state)=> state.loginView);
+    const loginView = useSelector((state) => state.loginView);
     const dispatch = useDispatch();
     const menuButtonRef = useRef(null);
     const menuRef = useRef(null);
@@ -31,44 +31,56 @@ function Header() {
     const [messageCount, setMessageCount] = useState(0);
     const [messageList, setMessageList] = useState([]);
 
-    const [grade, setGrade] = useState(['✊','☝️','✌️','🖐️']);
+    const [grade, setGrade] = useState(['✊', '☝️', '✌️', '🖐️']);
+    const [hamburgerOpen, setHamburgerOpen] = useState(false);
+
+    const [basketCount, setBasketCount] = useState(0);
 
     function handleLogout() {
         localStorage.removeItem("token");
         dispatch(clearUser());
-        window.location.href='/';
+        window.location.href = '/';
     }
 
     useEffect(() => {
-        if(user)
+        if (user)
             axios.get(`${serverIP.ip}/interact/getMessageList`, {
-                headers: { Authorization: `Bearer ${user.token}`}
+                headers: { Authorization: `Bearer ${user.token}` }
             })
-            .then(res => {
-                setMessageList(res.data);
-                let cnt = 0;
-                res.data.forEach((item) => {
-                    if(item.state=='READABLE') cnt++;
+                .then(res => {
+                    setMessageList(res.data);
+                    let cnt = 0;
+                    res.data.forEach((item) => {
+                        if (item.state == 'READABLE') cnt++;
+                    })
+                    setMessageCount(cnt);
                 })
-                setMessageCount(cnt);
+                .catch(err => console.log(err))
+
+        if(user)
+            axios.get(`${serverIP.ip}/basket/list`, {
+                headers: { Authorization: `Bearer ${user.token}` }
             })
-            .catch(err => console.log(err))
+                .then(res => {
+                    setBasketCount(res.data.length);
+                })
+                .catch(err => console.log(err));
 
         function updateMenuPosition() {
             if (menuButtonRef.current) {
                 const rect = menuButtonRef.current.getBoundingClientRect();
-                setMenuPosition({ 
+                setMenuPosition({
                     top: rect.bottom + 5,
                     left: rect.left + window.scrollX
                 });
             }
         }
-    
+
         if (menuModal) {
             updateMenuPosition();
             window.addEventListener("resize", updateMenuPosition);
         }
-    
+
         return () => {
             window.removeEventListener("resize", updateMenuPosition);
         };
@@ -80,7 +92,7 @@ function Header() {
 
     const handleSearch = (event) => {
         if (event.key === "Enter") {
-            dispatch(setSearch({...search, searchWord:searchWord}));
+            dispatch(setSearch({ ...search, searchWord: searchWord }));
             navigate('/product/search');
         }
     }
@@ -92,15 +104,20 @@ function Header() {
     }
 
     return (
-        <div className='header-container'>
+        <div className={ user && user.user.authority == 'ROLE_ADMIN' ? 'header-container-admin' : 'header-container'}>
             <ul className='header-nav'>
                 <li className='header-left'>
                     <Link to='/'>
-                        <img src={Logo} width='100' className="header-logo"/>
+                        <img src={Logo} width='100' className="header-logo" />
                     </Link>
                 </li>
-                { (user && user.user.authority == 'ROLE_USER') || user==undefined?
+                { user && user.user.authority == 'ROLE_ADMIN' ?
                 <li className='header-center'>
+                    <ul>
+                        <Link to='/admin/reportlist'><li>관리자 페이지</li></Link>
+                        <Link to='/event'><li>이벤트 관리</li></Link>
+                    </ul>
+                </li> : <li className='header-center'>
                     <ul>
                         <li style={{cursor:'pointer'}}onClick={()=>movePage('/product')}>상품 검색</li>
                         <Link to='/recommend'><li>상품 추천</li></Link>
@@ -108,32 +125,52 @@ function Header() {
                         <Link to='/auction'><li>실시간 경매</li></Link>
                         <Link to='/community'><li>커뮤니티</li></Link>
                     </ul>
-                </li> : <li className='header-center'>
-                    <ul>
-                        <Link to='/admin/reportlist'><li>관리자 페이지</li></Link>
-                        <Link to='/event'><li>이벤트 관리</li></Link>
-                    </ul>
                 </li>
                 }
                 <li className='header-right'>
                     {user ? (
                         <>
                             <div ref={menuButtonRef} className="menu-icon" onClick={() => dispatch(setMenuModal(!menuModal))}>
-                                <img src = {user.user.imgUrl.indexOf('http') !==-1 ? `${user.user.imgUrl}`:`${serverIP.ip}${user.user.imgUrl}`} alt='' width={40} height={40} style={{borderRadius:'100%', backgroundColor:'white'}}/>
-                                <div style={{color:'white', paddingLeft:'10px', textAlign:'center', width:'120px', fontSize:'14px',textOverflow:'ellipsis',overflow:'hidden',whiteSpace:'nowrap'}}>{user.user.username}<br/><div style={{paddingTop:'5px'}}>등급: {grade[user.user.grade]}</div></div>
+                                <img src={user.user.imgUrl.indexOf('http') !== -1 ? `${user.user.imgUrl}` : `${serverIP.ip}${user.user.imgUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white' }} />
+                                <div style={{ color: 'white', paddingLeft: '10px', textAlign: 'center', width: '120px', fontSize: '14px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{user.user.username}<br /><div style={{ paddingTop: '5px' }}>등급: {grade[user.user.grade]}</div></div>
                             </div>
                         </>
                     ) : (
                         <div className="login-btn" onClick={() => dispatch(setLoginView(true))}>로그인</div>
                     )}
                     <div className='header-search-box'>
-                        <svg style={{paddingLeft:'10px'}} className='search-icon' width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="10" cy="10" r="7" stroke="white" strokeWidth="2"/>
-                            <line x1="15" y1="15" x2="22" y2="22" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                        <svg style={{ paddingLeft: '10px' }} className='search-icon' width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="10" cy="10" r="7" stroke="white" strokeWidth="2" />
+                            <line x1="15" y1="15" x2="22" y2="22" stroke="white" strokeWidth="2" strokeLinecap="round" />
                         </svg>
                         <input type='text' className="search-input" placeholder="검색어를 입력해주세요" onChange={changeSearch} onKeyDown={handleSearch} />
                     </div>
                 </li>
+                <div 
+                    className="hamburger-wrapper"
+                    style={{width: '80ox', lineHeight: '80px'}}
+                    onMouseEnter={() => setHamburgerOpen(true)} 
+                    onMouseLeave={() => setHamburgerOpen(false)}
+                >
+                    <div className="hamburger">☰</div>
+                    
+                    {hamburgerOpen && (
+                        user && user.user.authority === 'ROLE_ADMIN' ? (
+                            <ul className="hamburger-menu">
+                                <Link to='/admin/reportlist'><li>관리자 페이지</li></Link>
+                                <Link to='/event'><li>이벤트 관리</li></Link>
+                            </ul>
+                        ) : (
+                            <ul className="hamburger-menu">
+                                <li style={{ cursor: 'pointer' }} onClick={() => movePage('/product')}>상품 검색</li>
+                                <Link to='/recommend'><li>상품 추천</li></Link>
+                                <Link to='/event'><li>이벤트</li></Link>
+                                <Link to='/auction'><li>실시간 경매</li></Link>
+                                <Link to='/community'><li>커뮤니티</li></Link>
+                            </ul>
+                        )
+                    )}
+                </div>
             </ul>
 
             <motion.div
@@ -141,55 +178,67 @@ function Header() {
                 className={`dropdown-menu ${menuModal ? "show" : ""}`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: menuModal ? 1 : 0 }}
-                style={{ top: `${menuPosition.top+10}px`, left: `${menuPosition.left-30}px` }}
+                style={{ top: `${menuPosition.top+10}px`, left: `${menuPosition.left-55}px` }}
             >
-                    <div className="menu-grid">
-                    <div className="menu-item" onClick={()=> movePage('/mypage/profile')}>
+                <div className="menu-grid">
+                    <div className="menu-item" onClick={() => movePage('/mypage/profile')}>
                         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="12" cy="8" r="4" stroke="white" strokeWidth="2"/>
-                            <path d="M4 20c0-4 4-7 8-7s8 3 8 7" stroke="white" strokeWidth="2"/>
+                            <circle cx="12" cy="8" r="4" stroke="white" strokeWidth="2" />
+                            <path d="M4 20c0-4 4-7 8-7s8 3 8 7" stroke="white" strokeWidth="2" />
                         </svg>
                         <span>내 정보</span>
                     </div>
 
-                    <div className="menu-item" onClick={()=> movePage('/mypage/basket')}>
+                    {/* <div className="menu-item" onClick={() => movePage('/mypage/basket')}>
                         <svg transform="translate(-3,0)" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M6 6h15l-2 9H8L6 6z" stroke="white" strokeWidth="2"/>
-                            <circle cx="9" cy="20" r="1.5" fill="white"/>
-                            <circle cx="17" cy="20" r="1.5" fill="white"/>
+                            <path d="M6 6h15l-2 9H8L6 6z" stroke="white" strokeWidth="2" />
+                            <circle cx="9" cy="20" r="1.5" fill="white" />
+                            <circle cx="17" cy="20" r="1.5" fill="white" />
                         </svg>
+                        <span>장바구니</span>
+                    </div> */}
+
+                    <div className="menu-item" onClick={() => movePage('/mypage/basket')}>
+                        <div className="icon-container">
+                            <svg transform="translate(-3,0)" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M6 6h15l-2 9H8L6 6z" stroke="white" strokeWidth="2" />
+                                <circle cx="9" cy="20" r="1.5" fill="white" />
+                                <circle cx="17" cy="20" r="1.5" fill="white" />
+                            </svg>
+                            {basketCount > 0 && <span className="badge">{basketCount}</span>}
+                        </div>
                         <span>장바구니</span>
                     </div>
 
-                    <div className="menu-item" onClick={()=> {dispatch(setModal({isOpen:true, selected:'message-box'}))}}>
-                    <div className="icon-container">
-                        <svg transform="translate(0,4)" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 4h16v14H4z" stroke="white" strokeWidth="2"/>
-                            <path d="M4 4l8 7 8-7" stroke="white" strokeWidth="2"/>
-                        </svg>
-                        {messageCount > 0 && <span className="badge">{messageCount}</span>}
-                    </div>
+                    <div className="menu-item" onClick={() => { dispatch(setModal({ isOpen: true, selected: 'message-box' })) }}>
+                        <div className="icon-container">
+                            <svg transform="translate(0,4)" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4 4h16v14H4z" stroke="white" strokeWidth="2" />
+                                <path d="M4 4l8 7 8-7" stroke="white" strokeWidth="2" />
+                            </svg>
+                            {messageCount > 0 && <span className="badge">{messageCount}</span>}
+                        </div>
                         <span>쪽지</span>
                     </div>
                     <div className="menu-item">
                         <svg transform="translate(0,-5)" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 9V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v3a2 2 0 1 0 0 6v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a2 2 0 1 0 0-6Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M12 6v12" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                            <path d="M3 9V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v3a2 2 0 1 0 0 6v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a2 2 0 1 0 0-6Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            <path d="M12 6v12" stroke="white" strokeWidth="2" strokeLinecap="round" />
                         </svg>
                         <span>쿠폰함</span>
                     </div>
-                    <div className="menu-item" onClick={()=> movePage('/customerservice')}>
+                    <div className="menu-item" onClick={() => movePage('/customerservice')}>
                         <svg transform="translate(0,-4)" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 12V11a8 8 0 0 1 16 0v1" stroke="white" strokeWidth="2"/>
-                            <path d="M2 15a2 2 0 1 0 4 0v-2H2v2ZM18 13v2a2 2 0 1 0 4 0v-2h-4Z" stroke="white" strokeWidth="2"/>
-             
+                            <path d="M4 12V11a8 8 0 0 1 16 0v1" stroke="white" strokeWidth="2" />
+                            <path d="M2 15a2 2 0 1 0 4 0v-2H2v2ZM18 13v2a2 2 0 1 0 4 0v-2h-4Z" stroke="white" strokeWidth="2" />
+
                         </svg>
                         <span>고객센터</span>
                     </div>
                     <div className="menu-item" onClick={handleLogout}>
                         <svg transform="translate(2,-4)" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 3h10v18H3" stroke="white" strokeWidth="2"/>
-                            <path d="M17 16l4-4m0 0l-4-4m4 4H9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M3 3h10v18H3" stroke="white" strokeWidth="2" />
+                            <path d="M17 16l4-4m0 0l-4-4m4 4H9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                         <span>로그아웃</span>
                     </div>

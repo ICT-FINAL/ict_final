@@ -13,7 +13,6 @@ import ModalIndex from '../modal/ModalIndex';
 import Modal2 from '../modal/Modal2';
 import Message from '../interact/Message';
 import MessageBox from '../interact/MessageBox';
-import AddressBox from '../interact/AddressBox';
 import BasketBox from '../interact/BasketBox';
 import Report from '../interact/Report';
 
@@ -54,8 +53,14 @@ import AuctionRoom from './auction/AuctionRoom';
 import DailyCheck from './event/coupon/DailyCheck';
 import MyInquiryList from './user/mypage/MyInquiryList';
 import InquiryView from './customerservice/InquiryView';
+import InquiryModal from '../modal/InquiryModal';
 import AuctionSell from './auction/AuctionSell';
 import AuctionBid from './auction/AuctionBid';
+import AuctionBidSuccess from './auction/AuctionBidSuccess';
+import ShippingTracker from './shipping/ShippingTracker';
+import Chatting from './product/Chatting';
+import DeleteModal from '../modal/DeleteModal';
+import MelonGame from './event/coupon/MelonGame';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -76,12 +81,17 @@ function Body() {
     }
   }, [modal]); //모달 열리면 상호작용 그거 닫힘
 
+  useEffect(()=>{
+    dispatch(setInteract({...interact, isOpen:false}));
+    dispatch(setMenuModal(false));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  },[location]);
+
   useEffect(() => {
     if (!al_mount.current) {
       al_mount.current = true;
 
       const handleClick = (e) => {
-        console.log(e.target.className);
         if (e.target.className === 'message-who' || e.target.className === 'msg-who') {
           /*
           axios.post(`${serverIP}/tech/selUser`, {
@@ -103,11 +113,19 @@ function Body() {
               headers: { Authorization: `Bearer ${user.token}` }
             })
               .then(res => {
-                if (e.target.id.split('-')[1] != res.data.id)
-                  dispatch(setInteract({ ...interact, selected: e.target.id.split('-')[1], select: res.data.id, pageX: e.pageX, pageY: e.pageY, isOpen: true }));
+                if (e.target.id.split('-')[1] != res.data.id){
+                    dispatch(setInteract({ ...interact, selected: e.target.id.split('-')[1], select: res.data.id, pageX: e.pageX, pageY: e.pageY, isOpen: true }));
+                }
               })
               .catch(err => console.log(err))
         }
+        else if(e.target.id.indexOf('delll') !== -1) {
+          const selected_id = e.target.id.split('-')[3];
+          if(selected_id === undefined)
+            dispatch(setModal({isOpen:true, selected:e.target.id}));
+          else
+            dispatch(setModal({isOpen:true, selected:e.target.id, selectedItem:selected_id}));
+          }
       };
 
       window.addEventListener('click', handleClick);
@@ -123,7 +141,6 @@ function Body() {
     {modal.isOpen && modal.selected == '2' && <Modal2 />}
     {modal.isOpen && modal.selected == 'message' && <Message />}
     {modal.isOpen && modal.selected == 'message-box' && <MessageBox />}
-    {modal.isOpen && modal.selected == 'address-box' && <AddressBox />}
     {modal.isOpen && modal.selected == 'basket-box' && <BasketBox />}
     {modal.isOpen && modal.selected == "DaumPost" &&
       <div className='daumpost'>
@@ -134,43 +151,46 @@ function Body() {
     {modal.isOpen && modal.selected == 'report' && <Report />}
     {modal.isOpen && modal.selected == 'reportapprove' && <ReportApprove />}
     {modal.isOpen && modal.selected == 'categorymodal' && <CategoryModal />}
+    {modal.isOpen && modal.selected == 'inquiry-box' && <InquiryModal />}
     {interact.isOpen && <Interact />}
-
+    {modal.isOpen && modal.selected.indexOf('delll') !== -1 && <DeleteModal/>}
     <Routes>
-      <Route path="/" element={<Main/>} />
-      <Route path="/test" element={<Test/>} />
-      <Route path="/signup/info" element={<SignupInfo/>} />
-      <Route exact path="/login/oauth2/code/kakao" element={<SignupHandler/>}/>
-      <Route exact path="/login/oauth2/code/google" element={<GoogleSignupHandler/>}/>
-      
+      <Route path="/" element={<Main />} />
+      <Route path="/test" element={<Test />} />
+      <Route path="/signup/info" element={<SignupInfo />} />
+      <Route exact path="/login/oauth2/code/kakao" element={<SignupHandler />} />
+      <Route exact path="/login/oauth2/code/google" element={<GoogleSignupHandler />} />
+
       <Route path='/userinfo' element={<UserInfo key={location.state} />}></Route>
-      <Route path='/mypage/*' element={<MyIndex/>}></Route>
-      <Route path='/mypage/myinquirylist' element={<MyInquiryList/>}></Route>
-      
-      <Route path='/admin/*' element={<AdminIndex/>}></Route>
-      <Route path='/already' element={<Already/>}></Route>
+      <Route path='/mypage/*' element={<MyIndex />}></Route>
+      <Route path='/mypage/myinquirylist' element={<MyInquiryList />}></Route>
 
-      <Route path='/product/*' element={<ProductIndex/>}></Route>
-      <Route path='/product/search' element={<ProductSearch/>}></Route>
+      <Route path='/admin/*' element={<AdminIndex />}></Route>
+      <Route path='/already' element={<Already />}></Route>
 
-      <Route path='/customerservice/*' element={<CenterHome/>}>
-      <Route path="inquirywrite" element={<InquiryWrite/>} />
-      <Route path="faq" element={<FAQ/>} /> 
+      <Route path='/product/*' element={<ProductIndex />}></Route>
+      <Route path='/product/search' element={<ProductSearch />}></Route>
+      <Route path='/product/chat/:roomId' element={<Chatting />}></Route>
+
+      <Route path='/customerservice/*' element={<CenterHome />}>
+        <Route path="inquirywrite" element={<InquiryWrite />} />
+        <Route path="faq" element={<FAQ />} />
       </Route>
-      <Route path='/inquiry/inquiryview/:id' element={<InquiryView/>}/>
+      <Route path='/inquiry/inquiryview/:id' element={<InquiryView />} />
 
-      <Route path='/product/sell' element={<ProductSell/>}></Route>
-      <Route path='/product/info' element={<ProductInfo/>}></Route>
-      <Route path='/product/buying' element={<ProductBuy/>}></Route>
-      <Route path="/payment/success" element={<PaymentSuccess/>}></Route>
-      <Route path="/payment/fail" element={<PaymentFail/>}></Route>
+      <Route path='/product/sell' element={<ProductSell />}></Route>
+      <Route path='/product/info' element={<ProductInfo />}></Route>
+      <Route path='/product/buying' element={<ProductBuy />}></Route>
+      <Route path="/payment/success" element={<PaymentSuccess />}></Route>
+      <Route path="/payment/fail" element={<PaymentFail />}></Route>
 
       <Route path='/recommend/*' element={<RecommendIndex />}></Route>
 
-      <Route path='/event/*' element={<EventIndex/>}></Route>
-      <Route path='/event/write' element={<EventWrite/>}></Route>
-      <Route path='/event/info' element={<EventInfo/>}></Route>
-      <Route path='/event/dailycheck' element={<DailyCheck/>}></Route>
+      <Route path='/event/*' element={<EventIndex />}></Route>
+      <Route path='/event/write' element={<EventWrite />}></Route>
+      <Route path='/event/info' element={<EventInfo />}></Route>
+      <Route path='/event/dailycheck' element={<DailyCheck />}></Route>
+      <Route path='/event/melongame' element={<MelonGame/>}></Route>
 
       <Route path='/community/*' element={<CommunityIndex />}></Route>
 
@@ -178,6 +198,9 @@ function Body() {
       <Route path='/auction/room/:roomId' element={<AuctionRoom />}></Route>
       <Route path='/auction/sell' element={<AuctionSell/>}></Route>
       <Route path='/auction/bid' element={<AuctionBid/>}></Route>
+      <Route path="/auction/bid/success" element={<AuctionBidSuccess/>} />
+
+      <Route path="/shipping/track" element={<ShippingTracker/>}></Route>
     </Routes>
   </>
   );

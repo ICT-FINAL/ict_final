@@ -41,14 +41,9 @@ public class AuctionWebSocketController {
         message.setUrd(urd);
         messagingTemplate.convertAndSend("/topic/auction/" + roomId, message);
         */
-        User user = new User();
-        user.setId(message.getUrd().getId());
-        AuctionBid bid = new AuctionBid();
-        bid.setUser(user);
-        bid.setPrice(message.getPrice());
-        bid.setBidTime(LocalDateTime.now());
-        AuctionRoom room = new AuctionRoom();
-        room.setRoomId(message.getRoomId());
-        bid.setRoom(room);
+        User user = interactService.selectUserByName(message.getUrd().getUserid());
+        auctionService.saveBid(message.getRoomId(), user, message.getPrice());
+        AuctionRoom room = auctionService.getAuctionRoom(message.getRoomId()).get();
+        messagingTemplate.convertAndSend("/topic/auction/" + roomId, message);
     }
 }

@@ -92,7 +92,7 @@ function SignupForm() {
                     state: isTelValid
                 }
             });
-
+            telCheck();
             setUser(updatedUser);
         } else if (name === "userpwCheck") {
             const isMatch = document.getElementById("pw1").value === document.getElementById("pw2").value;
@@ -163,6 +163,7 @@ function SignupForm() {
     const validateForm = () => {
         let isValid = true;
     
+        telCheck();
         for (const key of Object.keys(validationRules)) {
             if (key === "userpwCheck") {
                 const isMatch = user.userpw === user.userpwCheck;
@@ -199,21 +200,17 @@ function SignupForm() {
     };
 
     const doSignUp = () => {
-        // for (const key of Object.keys(alert)) {
-        //     console.log(alert);
-        //     if (!alert[key].state) {  // 유효하지 않은 항목 찾기
-        //         console.log(key);
-        //         setAlert(({...alert, [key]: { content: validationRules[key].message}}));
-        //         break;
-        //     }
-        // }
-
         if (!validateForm()) {
             return;
         }
-        
+
         if (!idCheck) {
             window.alert("아이디 중복 확인을 해주세요.");
+            return;
+        }
+
+        if (!telNumCheck) {
+            window.alert("사용 할 수 없는 번호입니다.");
             return;
         }
         
@@ -277,6 +274,23 @@ function SignupForm() {
             
             setIdCheck(true);
         }
+    }
+    
+    const [telNumCheck, setTelNumCheck] = useState(false);
+
+    const telCheck = ()=>{
+        console.log("telcheck");
+        axios.get(`${serverIP.ip}/signup/telCheck?tel=${user.tel}`)
+        .then(res=>{
+            console.log(res.data);
+            if (res.data === 0) {
+                setTelNumCheck(true);
+            }
+            else {
+                setTelNumCheck(false);
+            }
+        })
+        .catch(err=>console.log(err));
     }
 
     return (
