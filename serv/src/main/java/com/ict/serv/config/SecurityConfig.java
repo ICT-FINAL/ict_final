@@ -55,6 +55,8 @@ public class SecurityConfig {
                         .requestMatchers("/event/getEventList").permitAll()
                         .requestMatchers("/event/getMelonRank").permitAll()
                         .requestMatchers("/payment/**").permitAll()
+                        .requestMatchers("/api/roulette/check").authenticated()
+                        .requestMatchers("/api/roulette/spin").authenticated()
                         .anyRequest().authenticated() // 나머지는 인증 필요
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
