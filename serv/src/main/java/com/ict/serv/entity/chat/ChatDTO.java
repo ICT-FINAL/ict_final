@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 public class ChatDTO {
+    private Long id;
     private String roomId;
     private String message;
     UserResponseDto urd;

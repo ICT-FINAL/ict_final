@@ -1,16 +1,17 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 function MyChatting() {
     const serverIP = useSelector(state => state.serverIP);
     const user = useSelector(state => state.auth.user);
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const selectedTab = searchParams.get('tab') || 'send';
 
     const [chatRoomList, setChatRoomList] = useState([]);
     const [sellerChatRoomList, setSellerChatRoomList] = useState([]);
-    const [chatMenu, setChatMenu] = useState('');
 
     useEffect(()=>{
         getChatRoomList();
@@ -37,40 +38,40 @@ function MyChatting() {
         .catch(err=>console.log(err));
     }
 
+    const getTime = (times)=>{
+        const time = new Date(times);
+        const month = (time.getMonth() + 1).toString().padStart(2, '0'); // 월 (1월은 0부터 시작하므로 +1)
+        const day = time.getDate().toString().padStart(2, '0'); // 일
+        const hour = time.getHours().toString().padStart(2, '0'); // 시
+        const minute = time.getMinutes().toString().padStart(2, '0'); // 분
+
+        return `${month}-${day} ${hour}:${minute}`;
+    }
+
     return (
         <div>
-            {/* <div className='follow-list'>
-            {
-                (selectedTab === "follower" ? followerList : followingList).map(user => (
-                    <div key={user.id}>
-                        <img className="follow-user-img" src = {user.profileImageUrl.indexOf('http') !==-1 ? `${user.profileImageUrl}`:`${serverIP.ip}${user.profileImageUrl}`} alt=''/>
-                        <div id={`mgx-${user.id}`} className='message-who' style={{cursor: 'pointer'}}>{user.username}<span>{grade[user.grade]}</span></div>
-                    </div>
-                ))
-            }
-            </div>
             <ul className='chat-menu'>
-                <li className={selectedTab === 'send' ? 'selected-menu' : {}} onClick={() => }>팔로워</li>
-                <li className={selectedTab === 'receive' ? 'selected-menu' : {}} onClick={() => }>팔로잉</li>
-            </ul> */}
+                <li className={selectedTab === 'send' ? 'selected-menu' : {}} onClick={() => navigate('?tab=send')}>발신</li>
+                <li className={selectedTab === 'receive' ? 'selected-menu' : {}} onClick={() => navigate('?tab=receive')}>수신</li>
+            </ul>
             {
-                chatRoomList.map((room, idx)=>{
+                (selectedTab === 'send' ? chatRoomList : sellerChatRoomList).map((room, idx)=>{
+                    const selectedUser = selectedTab === 'send' ? room.product.sellerNo : room.buyer
                     return (
                         <div key={idx} className="chat-room" onClick={()=>navigate(`/product/chat/${room.chatRoomId}`)}>
-                            <span><b>{room.product.sellerNo.username}</b></span>
-                            <span className='date'>{room.createdAt}</span><br/>
-                            <span></span>
-                        </div>
-                    )
-                })
-            }
-            {
-                sellerChatRoomList.map((room, idx)=>{
-                    return (
-                        <div key={idx} className="seller-chat-room" onClick={()=>navigate(`/product/chat/${room.chatRoomId}`)}>
-                            <span><b>{room.buyer.username}</b></span>
-                            <span className='date'>{room.createdAt}</span><br/>
-                            <span></span>
+                            <img className="chat-user-img" style={{width: '80px', height: '80px'}} src = {selectedUser.profileImageUrl.indexOf('http') !==-1 ? `${selectedUser.profileImageUrl}`:`${serverIP.ip}${selectedUser.profileImageUrl}`} alt=''/>
+                            <div style={{display: 'flex', flexDirection: 'column', paddingLeft: '3%'}}>
+                                <div>
+                                    <span><b>{selectedUser.username}</b></span>
+                                    <span className='date'>{getTime(room.createdAt)}</span><br/>
+                                </div>
+                                <div style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    width: '500px'
+                                }}>{room.lastChatText}</div>
+                            </div>
                         </div>
                     )
                 })
