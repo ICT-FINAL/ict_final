@@ -57,7 +57,7 @@ function Header() {
                 })
                 .catch(err => console.log(err))
 
-        if(user)
+        if (user)
             axios.get(`${serverIP.ip}/basket/list`, {
                 headers: { Authorization: `Bearer ${user.token}` }
             })
@@ -104,28 +104,29 @@ function Header() {
     }
 
     return (
-        <div className={ user && user.user.authority == 'ROLE_ADMIN' ? 'header-container-admin' : 'header-container'}>
+        <div className={user && user.user.authority == 'ROLE_ADMIN' ? 'header-container-admin' : 'header-container'}>
             <ul className='header-nav'>
                 <li className='header-left'>
                     <Link to='/'>
                         <img src={Logo} width='100' className="header-logo" />
                     </Link>
                 </li>
-                { user && user.user.authority == 'ROLE_ADMIN' ?
-                <li className='header-center'>
-                    <ul>
-                        <Link to='/admin/reportlist'><li>관리자 페이지</li></Link>
-                        <Link to='/event'><li>이벤트 관리</li></Link>
-                    </ul>
-                </li> : <li className='header-center'>
-                    <ul>
-                        <li style={{cursor:'pointer'}}onClick={()=>movePage('/product')}>상품 검색</li>
-                        <Link to='/recommend'><li>상품 추천</li></Link>
-                        <Link to='/event'><li>이벤트</li></Link>
-                        <Link to='/auction'><li>실시간 경매</li></Link>
-                        <Link to='/community'><li>커뮤니티</li></Link>
-                    </ul>
-                </li>
+                {user && user.user.authority == 'ROLE_ADMIN' ?
+                    <li className='header-center'>
+                        <ul>
+                            <Link to='/admin/reportlist'><li>관리자 페이지</li></Link>
+                            <Link to='/event'><li>이벤트 관리</li></Link>
+                            <Link to='/submenu'><li>서브메뉴 관리</li></Link>
+                        </ul>
+                    </li> : <li className='header-center'>
+                        <ul>
+                            <li style={{ cursor: 'pointer' }} onClick={() => movePage('/product')}>상품 검색</li>
+                            <Link to='/recommend'><li>상품 추천</li></Link>
+                            <Link to='/event'><li>이벤트</li></Link>
+                            <Link to='/auction'><li>실시간 경매</li></Link>
+                            <Link to='/community'><li>커뮤니티</li></Link>
+                        </ul>
+                    </li>
                 }
                 <li className='header-right'>
                     {user ? (
@@ -146,14 +147,14 @@ function Header() {
                         <input type='text' className="search-input" placeholder="검색어를 입력해주세요" onChange={changeSearch} onKeyDown={handleSearch} />
                     </div>
                 </li>
-                <div 
+                <div
                     className="hamburger-wrapper"
-                    style={{width: '80ox', lineHeight: '80px'}}
-                    onMouseEnter={() => setHamburgerOpen(true)} 
+                    style={{ width: '80ox', lineHeight: '80px' }}
+                    onMouseEnter={() => setHamburgerOpen(true)}
                     onMouseLeave={() => setHamburgerOpen(false)}
                 >
                     <div className="hamburger">☰</div>
-                    
+
                     {hamburgerOpen && (
                         user && user.user.authority === 'ROLE_ADMIN' ? (
                             <ul className="hamburger-menu">
@@ -178,7 +179,7 @@ function Header() {
                 className={`dropdown-menu ${menuModal ? "show" : ""}`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: menuModal ? 1 : 0 }}
-                style={{ top: `${menuPosition.top+10}px`, left: `${menuPosition.left-55}px` }}
+                style={{ top: `${menuPosition.top + 10}px`, left: `${menuPosition.left - 55}px` }}
             >
                 <div className="menu-grid">
                     <div className="menu-item" onClick={() => movePage('/mypage/profile')}>
@@ -188,15 +189,6 @@ function Header() {
                         </svg>
                         <span>내 정보</span>
                     </div>
-
-                    {/* <div className="menu-item" onClick={() => movePage('/mypage/basket')}>
-                        <svg transform="translate(-3,0)" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M6 6h15l-2 9H8L6 6z" stroke="white" strokeWidth="2" />
-                            <circle cx="9" cy="20" r="1.5" fill="white" />
-                            <circle cx="17" cy="20" r="1.5" fill="white" />
-                        </svg>
-                        <span>장바구니</span>
-                    </div> */}
 
                     <div className="menu-item" onClick={() => movePage('/mypage/basket')}>
                         <div className="icon-container">
