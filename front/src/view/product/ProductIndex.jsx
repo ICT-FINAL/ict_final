@@ -57,18 +57,8 @@ function ProductIndex() {
     const serverIP = useSelector((state) => state.serverIP);
     const user = useSelector((state) => state.auth.user);
 
-    const moveInfo = (prod) => {
-        console.log(prod);
-        navigate('/product/info', { state: { product: prod } });
-    }
-
-
-
-    function formatNumberWithCommas(num) {
-        return num.toLocaleString();
-    }
-
     return (
+        <>
         <div style={{ paddingTop: '200px' }}>
             <div className='product-main-container'>
                 <div className='product-main-box'>
@@ -123,9 +113,10 @@ function ProductIndex() {
                         </div>
                     </div>
                 </div>
-                <HotProduct/>
             </div>
         </div>
+        <HotProduct/>
+        </>
     )
 }
 

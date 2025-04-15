@@ -40,6 +40,9 @@ function MyPageNav({ path, isOpen, closeNav }) {
                     <li onClick={() => handleClick("/mypage/inquiries")} style={path.l_name === "문의 내역" ? clickedStyle : {}}>
                         <span style={path.l_name === "문의 내역" ? clickedStyle2 : {}}>문의 내역</span>
                     </li>
+                    <li onClick={() => handleClick("/mypage/chatting")} style={path.l_name === "채팅 내역" ? clickedStyle : {}}>
+                        <span style={path.l_name === "채팅 내역" ? clickedStyle2 : {}}>채팅 내역</span>
+                    </li>
                     <li onClick={() => handleClick("/mypage/follow")} style={path.l_name === "팔로우 목록" ? clickedStyle : {}}>
                         <span style={path.l_name === "팔로우 목록" ? clickedStyle2 : {}}>팔로우 목록</span>
                     </li>

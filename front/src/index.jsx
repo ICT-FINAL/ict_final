@@ -16,6 +16,7 @@ import './css/view/user.css';
 import './css/view/modal.css';
 import './css/view/product.css';
 import './css/view/event.css';
+import './css/view/review.css';
 
 
 const App = () => {
