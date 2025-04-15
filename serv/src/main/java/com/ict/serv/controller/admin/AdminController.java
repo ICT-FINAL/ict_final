@@ -4,7 +4,6 @@ import com.ict.serv.entity.Authority;
 import com.ict.serv.entity.Inquiries.Inquiry;
 import com.ict.serv.entity.Inquiries.InquiryPagingVO;
 import com.ict.serv.entity.Inquiries.InquiryState;
-import com.ict.serv.entity.message.Message;
 import com.ict.serv.entity.report.Report;
 import com.ict.serv.entity.report.ReportState;
 import com.ict.serv.entity.user.User;
@@ -12,7 +11,6 @@ import com.ict.serv.repository.UserRepository;
 import com.ict.serv.service.AdminService;
 import com.ict.serv.service.InquiryService;
 import com.ict.serv.service.InteractService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,18 +18,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.nio.file.AccessDeniedException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -147,7 +137,7 @@ public ResponseEntity<Map<String, Object>> getUsersWithSearch(
     }
 
     response.put("users", userPage.getContent());
-    response.put("selectedTotalCount", userPage.getTotalElements());
+    response.put("selectedCount", userPage.getTotalElements());
     response.put("totalPage", userPage.getTotalPages());
 
     return new ResponseEntity<>(response, HttpStatus.OK);

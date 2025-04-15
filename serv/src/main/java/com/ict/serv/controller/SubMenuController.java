@@ -1,9 +1,9 @@
 package com.ict.serv.controller;
 
-import com.ict.serv.entity.event.Event;
+import com.ict.serv.entity.submenu.SubMenu;
 import com.ict.serv.entity.user.User;
-import com.ict.serv.service.EventService;
 import com.ict.serv.service.InteractService;
+import com.ict.serv.service.SubMenuService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,25 +21,23 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
-@RequestMapping("/event")
-public class EventController {
+@RequestMapping("/submenu")
+public class SubMenuController {
     private final InteractService interactService;
-    private final EventService eventService;
+    private final SubMenuService submenuService;
 
     @PostMapping("/write")
     @Transactional(rollbackFor = {RuntimeException.class, SQLException.class})
-    public ResponseEntity<String> write(Event event, MultipartFile file, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<String> write(SubMenu submenu, MultipartFile file) {
         try{
-            User writer = interactService.selectUserByName(userDetails.getUsername());
-            event.setUser(writer);
-            String startDate = event.getStartDate();
-            String endDate = event.getEndDate();
+            String startDate = submenu.getStartDate();
+            String endDate = submenu.getEndDate();
 
-            event.setStartDate(startDate);
-            event.setEndDate(endDate);
+            submenu.setStartDate(startDate);
+            submenu.setEndDate(endDate);
 
-            Event savedEvent = eventService.saveEvent(event);
-            String uploadDir = System.getProperty("user.dir") + "/uploads/event/" + savedEvent.getId();
+            SubMenu savedSubMenu = submenuService.saveSubMenu(submenu);
+            String uploadDir = System.getProperty("user.dir") + "/uploads/submenu/" + savedSubMenu.getId();
             File dir = new File(uploadDir);
             if (!dir.exists()) dir.mkdirs();
             String originalFilename = file.getOriginalFilename();
@@ -55,18 +53,18 @@ public class EventController {
                 count++;
             }
             file.transferTo(destFile);
-            savedEvent.setFilename(destFile.getName());
+            savedSubMenu.setFilename(destFile.getName());
 
-            eventService.saveEvent(savedEvent);
-            return ResponseEntity.ok("이벤트 등록 성공");
+            submenuService.saveSubMenu(savedSubMenu);
+            return ResponseEntity.ok("서브메뉴 등록 성공");
         } catch (Exception e) {
             e.printStackTrace();
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("이벤트 등록 실패");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서브메뉴 등록 실패");
         }
     }
-    @GetMapping("/getEventList")
-    public List<Event> getEventList(){
-        return eventService.getAllEvent();
+    @GetMapping("/getSubMenuList")
+    public List<SubMenu> getSubMenuList(){
+        return submenuService.getAllSubMenu();
     }
 }

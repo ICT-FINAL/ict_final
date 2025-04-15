@@ -137,7 +137,7 @@ function MyBasket() {
             if (checkedItems[item.basketNo]) {
                 const discountedPrice = item.productDiscountRate > 0
                     ? item.productPrice * item.productDiscountRate / 100
-                    : item.productPrice;
+                    : 0;
 
                 const itemPrice = item.productPrice;
 
