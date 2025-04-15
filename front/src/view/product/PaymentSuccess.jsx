@@ -22,6 +22,7 @@ const PaymentSuccess = () => {
     const paymentKey = searchParams.get("paymentKey");
     const orderIdParam = searchParams.get("orderId");
     const amountParam = searchParams.get("amount");
+    const couponId = searchParams.get("couponId");
     const iid = searchParams.get('iid');
     setOrderId(orderIdParam);
     setAmount(amountParam);
@@ -36,7 +37,8 @@ const PaymentSuccess = () => {
           paymentKey,
           orderId: orderIdParam,
           amount: amountParam,
-          iid: iid
+          iid: iid,
+          couponId: couponId
         }),
       })
         .then((res) => res.json())

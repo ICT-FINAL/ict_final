@@ -1,6 +1,8 @@
 package com.ict.serv.controller;
 
 import com.ict.serv.dto.UserResponseDto;
+import com.ict.serv.entity.coupon.Coupon;
+import com.ict.serv.entity.coupon.CouponState;
 import com.ict.serv.entity.report.ReportState;
 import com.ict.serv.entity.user.Follow;
 import com.ict.serv.entity.wish.WishPagingVO;
@@ -11,6 +13,7 @@ import com.ict.serv.entity.message.MessageState;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.report.Report;
 import com.ict.serv.entity.user.User;
+import com.ict.serv.service.CouponService;
 import com.ict.serv.service.InteractService;
 import com.ict.serv.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +35,8 @@ import java.util.Map;
 public class InteractController {
     private final InteractService service;
     private final ProductService productService;
+    private final CouponService couponService;
+
     @GetMapping("/getToUser")
     public MessageResponseDTO getToUser(Long toId) {
         User user = service.selectUser(toId);
@@ -164,5 +169,10 @@ public class InteractController {
         } else {
             service.deleteFollow(service.selectFollow(from, to));
         }
+    }
+
+    @GetMapping("/getCouponList")
+    public List<Coupon> getCouponList(@AuthenticationPrincipal UserDetails userDetails) {
+        return couponService.findCouponByState(CouponState.AVAILABLE,service.selectUserByName(userDetails.getUsername()));
     }
 }

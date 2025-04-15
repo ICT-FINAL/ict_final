@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -7,6 +7,7 @@ function MyPurchases() {
     const loc = useLocation();
     const serverIP = useSelector((state) => { return state.serverIP });
     const user = useSelector((state) => state.auth.user);
+    const navigate = useNavigate();
 
     const [totalPage, setTotalPage] = useState(1);
     const [pageNumber, setPageNumber] = useState([]);
@@ -18,6 +19,17 @@ function MyPurchases() {
     const [totalRecord, setTotalRecord] = useState(1);
 
     const [searchOption, setSearchOption] = useState('');
+
+    const moveInfo = (prodId) => {
+        if(user)
+            axios.get(`${serverIP.ip}/product/getInfo?productId=${prodId}`,{
+                headers:{Authorization:`Bearer ${user.token}`}
+            })
+            .then(res =>{
+                navigate('/product/info', { state: { product: res.data } });
+            })
+            .catch(err => console.log(err))
+    }
 
     useEffect(() => {
         getBoardList();
@@ -114,7 +126,7 @@ function MyPurchases() {
                                             const itemTotal = (oi.price * (100 - oi.discountRate) / 100 + oi.additionalFee) * oi.quantity;
                                             orderSum += itemTotal;
                                             return (
-                                                <div className="order-item" key={oi.id}>
+                                                <div className="order-item" key={oi.id} style={{cursor:'pointer'}} onClick={()=>moveInfo(order.productId)}>
                                                     <div className="product-details">
                                                         <strong>{oi.productName} - {oi.optionName}</strong>
                                                         <div style={{ marginTop: '5px' }}>
@@ -151,7 +163,7 @@ function MyPurchases() {
                                     </div>
                                 )}
                                 <div className="final-total">
-                                    <strong>최종 결제 금액:</strong> {formatNumberWithCommas(group.totalPrice + group.totalShippingFee)}원
+                                    <strong>최종 결제 금액:</strong> {formatNumberWithCommas(group.totalPrice + group.totalShippingFee - group.couponDiscount)}원
                                 </div>
                             </div>
                         </div>

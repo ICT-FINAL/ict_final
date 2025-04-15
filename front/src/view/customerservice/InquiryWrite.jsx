@@ -97,6 +97,8 @@ const InquiryWrite = () => {
                 setInquiryType('');
                 setInquiryContent('');
                 setFiles([]);
+                alert("문의가 등록되었습니다.");
+                window.location.href = "/customerservice";
         }else{
             setErrorMessage(response.data || '문의 등록실패');
             }
@@ -249,6 +251,7 @@ const InquiryWrite = () => {
                 >
                     이미지 선택
                 </button>
+                </div>
                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
                 {files.map((file, idx) => (
                     <div key={idx} style={{ position: 'relative', width: '120px', height: '120px' }}>
@@ -286,16 +289,14 @@ const InquiryWrite = () => {
                     </div>
                 ))}
             </div>
-            </div>
                 <div className="button-group">
-                    <button type="button" className="btn btn-cancel" onClick={handleCancel} disabled={isSubmitting}>
-                        취소하기
-                    </button>
                     <button type="submit" className="btn btn-submit" onClick={handleSubmit}>
                         등록하기
                     </button>
+                    <button type="button" className="btn btn-cancel" onClick={handleCancel} disabled={isSubmitting}>
+                        취소하기
+                    </button>
                 </div>
-
             </form>
         </div>
     );

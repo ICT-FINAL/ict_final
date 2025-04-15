@@ -157,4 +157,8 @@ public class ProductController {
 
         return productList;
     }
+    @GetMapping("/getInfo")
+    public Product getInfo(Long productId) {
+        return service.selectProduct(productId).get();
+    }
 }

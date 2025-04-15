@@ -129,6 +129,49 @@
     margin-bottom:30px;
 }
 
+/* ========== Mypage Follow ========== */
+.follow-container {
+    min-width: 500px;
+    max-width: 1400px;
+}
+.follow-menu, .follow-menu>li {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+.follow-menu {
+    height: 55px;
+    display: flex;
+    justify-content: center;
+    gap: 10%;
+    font-size: 14pt;
+}
+.follow-menu>li {
+    margin-bottom: 20px;
+    padding: 10px 0;
+    border-bottom: 1px solid #999;
+    text-align: center;
+    cursor: pointer;
+}
+.follow-list {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 20px;
+    text-align: center;
+}
+
+@media (max-width: 1000px) {
+    .follow-list {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+.follow-user-img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 100%;
+}
+
 .basket-body{
     background-color: beige;
     width:85%;
