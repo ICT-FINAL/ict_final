@@ -28,6 +28,7 @@ public class ChatWebSocketController {
         ChatMessage saved = chatService.saveChat(chat.getRoomId(), user, chat.getMessage());
 
         ChatDTO response = new ChatDTO();
+        response.setId(saved.getId());
         response.setRoomId(chat.getRoomId());
         response.setMessage(saved.getMessage());
         response.setSendTime(saved.getSendTime());
@@ -36,6 +37,7 @@ public class ChatWebSocketController {
         urd.setId(user.getId());
         urd.setUserid(user.getUserid());
         urd.setUsername(user.getUsername());
+        urd.setImgUrl(user.getProfileImageUrl());
         response.setUrd(urd);
 
         messagingTemplate.convertAndSend("/topic/chat/" + roomId, response);

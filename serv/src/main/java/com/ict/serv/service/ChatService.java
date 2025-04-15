@@ -11,9 +11,9 @@ import com.ict.serv.repository.chat.ChatRoomRepository;
 import com.ict.serv.repository.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -50,16 +50,18 @@ public class ChatService {
 
         ChatMessage chat = ChatMessage.builder()
                 .room(room)
-                .buyer(user)
+                .sender(user)
                 .message(message)
                 .sendTime(LocalDateTime.now())
                 .build();
 
-        room.setLastChatTime(LocalDateTime.now());
+        chat = chatRepository.save(chat);
+
+        room.setLastChat(chat);
         room.setState(ChatState.ACTIVE);
         chatRoomRepository.save(room);
 
-        return chatRepository.save(chat);
+        return chat;
     }
 
     public Optional<ChatRoom> getChatRoom(String roomId) {
@@ -71,12 +73,12 @@ public class ChatService {
         List<ChatMessage> messages = chatRepository.findByRoomOrderBySendTimeAsc(room);
 
         return messages.stream().map(chat -> {
-            User buyer = chat.getBuyer();
+            User sender = chat.getSender();
             UserResponseDto urd = new UserResponseDto();
-            urd.setId(buyer.getId());
-            urd.setUserid(buyer.getUserid());
-            urd.setUsername(buyer.getUsername());
-            urd.setImgUrl(buyer.getProfileImageUrl());
+            urd.setId(sender.getId());
+            urd.setUserid(sender.getUserid());
+            urd.setUsername(sender.getUsername());
+            urd.setImgUrl(sender.getProfileImageUrl());
 
             ChatDTO dto = new ChatDTO();
             dto.setRoomId(roomId);
@@ -98,5 +100,37 @@ public class ChatService {
 
     public List<ChatRoom> getSellerChatRoomList(User user) {
         return chatRoomRepository.findByProductInAndState(productRepository.findAllBySellerNo_Id(user.getId()), ChatState.ACTIVE);
+    }
+
+    public void markChatAsRead(Long id, User user) {
+        ChatMessage message = chatRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("메시지 없음"));
+
+        if (!message.getSender().equals(user)) {
+            message.setRead(true);
+            chatRepository.save(message);
+        }
+    }
+    @Transactional
+    public void markAllAsRead(String roomId, User user) {
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("채팅방 없음"));
+
+        // user가 보낸 게 아닌, 즉 user가 "받은 메시지" 중 isRead == false
+        List<ChatMessage> unreadMessages = chatRepository
+                .findByRoomAndSenderNotAndIsReadFalse(room, user);
+
+        for (ChatMessage msg : unreadMessages) {
+            msg.setRead(true);
+        }
+
+        chatRepository.saveAll(unreadMessages);
+    }
+
+    public boolean hasUnreadMessages(String roomId, User user) {
+        ChatRoom room = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("채팅방 없음"));
+
+        return chatRepository.existsByRoomAndSenderNotAndIsReadFalse(room, user);
     }
 }
