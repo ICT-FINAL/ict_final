@@ -23,8 +23,6 @@ function ProductInfo() {
     const [selectedItems, setSelectedItems] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
     const [addBasketItems, setAddBasketItems] = useState(null);
-    const [changeMenu, setChangeMenu] = useState('detail');
-
     const [isSubOptionRegistered, setIsSubOptionRegistered] = useState(false);
     const [totalQuantity, setTotalQuantity] = useState(0);
 
@@ -268,6 +266,21 @@ function ProductInfo() {
             navigate(`/product/chat/${res.data}`)
         })
     }
+
+    // changMenu 상태 추가 (상세정보, 리뷰 등등 탭에 들어갈 메뉴들)
+    const [changeMenu, setChangeMenu] = useState("detail");
+    useEffect(()=>{
+        const savedMenu = localStorage.getItem("changeMenu");
+        if(savedMenu){
+            setChangeMenu(savedMenu);
+            localStorage.removeItem("changeMenu");
+        }
+    }, []);
+
+    const handleChangeMenu = (menuName) => {
+        setChangeMenu(menuName);
+        localStorage.setItem("changeMenu", menuName); // 현재 메뉴 저장
+    };
     
     return (
         <>
@@ -537,8 +550,8 @@ function ProductInfo() {
                             fontSize: '16px',
                             fontWeight: '600'
                         }}>
-                            <div onClick={() => setChangeMenu("detail")} className="product-div">상세정보</div>
-                            <div onClick={() => setChangeMenu("review")} className="product-div">리뷰</div>
+                            <div onClick={() => handleChangeMenu("detail")} className="product-div">상세정보</div>
+                            <div onClick={() => handleChangeMenu("review")} className="product-div">리뷰</div>
                         </div>
                         <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
                     </div>
