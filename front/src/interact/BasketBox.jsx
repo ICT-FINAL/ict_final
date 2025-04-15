@@ -46,7 +46,6 @@ function BasketBox() {
       setQuantityError(false);
     }
     if (newQty > item.categoryQuantity) {
-      alert("변경할 수량이 남은 수량보다 많아 주문 수정을 할 수 없습니다.");
       setQuantityError(true);
     }
     else {
@@ -197,7 +196,7 @@ function BasketBox() {
             {selectedItem && (
               <div style={{ padding: '10px' }}>
                 <img style={{ width: '20vw', height: '20vw', borderRadius: '10px' }}
-                  src={`${serverIP.ip}/uploads/product/${item.sellerNo}/${item.productImage}`}
+                  src={`${serverIP.ip}/uploads/product/${item.productNo}/${item.productImage}`}
                 />
                 <p><strong>상품명: </strong>{selectedItem.productName}</p>
                 <p><strong>주문한 수량: </strong>{selectedItem.quantity}개, (남은 수량 : {selectedItem.categoryQuantity}개)</p>

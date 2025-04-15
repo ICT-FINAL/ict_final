@@ -3,6 +3,7 @@ package com.ict.serv.controller.product;
 import com.ict.serv.entity.product.*;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.InteractService;
+import com.ict.serv.service.OrderService;
 import com.ict.serv.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,7 @@ import java.util.*;
 public class ProductController {
     private final InteractService interactService;
     private final ProductService service;
+    private final OrderService orderService;
 
     @PostMapping("/write")
     @Transactional(rollbackFor = {RuntimeException.class, SQLException.class})
@@ -134,5 +136,29 @@ public class ProductController {
     @GetMapping("/getOption")
     public List<Option> getOption(Long id) {
         return service.selectOptions(service.selectProduct(id).get());
+    }
+
+    @GetMapping("/getList/hotCategory")
+    public List<HotCategoryDTO> hotCategory() {
+        return orderService.getHotCategory();
+    }
+    @GetMapping("/getList/byCategory")
+    public List<Product> byCategory(String category) {
+        System.out.println(category);
+        List<String> categories = new ArrayList<>();
+        categories.add(category);
+
+        List<Product> productList = service.searchAllNoPaging(categories);
+
+        if (productList.size() > 10) {
+            Collections.shuffle(productList);
+            return productList.subList(0, 10);
+        }
+
+        return productList;
+    }
+    @GetMapping("/getInfo")
+    public Product getInfo(Long productId) {
+        return service.selectProduct(productId).get();
     }
 }

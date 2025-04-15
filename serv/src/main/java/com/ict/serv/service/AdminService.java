@@ -159,5 +159,4 @@ public class AdminService {
                 .orElseThrow(() -> new EntityNotFoundException("Inquiry not found with ID: " + inquiryId));
         return inquiry;
     }
-
 }

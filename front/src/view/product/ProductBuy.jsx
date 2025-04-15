@@ -21,6 +21,19 @@ function ProductBuy() {
   const [totalShippingFee, setTotalShippingFee] = useState(0);
   const [totalDiscountAmount, setTotalDiscountAmount] = useState(0);
 
+  const [selectedCoupon, setSelectedCoupon] = useState(0);
+  const [selectedCouponId, setSelectedCouponId] = useState(0);
+  const [couponList, setCouponList] = useState([]);
+
+  const handleCouponChange = (e) => {
+    console.log(selectedCouponId);
+    console.log(selectedCoupon);
+    setSelectedCoupon(Number(e.target.value.split('-')[0]));
+    const [discount, id] = e.target.value.split('-');
+    setSelectedCoupon(Number(discount));
+    setSelectedCouponId(Number(id));
+  };
+
   const groupedItems = orderItems.reduce((acc, item) => {
     const key = item.productNo;
     if (!acc[key]) {
@@ -37,13 +50,20 @@ function ProductBuy() {
     acc[key].options.push({
       categoryName: item.categoryName,
       quantity: item.quantity,
-      additionalPrice: item.additionalPrice
+      additionalPrice: item.additionalPrice,
     });
     return acc;
   }, {});
 
   useEffect(() => {
-    console.log("ProductBuying state:", location.state.selectedItems);
+    if(user)
+      axios.get(`${serverIP.ip}/interact/getCouponList`, {
+        headers:{Authorization:`Bearer ${user.token}`}
+      })
+      .then(res => {
+        setCouponList(res.data);
+      })
+      .catch(err=>console.log(err))
     if (state && state.basketItems) {
       setIsBasketPurchase(true);
       setPurchasedItems(state.basketItems);
@@ -83,29 +103,29 @@ function ProductBuy() {
       let paymentTotal = 0;
       let discountTotal = 0;
       let shippingTotal = 0;
-  
+
       const countedProductNos = new Set();
-  
+
       purchasedItems.forEach(item => {
         const discountedPrice = item.productDiscountRate > 0
           ? item.productPrice * (1 - item.productDiscountRate / 100)
           : item.productPrice;
-  
+
         paymentTotal += (discountedPrice + (item.additionalPrice || 0)) * item.quantity;
         discountTotal += (item.productPrice - discountedPrice) * item.quantity;
-  
+
         if (!countedProductNos.has(item.productNo)) {
           shippingTotal += item.productShippingFee || 0;
           countedProductNos.add(item.productNo);
         }
       });
-  
-      setTotalPaymentAmount(paymentTotal + shippingTotal);
+
+      setTotalPaymentAmount(paymentTotal + shippingTotal - selectedCoupon);
       setTotalShippingFee(shippingTotal);
-      setTotalDiscountAmount(discountTotal);
+      setTotalDiscountAmount(discountTotal + selectedCoupon);
     }
-  }, [purchasedItems]);
-  
+  }, [purchasedItems, selectedCoupon]);
+
 
   const handleAddAddress = (newAddress) => {
     if (user)
@@ -138,44 +158,27 @@ function ProductBuy() {
         optionCategoryId: item.optionCategoryId,
         quantity: item.quantity,
         coupon: 0,
-        shippingFee: usedProductNos.has(item.productNo) ? 0 : item.productShippingFee || 0
+        shippingFee: usedProductNos.has(item.productNo) ? 0 : item.productShippingFee || 0,
+        basketNo: item.basketNo
       });
       usedProductNos.add(item.productNo);
     });
-    /*
-    if (isBasketPurchase) {
-      orderItems.forEach(item => {
-        orderDetails.push({
-          optionCategoryId: item.productNo,
-          quantity: item.quantity,
-          coupon: 0
-        });
-      });
-    } else {
-      state.selectedOptions.forEach(item => {
-        orderDetails.push({
-          optionCategoryId: item.subOption ? item.subOption.id : item.option.id,
-          quantity: item.quantity,
-          coupon: state.selectedCoupon || 0
-        });
-      });
-    }*/
-    console.log(orderDetails);
-    console.log(productIds);
+
     axios.post(`${serverIP.ip}/order/setOrder`, {
       options: orderDetails,
       addrId: selAddrId,
       req: request,
       orderId: orderId,
       shippingFee: totalShippingFee,
-      couponDiscount: state.selectedCoupon || 0,
+      couponDiscount: selectedCoupon || 0,
       productIds: productIds
     }, {
       headers: { Authorization: `Bearer ${user.token}` },
     })
       .then(res => {
         console.log(res.data);
-          const successUrl = `${serverIP.front}/payment/success?iid=${res.data.id}`;
+          const basketNos = orderDetails.map(item => item.basketNo).join(',');
+          const successUrl = `${serverIP.front}/payment/success?iid=${res.data.id}&basketNos=${basketNos}&couponId=${selectedCouponId}`;
           tossPayments
             .requestPayment("카드", {
               amount: parseInt(totalPaymentAmount),
@@ -209,32 +212,43 @@ function ProductBuy() {
         <h2 className="product-buy-header">상품 결제</h2>
         {orderItems.length > 0 && (
           <div className="product-buy-info">
-                    {Object.values(groupedItems).map((group, index) => (
-                      <div key={index} className="order-item">
-                        <h3 className="product-buy-name">{group.productName}</h3>
-                        <p style={{ fontSize: '20px' }}>가격: <strong style={{textDecoration:'line-through'}}>{formatNumberWithCommas(group.productPrice)}</strong> 원</p>
-                        <p className="buy-price">할인: <span style={{color:'#d9534f', fontWeight:'bold', fontSize:'19px'}}>{group.productDiscountRate}%</span></p>
-                        { group.productDiscountRate !== 0 && <p style={{borderBottom:'1px solid #ddd', paddingBottom:'10px'}}>할인가: <span style={{fontSize:'20px', fontWeight:'bold'}}>{formatNumberWithCommas(group.productPrice*((100-group.productDiscountRate)/100))}</span> 원</p>}
-                        {group.options.map((opt, idx) => (
-                          <div key={idx} className="option-detail" style={{ marginLeft: '10px', padding: '5px 0' }}>
-                            <p><span style={{fontWeight:'bold'}}>옵션</span>: {opt.categoryName} x {opt.quantity} (+{formatNumberWithCommas(opt.additionalPrice)} 원) = <span style={{fontSize:'20px',fontWeight:'bold', color:'#4a7b63'}}>{formatNumberWithCommas((group.productPrice*((100-group.productDiscountRate)/100) + opt.additionalPrice)*opt.quantity)}</span> 원</p>
-                          </div>
-                        ))}
+            {Object.values(groupedItems).map((group, index) => (
+              <div key={index} className="order-item">
+                <h3 className="product-buy-name">{group.productName}</h3>
+                <p style={{ fontSize: '20px' }}>가격: <strong style={{ textDecoration: 'line-through' }}>{formatNumberWithCommas(group.productPrice)}</strong> 원</p>
+                <p className="buy-price">할인: <span style={{ color: '#d9534f', fontWeight: 'bold', fontSize: '19px' }}>{group.productDiscountRate}%</span></p>
+                {group.productDiscountRate !== 0 && <p style={{ borderBottom: '1px solid #ddd', paddingBottom: '10px' }}>할인가: <span style={{ fontSize: '20px', fontWeight: 'bold' }}>{formatNumberWithCommas(group.productPrice * ((100 - group.productDiscountRate) / 100))}</span> 원</p>}
+                {group.options.map((opt, idx) => (
+                  <div key={idx} className="option-detail" style={{ marginLeft: '10px', padding: '5px 0' }}>
+                    <p><span style={{ fontWeight: 'bold' }}>옵션</span>: {opt.categoryName} x {opt.quantity} (+{formatNumberWithCommas(opt.additionalPrice)} 원) = <span style={{ fontSize: '20px', fontWeight: 'bold', color: '#4a7b63' }}>{formatNumberWithCommas((group.productPrice * ((100 - group.productDiscountRate) / 100) + opt.additionalPrice) * opt.quantity)}</span> 원</p>
+                  </div>
+                ))}
 
-                        <p>배송비: <strong style={{color:'#1976d2'}}>{formatNumberWithCommas(group.productShippingFee)}</strong>원</p>
-                        <span>
-                          합계: <strong style={{fontWeight:'bold', fontSize:'20px'}}>{formatNumberWithCommas(
-                            group.options.reduce((sum, opt) => {
-                              const discountedPrice = group.productPrice * (1 - group.productDiscountRate / 100);
-                              return sum + (discountedPrice + opt.additionalPrice) * opt.quantity;
-                            }, 0) + group.productShippingFee
-                          )}</strong> 원
-                        </span>
-                      </div>
-                    ))}
-  
+                <p>배송비: <strong style={{ color: '#1976d2' }}>{formatNumberWithCommas(group.productShippingFee)}</strong>원</p>
+                <span>
+                  합계: <strong style={{ fontWeight: 'bold', fontSize: '20px' }}>{formatNumberWithCommas(
+                    group.options.reduce((sum, opt) => {
+                      const discountedPrice = group.productPrice * (1 - group.productDiscountRate / 100);
+                      return sum + (discountedPrice + opt.additionalPrice) * opt.quantity;
+                    }, 0) + group.productShippingFee
+                  )}</strong> 원
+                </span>
+              </div>
+            ))}
+
             <div className="shipping-discount-info">
+            <strong>쿠폰 선택:</strong> <select style={{marginBottom:'20px'}} className='product-info-selectbox' onChange={handleCouponChange} value={`${selectedCoupon}-${selectedCouponId}`}>
+                <option value="0-0">쿠폰을 선택해주세요</option>
+                {
+                  couponList.map(item => {
+                    return(<option key={item.id} value={`${item.discount}-${item.id}`}>
+                      {item.couponName} : {item.discount}원
+                    </option>);
+                  })
+                }
+            </select>
               {totalShippingFee > 0 && <p className="shipping-fee">총 배송비: +{formatNumberWithCommas(totalShippingFee)}원</p>}
+              {selectedCoupon > 0 && <p style={{ color: '#d9534f' }} className="discount-amount">쿠폰 할인: -{formatNumberWithCommas(selectedCoupon)}원</p>}
               {totalDiscountAmount > 0 && <p className="discount-amount" style={{ color: '#d9534f' }}>총 할인 금액: -{formatNumberWithCommas(totalDiscountAmount)}원</p>}
             </div>
             <div className="final-price">

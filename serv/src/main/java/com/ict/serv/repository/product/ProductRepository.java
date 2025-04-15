@@ -45,6 +45,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             , PageRequest of
     );
 
+    @Query(value = "SELECT * " +
+            "FROM product p " +
+            "WHERE p.product_category IN (:productCategories)",
+            nativeQuery = true)
+    List<Product> findProductsAllCategoryNoPaging(@Param("productCategories") List<String> productCategories);
+
     @Query(value = "SELECT COUNT(*) " +
             "FROM product p " +
             "WHERE p.product_name LIKE %:keyword% " +

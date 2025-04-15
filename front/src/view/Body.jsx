@@ -59,6 +59,9 @@ import AuctionBid from './auction/AuctionBid';
 import AuctionBidSuccess from './auction/AuctionBidSuccess';
 import ShippingTracker from './shipping/ShippingTracker';
 import Notice from './customerservice/Notice';
+import Chatting from './product/Chatting';
+import DeleteModal from '../modal/DeleteModal';
+import MelonGame from './event/coupon/MelonGame';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -117,6 +120,13 @@ function Body() {
               })
               .catch(err => console.log(err))
         }
+        else if(e.target.id.indexOf('delll') !== -1) {
+          const selected_id = e.target.id.split('-')[3];
+          if(selected_id === undefined)
+            dispatch(setModal({isOpen:true, selected:e.target.id}));
+          else
+            dispatch(setModal({isOpen:true, selected:e.target.id, selectedItem:selected_id}));
+          }
       };
 
       window.addEventListener('click', handleClick);
@@ -144,7 +154,7 @@ function Body() {
     {modal.isOpen && modal.selected == 'categorymodal' && <CategoryModal />}
     {modal.isOpen && modal.selected == 'inquiry-box' && <InquiryModal />}
     {interact.isOpen && <Interact />}
-
+    {modal.isOpen && modal.selected.indexOf('delll') !== -1 && <DeleteModal/>}
     <Routes>
       <Route path="/" element={<Main />} />
       <Route path="/test" element={<Test />} />
@@ -161,6 +171,7 @@ function Body() {
 
       <Route path='/product/*' element={<ProductIndex />}></Route>
       <Route path='/product/search' element={<ProductSearch />}></Route>
+      <Route path='/product/chat/:roomId' element={<Chatting />}></Route>
 
       <Route path='/customerservice/*' element={<CenterHome />}>
         <Route path="inquirywrite" element={<InquiryWrite />} />
@@ -181,6 +192,7 @@ function Body() {
       <Route path='/event/write' element={<EventWrite />}></Route>
       <Route path='/event/info' element={<EventInfo />}></Route>
       <Route path='/event/dailycheck' element={<DailyCheck />}></Route>
+      <Route path='/event/melongame' element={<MelonGame/>}></Route>
 
       <Route path='/community/*' element={<CommunityIndex />}></Route>
 

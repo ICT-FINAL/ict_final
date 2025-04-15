@@ -15,7 +15,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findUserByUserid(String userid);
     List<User> findUserByAuthority(Authority authority);
     int countByUserid(String userid);
-
     int countByTel(String tel);
-
+    long countByAuthority(Authority authority);
+    List<User> findByUseridContainingOrUsernameContaining(String useridKeyword, String usernameKeyword);
+    List<User> findByAuthorityAndUseridContainingOrAuthorityAndUsernameContaining(Authority authority1, String useridKeyword, Authority authority2, String usernameKeyword);
 }
