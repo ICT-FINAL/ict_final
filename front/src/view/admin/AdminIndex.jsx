@@ -2,22 +2,23 @@ import AdminHeader from "./AdminHeader";
 import AdminNav from "./AdminNav";
 import AdminReport from "./AdminReport";
 import AdminInquiry from "./AdminInquiry";
+import AdminEdit from "./AdminEdit";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import '../../css/view/admin.css';
 
-function AdminIndex(){
+function AdminIndex() {
     const location = useLocation();
-    const [path, setPath] = useState({f_name:'',l_name:''});
-    
+    const [path, setPath] = useState({ f_name: '', l_name: '' });
+
     useEffect(() => {
-        window.scrollTo({top:0,left:0,behavior:'smooth'});
+        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
         let pathname = location.pathname.split("/");
         let page = pathname[2];
         const pathMap = {
             reportlist: { f_name: "관리자 페이지", l_name: "신고 목록" },
             inquirylist: { f_name: "관리자 페이지", l_name: "문의 목록" },
-            edit: { f_name: "내 정보", l_name: "개인 정보 수정" },
+            edit: { f_name: "관리자 페이지", l_name: "회원 목록" },
             posts: { f_name: "나의 활동", l_name: "작성한 글" },
             reviews: { f_name: "나의 활동", l_name: "리뷰 관리" },
             comments: { f_name: "나의 활동", l_name: "댓글 관리" },
@@ -44,16 +45,17 @@ function AdminIndex(){
     }, [location]);
 
 
-    return(<>
+    return (<>
         <div className='admin-container'>
         </div>
-        <AdminHeader path={path} setPath={setPath}/>
-        <AdminNav path={path} setPath={setPath}/>
+        <AdminHeader path={path} setPath={setPath} />
+        <AdminNav path={path} setPath={setPath} />
         <div className='admin-wrap'>
             <div className='admin-box'>
                 <div className='admin-title'>{path.l_name}</div>
-                { path.l_name == '신고 목록' && <AdminReport/> }
-                { path.l_name == '문의 목록' && <AdminInquiry/> }
+                {path.l_name == '신고 목록' && <AdminReport />}
+                {path.l_name == '문의 목록' && <AdminInquiry />}
+                {path.l_name == '회원 목록' && <AdminEdit />}
             </div>
         </div>
     </>)

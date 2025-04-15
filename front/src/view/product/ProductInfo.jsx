@@ -60,11 +60,11 @@ function ProductInfo() {
     const moveBuy = () => {
         if (!isSubOptionRegistered) alert('구매하실 상품을 선택해주세요');
         else {
-            if(!user) {
+            if (!user) {
                 dispatch(setLoginView(true));
             }
             else {
-                if(user.user.id !== loc.state.product.sellerNo.id)
+                if (user.user.id !== loc.state.product.sellerNo.id)
                     navigate('/product/buying', {
                         state: {
                             selectedItems: selectedItems,
@@ -82,7 +82,7 @@ function ProductInfo() {
     };
 
     const getWish = () => {
-        if(user)
+        if (user)
             axios.get(`${serverIP.ip}/interact/getWish?userId=${user.user.id}&productId=${loc.state.product.id}`, {
                 headers: { Authorization: `Bearer ${user.token}` }
             })
@@ -97,8 +97,8 @@ function ProductInfo() {
     };
 
     const addWish = () => {
-        if(user){
-            if(user.user.id !== loc.state.product.sellerNo.id)
+        if (user) {
+            if (user.user.id !== loc.state.product.sellerNo.id)
                 axios.get(`${serverIP.ip}/interact/addWish?userId=${user.user.id}&productId=${loc.state.product.id}`, {
                     headers: { Authorization: `Bearer ${user.token}` }
                 })
@@ -122,7 +122,7 @@ function ProductInfo() {
     };
 
     const addBasket = () => {
-        if(!user) {
+        if (!user) {
             dispatch(setLoginView(true));
             return;
         }
@@ -130,7 +130,7 @@ function ProductInfo() {
             alert("장바구니에 담을 상품을 선택해주세요.");
             return;
         }
-        if(user.user.id !== loc.state.product.sellerNo.id) {
+        if (user.user.id !== loc.state.product.sellerNo.id) {
             const basketItems = selectedItems.map(item => ({
                 optionId: item.option.id,
                 subOptionId: item.subOption ? item.subOption.id : null,
@@ -151,7 +151,11 @@ function ProductInfo() {
                 })
                 .catch(err => {
                     console.error("장바구니 추가 오류:", err);
-                    alert("장바구니 담기 중 오류가 발생했습니다.");
+                    if (err.response && err.response.data) {
+                        alert(err.response.data);
+                    } else {
+                        alert("장바구니 담기 중 알 수 없는 오류가 발생했습니다.");
+                    }
                 });
         }
         else {
@@ -305,18 +309,18 @@ function ProductInfo() {
                         }}>
                             {loc.state.product.shippingFee === 0 ? "🚚 무료배송" : `배송비 ${loc.state.product.shippingFee}원`} {/* 배송비 */}
                         </div>
-                        {totalQuantity === 0 && 
-                        <div style={{
-                            marginTop: "5px", padding: "4px 8px", display: "inline-block",
-                            marginLeft: '10px',
-                            borderRadius: "5px", fontSize: "12px", fontWeight: "600",
-                            backgroundColor: 'gray',
-                            color: loc.state.product.shippingFee === 0 ? "white" : "black",
-                            minHeight: "20px",
-                            lineHeight: "20px" // 가운데 정렬
-                        }}>
-                            품절
-                        </div>
+                        {totalQuantity === 0 &&
+                            <div style={{
+                                marginTop: "5px", padding: "4px 8px", display: "inline-block",
+                                marginLeft: '10px',
+                                borderRadius: "5px", fontSize: "12px", fontWeight: "600",
+                                backgroundColor: 'gray',
+                                color: loc.state.product.shippingFee === 0 ? "white" : "black",
+                                minHeight: "20px",
+                                lineHeight: "20px" // 가운데 정렬
+                            }}>
+                                품절
+                            </div>
                         }
                         <ul>
                             <li style={{ display: 'flex' }}>
@@ -332,6 +336,7 @@ function ProductInfo() {
                                 <div className='product-info-name'>
                                     {loc.state.product.productName}
                                 </div>
+                                {user.user.id !== loc.state.product.sellerNo.id &&
                                 <div className='product-wish'>
                                     {!isWish ? (
                                         <div className="wishlist-icon" onClick={() => { addWish() }}>
@@ -348,14 +353,11 @@ function ProductInfo() {
                                         <FaShoppingCart />
                                         <span>장바구니</span>
                                     </div>
-                                    {
-                                        user.user.id !== loc.state.product.sellerNo.id &&
-                                        <div className="inquiry-icon" onClick={() => { inquiry() }}>
-                                            <FaRocketchat />
-                                            <span>문의하기</span>
-                                        </div>
-                                    }
-                                </div>
+                                    <div className="inquiry-icon" onClick={() => { inquiry() }}>
+                                        <FaRocketchat />
+                                        <span>문의하기</span>
+                                    </div>
+                                </div>}
                             </li>
                             <li>
                                 <ul className='product-info-main-box'>
@@ -390,28 +392,28 @@ function ProductInfo() {
                                             ))}
                                         </select>
                                         {subOptions.length > 0 && (
-                                        <>
-                                            <select
-                                            style={{ marginLeft: '15px' }}
-                                            className="product-info-selectbox"
-                                            onChange={handleSubOptionChange}
-                                            value={selectedSubOptionId}
-                                            >
-                                            <option value="" disabled selected>소분류를 선택해주세요</option>
-                                            {subOptions
-                                                .filter(subOption => subOption.quantity > 0)
-                                                .map((subOption) => (
-                                                <option key={subOption.id} value={subOption.id}>
-                                                    {subOption.categoryName} (+{formatNumberWithCommas(subOption.additionalPrice)}원)
-                                                </option>
-                                                ))}
-                                            </select>
-                                            {selectedSubOptionId.length > 0 && (
-                                            <button type="button" className="product-select-button" onClick={handleAddItem}>
-                                                선택
-                                            </button>
-                                            )}
-                                        </>
+                                            <>
+                                                <select
+                                                    style={{ marginLeft: '15px' }}
+                                                    className="product-info-selectbox"
+                                                    onChange={handleSubOptionChange}
+                                                    value={selectedSubOptionId}
+                                                >
+                                                    <option value="" disabled selected>소분류를 선택해주세요</option>
+                                                    {subOptions
+                                                        .filter(subOption => subOption.quantity > 0)
+                                                        .map((subOption) => (
+                                                            <option key={subOption.id} value={subOption.id}>
+                                                                {subOption.categoryName} (+{formatNumberWithCommas(subOption.additionalPrice)}원)
+                                                            </option>
+                                                        ))}
+                                                </select>
+                                                {selectedSubOptionId.length > 0 && (
+                                                    <button type="button" className="product-select-button" onClick={handleAddItem}>
+                                                        선택
+                                                    </button>
+                                                )}
+                                            </>
                                         )}
                                     </li>
                                     {selectedItems.length > 0 && (
@@ -435,78 +437,78 @@ function ProductInfo() {
                                                                     {item.subOption && ` - ${item.subOption.categoryName} (+${formatNumberWithCommas(item.subOption.additionalPrice)}원)`}
                                                                 </div>
                                                                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                                <div style={{ display: 'flex', alignItems: 'center' }}>
-                                                        <label style={{ marginRight: '5px' }}>수량:</label>
-                                                        <div style={{
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        border: '1px solid #ccc',
-                                                        borderRadius: '6px',
-                                                        overflow: 'hidden',
-                                                        height: '32px',
-                                                        }}>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleItemQuantityChange(index, item.quantity - 1)}
-                                                            disabled={item.quantity <= 1}
-                                                            style={{
-                                                            width: '32px',
-                                                            height: '32px',
-                                                            backgroundColor: '#f5f5f5',
-                                                            border: 'none',
-                                                            borderRight: '1px solid #ccc',
-                                                            fontSize: '18px',
-                                                            cursor: item.quantity <= 1 ? 'not-allowed' : 'pointer',
-                                                            color: item.quantity <= 1 ? '#aaa' : '#333',
-                                                            }}
-                                                        >
-                                                            -
-                                                        </button>
+                                                                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                                        <label style={{ marginRight: '5px' }}>수량:</label>
+                                                                        <div style={{
+                                                                            display: 'flex',
+                                                                            alignItems: 'center',
+                                                                            border: '1px solid #ccc',
+                                                                            borderRadius: '6px',
+                                                                            overflow: 'hidden',
+                                                                            height: '32px',
+                                                                        }}>
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => handleItemQuantityChange(index, item.quantity - 1)}
+                                                                                disabled={item.quantity <= 1}
+                                                                                style={{
+                                                                                    width: '32px',
+                                                                                    height: '32px',
+                                                                                    backgroundColor: '#f5f5f5',
+                                                                                    border: 'none',
+                                                                                    borderRight: '1px solid #ccc',
+                                                                                    fontSize: '18px',
+                                                                                    cursor: item.quantity <= 1 ? 'not-allowed' : 'pointer',
+                                                                                    color: item.quantity <= 1 ? '#aaa' : '#333',
+                                                                                }}
+                                                                            >
+                                                                                -
+                                                                            </button>
 
-                                                        <div style={{
-                                                            width: '40px',
-                                                            textAlign: 'center',
-                                                            fontWeight: '500',
-                                                            fontSize: '15px',
-                                                            lineHeight: '32px',
-                                                            backgroundColor: 'white',
-                                                        }}>
-                                                            {item.quantity}
-                                                        </div>
+                                                                            <div style={{
+                                                                                width: '40px',
+                                                                                textAlign: 'center',
+                                                                                fontWeight: '500',
+                                                                                fontSize: '15px',
+                                                                                lineHeight: '32px',
+                                                                                backgroundColor: 'white',
+                                                                            }}>
+                                                                                {item.quantity}
+                                                                            </div>
 
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleItemQuantityChange(index, item.quantity + 1)}
-                                                            disabled={item.quantity >= (item.subOption?.quantity || 10)}
-                                                            style={{
-                                                            width: '32px',
-                                                            height: '32px',
-                                                            backgroundColor: '#f5f5f5',
-                                                            border: 'none',
-                                                            borderLeft: '1px solid #ccc',
-                                                            fontSize: '18px',
-                                                            cursor: item.quantity >= (item.subOption?.quantity || 10) ? 'not-allowed' : 'pointer',
-                                                            color: item.quantity >= (item.subOption?.quantity || 10) ? '#aaa' : '#333',
-                                                            }}
-                                                        >
-                                                            +
-                                                        </button>
-                                                        </div>
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => handleItemQuantityChange(index, item.quantity + 1)}
+                                                                                disabled={item.quantity >= (item.subOption?.quantity || 10)}
+                                                                                style={{
+                                                                                    width: '32px',
+                                                                                    height: '32px',
+                                                                                    backgroundColor: '#f5f5f5',
+                                                                                    border: 'none',
+                                                                                    borderLeft: '1px solid #ccc',
+                                                                                    fontSize: '18px',
+                                                                                    cursor: item.quantity >= (item.subOption?.quantity || 10) ? 'not-allowed' : 'pointer',
+                                                                                    color: item.quantity >= (item.subOption?.quantity || 10) ? '#aaa' : '#333',
+                                                                                }}
+                                                                            >
+                                                                                +
+                                                                            </button>
+                                                                        </div>
 
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => removeItem(index)}
-                                                            style={{
-                                                            color: 'red',
-                                                            border: 'none',
-                                                            background: 'none',
-                                                            cursor: 'pointer',
-                                                            marginLeft: '10px',
-                                                            }}
-                                                        >
-                                                            <FaTimes />
-                                                        </button>
-                                                        </div>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => removeItem(index)}
+                                                                            style={{
+                                                                                color: 'red',
+                                                                                border: 'none',
+                                                                                background: 'none',
+                                                                                cursor: 'pointer',
+                                                                                marginLeft: '10px',
+                                                                            }}
+                                                                        >
+                                                                            <FaTimes />
+                                                                        </button>
+                                                                    </div>
 
                                                                 </div>
                                                             </li>
@@ -562,7 +564,7 @@ function ProductInfo() {
                         }
 
                         {changeMenu === "review" && (
-                            <ProductReview/>
+                            <ProductReview />
                         )}
 
                     </div>
