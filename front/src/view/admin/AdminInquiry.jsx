@@ -61,6 +61,7 @@ function AdminInquiry() {
             }
         })
         .then(response => {
+            console.log(response.data);
             const { inquiryList, pvo } = response.data;
             const newPageNumbers = [];
             if (pvo && pvo.totalPage > 0) {
@@ -206,7 +207,7 @@ function AdminInquiry() {
             </ul>
         );
     };
-
+    console.log("Rendering ANSWER inquiries:", inquiriesAnswer);
     return (
         <div style={{ padding: '10px 20px' }}>
             <div className='inquiry-box'>
@@ -215,7 +216,7 @@ function AdminInquiry() {
                     <div>총 {totalRecordNoAnswer} 건</div>
                     <div>
                         <select className="select-style" value={filterTypeNoAnswer} onChange={handleFilterChangeNoAnswer}>
-                            <option value="">전체 유형</option>
+                            <option value="">전체</option>
                             {inquiryTypeKeys.map(key => (
                                 <option key={`filter-noanswer-${key}`} value={key}>
                                     {translateInquiryType(key)}
@@ -266,14 +267,14 @@ function AdminInquiry() {
                 )}
                 {renderPagination('NOANSWER')}
             </div>
-
+                
             <div className='inquiry-box'>
                 <span className='inquiry-box-title'>✅답변 완료 문의</span>
                  <div className='inquiry-filter'>
                     <div>총 {totalRecordAnswer} 건</div>
                     <div>
                         <select className="select-style" value={filterTypeAnswer} onChange={handleFilterChangeAnswer}>
-                            <option value="">전체 유형</option>
+                            <option value="">전체</option>
                             {inquiryTypeKeys.map(key => (
                                 <option key={`filter-answer-${key}`} value={key}>
                                     {translateInquiryType(key)}
@@ -296,10 +297,10 @@ function AdminInquiry() {
                          <React.Fragment key={`answer-${item.id}`}>
                              <ul className='admin-list' onClick={() => readInquiry(item.id)} style={{ cursor: 'pointer' }}>
                                  <li>{item.id}</li>
-                                 <li>{item.inquiryType}</li>
+                                 <li>{translateInquiryType(item.inquiryType)}</li>
                                  <li>{item.inquirySubject}</li>
                                  <li>{item.user?.username || 'N/A'}</li>
-                                 <li>{formatDate(item.response?.responseDate || item.inquiryWritedate)}</li>
+                                 <li>{formatDate(item.response?.responseWritedate || item.inquiryWritedate)}</li>
                              </ul>
                              <div className='inquiry-detail' id={`inquiry-detail-${item.id}`}>
                                  <div><span className="inquiry-detail-label">문의자:</span> {item.user?.username || 'N/A'}</div>
@@ -312,8 +313,8 @@ function AdminInquiry() {
                                  {item.response && (
                                      <div className="inquiry-detail-response">
                                          <div className="inquiry-detail-label">답변 내용:</div>
-                                         <div className="inquiry-detail-content">{item.response.content}</div>
-                                         <div><span className="inquiry-detail-label">답변일:</span> {formatDate(item.response.responseDate)}</div>
+                                         <div className="inquiry-detail-content">{item.response.responseContent}</div>
+                                         <div><span className="inquiry-detail-label">답변일:</span> {formatDate(item.response.responseWritedate)}</div>
                                      </div>
                                  )}
                              </div>

@@ -84,30 +84,6 @@ public class InquiryController {
         }
     }
 
-    @PutMapping("/modifyInquiry/{id}")
-    public ResponseEntity<?> modifyInquiry(
-            @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication required.");
-        String currentUsername = userDetails.getUsername();
-        User currentUser = userRepository.findUserByUserid(currentUsername);
-        if (currentUser == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Authenticated user not found in database.");
-
-        try {
-            inquiryService.modifyInquiry(id, currentUser);
-            return ResponseEntity.ok().body(Map.of("message", "문의가 성공적으로 수정되었습니다. (Implementation Pending)"));
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
-        } catch (AccessDeniedException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", e.getMessage()));
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
-        } catch (Exception e) {
-            log.error("Error modifying inquiry for ID: {}", id, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error","문의 수정 중 오류가 발생했습니다."));
-        }
-    }
-
     @GetMapping("/inquiryList")
     public ResponseEntity<?> getMyInquiries(@AuthenticationPrincipal UserDetails userDetails, @ModelAttribute InquiryPagingVO vo) {
         if (userDetails == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication required.");
@@ -156,45 +132,72 @@ public class InquiryController {
             else return ResponseEntity.ok("ok");
         } catch (Exception e) { log.error("Error creating inquiry", e); return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating inquiry: " + e.getMessage()); }
     }
-//    @PostMapping("/inquiryResponse")
-//    public ResponseEntity<String>  inquiryResponse(@RequestBody Map<String, Object> payload,
-//                                                   @AuthenticationPrincipal UserDetails userDetails){
-//        Object inquiryIdObj = payload.get("inquiryId");
-//        Object contentObj = payload.get("content");
-//        String username = userDetails.getUsername();
-//        Long inquiryId;
-//        try {
-//            if (inquiryIdObj instanceof Integer) {
-//                inquiryId = ((Integer) inquiryIdObj).longValue();
-//            } else if (inquiryIdObj instanceof String) {
-//                inquiryId = Long.parseLong((String) inquiryIdObj);
-//            } else if (inquiryIdObj instanceof Long) {
-//                inquiryId = (Long) inquiryIdObj;
-//            }
-//            else {
-//                throw new IllegalArgumentException("Invalid type for inquiryId");
-//            }
-//        } catch (Exception e) {
-//            log.warn("잘못된 inquiryId 형식 수신: {}", inquiryIdObj, e);
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("");
-//        }
-//
-//        String content;
-//        if (contentObj instanceof String) {
-//            content = (String) contentObj;
-//            if (content.trim().isEmpty()) {
-//                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("답변 내용");
-//            }
-//        } else {
-//            log.warn("잘못된 content 형식 수신: {}", contentObj);
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("");
-//        }
-//        try {
-//            inquiryService.addResponse(inquiryId, content, username);
-//            return ResponseEntity.ok("답변이 성공적으로 등록되었습니다.");
-//        } catch (EntityNotFoundException e) {
-//            log.warn("답변 등록 실패 (데이터 없음): {}", e.getMessage());
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-//        }
-//    }
+    @PostMapping("/inquiryResponse")
+    public ResponseEntity<?> createInquiryResponse(
+            @RequestBody Map<String, Object> payload,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인.");
+        }
+
+        Object inquiryIdObj = payload.get("inquiryId");
+        Object contentObj = payload.get("content");
+        String username = userDetails.getUsername();
+
+        if (inquiryIdObj == null || contentObj == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("문의 ID(inquiryId) 또는 답변 내용(content)이 누락되었습니다.");
+        }
+
+        Long inquiryId;
+        String content;
+        try {
+            if (inquiryIdObj instanceof Integer) {
+                inquiryId = ((Integer) inquiryIdObj).longValue();
+            } else if (inquiryIdObj instanceof String) {
+                inquiryId = Long.parseLong((String) inquiryIdObj);
+            } else if (inquiryIdObj instanceof Long) {
+                inquiryId = (Long) inquiryIdObj;
+            } else {
+                throw new IllegalArgumentException("Invalid type for inquiryId");
+            }
+
+            if (contentObj instanceof String) {
+                content = (String) contentObj;
+                if (content.trim().isEmpty()) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("답변 내용(content)은 비어 있을 수 없습니다.");
+                }
+            } else {
+                throw new IllegalArgumentException("Invalid type for content");
+            }
+        } catch (Exception e) {
+            log.warn("요청 데이터 처리 중 오류 발생: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("잘못된 요청 데이터 형식입니다.");
+        }
+
+        try {
+            inquiryService.addResponse(inquiryId, content, username);
+            User currentUser = userRepository.findUserByUserid(username);
+            if (currentUser == null) {
+                log.error("Authenticated user disappeared during response processing: {}", username);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("답변은 등록되었으나 사용자 정보를 찾는 중 오류 발생.");
+            }
+            InquiryViewResponseDTO inquiryDetails = inquiryService.getInquiryDetails(inquiryId, currentUser);
+
+            return ResponseEntity.ok(inquiryDetails);
+
+        } catch (Exception e) {
+            log.error("답변 처리 중 오류 발생: inquiryId={}, user={}, errorType={}, errorMessage={}",
+                    inquiryId, username, e.getClass().getSimpleName(), e.getMessage(), e);
+
+            if (e instanceof EntityNotFoundException) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("관련 데이터를 찾을 수 없습니다: " + e.getMessage());
+            } else if (e instanceof IllegalStateException) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("처리할 수 없는 상태입니다: " + e.getMessage());
+            } else if (e instanceof AccessDeniedException) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("접근 권한이 없습니다.");
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("답변 처리 중 오류가 발생했습니다.");
+        }
+    }
 }

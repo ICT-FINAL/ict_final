@@ -108,32 +108,10 @@
     align-items: center;
 }
 
-.admin-paging .page-num {
-    padding: 6px 10px;
-    margin: 0 3px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    color: #555;
-    background-color: #fff;
-    transition: background-color 0.2s, color 0.2s;
-}
 .admin-paging a { text-decoration: none; }
 
-.admin-paging .page-num:hover {
-    background-color: #f0f0f0;
-}
-
-.admin-paging .page-num.active {
-    background-color: #555;
-    color: #fff;
-    border-color: #555;
-    font-weight: bold;
-}
-
 .inquiry-action-button {
-    background-color: #4CAF50;
+    background-color: #8CC7A5;
     color: white;
     padding: 8px 16px;
     border: none;

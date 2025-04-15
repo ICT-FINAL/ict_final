@@ -17,4 +17,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     int countByUserid(String userid);
 
     int countByTel(String tel);
+
 }

@@ -58,6 +58,7 @@ import AuctionSell from './auction/AuctionSell';
 import AuctionBid from './auction/AuctionBid';
 import AuctionBidSuccess from './auction/AuctionBidSuccess';
 import ShippingTracker from './shipping/ShippingTracker';
+import Notice from './customerservice/Notice';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -164,6 +165,7 @@ function Body() {
       <Route path='/customerservice/*' element={<CenterHome />}>
         <Route path="inquirywrite" element={<InquiryWrite />} />
         <Route path="faq" element={<FAQ />} />
+        <Route path="notice" element={<Notice />} />
       </Route>
       <Route path='/inquiry/inquiryview/:id' element={<InquiryView />} />
 

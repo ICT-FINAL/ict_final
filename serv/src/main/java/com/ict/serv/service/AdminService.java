@@ -13,6 +13,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AdminService {
@@ -111,7 +113,8 @@ public class AdminService {
         query.setFirstResult(pvo.getOffset());
         query.setMaxResults(pvo.getOnePageRecord());
 
-        return query.getResultList();
+        List<Inquiry> resultList = query.getResultList();
+        return resultList;
     }
 
     private Specification<Inquiry> createInquirySpecification(InquiryState status, String inquiryType, boolean fetchJoins) {
