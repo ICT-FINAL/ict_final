@@ -53,6 +53,7 @@ public class SecurityConfig {
                         .requestMatchers("/product/getOption").permitAll()
                         .requestMatchers("/product/getList/**").permitAll()
                         .requestMatchers("/event/getEventList").permitAll()
+                        .requestMatchers("/event/getMelonRank").permitAll()
                         .requestMatchers("/payment/**").permitAll()
                         .anyRequest().authenticated() // 나머지는 인증 필요
                 )
