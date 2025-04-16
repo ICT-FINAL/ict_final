@@ -97,10 +97,7 @@ function Main() {
     useEffect(() => {
         const now = new Date();
         now.setHours(0, 0, 0, 0);
-
-        axios.get(`${serverIP.ip}/submenu/getSubMenuList`, {
-            headers: { Authorization: `Bearer ${user.token}` },
-        })
+        axios.get(`${serverIP.ip}/submenu/getSubMenuList`)
             .then(res => {
                 const ongoing = res.data.filter(submenu => {
                     const end = new Date(submenu.endDate);
