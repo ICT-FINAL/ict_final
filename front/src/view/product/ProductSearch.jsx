@@ -195,9 +195,20 @@ function ProductSearch() {
                         />
                         <div style={{ cursor: 'pointer' }} onClick={() => moveInfo(product)} className="product-info">
                             <span style={{ fontSize: "14px", color: "#333" }}>{product.productName}</span> {/* 상품명 */} <br />
-                            <span style={{ color: 'red', fontWeight: "700" }}>{product.discountRate}%</span> {/* 할인 */}
-                            <span style={{ textDecoration: "line-through", textDecorationColor: "red", textDecorationThickness: "2px", fontWeight: "700" }}>{product.price.toLocaleString()}원</span> {/* 기존 가격 */}
-                            <span style={{ color: 'red', fontWeight: "700" }}>{Math.round(product.price * (1 - product.discountRate / 100)).toLocaleString()}원</span> {/* 할인된가격 */}
+
+                            {product.discountRate === '' || product.discountRate === 0 ? (
+                                <span style={{ fontWeight: "700" }}>{product.price.toLocaleString()}원</span> // 할인율이 0%일 때는 기존 가격만 표시
+                                ) : (
+                                <>
+                                    <span style={{ color: 'red', fontWeight: "700", marginRight: "3px" }}>{product.discountRate}%</span>
+                                    <span style={{ textDecoration: "line-through", textDecorationColor: "red", textDecorationThickness: "2px", fontWeight: "700", marginRight: '3px' }}>
+                                        {product.price.toLocaleString()}원
+                                    </span>
+                                    <span style={{ color: 'red', fontWeight: "700" }}>
+                                        {Math.round(product.price * (1 - product.discountRate / 100)).toLocaleString()}원
+                                    </span> 
+                                </>
+                            )}
 
                             <br />
                             <div style={{
@@ -208,7 +219,7 @@ function ProductSearch() {
                                 minHeight: "10px",
                                 lineHeight: "10px" // 가운데 정렬
                             }}>
-                                {product.shippingFee === 0 ? "🚚 무료배송" : `배송비 ${product.shippingFee}원`} {/* 배송비 */}
+                                {product.shippingFee === 0 ? "🚚 무료배송" : `배송비 ${product.shippingFee.toLocaleString()}원`} {/* 배송비 */}
                             </div>
 
                             {/* 별과 평균 별점, 리뷰 개수 */}

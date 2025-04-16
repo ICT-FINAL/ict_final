@@ -699,25 +699,27 @@ function ProductReview(){
                                                             ‹
                                                         </button>
                                                     )}
+                                                    
+                                                    <div style={{position:'relative'}}>
+                                                        {/* 확대된 이미지 */}
+                                                        <img
+                                                            src={`${serverIP.ip}/uploads/review/${review.id}/${review.images[enlargedImage.imageIndex].filename}`}
+                                                            alt="enlarged"
+                                                            className="popup-image"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        />
 
-                                                    {/* 확대된 이미지 */}
-                                                    <img
-                                                        src={`${serverIP.ip}/uploads/review/${review.id}/${review.images[enlargedImage.imageIndex].filename}`}
-                                                        alt="enlarged"
-                                                        className="popup-image"
-                                                        onClick={(e) => e.stopPropagation()}
-                                                    />
-
-                                                    {/* 닫기 X 버튼 */}
-                                                    <button
-                                                        className="overlay-close"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation(); // 클릭 시 이벤트 전파 방지
-                                                            setEnlargedImage(null); // 이미지 닫기
-                                                        }}
-                                                    >
-                                                    X
-                                                    </button>
+                                                        {/* 닫기 X 버튼 */}
+                                                        <button
+                                                            className="overlay-close"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation(); // 클릭 시 이벤트 전파 방지
+                                                                setEnlargedImage(null); // 이미지 닫기
+                                                            }}
+                                                        >
+                                                        X
+                                                        </button>
+                                                    </div>
 
                                                     {/* 오른쪽 화살표 */}
                                                     {review.images.length > 1 && (
