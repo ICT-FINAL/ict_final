@@ -1,5 +1,6 @@
 package com.ict.serv.controller.auction;
 
+import com.ict.serv.controller.product.ProductPagingVO;
 import com.ict.serv.entity.auction.*;
 import com.ict.serv.entity.product.*;
 import com.ict.serv.entity.user.User;
@@ -144,5 +145,29 @@ public class AuctionController {
     @GetMapping("/getAuctionItem/{roomId}")
     public ResponseEntity<AuctionRoom> getAuctionItem(@PathVariable String roomId){
         return ResponseEntity.ok(service.getAuctionRoom(roomId).get());
+    }
+
+    @GetMapping("/search")
+    public Map<String, Object> searchProducts(ProductPagingVO pvo) {
+        pvo.setOnePageRecord(10);
+        String[] cats = pvo.getProductCategory().split(",");
+        List<String> categories = new ArrayList<>(Arrays.asList(cats));
+        pvo.setTotalRecord(service.searchCountAll(pvo,categories));
+        List<AuctionProduct> productList = service.searchAll(pvo,categories);
+        System.out.println(productList.size()+"!!!!");
+        List<AuctionResponseDTO> auctionList = new ArrayList<>();
+        for(AuctionProduct product : productList) {
+            List<AuctionRoom> rooms = service.findAuctionRoomByAuctionProduct(product);
+            if(!rooms.isEmpty()) {
+                AuctionResponseDTO dto = new AuctionResponseDTO();
+                dto.setRoom(rooms.get(0));
+                dto.setProduct(product);
+                auctionList.add(dto);
+            }
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("auction",auctionList);
+        result.put("pvo",pvo);
+        return result;
     }
 }

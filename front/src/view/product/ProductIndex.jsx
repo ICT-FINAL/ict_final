@@ -59,8 +59,12 @@ function ProductIndex() {
 
     return (
         <>
-        <div style={{ paddingTop: '200px' }}>
+        <div style={{ paddingTop: '50px' }}>
             <div className='product-main-container'>
+                <div className="search-page-banner">
+                    <h1>👐 손끝에서 전해지는 정성, 핸드메이드의 따뜻함</h1>
+                    <p>취향과 순간에 어울리는 핸드메이드 아이템을 지금 찾아보세요</p>
+                </div>
                 <div className='product-main-box'>
                     <img src={Logo} />
                     <div className='product-right-box'>
