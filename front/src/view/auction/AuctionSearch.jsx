@@ -86,6 +86,12 @@ function AuctionSearch() {
             });
     };
 
+    const isEndingSoon = (endTime) => {
+        const now = new Date();
+        const end = new Date(endTime);
+        const diff = (end - now) / (1000 * 60 * 60);
+        return diff <= 2;
+    };
 
     const formatDateTime = (datetimeStr) => {
         const date = new Date(datetimeStr);
