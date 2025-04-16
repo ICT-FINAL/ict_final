@@ -50,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/uploads/**").permitAll() //파일
                         .requestMatchers("/static/**", "/resources/**").permitAll()
                         .requestMatchers("/product/search").permitAll()
+                        .requestMatchers("/auction/search").permitAll()
                         .requestMatchers("/product/info").permitAll()
                         .requestMatchers("/product/getOption").permitAll()
                         .requestMatchers("/product/getList/**").permitAll()

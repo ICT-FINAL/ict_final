@@ -101,7 +101,7 @@
     transform: translate(-30px, -2px);
     width: 10px;
 }
-div.me-date, div.other-date {
+div.me-date, div.other-date, #unread-sticker {
     font-size: 10pt;
     color: #777;
     padding: 0 15px;
@@ -206,4 +206,14 @@ div.me-date, div.other-date {
     object-fit: cover;
     border-radius: 50%;
     flex-shrink: 0;
-  }
+}
+#new-chat-sticker {
+    float: right;
+    color: #fff;
+    background-color: rgb(247, 85, 85);
+    font-size: 14pt;
+    width: 50px;
+    line-height: 30px;
+    text-align: center;
+    border-radius: 10px;
+}

@@ -32,6 +32,7 @@ public class ChatWebSocketController {
         response.setRoomId(chat.getRoomId());
         response.setMessage(saved.getMessage());
         response.setSendTime(saved.getSendTime());
+        response.setRead(saved.isRead());
 
         UserResponseDto urd = new UserResponseDto();
         urd.setId(user.getId());
@@ -41,5 +42,22 @@ public class ChatWebSocketController {
         response.setUrd(urd);
 
         messagingTemplate.convertAndSend("/topic/chat/" + roomId, response);
+    }
+
+    @MessageMapping("/chat/read/{roomId}")
+    public void handleRead(@DestinationVariable String roomId, @Payload ChatDTO chat) {
+        User user = interactService.selectUserByName(chat.getUrd().getUserid());
+        ChatDTO response = new ChatDTO();
+        response.setRoomId(chat.getRoomId());
+        response.setId(chat.getId());
+
+        UserResponseDto urd = new UserResponseDto();
+        urd.setId(user.getId());
+        urd.setUserid(user.getUserid());
+        urd.setUsername(user.getUsername());
+        urd.setImgUrl(user.getProfileImageUrl());
+        response.setUrd(urd);
+
+        messagingTemplate.convertAndSend("/topic/chat/read/" + roomId, response);
     }
 }

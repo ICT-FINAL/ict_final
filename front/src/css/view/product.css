@@ -269,6 +269,32 @@
     border: 1px solid #7c7c7c;
 }
 
+.search-page-banner {
+    text-align: center;
+    padding: 80px 20px 40px;
+    margin-bottom:40px;
+    border-bottom: 1px solid #e0dcd5;
+    font-family: 'Pretendard', sans-serif;
+}
+
+.search-page-banner h1 {
+    font-size: 32px;
+    color: #333;
+    margin-bottom: 12px;
+    font-weight: 700;
+    line-height: 1.4;
+    animation: fadeUp 0.6s ease-in-out;
+}
+
+.search-page-banner p {
+    font-size: 18px;
+    color: #666;
+    line-height: 1.6;
+}
+@keyframes fadeUp {
+0% { opacity: 0; transform: translateY(20px); }
+100% { opacity: 1; transform: translateY(0); }
+}
 /* 여기서부터 검색 */
 
 .product-grid-container {

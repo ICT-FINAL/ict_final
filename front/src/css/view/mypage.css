@@ -172,45 +172,41 @@
     border-radius: 100%;
 }
 
-.basket-body{
-    background-color: beige;
+.basket-body {
     width:85%;
     max-width: 1400px;
     margin:auto;
     margin-top:30px;
     padding:20px;
+    border: 1px solid #555;
     border-radius: 10px;
 }
 
-.basket-list{
+.basket-list {
     list-style-type: none;
     display: flex;
     margin:0;
     padding:10px;
 }
 
-.basket-list > li{
+.basket-list > li {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    padding: 5px;
 }
 
 .basket-list > li:nth-child(1) {
-    width:5%;
+    width:35%;
+    display: flex;
 }
 
 .basket-list > li:nth-child(2) {
-    width:45%
+    width:50%;
 }
 
 .basket-list > li:nth-child(3) {
-    width:40%;
-    padding-right:30px;
-}
-
-.basket-list > li:nth-child(4) {
-    width:10%;
-    text-align:right;
+    width:15%;
 }
 
 .price-list{

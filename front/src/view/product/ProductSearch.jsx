@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { setSearch } from "../../store/searchSlice";
 import { setModal } from "../../store/modalSlice";
 import { FaStar } from "react-icons/fa";
+import useDebounce from "../../effect/useDebounce";
 
 function ProductSearch() {
     const search = useSelector((state) => state.search);
@@ -17,6 +18,7 @@ function ProductSearch() {
     const modal = useSelector((state) => state.modal);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const debouncedSearchWord = useDebounce(search.searchWord, 500);
 
     const eventOptions = ["생일", "결혼", "졸업", "시험", "출산", "기타"];
     const targetOptions = ["여성", "남성", "연인", "직장동료", "부모님", "선생님", "기타"];
@@ -43,7 +45,7 @@ function ProductSearch() {
         setProducts([]);
         setNowPage(1);
         getProductList(1);
-    }, [search.searchWord, search.eventCategory, search.targetCategory, search.productCategory]);
+    }, [debouncedSearchWord, search.eventCategory, search.targetCategory, search.productCategory]);
 
     useEffect(() => {
         if (nowPage > 1) {

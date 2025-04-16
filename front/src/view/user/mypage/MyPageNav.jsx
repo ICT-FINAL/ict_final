@@ -46,19 +46,19 @@ function MyPageNav({ path, isOpen, closeNav }) {
                     <li onClick={() => handleClick("/mypage/follow")} style={path.l_name === "팔로우 목록" ? clickedStyle : {}}>
                         <span style={path.l_name === "팔로우 목록" ? clickedStyle2 : {}}>팔로우 목록</span>
                     </li>
-                    </ul>
+                </ul>
 
-                    <ul>
-                        <li>거래 내역</li>
-                        <li onClick={() => navigate("/mypage/purchases")} style={path.l_name === "주문 내역" ? clickedStyle : {}}>
-                            <span style={path.l_name === "주문 내역" ? clickedStyle2 : {}}>주문 내역</span>
-                        </li>
-                        <li onClick={() => navigate("/mypage/sales")} style={path.l_name === "판매 내역" ? clickedStyle : {}}>
-                            <span style={path.l_name === "판매 내역" ? clickedStyle2 : {}}>판매 내역</span>
-                        </li>
-                    </ul>
+                <ul>
+                    <li>거래 내역</li>
+                    <li onClick={() => handleClick("/mypage/purchases")} style={path.l_name === "주문 내역" ? clickedStyle : {}}>
+                        <span style={path.l_name === "주문 내역" ? clickedStyle2 : {}}>주문 내역</span>
+                    </li>
+                    <li onClick={() => handleClick("/mypage/sales")} style={path.l_name === "판매 내역" ? clickedStyle : {}}>
+                        <span style={path.l_name === "판매 내역" ? clickedStyle2 : {}}>판매 내역</span>
+                    </li>
+                </ul>
 
-                    <ul>
+                <ul>
                     <li>보관함</li>
                     <li onClick={() => handleClick("/mypage/basket")} style={path.l_name === "장바구니" ? clickedStyle : {}}>
                         <span style={path.l_name === "장바구니" ? clickedStyle2 : {}}>장바구니</span>
@@ -72,9 +72,9 @@ function MyPageNav({ path, isOpen, closeNav }) {
                     <li onClick={() => handleClick("/mypage/points")} style={path.l_name === "적립 내역" ? clickedStyle : {}}>
                         <span style={path.l_name === "적립 내역" ? clickedStyle2 : {}}>적립 내역</span>
                     </li>
-                    </ul>
+                </ul>
 
-                    <ul>
+                <ul>
                     <li>통계</li>
                     <li onClick={() => handleClick("/mypage/stats-activity")} style={path.l_name === "활동 통계" ? clickedStyle : {}}>
                         <span style={path.l_name === "활동 통계" ? clickedStyle2 : {}}>활동 통계</span>
@@ -85,9 +85,9 @@ function MyPageNav({ path, isOpen, closeNav }) {
                     <li onClick={() => handleClick("/mypage/stats-sales")} style={path.l_name === "판매 통계" ? clickedStyle : {}}>
                         <span style={path.l_name === "판매 통계" ? clickedStyle2 : {}}>판매 통계</span>
                     </li>
-                    </ul>
+                </ul>
 
-                    <ul>
+                <ul>
                     <li className="mypage-nav-title">회원 탈퇴</li>
                     <li onClick={() => handleClick("/mypage/delete-account")} style={path.l_name === "회원 탈퇴" ? clickedStyle : {}}>
                         <span style={path.l_name === "회원 탈퇴" ? clickedStyle2 : {}}>회원 탈퇴</span>

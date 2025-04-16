@@ -65,6 +65,7 @@ import Notice from './customerservice/Notice';
 import Chatting from './product/Chatting';
 import DeleteModal from '../modal/DeleteModal';
 import MelonGame from './event/coupon/MelonGame';
+import AuctionSearch from './auction/AuctionSearch';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -208,6 +209,8 @@ function Body() {
       <Route path='/auction/sell' element={<AuctionSell />}></Route>
       <Route path='/auction/bid' element={<AuctionBid />}></Route>
       <Route path="/auction/bid/success" element={<AuctionBidSuccess />} />
+      <Route path="/auction/search" element={<AuctionSearch />} />
+      
 
       <Route path="/shipping/track" element={<ShippingTracker />}></Route>
     </Routes>

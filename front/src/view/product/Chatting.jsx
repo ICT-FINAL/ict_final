@@ -28,6 +28,7 @@ function Chatting() {
                 behavior: 'smooth',
             });
         }
+        console.log(chatHistory);
     },[chatHistory])
 
     useEffect(()=>{
@@ -36,12 +37,6 @@ function Chatting() {
             getChatList();
         }
     },[isOpen]);
-
-    useEffect(()=> {
-        getRoomInfo();
-        getChatList();
-        console.log(chatHistory);
-    },[]);
 
     useEffect(()=>{
         const socket = new SockJS(`${serverIP.ip}/ws`);
@@ -53,16 +48,22 @@ function Chatting() {
                 const body = JSON.parse(msg.body);
                 setChatHistory(prev => [...prev, body]);
                 setIsOpen(true);
-                console.log("body:", body);
                 if (body.urd.id != user.user.id) {
                     changeReadState(body.id);
                 }
+                stompClient.send(`/app/chat/read/${roomId}`, {}, JSON.stringify({
+                    roomId: roomId,
+                    urd: { userid: user.user.userid }
+                }));
             });
+            stompClient.subscribe(`/topic/chat/read/${roomId}`, (msg)=>{
+                changeAllReadState();
+            });
+            stompClient.send(`/app/chat/read/${roomId}`, {}, JSON.stringify({
+                roomId: roomId,
+                urd: { userid: user.user.userid }
+            }));
         })
-
-        axios.post(`${serverIP.ip}/chat/read/room/${roomId}`, null, {
-            headers: { Authorization: `Bearer ${user.token}` }
-          }).catch(err => console.error("방 입장 시 읽음 처리 실패", err));
 
         return () => {
             stompClient.disconnect(() => {
@@ -77,7 +78,6 @@ function Chatting() {
             { headers: {Authorization: `Bearer ${user.token}`}}
         )
         .then(res => {
-            console.log(res.data);
             setRoomInfo(res.data);
         })
         .catch(err => console.log(err));
@@ -88,7 +88,6 @@ function Chatting() {
             { headers: {Authorization: `Bearer ${user.token}`}}
         )
         .then(res => {
-            console.log(res.data);
             setChatHistory(res.data);
         })
         .catch(err => console.log(err));
@@ -97,8 +96,21 @@ function Chatting() {
     const changeReadState = (chatId)=>{
         axios.post(`${serverIP.ip}/chat/read/${chatId}`, null, {
             headers: { Authorization: `Bearer ${user.token}` }
+        }).then(()=>{
+            getChatList();
         }).catch(err => {
         console.error('읽음 처리 실패', err);
+        });
+    }
+    const changeAllReadState = ()=>{
+        axios.post(`${serverIP.ip}/chat/read/room/${roomId}`, null, {
+            headers: { Authorization: `Bearer ${user.token}` }
+        }).then(()=>{
+            getRoomInfo();
+            getChatList();
+        }).
+        catch(err => {
+            console.error('읽음 처리 실패', err);
         });
     }
 
@@ -160,11 +172,16 @@ function Chatting() {
                                                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: isMe ? 'flex-end' : 'flex-start' }}>
                                                         <div className={isMe ? 'me' : 'other'} style={{maxWidth:'250px'}}>{history.message}</div>
                                                         <div className={isMe ? 'me-date' : 'other-date'}>{getTime(history.sendTime)}</div>
+                                                        {
+                                                            !history.read &&
+                                                            <span id='unread-sticker'>읽지 않음</span>
+                                                        }
                                                     </div>
                                                 </div>
                                             </div>
                                         )
                                     })
+                                    
                                 }
                             </div>
                             <div className="chat-input">
