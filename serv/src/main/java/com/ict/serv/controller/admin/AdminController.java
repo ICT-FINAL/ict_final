@@ -4,7 +4,6 @@ import com.ict.serv.entity.Authority;
 import com.ict.serv.entity.Inquiries.Inquiry;
 import com.ict.serv.entity.Inquiries.InquiryPagingVO;
 import com.ict.serv.entity.Inquiries.InquiryState;
-import com.ict.serv.entity.message.Message;
 import com.ict.serv.entity.report.Report;
 import com.ict.serv.entity.report.ReportState;
 import com.ict.serv.entity.user.User;
@@ -12,23 +11,17 @@ import com.ict.serv.repository.UserRepository;
 import com.ict.serv.service.AdminService;
 import com.ict.serv.service.InquiryService;
 import com.ict.serv.service.InteractService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
-import java.nio.file.AccessDeniedException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -93,7 +86,6 @@ public class AdminController {
             errorMap.put("pvo", pvo);
             return errorMap;
         }
-
         List<Inquiry> inquiryList;
         try {
             inquiryList = service.getAdminInquiryList(pvo, status, inquiryType);
@@ -104,40 +96,50 @@ public class AdminController {
         Map<String, Object> map = new HashMap<>();
         map.put("pvo", pvo);
         map.put("inquiryList", inquiryList);
-
+        System.out.println(inquiryList.get(0).getInquiryStatus() + ":" +inquiryList.size());
         return map;
     }
 
-    @GetMapping("/getUsers")
-    public ResponseEntity<Map<String, Object>> getUsersWithSearch(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String authority
-    ) {
-        List<User> users;
-        Map<String, Object> response = new HashMap<>();
-
+@GetMapping("/getUsers")
+public ResponseEntity<Map<String, Object>> getUsersWithSearch(
+        @RequestParam(defaultValue = "1") int page,
+        @RequestParam(defaultValue = "5") int limit,
+        @RequestParam(required = false) String keyword,
+        @RequestParam(required = false) String authority
+) {
+    Map<String, Object> response = new HashMap<>();
+    //System.out.println("받은 데이터!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"+keyword+authority);
         long totalUserCount = userRepository.countByAuthority(Authority.ROLE_USER);
-        response.put("total", totalUserCount);
+        response.put("totalCount", totalUserCount);
 
-        if(keyword == null && authority == null) {
-            users = userRepository.findAll();
-        }
-        else if ("전체".equals(authority)) {
-          users = userRepository.findByUseridContainingOrUsernameContaining(keyword, keyword);
-        } else if ("관리자".equals(authority)) {
-            Authority adminAuthority = Authority.ROLE_ADMIN;
-            users = userRepository.findByAuthorityAndUseridContainingOrAuthorityAndUsernameContaining(
-                    adminAuthority, keyword, adminAuthority, keyword);
-        } else if ("사용자".equals(authority)) {
-            Authority adminAuthority = Authority.ROLE_USER;
-            users = userRepository.findByAuthorityAndUseridContainingOrAuthorityAndUsernameContaining(
-                    adminAuthority, keyword, adminAuthority, keyword);
-        } else {
+    if (keyword == null) keyword = "";
+    keyword = keyword.trim();
+
+    Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.DESC, "id"));
+    Page<User> userPage;
+
+    if (authority == null || "전체".equals(authority)) {
+        userPage = userRepository.findByUseridContainingOrUsernameContaining(keyword, keyword, pageable);
+    } else {
+        Authority auth;
+        try {
+            if ("관리자".equals(authority)) auth = Authority.ROLE_ADMIN;
+            else if ("사용자".equals(authority)) auth = Authority.ROLE_USER;
+            else throw new IllegalArgumentException();
+        } catch (Exception e) {
             response.put("message", "잘못된 권한 필터입니다.");
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
-        response.put("users", users);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+
+        userPage = userRepository.findByAuthorityAndUseridContainingOrAuthorityAndUsernameContaining(
+                    auth, keyword, auth, keyword, pageable);
+    }
+
+    response.put("users", userPage.getContent());
+    response.put("selectedCount", userPage.getTotalElements());
+    response.put("totalPage", userPage.getTotalPages());
+
+    return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
 

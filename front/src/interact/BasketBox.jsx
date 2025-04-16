@@ -46,7 +46,6 @@ function BasketBox() {
       setQuantityError(false);
     }
     if (newQty > item.categoryQuantity) {
-      alert("변경할 수량이 남은 수량보다 많아 주문 수정을 할 수 없습니다.");
       setQuantityError(true);
     }
     else {

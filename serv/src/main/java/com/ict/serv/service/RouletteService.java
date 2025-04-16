@@ -1,5 +1,6 @@
 package com.ict.serv.service;
 
+import com.ict.serv.entity.PointType;
 import com.ict.serv.entity.UserPoint;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.UserPointRepository;
@@ -82,7 +83,7 @@ public class RouletteService {
 
         // 사용자의 포인트 정보가 없다면 새로 생성
         UserPoint userPoint = userPointRepository.findByUserId(user.getId())
-                .orElseGet(() -> new UserPoint(user.getId(), 0, null));
+                .orElseGet(() -> new UserPoint(user.getId(), 0, null, PointType.ROULETTE));
 
         // 오늘 이미 룰렛을 돌렸다면 예외 발생
         if (userPoint.getLastSpinDate() != null && userPoint.getLastSpinDate().equals(LocalDate.now())) {
@@ -120,6 +121,8 @@ public class RouletteService {
 
         try {
             userPointRepository.save(userPoint);
+            user.setGradePoint(user.getGradePoint()+100);
+            userRepository.save(user);
         } catch (Exception e) {
             log.error("Failed to save UserPoint for userId: {}, error: {}", user.getId(), e.getMessage(), e);
             throw new RuntimeException("Failed to save points: " + e.getMessage());

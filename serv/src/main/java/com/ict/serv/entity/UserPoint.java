@@ -23,9 +23,13 @@ public class UserPoint {
 
     private LocalDate lastSpinDate;
 
-    public UserPoint(Long userId, int point, LocalDate lastSpinDate) {
+    @Enumerated(EnumType.STRING)
+    private PointType type;
+
+    public UserPoint(Long userId, int point, LocalDate lastSpinDate, PointType type) {
         this.userId = userId;
         this.point = point;
         this.lastSpinDate = lastSpinDate;
+        this.type = type;
     }
 }

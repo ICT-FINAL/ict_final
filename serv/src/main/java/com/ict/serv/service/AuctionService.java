@@ -1,9 +1,12 @@
 package com.ict.serv.service;
 
 import com.ict.serv.context.ApplicationContextProvider;
+import com.ict.serv.controller.product.ProductPagingVO;
 import com.ict.serv.entity.Authority;
 import com.ict.serv.entity.auction.*;
 import com.ict.serv.entity.message.Message;
+import com.ict.serv.entity.product.Product;
+import com.ict.serv.entity.product.ProductState;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.MessageRepository;
 import com.ict.serv.repository.UserRepository;
@@ -11,15 +14,13 @@ import com.ict.serv.repository.auction.AuctionBidRepository;
 import com.ict.serv.repository.auction.AuctionProductRepository;
 import com.ict.serv.repository.auction.AuctionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.*;
 
 @Service
@@ -119,10 +120,13 @@ public class AuctionService {
     @Transactional
     public void closeAuctionRoom(String roomId) {
         AuctionRoom room = auctionRepository.findById(roomId).orElse(null);
-        if (room != null && room.getState() == AuctionState.OPEN) {
+        AuctionProduct product = auctionProductRepository.getReferenceById(Objects.requireNonNull(room).getAuctionProduct().getId());
+        if (room.getState() == AuctionState.OPEN) {
             if (LocalDateTime.now().isAfter(room.getEndTime())) {
                 room.setState(AuctionState.CLOSED);
+                product.setState(ProductState.PAUSE);
                 auctionRepository.save(room);
+                auctionProductRepository.save(product);
                 messagingTemplate.convertAndSend("/topic/auction/" + roomId + "/end", "경매 종료");
                 System.out.println("경매 종료");
             } else {
@@ -164,6 +168,10 @@ public class AuctionService {
         return bidRepository.findByRoomOrderByBidTimeAsc(room);
     }
 
+    public List<AuctionRoom> findAuctionRoomByAuctionProduct(AuctionProduct auctionProduct){
+        return auctionRepository.findByAuctionProduct(auctionProduct);
+    }
+
     @Transactional
     public void deleteRoom(String roomId) {
         bidRepository.deleteByRoom_RoomId(roomId);
@@ -179,5 +187,15 @@ public class AuctionService {
     }
     public Optional<AuctionProduct> getAuctionProduct(Long id) {
         return auctionProductRepository.findById(id);
+    }
+
+    public int searchCountAll(ProductPagingVO pvo, List<String> categories) {
+        if(categories.isEmpty()|| categories.get(0).isEmpty()) return auctionProductRepository.countAuctionProductsNoCategory(pvo.getSearchWord(),pvo.getEventCategory(),pvo.getTargetCategory());
+        else return auctionProductRepository.countAuctionProductsAllCategory(pvo.getSearchWord(),pvo.getEventCategory(),pvo.getTargetCategory(), categories);
+    }
+    public List<AuctionProduct> searchAll(ProductPagingVO pvo, List<String> categories) {
+        if(categories.isEmpty() || categories.get(0).isEmpty()) {
+            return auctionProductRepository.findAuctionProductsNoCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord()));
+        }else return auctionProductRepository.findAuctionProductsAllCategory(pvo.getSearchWord(),pvo.getEventCategory(),pvo.getTargetCategory(), categories,PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
     }
 }

@@ -21,6 +21,19 @@ function ProductBuy() {
   const [totalShippingFee, setTotalShippingFee] = useState(0);
   const [totalDiscountAmount, setTotalDiscountAmount] = useState(0);
 
+  const [selectedCoupon, setSelectedCoupon] = useState(0);
+  const [selectedCouponId, setSelectedCouponId] = useState(0);
+  const [couponList, setCouponList] = useState([]);
+
+  const handleCouponChange = (e) => {
+    console.log(selectedCouponId);
+    console.log(selectedCoupon);
+    setSelectedCoupon(Number(e.target.value.split('-')[0]));
+    const [discount, id] = e.target.value.split('-');
+    setSelectedCoupon(Number(discount));
+    setSelectedCouponId(Number(id));
+  };
+
   const groupedItems = orderItems.reduce((acc, item) => {
     const key = item.productNo;
     if (!acc[key]) {
@@ -43,6 +56,14 @@ function ProductBuy() {
   }, {});
 
   useEffect(() => {
+    if(user)
+      axios.get(`${serverIP.ip}/interact/getCouponList`, {
+        headers:{Authorization:`Bearer ${user.token}`}
+      })
+      .then(res => {
+        setCouponList(res.data);
+      })
+      .catch(err=>console.log(err))
     if (state && state.basketItems) {
       setIsBasketPurchase(true);
       setPurchasedItems(state.basketItems);
@@ -99,11 +120,11 @@ function ProductBuy() {
         }
       });
 
-      setTotalPaymentAmount(paymentTotal + shippingTotal);
+      setTotalPaymentAmount(paymentTotal + shippingTotal - selectedCoupon);
       setTotalShippingFee(shippingTotal);
-      setTotalDiscountAmount(discountTotal);
+      setTotalDiscountAmount(discountTotal + selectedCoupon);
     }
-  }, [purchasedItems]);
+  }, [purchasedItems, selectedCoupon]);
 
 
   const handleAddAddress = (newAddress) => {
@@ -143,15 +164,13 @@ function ProductBuy() {
       usedProductNos.add(item.productNo);
     });
 
-    console.log(orderDetails);
-    console.log(productIds);
     axios.post(`${serverIP.ip}/order/setOrder`, {
       options: orderDetails,
       addrId: selAddrId,
       req: request,
       orderId: orderId,
       shippingFee: totalShippingFee,
-      couponDiscount: state.selectedCoupon || 0,
+      couponDiscount: selectedCoupon || 0,
       productIds: productIds
     }, {
       headers: { Authorization: `Bearer ${user.token}` },
@@ -159,7 +178,7 @@ function ProductBuy() {
       .then(res => {
         console.log(res.data);
           const basketNos = orderDetails.map(item => item.basketNo).join(',');
-          const successUrl = `${serverIP.front}/payment/success?iid=${res.data.id}&basketNos=${basketNos}`;
+          const successUrl = `${serverIP.front}/payment/success?iid=${res.data.id}&basketNos=${basketNos}&couponId=${selectedCouponId}`;
           tossPayments
             .requestPayment("카드", {
               amount: parseInt(totalPaymentAmount),
@@ -218,7 +237,18 @@ function ProductBuy() {
             ))}
 
             <div className="shipping-discount-info">
+            <strong>쿠폰 선택:</strong> <select style={{marginBottom:'20px'}} className='product-info-selectbox' onChange={handleCouponChange} value={`${selectedCoupon}-${selectedCouponId}`}>
+                <option value="0-0">쿠폰을 선택해주세요</option>
+                {
+                  couponList.map(item => {
+                    return(<option key={item.id} value={`${item.discount}-${item.id}`}>
+                      {item.couponName} : {item.discount}원
+                    </option>);
+                  })
+                }
+            </select>
               {totalShippingFee > 0 && <p className="shipping-fee">총 배송비: +{formatNumberWithCommas(totalShippingFee)}원</p>}
+              {selectedCoupon > 0 && <p style={{ color: '#d9534f' }} className="discount-amount">쿠폰 할인: -{formatNumberWithCommas(selectedCoupon)}원</p>}
               {totalDiscountAmount > 0 && <p className="discount-amount" style={{ color: '#d9534f' }}>총 할인 금액: -{formatNumberWithCommas(totalDiscountAmount)}원</p>}
             </div>
             <div className="final-price">
