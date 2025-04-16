@@ -55,6 +55,7 @@ public class SecurityConfig {
                         .requestMatchers("/event/getEventList").permitAll()
                         .requestMatchers("/event/getMelonRank").permitAll()
                         .requestMatchers("/payment/**").permitAll()
+                        .requestMatchers("/submenu/getSubMenuList").permitAll()
                         .requestMatchers("/api/roulette/check").authenticated()
                         .requestMatchers("/api/roulette/spin").authenticated()
                         .anyRequest().authenticated() // 나머지는 인증 필요
