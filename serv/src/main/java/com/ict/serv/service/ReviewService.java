@@ -62,5 +62,10 @@ public class ReviewService {
     public void deleteReview(Optional<Review> review) {
         repository.deleteById(review.get().getId()); // 리뷰 삭제
         image_repository.deleteByReview(review.get()); // 리뷰 이미지 삭제
+        like_repository.deleteByReview(review.get()); // 리뷰 좋아요 삭제
+    }
+
+    public List<Review> selectProductId(Product product) {
+        return repository.findByProduct(product);
     }
 }

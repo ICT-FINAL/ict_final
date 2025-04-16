@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { setModal } from "../../store/modalSlice";
-import { FaStar, FaStarHalf, FaStarHalfAlt  } from 'react-icons/fa';
+import { FaStar  } from 'react-icons/fa';
 
 
 function ProductReview(){
@@ -282,6 +282,8 @@ function ProductReview(){
 
                 alert("성공하였습니다.");
 
+                setReviewWrite(false);
+
                 getReviewList();
             }
         })
@@ -303,8 +305,188 @@ function ProductReview(){
         }
     },[modal.delCheck])
 
+    // 평균 별점 구하기 
+    const [averageStar, setAverageStar] = useState(null);
+    useEffect(() => {
+        axios.get(`${serverIP.ip}/review/averageStar?productId=${loc.state.product.id}`)
+        .then(res => {
+            console.log(res.data); 
+            setAverageStar(res.data.average);
+        })
+        .catch(err => console.log(err));
+    }, []);
+
+    // 별점 UI 렌더링 함수
+    const renderStars = (average) => {
+        return (
+            <div style={{ display: 'flex', gap: '1px'}}>
+                {[1, 2, 3, 4, 5].map((star) => {
+                    let fillPercent = 0;
+    
+                    const diff = average - (star - 1);
+                    if (diff >= 1) {
+                        fillPercent = 100;
+                    } else if (diff > 0) {
+                        fillPercent = diff * 100;
+                    } else {
+                        fillPercent = 0;
+                    }
+    
+                    return (
+                        <span key={star} style={{ position: 'relative', width: '32px', height: '32px', fontSize: '32px', display: 'inline-block'}}>
+                            <FaStar style={{ color: '#C0C0C0' }}/>
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    overflow: 'hidden',
+                                    width: `${fillPercent}%`,
+                                    height: '100%',
+                                }}
+                            >
+                                <FaStar style={{ color: '#FFD700', fontSize: '32px' }} />
+                            </div>
+                        </span>
+                    );
+                })}
+            </div>
+        );
+    };
+
+    // 전체 이미지 리스트 모으기
+    const [showAllImages, setShowAllImages] = useState(false);
+    const [modalImage, setModalImage] = useState(null); // 이미지 클릭 시 모달처럼 확대된 이미지 설정
+
+    // reviewList가 배열인지 확인 후, 그렇지 않으면 빈 배열로 처리
+    const allImages = Array.isArray(reviewList) ? 
+        reviewList
+            .map(review => review.images?.map(image => ({
+                src: `${serverIP.ip}/uploads/review/${review.id}/${image.filename}`,
+                reviewId: review.id,
+                filename: image.filename,
+            })))
+            .flat() // 모든 이미지를 하나의 배열로 평탄화
+        : []; // reviewList가 배열이 아닐 경우 빈 배열
+
+    const previewImages = allImages.slice(0, 5);
+
+    const handleImageClick = (img) => {
+        const review = reviewList.find((r) => r.id === img.reviewId); // 리뷰를 찾는 로직 추가
+        setModalImage({
+            src: img.src,
+            reviewId: img.reviewId,
+            reviewContent: review ? review.reviewContent : '',  // 리뷰 내용 추가
+            reviewDate: review ? new Date(review.reviewWritedate).toLocaleDateString() : '', // 작성일 추가
+            username: review ? review.user.username : '', // 사용자명 추가
+            rate: review ? review.rate : '', // 별점 추가
+        });
+    }
+
+    const closeModal = () => {
+        setModalImage(null); // 모달을 닫을 때 이미지 초기화
+    }
+
+    // 더보기+를 누르면 원래있던 이미지 전체리스트에 스크롤이 생겨서 막는 로직 
+    useEffect(() => {
+        if (showAllImages) {
+          document.body.style.overflow = 'hidden';
+        } else {
+          document.body.style.overflow = '';
+        }
+      
+        // 언마운트 시에도 복구
+        return () => {
+          document.body.style.overflow = '';
+        };
+      }, [showAllImages]);
+
     return(
         <>
+            <div style={{fontSize:'20px', fontWeight:'700', padding:'10px 30px'}}>리뷰({reviewList.length})</div>
+            <div   style={{display: 'flex', justifyContent: 'center'}}> 
+                {/* 평균 별점 */}
+                {averageStar !== null ? (
+                    <>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            {/* 별점 표시 */}
+                            {renderStars(averageStar)}
+                            <p
+                                style={{
+                                    marginLeft: '8px',
+                                    fontSize: '25px',
+                                    fontWeight: '800',
+                                    lineHeight: '24px' // 텍스트와 별 사이 간격 조정
+                                }}
+                            >
+                                {averageStar.toFixed(1)}
+                            </p>
+                        </div>
+                    </>
+                ) : null}
+            </div>
+            {/* 리뷰 전체 이미지 */}
+            <div className="review-gallery-wrapper">
+                <h3 className="review-gallery-title">📸 리뷰 사진 모아보기</h3>
+
+                <div className="review-preview-container">
+                    {(showAllImages ? allImages : previewImages).map((img, idx) => (
+                    <img
+                        key={idx}
+                        className="review-preview-img"
+                        src={img.src}
+                        alt={`review-${img.reviewId}-${img.filename}`}
+                        onClick={() => handleImageClick(img)}
+                    />
+                    ))}
+
+                    {/* +더보기 버튼 */}
+                    {allImages.length > 5 && !showAllImages && (
+                    <div className="review-preview-more" onClick={() => setShowAllImages(true)}>
+                        + 더보기
+                    </div>
+                    )}
+                </div>
+
+                {/* 전체 이미지 모달 */}
+                {showAllImages && (
+                    <div className="review-modal-overlay" onClick={() => setShowAllImages(false)}>
+                    <div className="review-modal-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="review-modal-images">
+                        {allImages.map((img, idx) => (
+                            <img
+                            key={idx}
+                            className="review-modal-img"
+                            src={img.src}
+                            alt={`review-${img.reviewId}-${img.filename}`}
+                            onClick={() => handleImageClick(img)}
+                            />
+                        ))}
+                        </div>
+                        <button className="review-modal-close" onClick={() => setShowAllImages(false)}>X</button>
+                    </div>
+                    </div>
+                )}
+
+                {/* 확대 이미지 모달 */}
+                {modalImage && (
+                    <div className="review-modal-overlay" onClick={closeModal}>
+                        <div className="review-modal-content" onClick={(e) => e.stopPropagation()}>
+                            <img className="review-enlarged-img" src={modalImage.src} alt="enlarged" />
+                            <div className="review-details">
+                                <p><strong>작성자:</strong> {modalImage.username}</p>
+                                <p><strong>작성일:</strong> {modalImage.reviewDate}</p>
+                                <p><strong>별점:</strong> {modalImage.rate} / 5</p>
+                                <p><strong>리뷰 내용:</strong> {modalImage.reviewContent}</p>
+                            </div>
+                            <button className="review-modal-close" onClick={closeModal}>X</button>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            <hr style={{ border: '0', height: '10px', backgroundColor: 'rgb(241, 241, 241)' }} />
+
             {isPurchased && !isReview && (
                 <div style={{ textAlign: 'right' }}>
                     <a onClick={() => setReviewWrite(!reviewWrite)} className="reviewWriteBtn">리뷰작성</a>    
@@ -474,6 +656,7 @@ function ProductReview(){
                                                         src={`${serverIP.ip}/uploads/review/${review.id}/${review.images[imageIndexes[index]].filename}`}
                                                         alt={`review-img-${imageIndexes[index]}`}
                                                         className="review-custom-slider-image"
+                                                        title="이미지 클릭시 확대하여 확인 가능"
                                                         onClick={() => setEnlargedImage({ reviewIndex: index, imageIndex: imageIndexes[index] })}
                                                     />
                                                 )}

@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { FaHeart, FaShoppingCart, FaTimes, FaRocketchat } from "react-icons/fa";
+import { FaHeart, FaShoppingCart, FaTimes, FaRocketchat, FaStar } from "react-icons/fa";
 import { setLoginView } from "../../store/loginSlice";
 
 import axios from "axios";
@@ -39,6 +39,56 @@ function ProductInfo() {
         getWish();
     }, []);
 
+    // 평균 별점 구하기 
+    const [averageStar, setAverageStar] = useState(null);
+    useEffect(() => {
+        axios.get(`${serverIP.ip}/review/averageStar?productId=${loc.state.product.id}`)
+        .then(res => {
+            console.log(res.data); 
+            setAverageStar(res.data.average);
+        })
+        .catch(err => console.log(err));
+    }, []);
+
+    // 별점 UI 렌더링 함수
+    const renderStars = (average) => {
+        return (
+            <div style={{ display: 'flex', gap: '1px'}}>
+                {[1, 2, 3, 4, 5].map((star) => {
+                    let fillPercent = 0;
+    
+                    const diff = average - (star - 1);
+                    if (diff >= 1) {
+                        fillPercent = 100;
+                    } else if (diff > 0) {
+                        fillPercent = diff * 100;
+                    } else {
+                        fillPercent = 0;
+                    }
+    
+                    return (
+                        <span key={star} style={{ position: 'relative', width: '20px', height: '20px', fontSize: '20px', display: 'inline-block'}}>
+                            <FaStar style={{ color: '#C0C0C0', position: 'absolute', top: 0, left: 0, fontSize: '20px',}}
+/>
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    overflow: 'hidden',
+                                    width: `${fillPercent}%`,
+                                    height: '100%',
+                                }}
+                            >
+                                <FaStar style={{ color: '#FFD700', fontSize: '20px' }} />
+                            </div>
+                        </span>
+                    );
+                })}
+            </div>
+        );
+    };
+    
     useEffect(() => {
         let newTotalPrice = 0;
         selectedItems.forEach(item => {
@@ -337,9 +387,26 @@ function ProductInfo() {
                                     <img id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' src={loc.state.product.sellerNo.uploadedProfileUrl && loc.state.product.sellerNo.uploadedProfileUrl.indexOf('http') !== -1 ? `${loc.state.product.sellerNo.uploadedProfileUrl}` : `${serverIP.ip}${loc.state.product.sellerNo.uploadedProfileUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
                                     <div id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{loc.state.product.sellerNo.username} &gt;</div>
                                 </div>
-                                <div className='product-star-rating'>
-                                    ★★★★★ <span style={{ color: 'black' }}>{loc.state.product.rating}</span>
-                                </div>
+                                {/* 평균 별점 */}
+                                {averageStar !== null ? (
+                                    <>
+                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                            {/* 별점 표시 */}
+                                            {renderStars(averageStar)}
+                                            <p
+                                                style={{
+                                                    marginLeft: '8px',
+                                                    fontSize: '13px',
+                                                    color: '#555',
+                                                    fontWeight: '600',
+                                                    lineHeight: '24px', // 텍스트와 별 사이 간격 조정
+                                                }}
+                                            >
+                                                {averageStar.toFixed(1)} / 5
+                                            </p>
+                                        </div>
+                                    </>
+                                ) : null}
                             </li>
                             <li style={{ display: 'flex', marginTop: '20px', fontSize: '25px', lineHeight: '30px' }}>
                                 <div className='product-info-name'>
