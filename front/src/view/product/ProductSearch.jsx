@@ -5,6 +5,7 @@ import { useInView } from "react-intersection-observer";
 import { useNavigate } from "react-router-dom";
 import { setSearch } from "../../store/searchSlice";
 import { setModal } from "../../store/modalSlice";
+import { FaStar } from "react-icons/fa";
 
 function ProductSearch() {
     const search = useSelector((state) => state.search);
@@ -79,12 +80,38 @@ function ProductSearch() {
                 });
 
                 setTotalPage(pvo.totalPage);
+
+                 // 각 상품에 대해 별점과 리뷰 개수 불러오기
+                productList.forEach(product => {
+                    axios.get(`${serverIP.ip}/review/averageStar?productId=${product.id}`)
+                        .then((res) => {
+                            const { average, reviewCount } = res.data;
+                            // 상품에 별점과 리뷰 개수 추가
+                            product.average = average;
+                            product.reviewCount = reviewCount;
+                        })
+                        .catch((err) => console.log(err));
+                });
+
                 console.log(productList);
             })
             .catch((err) => {
                 console.log(err)
             });
     };
+
+    {/* 평균 별점, 리뷰 갯수 구하기 */}
+    const [averageStar, setAverageStar] = useState(null);
+    const [reviewCount, setReviewCount] = useState(0);
+    // useEffect(() => {
+    //     axios.get(`${serverIP.ip}/review/averageStar?productId=${loc.state.product.id}`)
+    //     .then(res => {
+    //         console.log(res.data); 
+    //         setAverageStar(res.data.average);
+    //         setReviewCount(res.data.reviewCount);
+    //     })
+    //     .catch(err => console.log(err));
+    // }, []);
 
     return (
         <div className="product-grid-container">
@@ -167,8 +194,8 @@ function ProductSearch() {
                         <div style={{ cursor: 'pointer' }} onClick={() => moveInfo(product)} className="product-info">
                             <span style={{ fontSize: "14px", color: "#333" }}>{product.productName}</span> {/* 상품명 */} <br />
                             <span style={{ color: 'red', fontWeight: "700" }}>{product.discountRate}%</span> {/* 할인 */}
-                            <span style={{ textDecoration: "line-through", textDecorationColor: "red", textDecorationThickness: "2px", fontWeight: "700" }}>{product.price}원</span> {/* 기존 가격 */}
-                            <span style={{ color: 'red', fontWeight: "700" }}>{Math.round(product.price * (1 - product.discountRate / 100))}원</span> {/* 할인된가격 */}
+                            <span style={{ textDecoration: "line-through", textDecorationColor: "red", textDecorationThickness: "2px", fontWeight: "700" }}>{product.price.toLocaleString()}원</span> {/* 기존 가격 */}
+                            <span style={{ color: 'red', fontWeight: "700" }}>{Math.round(product.price * (1 - product.discountRate / 100)).toLocaleString()}원</span> {/* 할인된가격 */}
 
                             <br />
                             <div style={{
@@ -181,6 +208,18 @@ function ProductSearch() {
                             }}>
                                 {product.shippingFee === 0 ? "🚚 무료배송" : `배송비 ${product.shippingFee}원`} {/* 배송비 */}
                             </div>
+
+                            {/* 별과 평균 별점, 리뷰 개수 */}
+                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '3px' }}>
+                                <FaStar style={{ color: '#FFD700', fontSize: '15px' }} />
+                                <div style={{ marginLeft: '8px', fontSize: '12px', color: '#555' }}>
+                                    <b>{product.average ? product.average.toFixed(1) : '0.0'}</b>
+                                    <span style={{ marginLeft: '4px', color: '#999' }}>
+                                        ({product.reviewCount})
+                                    </span>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 ))}

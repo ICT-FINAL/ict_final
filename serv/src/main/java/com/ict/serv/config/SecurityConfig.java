@@ -42,7 +42,8 @@ public class SecurityConfig {
                                 "/auth/reset-password",
                                 "/auth/me",
                                 "/auction/room/**",
-                                "/auction/**"
+                                "/auction/**",
+                                "/review/averageStar"
                         ).permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/signup/**", "/auth/login").permitAll()

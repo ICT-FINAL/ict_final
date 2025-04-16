@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -331,7 +332,6 @@ public class ReviewController {
 
     @GetMapping("/delReview")
     public ResponseEntity<String> delReview(Long userId, Long reviewId){
-
         Optional<Review> reviewOptional = service.selectReviewId(reviewId);
         if (reviewOptional.isPresent()) {
             Review review = reviewOptional.get();
@@ -344,7 +344,33 @@ public class ReviewController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("리뷰를 찾을 수 없습니다.");
         }
+    }
 
+    // 리뷰의 평균 별점 구하기
+    @GetMapping("/averageStar")
+    public Map<String, Object> averageReview(@RequestParam("productId") Long productId){
+        Product product = new Product();
+        product.setId(productId);
+
+        List<Review> reviewAverage = service.selectProductId(product);
+        double total = 0;
+        int count = reviewAverage.size();
+
+        for(Review review : reviewAverage){
+            total += Double.parseDouble(review.getRate());
+        }
+
+        double average = 0;
+        if(count>0){
+            average = total / count;
+        }
+
+        // Map에 평균 별점과 리뷰 개수를 넣어서 반환
+        Map<String, Object> response = new HashMap<>();
+        response.put("average", average);
+        response.put("reviewCount", count);
+
+        return response;
     }
 
 }
