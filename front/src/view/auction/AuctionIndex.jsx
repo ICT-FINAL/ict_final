@@ -33,8 +33,6 @@ function AuctionIndex() {
             doSearch();
         }
     }
-
-    /* 상품 검색 카테고리 */
     const eventOptions = ["생일", "결혼", "졸업", "시험", "출산", "기타"];
     const targetOptions = ["여성", "남성", "연인", "직장동료", "부모님", "선생님", "기타"];
     const productOptions = {
@@ -52,19 +50,18 @@ function AuctionIndex() {
         "기타": ["기타"]
     };
 
-    /* start : 전체 리스트 */
     const serverIP = useSelector((state) => state.serverIP);
     const user = useSelector((state) => state.auth.user);
 
     return (
-        <div style={{ paddingTop: '50px' }}>
+        <div style={{ paddingTop: '50px', height:'4000px' }}>
             <div className='product-main-container'>
                 <div className="search-page-banner">
                 <h1>🎉 핸드메이드 아이템, 지금 가장 좋은 가격에!</h1>
                 <p>마음에 드는 순간 바로 입찰하고, 소중한 작품의 주인이 되어보세요</p>
                 </div>
                 <div className='product-main-box'>
-                    <img src={Logo} />
+                    
                     <div className='product-right-box'>
                         <select
                             value={search.eventCategory}
@@ -102,16 +99,22 @@ function AuctionIndex() {
                                 <input onKeyDown={handleSearch} type="text" value={search.searchWord} placeholder="검색어 입력" onChange={changeSearchWord} className="searchWord-style" />
                                 <button onClick={doSearch} className="searchBtn-style">검색</button>
                             </div>
-                            <div className="hashtag-box">
+                            <div className="hashtag-box" style={{marginBottom:'20px'}}>
                                 {search.eventCategory && <span id='search-hashtag'>#{search.eventCategory}</span>}
                                 {search.targetCategory && <span id='search-hashtag'>#{search.targetCategory}</span>}
                                 {search.productCategory && search.productCategory.map((item, index) => (
                                     <span key={index} id='search-hashtag'>#{item}</span>
                                 ))}
                             </div>
-                            <div className="sellBtn-wrapper">
-                                { user && <button onClick={doSell} className="sellBtn-style">상품 등록</button>}
-                            </div>
+                            { user &&
+                                <div className="talent-share-box">
+                                    <div className="talent-text">
+                                        🏷️ 당신의 작품, 새로운 주인을 찾아요<br />
+                                        <span className="highlight">지금, 경매에 출품해보세요!</span>
+                                    </div>
+                                    <button onClick={doSell} className="sellBtn-style">+ 경매 등록</button>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>

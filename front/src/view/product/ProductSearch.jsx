@@ -181,7 +181,7 @@ function ProductSearch() {
                     </div>
                 </div>
             </div>
-            <div className="product-grid">
+            <div className="product-grid" style={{textAlign:'left'}}>
                 {products.map((product, index) => (
                     <div
                         key={`${product.id}-${index}`}
