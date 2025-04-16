@@ -29,6 +29,7 @@ public class RouletteService {
     @PersistenceContext
     private EntityManager entityManager;
 
+    // 현재 로그인한 사용자의 ID를 SecurityContext에서 가져오는 메서드
     private String getUserIdFromSecurityContext() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetails userDetails) {
@@ -38,10 +39,12 @@ public class RouletteService {
         return null;
     }
 
+    // 사용자 ID로 User 객체 가져오기
     private User getUserByUserId(String userId) {
         return userRepository.findByEmail(getEmailByUserId(userId));
     }
 
+    // 사용자 ID로 이메일을 가져오는 메서드
     private String getEmailByUserId(String userId) {
         try {
             return entityManager.createQuery("SELECT u.email FROM User u WHERE u.userid = :userId", String.class)
@@ -53,6 +56,7 @@ public class RouletteService {
         }
     }
 
+    // 오늘 룰렛을 돌릴 수 있는지 확인하는 메서드
     public boolean canSpinToday() {
         String userId = getUserIdFromSecurityContext();
         if (userId == null) return false;
@@ -67,6 +71,7 @@ public class RouletteService {
         return lastSpinDate == null || !lastSpinDate.equals(LocalDate.now());
     }
 
+    // 룰렛을 돌리고 포인트를 추가하는 메서드
     @Transactional
     public String spinAndAddPoint() {
         String userId = getUserIdFromSecurityContext();
@@ -75,18 +80,43 @@ public class RouletteService {
         User user = getUserByUserId(userId);
         if (user == null) throw new RuntimeException("User not found for userId: " + userId);
 
+        // 사용자의 포인트 정보가 없다면 새로 생성
         UserPoint userPoint = userPointRepository.findByUserId(user.getId())
                 .orElseGet(() -> new UserPoint(user.getId(), 0, null));
 
+        // 오늘 이미 룰렛을 돌렸다면 예외 발생
         if (userPoint.getLastSpinDate() != null && userPoint.getLastSpinDate().equals(LocalDate.now())) {
             throw new IllegalStateException("오늘 이미 돌렸습니다.");
         }
 
-        String[] rewards = {"1000원 쿠폰", "꽝", "100원 쿠폰", "꽝", "100원 쿠폰", "꽝", "꽝", "꽝", "5000원 쿠폰"};
+        // 룰렛 보상 항목
+        String[] rewards = {"10% COUPON", "1,000P", "20% COUPON", "500P", "꽝", "2000P", "30% COUPON", "1500P"};
         String reward = rewards[new Random().nextInt(rewards.length)];
 
-        userPoint.setPoint(userPoint.getPoint() + 100);
-        userPoint.setLastSpinDate(LocalDate.now());
+        // 기본 100P 적립
+        int pointsToAdd = 100;
+
+        // 보상에 따른 추가 포인트
+        if (reward.equals("1,000P")) {
+            // 1000P가 당첨되면 1100P 적립
+            pointsToAdd = 1100;
+        } else if (reward.equals("500P")) {
+            // 500P가 당첨되면 600P 적립
+            pointsToAdd = 600;
+        } else if (reward.equals("2000P")) {
+            // 2000P가 당첨되면 2100P 적립
+            pointsToAdd = 2100;
+        } else if (reward.equals("1500P")) {
+            // 1500P가 당첨되면 1600P 적립
+            pointsToAdd = 1600;
+        } else if (reward.equals("꽝") || reward.contains("COUPON")) {
+            // 꽝이나 쿠폰이 당첨되면 100P만 적립
+            pointsToAdd = 100;
+        }
+
+        // 포인트 업데이트
+        userPoint.setPoint(userPoint.getPoint() + pointsToAdd); // 계산된 포인트 적립
+        userPoint.setLastSpinDate(LocalDate.now()); // 오늘 날짜 기록
 
         try {
             userPointRepository.save(userPoint);
@@ -95,6 +125,7 @@ public class RouletteService {
             throw new RuntimeException("Failed to save points: " + e.getMessage());
         }
 
-        return reward;
+        return reward;  // 룰렛 보상 반환
     }
 }
+
