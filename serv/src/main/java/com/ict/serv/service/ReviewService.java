@@ -2,8 +2,10 @@ package com.ict.serv.service;
 
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.review.Review;
+import com.ict.serv.entity.review.ReviewImage;
 import com.ict.serv.entity.review.ReviewLike;
 import com.ict.serv.entity.user.User;
+import com.ict.serv.repository.review.ReviewImageRepository;
 import com.ict.serv.repository.review.ReviewLikeRepository;
 import com.ict.serv.repository.review.ReviewRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,11 +21,11 @@ import java.util.Optional;
 public class ReviewService {
     private final ReviewRepository repository;
     private final ReviewLikeRepository like_repository;
+    private final ReviewImageRepository image_repository;
 
     public Review saveReview(Review review) {
         return repository.save(review);
     }
-
 
     public boolean selectCheckReview(User user, Product product) {
         return repository.findByUserAndProduct(user, product).isPresent();
@@ -51,5 +53,14 @@ public class ReviewService {
 
     public Optional<Review> selectReviewId(Long id) {
         return repository.findById(id);
+    }
+
+    public int deleteReviewImage(Review review) {
+        return image_repository.deleteByReview(review);
+    }
+
+    public void deleteReview(Optional<Review> review) {
+        repository.deleteById(review.get().getId()); // 리뷰 삭제
+        image_repository.deleteByReview(review.get()); // 리뷰 이미지 삭제
     }
 }
