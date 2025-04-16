@@ -1,5 +1,7 @@
+import { Stomp } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
@@ -9,14 +11,17 @@ function MyChatting() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const selectedTab = searchParams.get('tab') || 'send';
+    const stompClientRef = useRef(null);
 
     const [chatRoomList, setChatRoomList] = useState([]);
     const [sellerChatRoomList, setSellerChatRoomList] = useState([]);
-
+    const [isMessage, setIsMessage] = useState(false);
+    
     useEffect(()=>{
         getChatRoomList();
         getSellerChatRoomList();
-    }, []);
+        console.log("!!!!");
+    }, [isMessage]);
 
     const getChatRoomList = ()=>{ // 구매자로서 문의한 내역
         axios.get(`${serverIP.ip}/chat/chatRoomList?role=buyer`,
@@ -24,6 +29,18 @@ function MyChatting() {
         .then(res=>{
             console.log(res.data);
             setChatRoomList(res.data);
+            res.data.map(room=>{
+                console.log(room);
+                const socket = new SockJS(`${serverIP.ip}/ws`);
+                const stompClient = Stomp.over(socket);
+                stompClientRef.current = stompClient;
+    
+                stompClient.connect({ Authorization: `Bearer ${user.token}` }, ()=>{
+                    stompClient.subscribe(`/topic/chat/${room.chatRoomId}`, (msg)=>{
+                        setIsMessage(!isMessage);
+                    });
+                })
+            })
         })
         .catch(err=>console.log(err));
     }
@@ -34,6 +51,18 @@ function MyChatting() {
         .then(res=>{
             console.log(res.data);
             setSellerChatRoomList(res.data);
+            res.data.map(room=>{
+                console.log(room);
+                const socket = new SockJS(`${serverIP.ip}/ws`);
+                const stompClient = Stomp.over(socket);
+                stompClientRef.current = stompClient;
+    
+                stompClient.connect({ Authorization: `Bearer ${user.token}` }, ()=>{
+                    stompClient.subscribe(`/topic/chat/${room.chatRoomId}`, (msg)=>{
+                        setIsMessage(!isMessage);
+                    });
+                })
+            })
         })
         .catch(err=>console.log(err));
     }
@@ -58,19 +87,26 @@ function MyChatting() {
                 (selectedTab === 'send' ? chatRoomList : sellerChatRoomList).map((room, idx)=>{
                     const selectedUser = selectedTab === 'send' ? room.product.sellerNo : room.buyer
                     return (
-                        <div key={idx} className="chat-room" onClick={()=>navigate(`/product/chat/${room.chatRoomId}`)}>
+                        <div key={idx} className="chat-room" onClick={()=>navigate(`/product/chat/${room.chatRoomId}`)}
+                            style={room.lastChat.read || room.lastChat.sender.id === user.user.id ? {background: '#f7f7f7'} : {}}>
                             <img className="chat-user-img" style={{width: '80px', height: '80px'}} src = {selectedUser.profileImageUrl.indexOf('http') !==-1 ? `${selectedUser.profileImageUrl}`:`${serverIP.ip}${selectedUser.profileImageUrl}`} alt=''/>
                             <div style={{display: 'flex', flexDirection: 'column', paddingLeft: '3%'}}>
                                 <div>
                                     <span><b>{selectedUser.username}</b></span>
-                                    <span className='date'>{getTime(room.createdAt)}</span><br/>
+                                    <span className='date'>{getTime(room.lastChat.sendTime)}</span><br/>
                                 </div>
                                 <div style={{
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
                                     width: '500px'
-                                }}>{room.lastChatText}</div>
+                                }}>
+                                    {room.lastChat.message}
+                                    {
+                                        !room.lastChat.read && room.lastChat.sender.id !== user.user.id &&
+                                        <span id="new-chat-sticker">new</span>
+                                    }
+                                </div>
                             </div>
                         </div>
                     )

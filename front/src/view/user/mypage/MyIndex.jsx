@@ -14,6 +14,7 @@ import UserInfo from "../UserInfo";
 import MyFollow from "./MyFollow";
 import MySell from "./MySell";
 import MyChatting from "./MyChatting";
+import MyInfoEdit from "./MyInfoEdit";
 
 function MyIndex(){
     const location = useLocation();
@@ -90,8 +91,9 @@ useEffect(() => {
             <div className={isDesktop || hamburgerOpen ? 'mypage-wrap' : 'mypage-wrap-with-nav'}>
                 <div className='mypage-box'>
                 <div className='mypage-title'>{path.l_name}</div>
-                { path.l_name == '프로필' && <UserInfo/> }
-                    {path.l_name == '장바구니' && <MyBasket/>}
+                    { path.l_name == '프로필' && <UserInfo/> }
+                    { path.l_name == '개인 정보 수정' && <MyInfoEdit/> }
+                    { path.l_name == '장바구니' && <MyBasket/> }
                     { path.l_name == '신고 내역' && <MyReport/> }
                     { path.l_name == '문의 내역' && <MyInquiryList/> }
                     { path.l_name == '찜 목록' && <MyWish/> }

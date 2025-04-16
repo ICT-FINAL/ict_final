@@ -81,8 +81,10 @@ public class ChatService {
             urd.setImgUrl(sender.getProfileImageUrl());
 
             ChatDTO dto = new ChatDTO();
+            dto.setId(chat.getId());
             dto.setRoomId(roomId);
             dto.setMessage(chat.getMessage());
+            dto.setRead(chat.isRead());
             dto.setSendTime(chat.getSendTime());
             dto.setUrd(urd);
 
@@ -95,11 +97,11 @@ public class ChatService {
     }
 
     public List<ChatRoom> getChatRoomList(User user) {
-        return chatRoomRepository.findByBuyerAndState(user, ChatState.ACTIVE);
+        return chatRoomRepository.findByBuyerAndStateOrderByLastChat_SendTimeDesc(user, ChatState.ACTIVE);
     }
 
     public List<ChatRoom> getSellerChatRoomList(User user) {
-        return chatRoomRepository.findByProductInAndState(productRepository.findAllBySellerNo_Id(user.getId()), ChatState.ACTIVE);
+        return chatRoomRepository.findByProductInAndStateOrderByLastChat_SendTimeDesc(productRepository.findAllBySellerNo_Id(user.getId()), ChatState.ACTIVE);
     }
 
     public void markChatAsRead(Long id, User user) {
