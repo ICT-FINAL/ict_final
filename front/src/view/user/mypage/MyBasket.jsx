@@ -236,16 +236,7 @@ function MyBasket() {
                         /> <b>{group.sellerName}</b>님의 상품
 
                         <ul className="basket-list">
-                            <li></li>
-                            <li>제품</li>
-                            <li>옵션</li>
-                            <li>배송비</li>
-                        </ul>
-
-                        <ul className="basket-list">
-                            <li></li>
-                            <li style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
-                                onClick={() => moveProductInfo(group.productNo)}>
+                            <li onClick={() => moveProductInfo(group.productNo)}>
                                 <img
                                     src={`${serverIP.ip}/uploads/product/${group.productNo}/${group.productImage}`}
                                     style={{ width: '10vw', height: '10vw', borderRadius: '10px', marginRight: '10px' }}
@@ -258,7 +249,7 @@ function MyBasket() {
                             </li>
                             <li colSpan={3}>
                                 {group.items.map((item, idx) => (
-                                    <div key={idx} style={{ borderBottom: '1px solid #ddd', padding: '5px 0' }}>
+                                    <div key={idx}>
                                         <input
                                             type="checkbox"
                                             checked={checkedItems[item.basketNo] || false}
@@ -267,7 +258,6 @@ function MyBasket() {
                                         옵션: {item.optionName} / {item.categoryName} - 추가금액 +{formatNumberWithCommas(item.additionalPrice)}원
                                         <br />수량: {item.quantity}
                                         <button
-                                            style={{ marginLeft: "10px" }}
                                             onClick={() => dispatch(setModal({ isOpen: true, selected: 'basket-box', selectedItem: item }))}
                                         >
                                             주문수정
@@ -280,11 +270,11 @@ function MyBasket() {
                     </div>
                 ))
             ) : (
-                <div style={{ marginTop: "10px" }}>장바구니에 담긴 상품이 없습니다.</div>
+                <div>장바구니에 담긴 상품이 없습니다.</div>
             )}
 
 
-            <div className="basket-body" style={{ backgroundColor: "beige", borderRadius: "10px" }}>
+            <div className="basket-body">
                 <ul className="price-list">
                     <li>선택상품금액</li>
                     <li>총배송비</li>
@@ -297,7 +287,7 @@ function MyBasket() {
                     <li>{formatNumberWithCommas(totals.totalShippingFee)}원 ➖</li>
                     <li>{formatNumberWithCommas(totals.totalDiscountedPrice)}원 🟰</li>
                     <li>{formatNumberWithCommas(totals.totalAmount)}원</li>
-                    <li><button type="button" style={{ width: '100px' }} onClick={handleOrder}>{getOrderButtonText()}</button></li>
+                    <li><button type="button" onClick={handleOrder}>{getOrderButtonText()}</button></li>
                 </ul>
             </div>
         </div>

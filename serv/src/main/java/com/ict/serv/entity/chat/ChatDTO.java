@@ -14,6 +14,7 @@ public class ChatDTO {
     private Long id;
     private String roomId;
     private String message;
+    private boolean isRead;
     UserResponseDto urd;
     private LocalDateTime sendTime;
 }
