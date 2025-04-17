@@ -16,6 +16,12 @@ function SignupForm() {
         dispatch(setModal({isOpen: !modal.isOpen, selected: "DaumPost"}));
     }
 
+    const [isSendingCode, setIsSendingCode] = useState(false);
+    const [isVerifying, setIsVerifying] = useState(false);
+    const [isVerified, setIsVerified] = useState(false);
+    const [emailError, setEmailError] = useState('');
+    const [verificationCode, setVerificationCode] = useState('');
+
     const [alert, setAlert] = useState({
         userid: {content: "", state: false},
         username: {content: "", state: false},
@@ -207,6 +213,11 @@ function SignupForm() {
             window.alert("사용 할 수 없는 번호입니다.");
             return;
         }
+
+        if (!isVerified) {
+            window.alert("이메일 인증을 해주세요.");
+            return;
+        }
         
         const formData = new FormData();
         formData.append("userid", user.userid);
@@ -231,9 +242,13 @@ function SignupForm() {
             })
             .then(res => {
                 window.alert(res.data);
+                dispatch(setModal({}));
                 navigate('/');
             })
-            .catch(err => console.log(err));
+            .catch(err => {
+                console.log(err);
+                dispatch(setModal({}));
+            });
         } else {
             console.log("실패");
         }
@@ -274,10 +289,8 @@ function SignupForm() {
     const [telNumCheck, setTelNumCheck] = useState(false);
 
     const telCheck = ()=>{
-        console.log("telcheck");
         axios.get(`${serverIP.ip}/signup/telCheck?tel=${user.tel}`)
         .then(res=>{
-            console.log(res.data);
             if (res.data === 0) {
                 setTelNumCheck(true);
             }
@@ -287,6 +300,42 @@ function SignupForm() {
         })
         .catch(err=>console.log(err));
     }
+
+    const sendVerificationCode = async () => {
+        if (user.email) {
+            try {
+                setIsSendingCode(true);
+                setEmailError("");
+                await axios.post(`${serverIP.ip}/auth/signup-send-code`, {email: user.email} );
+    
+                setIsVerifying(true);
+                window.alert("인증번호가 이메일로 전송되었습니다.");
+            } catch (err) {
+                window.alert(err.response.data.message);
+            } finally {
+                setIsSendingCode(false);
+            }
+        }
+    };
+
+    const verifyForEmail = async () => {
+        try {
+            const res = await axios.post(`${serverIP.ip}/auth/email-verify`, null, {
+                params: { email: user.email, code: verificationCode },
+                headers: { "Content-Type": "application/json" },
+                withCredentials: true,
+            });
+            window.alert(res.data.message);
+            setEmailError('');
+            setIsVerified(true);
+            document.getElementById("email-input").disabled = true;
+            document.getElementById("email-verification-btn").disabled = true;
+            document.getElementById("verification-btn").disabled = true;
+            document.getElementById("verification-code").disabled = true;
+        } catch (err) {
+            setEmailError("인증번호가 일치하지 않습니다.");
+        }
+      };
 
     return (
         <>
@@ -303,8 +352,27 @@ function SignupForm() {
                 {alert.username.content && <><span className="form-alert">{alert.username.content}</span><br/></>}
 
                 <label>이메일</label>
-                <input type="text" name="email" value={user.email} onChange={changeUser}/><br/>
+                <input type="text" id="email-input" name="email" value={user.email} onChange={changeUser}/>
+                <button id="email-verification-btn" onClick={sendVerificationCode}>이메일인증</button><br/>
 
+                {isVerifying && (
+                    <>
+                        <input
+                            id="verification-code"
+                            type="text"
+                            placeholder="인증번호 입력"
+                            value={verificationCode}
+                            onChange={(e) => setVerificationCode(e.target.value)}
+                            style={{marginLeft: '175px', border: '0', borderBottom: '1px solid #555', borderRadius: '0'}}
+                        />
+                        <button onClick={verifyForEmail} id="verification-btn">
+                            인증 확인
+                        </button><br/>
+                        {emailError &&
+                            <><span className="form-alert">{emailError}</span><br/></>
+                        }
+                    </>
+                )}
                 <label>비밀번호</label>
                 <input type='password' id="pw1" name="userpw" onChange={changeUser}/><br/>
                 {alert.userpw.content && <><span className="form-alert">{alert.userpw.content}</span><br/></>}
