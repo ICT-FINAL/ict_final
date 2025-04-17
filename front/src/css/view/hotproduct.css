@@ -89,13 +89,14 @@
 
 .hot-product-cards {
     display: flex;
+    
     transition: transform 0.3s ease-in-out;
 }
 
 .hot-product-card {
     border:1px solid #ddd;
     width: 270px;
-    height: 330px;
+    height: 350px;
     margin: 0 6px;
     background-color: #f8f8f8;
     border-radius: 12px;

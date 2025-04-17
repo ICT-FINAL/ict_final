@@ -36,11 +36,36 @@ function Header() {
 
     const [basketCount, setBasketCount] = useState(0);
 
+    const [hotSearch, setHotSearch] = useState([]);
+    const [currentRank, setCurrentRank] = useState(0);
+    const [hotSearchOpen, setHotSearchOpen] = useState(false);
+    
+    useEffect(() => {
+        const changeRankInterval = setInterval(() => {
+            setCurrentRank((prevRank) => (prevRank + 1) % hotSearch.length); // 순위를 순차적으로 변경
+        }, 3000);
+
+        return () => clearInterval(changeRankInterval);
+    }, [hotSearch]);
+
     function handleLogout() {
         localStorage.removeItem("token");
         dispatch(clearUser());
         window.location.href = '/';
     }
+
+    useEffect(()=>{
+        const fetchKeywords = async () => {
+            const res = await axios.get(`${serverIP.ip}/log/searchRank?hours=24&topN=10`);
+            console.log(res.data);
+            setHotSearch(res.data);
+          };
+        
+          fetchKeywords();
+          const intervalId = setInterval(fetchKeywords, 60000); //1분이용
+        
+          return () => clearInterval(intervalId);
+    },[])
 
     useEffect(() => {
         if (user)
@@ -139,6 +164,34 @@ function Header() {
                     ) : (
                         <div className="login-btn" onClick={() => dispatch(setLoginView(true))}>로그인</div>
                     )}
+                    <div className='header-hot-box' onMouseEnter={() => setHotSearchOpen(true)}
+                                onMouseLeave={() => setHotSearchOpen(false)}>
+                    {hotSearch.length > 0 && (
+                        <div className="hot-search">
+                            <div className="hot-search-item">
+                                <span>{currentRank + 1} </span>
+                                <span> {hotSearch[currentRank]?.keyword}</span>
+                                <span style={{fontSize:'12px', color:'red'}}> {hotSearch[currentRank]?.change >0 && `${hotSearch[currentRank]?.change}▲` }</span>
+                                <span style={{fontSize:'12px', color:'blue'}}> {hotSearch[currentRank]?.change <0 && `${hotSearch[currentRank]?.change}▼` }</span>
+                                <span style={{fontSize:'12px', color:'green'}}> {hotSearch[currentRank]?.change === 'NEW' && 'NEW' }</span>
+                            </div>
+                            {hotSearchOpen && (
+                                <div className="hot-search-dropdown" onMouseEnter={() => setHotSearchOpen(true)}
+                                onMouseLeave={() => setHotSearchOpen(false)}>
+                                    {hotSearch.map((item, index) => (
+                                        <div key={index} className="hot-search-list-item">
+                                            <span>{index + 1} </span>
+                                            <span> {item.keyword}</span>
+                                            <span style={{fontSize:'12px'}}> {item.change > 0  ? '▲' : item.change < 0 ? '▼' : ''}</span>
+                                            <span style={{fontSize:'12px'}}> {item.change === 'NEW' && 'NEW' }</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    </div>
                     <div className='header-search-box'>
                         <svg style={{ paddingLeft: '10px' }} className='search-icon' width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="10" cy="10" r="7" stroke="white" strokeWidth="2" />
