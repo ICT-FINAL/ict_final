@@ -41,6 +41,7 @@ public class SecurityConfig {
                                 "/auth/reset-password/verify",
                                 "/auth/reset-password",
                                 "/auth/me",
+                                "/auth/socialLogin",
                                 "/auction/room/**",
                                 "/auction/**",
                                 "/review/averageStar"

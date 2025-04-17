@@ -9,6 +9,7 @@ import { SiKakaotalk } from "react-icons/si";
 import { Check, X } from "lucide-react"; 
 import Logo from '../../img/mimyo_logo-removebg.png';
 import Spinner from "../../effect/Spinner";
+import { setLoginView } from "../../store/loginSlice";
 
 function Login({ onClose }) {
     const dispatch = useDispatch();
@@ -34,6 +35,11 @@ function Login({ onClose }) {
     const [emailError, setEmailError] = useState("");
 
     const [newPasswordValid, setNewPasswordValid] = useState(null); // 비밀번호 재설정
+
+    const moveSignUp = () => {
+      navigate('signup/info');
+      dispatch(setLoginView(false));
+    }
 
     const handleNewPasswordChange = (e) => { // 비밀번호 찾기 -> 재설정
       const value = e.target.value;
@@ -341,7 +347,7 @@ function Login({ onClose }) {
             <button onClick={handleLogin}>로그인</button>
 
             <div className="login-links">
-                <span onClick={() => setShowFindId(true)}>아이디 찾기</span>
+                <span onClick={() => moveSignUp()}>회원 가입</span>
                 <span onClick={() => setShowResetPw(true)}>비밀번호 찾기</span>
             </div>
             </>
@@ -350,11 +356,11 @@ function Login({ onClose }) {
             <div className="social-login">
                 <button className="kakao-login" onClick={handleSignup}>
                     <SiKakaotalk size={20} />
-                    카카오 회원가입
+                    카카오 로그인
                 </button>
                 <button className="google-login" onClick={handleGoogleSignup}>
                     <FcGoogle size={20} />
-                    구글 회원가입
+                    구글 로그인
                 </button>
             </div>
         </div>
