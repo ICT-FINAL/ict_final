@@ -70,13 +70,13 @@ function Main() {
 
     const settings = {
         dots: true,
-        infinite: true,
+        infinite: event_list.length > 1,
         speed: 500,
         slidesToShow: 1,
         slidesToScroll: 1,
-        centerMode: true,
-        centerPadding: "20%",
-        autoplay: true,
+        centerMode: event_list.length > 1,
+        centerPadding: event_list.length > 1 ? "20%" : "0",
+        autoplay: event_list.length > 1,
         autoplaySpeed: 5000,
         appendDots: (dots) => (
             <div
@@ -174,33 +174,36 @@ function Main() {
     return (
         <div style={{ height: '1000px', paddingTop: '140px' }}>
             <div className="slider-container">
-                <Slider {...settings}>
+                <Slider {...settings} className={event_list.length === 1 ? "slick-center" : ""}>
                     {event_list.map((item, idx) => (
                         <div key={idx} className="slider-image-banner">
-                            <img
-                                className="slider-image"
-                                src={item.src}
-                                alt={item.eventName}
-                            />
+                            <div className="slider-image-wrapper">
+                                <img
+                                    className="slider-image"
+                                    src={item.src}
+                                    alt={item.eventName}
+                                />
+                                <div className="event-date-badge">
+                                    📅 {item.startDate.substring(0, 10)} ~ 📅 {item.endDate.substring(0, 10)}
+                                </div>
 
-                            <div className="event-date-badge">
-                                📅 {item.startDate.substring(0, 10)} ~ 📅 {item.endDate.substring(0, 10)}
+                                {item.state === "COUPON" && <div className="main-coupon-badge">쿠폰 지급!</div>}
+
+                                <div className="event-button" onClick={() => moveToEvent(item)}>자세히보기 ▶</div>
                             </div>
 
-                            {item.state === "COUPON" && <div className="main-coupon-badge">쿠폰 지급!</div>}
-
-                            <div className="event-button" onClick={() => moveToEvent(item)}>자세히보기 ▶</div>
                         </div>
                     ))}
                 </Slider>
             </div>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', textAlign: 'center', justifyContent: 'flex-start' }} >
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', textAlign: 'center', justifyContent: 'center', margin: '30px 100px' }} >
                 {visibleList.length > 0 ? (
                     visibleList.map((submenu) => (
-                        <div onClick={() => moveSubMenu(submenu)} key={submenu.id} style={{ marginLeft: '100px', width: 'calc(10%)' }}>
-                            <img src={submenu.src} alt={submenu.subMenuName} />
-                            <div>{submenu.subMenuName}</div>
+                        <div onClick={() => moveSubMenu(submenu)} key={submenu.id}
+                            style={{ padding: '0 10px', width: '100px' }}>
+                            <img id="submenu-img" src={submenu.src} alt={submenu.subMenuName}/>
+                            <div style={{fontSize: '11pt', padding: '10px 0'}}>{submenu.subMenuName}</div>
                         </div>
                     ))
                 ) : (
