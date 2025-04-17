@@ -147,6 +147,7 @@
 }
 
 .header-search-box {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -156,6 +157,14 @@
     border-bottom: 2px solid #555;
     height: 80px;
     transition: all 0.5s;
+}
+
+.recent-search-list {
+    position: absolute;
+    top: 90px;
+    left: 10px;
+    line-height: 1.6;
+    font-size: 11pt;
 }
 
 /* 실검 */
@@ -201,12 +210,13 @@
         margin-right: 4%;
     }
 }
-@media(max-width: 1200px) {
-    .header-search-box {
-        display: none;
+@media(max-width: 1250px) {
+    .header-center ul {
+        gap: 0;
+        margin-right: 0;
     }
 }
-@media(max-width:900px) {
+@media(max-width:960px) {
     .header-center {
         display: none;
     }
@@ -219,11 +229,11 @@
     .header-search-box {
         display: flex;
     }
-}
-@media(max-width:750px) {
-    .header-search-box {
+    .header-hot-box {
         display: none;
     }
+}
+@media(max-width:750px) {
     .header-right {
         min-width: 300px;
     }

@@ -38,4 +38,7 @@ public class SearchLog {
     @CreationTimestamp
     @Column(name = "search_time")
     private LocalDateTime searchTime;
+
+    @Enumerated(EnumType.STRING)
+    private SearchState state;
 }

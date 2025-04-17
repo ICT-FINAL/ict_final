@@ -139,7 +139,8 @@ public class ProductController {
         String tc = pvo.getTargetCategory();
         String pc = pvo.getProductCategory();
 
-        LocalDateTime limit = LocalDateTime.now().minusHours(3);
+//        LocalDateTime limit = LocalDateTime.now().minusHours(3);
+        LocalDateTime limit = LocalDateTime.now().minusSeconds(1);
         logService.saveSearch(user, ip, keyword, ec, tc, pc, limit);
 
         pvo.setOnePageRecord(10);

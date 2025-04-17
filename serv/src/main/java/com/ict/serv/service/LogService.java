@@ -2,6 +2,7 @@ package com.ict.serv.service;
 
 import com.ict.serv.entity.log.search.KeywordDTO;
 import com.ict.serv.entity.log.search.SearchLog;
+import com.ict.serv.entity.log.search.SearchState;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.log.SearchLogRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,7 @@ public class LogService {
             SearchLog log = new SearchLog();
             log.setUser(user);
             log.setIp(user == null ? ip : null);
+            log.setState(SearchState.ACTIVE);
             log.setSearchWord(keyword);
             log.setEventCategory(ec);
             log.setTargetCategory(tc);
@@ -83,5 +85,9 @@ public class LogService {
         if (!keyword.matches(pattern)) return false;
         if (keyword.matches(".*(.)\\1{3,}.*")) return false;
         return true;
+    }
+
+    public List<String> getRecentSearchList(Long userId) {
+        return searchLogRepository.findDistinctTop5SearchWordsByUserId(userId);
     }
 }

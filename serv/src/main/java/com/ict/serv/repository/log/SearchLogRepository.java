@@ -33,4 +33,17 @@ public interface SearchLogRepository extends JpaRepository<SearchLog, Long> {
     ORDER BY cnt DESC
     """)
     List<Object[]> findTopKeywords(@Param("since") LocalDateTime since, Pageable pageable);
+
+    @Query(value = """
+    SELECT search_word
+    FROM (
+        SELECT search_word, MAX(search_time) AS latest_time
+        FROM search_log
+        WHERE user_id = :userId AND state = 'ACTIVE'
+        GROUP BY search_word
+    ) AS grouped
+    ORDER BY latest_time DESC
+    LIMIT 5
+    """, nativeQuery = true)
+    List<String> findDistinctTop5SearchWordsByUserId(@Param("userId") Long userId);
 }
