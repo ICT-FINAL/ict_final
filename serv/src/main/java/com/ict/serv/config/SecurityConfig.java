@@ -58,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("/event/getEventList").permitAll()
                         .requestMatchers("/event/getMelonRank").permitAll()
                         .requestMatchers("/payment/**").permitAll()
+                        .requestMatchers("/log/**").permitAll()
                         .requestMatchers("/submenu/getSubMenuList").permitAll()
                         .requestMatchers("/api/roulette/check").authenticated()
                         .requestMatchers("/api/roulette/spin").authenticated()

@@ -1,10 +1,13 @@
 package com.ict.serv.controller.product;
 
+import com.ict.serv.entity.log.search.SearchLog;
 import com.ict.serv.entity.product.*;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.InteractService;
+import com.ict.serv.service.LogService;
 import com.ict.serv.service.OrderService;
 import com.ict.serv.service.ProductService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @RestController
@@ -27,6 +31,7 @@ public class ProductController {
     private final InteractService interactService;
     private final ProductService service;
     private final OrderService orderService;
+    private final LogService logService;
 
     @PostMapping("/write")
     @Transactional(rollbackFor = {RuntimeException.class, SQLException.class})
@@ -121,7 +126,22 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public Map<String, Object> searchProducts(ProductPagingVO pvo) {
+    public Map<String, Object> searchProducts(ProductPagingVO pvo, @AuthenticationPrincipal UserDetails userDetails, HttpServletRequest request) {
+
+        User user = null;
+        if (userDetails != null) {
+            user = interactService.selectUserByName(userDetails.getUsername());
+        }
+        String ip = request.getRemoteAddr();
+
+        String keyword = pvo.getSearchWord();
+        String ec = pvo.getEventCategory();
+        String tc = pvo.getTargetCategory();
+        String pc = pvo.getProductCategory();
+
+        LocalDateTime limit = LocalDateTime.now().minusHours(3);
+        logService.saveSearch(user, ip, keyword, ec, tc, pc, limit);
+
         pvo.setOnePageRecord(10);
         String[] cats = pvo.getProductCategory().split(",");
         List<String> categories = new ArrayList<>(Arrays.asList(cats));

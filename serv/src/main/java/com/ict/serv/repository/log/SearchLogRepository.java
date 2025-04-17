@@ -1,0 +1,36 @@
+package com.ict.serv.repository.log;
+
+import com.ict.serv.entity.log.search.SearchLog;
+import com.ict.serv.entity.user.User;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+public interface SearchLogRepository extends JpaRepository<SearchLog, Long> {
+    @Query("SELECT s FROM SearchLog s WHERE " +
+            "(:user IS NOT NULL AND s.user = :user OR :user IS NULL AND s.ip = :ip) AND " +
+            "(:word IS NULL OR s.searchWord = :word) AND " +
+            "(:ec IS NULL OR s.eventCategory = :ec) AND " +
+            "(:tc IS NULL OR s.targetCategory = :tc) AND " +
+            "(:pc IS NULL OR s.productCategory = :pc) AND " +
+            "s.searchTime > :timeLimit")
+    Optional<SearchLog> findRecentDuplicate(User user, String ip, String word,
+                                            String ec, String tc, String pc,
+
+
+                                            LocalDateTime timeLimit);
+    @Query("""
+    SELECT sl.searchWord, COUNT(sl.searchWord) as cnt 
+    FROM SearchLog sl
+    WHERE sl.searchTime >= :since
+          AND sl.searchWord IS NOT NULL AND sl.searchWord <> ''
+    GROUP BY sl.searchWord
+    ORDER BY cnt DESC
+    """)
+    List<Object[]> findTopKeywords(@Param("since") LocalDateTime since, Pageable pageable);
+}
