@@ -248,6 +248,33 @@ public class AuthController {
         signUpResponseDto.setResult("가입이 완료되었습니다.");
         return ResponseEntity.ok().headers(headers).body(signUpResponseDto);
     }*/
+
+    @PostMapping("/auth/signup-send-code")
+    public ResponseEntity<?> signupSendVerificationCode(@RequestBody EmailRequestDto request) {
+        User user = authService.findUserByEmail(request.getEmail());
+
+        System.out.println(user);
+        if(user == null) {
+            try {
+                authService.sendVerificationCode(request.getEmail());
+                return ResponseEntity.ok("인증번호가 전송되었습니다.");
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("이메일 전송 실패: " + Optional.ofNullable(e.getMessage()).orElse("알 수 없는 오류"));
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "이미 가입한 메일 주소입니다."));
+    }
+    @PostMapping("/auth/email-verify")
+    public ResponseEntity<Map<String, String>> verifyCodeForEmail(@RequestParam String email, @RequestParam String code) {
+        if (!authService.verifyCode(email, code)) {
+            return ResponseEntity.badRequest().body(Map.of("message", "인증번호가 올바르지 않습니다."));
+        }
+        return ResponseEntity.ok(Map.of(
+                "message", "이메일 인증이 완료되었습니다."
+        ));
+    }
+
     @PostMapping("/auth/send-code")
     public ResponseEntity<?> sendVerificationCode(@RequestBody EmailRequestDto request) {
         User user = authService.findUserByEmail(request.getEmail());

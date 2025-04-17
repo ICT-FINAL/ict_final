@@ -35,6 +35,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/signup/**",
                                 "/auth/login",
+                                "/auth/signup-send-code",
+                                "/auth/email-verify",
                                 "/auth/send-code",
                                 "/auth/find-id/verify",
                                 "/auth/reset-password/request",
