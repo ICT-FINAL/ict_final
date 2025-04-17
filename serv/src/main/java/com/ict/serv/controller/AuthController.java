@@ -103,16 +103,16 @@ public class AuthController {
     }
 
     @GetMapping("/signup/kakao")
-    public Account kakaoSignup(HttpServletRequest request) {
+    public User kakaoSignup(HttpServletRequest request) {
         String code = request.getParameter("code");
         KakaoTokenDto kakaoTokenDto = authService.getKakaoAccessToken(code);
         String kakaoAccessToken = kakaoTokenDto.getAccess_token();
 
         Account account = authService.kakaoSignup(kakaoAccessToken);
-        return account;
+        return authService.isAlreadySignUp(account);
     }
     @GetMapping("/signup/google")
-    public Account googleSignup(HttpServletRequest request) {
+    public User googleSignup(HttpServletRequest request) {
         String code = request.getParameter("code");
         String accessToken = authService.getGoogleAccessToken(code);
         Map<String, Object> googleUserInfo = authService.getGoogleUserInfo(accessToken);
@@ -121,12 +121,41 @@ public class AuthController {
         String email = googleUserInfo.get("email").toString();
         String name = googleUserInfo.get("name").toString();
         String profileImage = googleUserInfo.get("picture").toString();
-        if(authService.findUserByEmail(email) != null) return null;
         Account account = new Account();
         account.setNickname(name);
         account.setPicture(profileImage);
         account.setEmail(email);
-        return account;
+        System.out.println(account);
+        return authService.isAlreadySignUp(account);
+    }
+
+    @PostMapping("/auth/socialLogin")
+    public ResponseEntity<?> login(@RequestBody User user, HttpServletRequest request) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유저가 존재하지 않습니다.");
+        }
+        if(user.getAuthority() == Authority.ROLE_BANNED) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("정지된 사용자입니다.");
+        }
+        String token = jwtProvider.createToken(user.getUserid());
+
+        HttpSession session = request.getSession();
+        session.setAttribute("JWT", token);
+
+        UserResponseDto userResponse = new UserResponseDto(
+                user.getId(),
+                user.getUserid(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getProfileImageUrl(),
+                user.getAuthority(),
+                user.getZipcode(),
+                user.getAddress(),
+                user.getAddressDetail(),
+                user.getGrade(),
+                user.getGradePoint()
+        );
+        return ResponseEntity.ok(new LoginResponseDto(token, "로그인 성공", userResponse));
     }
 
     @GetMapping("/signup/duplicateCheck")

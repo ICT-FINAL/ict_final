@@ -1,13 +1,31 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { setUser } from "../../store/authSlice";
 
 const SignupHandler = () => {
     const [isLoading, setIsLoading] = useState(true); // 초기값 true (로딩 시작)
     const code = new URL(window.location.href).searchParams.get('code');
     const serverIP = useSelector((state) => state.serverIP);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    const handleLogin = async (param) => {
+        try {
+            const response = await axios.post(`${serverIP.ip}/auth/socialLogin`, param, { withCredentials: true });
+
+            if (response.status === 200) {
+                dispatch(setUser(response.data));
+                window.location.href='/';
+            }
+        } catch (err) {
+            if(err.response.data.substring(0,2) === '정지') {
+                alert('정지된 사용자입니다.');
+            }
+            else alert((err.response.data || "서버 오류"));
+        }
+    };
 
     useEffect(() => {
         if (code) {
@@ -17,7 +35,10 @@ const SignupHandler = () => {
                     if(res.data=='' || res.data==undefined || res.data==null) {
                         navigate('/already');
                     }
-                    else navigate("/signup/info",{state:res.data});
+                    else {
+                        handleLogin(res.data);
+                        //navigate("/signup/info",{state:res.data});
+                    }
                 })
                 .catch((err) => {
                     console.log(err);

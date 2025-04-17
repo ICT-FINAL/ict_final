@@ -26,8 +26,8 @@ function SignupForm() {
     });
     const [user, setUser] = useState({
         userid: "",
-        username: loc.state.nickname,
-        email: loc.state.email,
+        username: "",
+        email: "",
         userpw: "",
         tel1: "",
         tel2: "",
@@ -35,7 +35,7 @@ function SignupForm() {
         tel: "",
         address: "",
         addressDetail: "",
-        kakaoProfileUrl: loc.state.picture,
+        kakaoProfileUrl: "",
         uploadedProfile: null,
         uploadedProfilePreview: null
     });
@@ -120,12 +120,6 @@ function SignupForm() {
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (!file) {
-            setUser((prev) => ({
-                ...prev,
-                uploadedProfile: null,
-                uploadedProfilePreview: null,
-                kakaoProfileUrl: loc.state.picture
-            }));
             return;
         }
     
@@ -227,7 +221,8 @@ function SignupForm() {
         if (user.uploadedProfile) {
             formData.append("profileImage", user.uploadedProfile);
         } else {
-            formData.append("kakaoProfileUrl", user.kakaoProfileUrl);
+            window.alert("프로필 사진을 설정해주세요.");
+            return;
         }
     
         if (Object.values(alert).every(item => item.state)) {
@@ -308,7 +303,7 @@ function SignupForm() {
                 {alert.username.content && <><span className="form-alert">{alert.username.content}</span><br/></>}
 
                 <label>이메일</label>
-                <input type="text" name="email" disabled value={user.email} onChange={changeUser}/><br/>
+                <input type="text" name="email" value={user.email} onChange={changeUser}/><br/>
 
                 <label>비밀번호</label>
                 <input type='password' id="pw1" name="userpw" onChange={changeUser}/><br/>
@@ -336,12 +331,16 @@ function SignupForm() {
                 <input type='text' name="addressDetail" value={user.addressDetail} onChange={changeUser}/><br/>
 
                 <label>프로필 사진</label>
+                {user.uploadedProfilePreview ? (
                 <img
-                    id="profile-img" 
-                    src={user.uploadedProfilePreview || user.kakaoProfileUrl} 
-                    alt="프로필 이미지" 
+                    id="profile-img"
+                    src={user.uploadedProfilePreview}
+                    alt="프로필 이미지"
                     referrerPolicy="no-referrer"
                 />
+                ) : (
+                <img id="profile-img" className="no-image" style={{width:'100px',height:'100px', border:'1px solid #ddd'}}/>
+                )}
                 <input type="file" id="profile-image-file" style={{display: "none"}} accept="image/*" onChange={handleImageChange} /><br/>
                 <label htmlFor="profile-image-file" id="profile-image-btn">사진첨부</label>
             </div>
