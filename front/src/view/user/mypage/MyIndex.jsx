@@ -15,6 +15,7 @@ import MyFollow from "./MyFollow";
 import MySell from "./MySell";
 import MyChatting from "./MyChatting";
 import MyInfoEdit from "./MyInfoEdit";
+import MyReviewList from "./MyReviewList";
 
 function MyIndex(){
     const location = useLocation();
@@ -101,6 +102,7 @@ useEffect(() => {
                     { path.l_name == '채팅 내역' && <MyChatting/> }
                     { path.l_name == '팔로우 목록' && <MyFollow/> }
                     { path.l_name == '판매 내역' && <MySell/> }
+                    { path.l_name == '리뷰 관리' && <MyReviewList/> }
                 </div>
             </div>
         </>

@@ -4,10 +4,7 @@ import com.ict.serv.dto.ReviewResponseDto;
 import com.ict.serv.entity.order.OrderState;
 import com.ict.serv.entity.order.Orders;
 import com.ict.serv.entity.product.Product;
-import com.ict.serv.entity.review.Review;
-import com.ict.serv.entity.review.ReviewDTO;
-import com.ict.serv.entity.review.ReviewImage;
-import com.ict.serv.entity.review.ReviewLike;
+import com.ict.serv.entity.review.*;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.*;
 import lombok.RequiredArgsConstructor;
@@ -370,6 +367,37 @@ public class ReviewController {
         response.put("reviewCount", count);
 
         return response;
+    }
+
+    // 내가 쓴 리뷰 전체 리스트
+    @GetMapping("/myReviewList/{id}")
+    public List<Review> myReviewList(@PathVariable long id){
+        User user = new User();
+        user.setId(id);
+
+        System.out.println("==============================");
+        System.out.println(id);
+        System.out.println("==============================");
+
+        List<Review> myReviewList = service.selectMyReviewList(user);
+
+        return myReviewList;
+    }
+
+    // 각각의 상품에 대한 구매 후기 리스트
+    @PostMapping("/cusReviewList")
+    public ResponseEntity<Map<Long, List<Review>>> cusReviewList(@RequestBody ProductIdListDTO dto) {
+
+        List<Product> products = new ArrayList<>();
+        for (Long productId : dto.getProductIds()) {
+            Product product = new Product();
+            product.setId(productId);
+            products.add(product);
+        }
+
+        Map<Long, List<Review>> result = service.findByProduct(products);
+
+        return ResponseEntity.ok(result);
     }
 
 }

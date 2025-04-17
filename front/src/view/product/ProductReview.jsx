@@ -598,11 +598,12 @@ function ProductReview(){
                         reviewList.map((review, index) => (
                             <div key={index} className="review-card">
                                 <div className="review-header">
-                                    {review.user.kakaoProfileUrl && 
-                                    <img src={review.user.kakaoProfileUrl.indexOf('http') !== -1 ? `${review.user.kakaoProfileUrl}` : `${serverIP.ip}${review.user.kakaoProfileUrl}`} 
-                                        alt="profile" 
-                                        className="profile-img"
-                                    />}
+                                    {review.user.profileImageUrl && 
+                                        <img src={review.user.profileImageUrl.indexOf('http') !== -1 ? `${review.user.profileImageUrl}` : `${serverIP.ip}${review.user.profileImageUrl}`} 
+                                            alt="profile" 
+                                            className="profile-img"
+                                        />
+                                    }
                                     <div>
                                         <p className="message-who" id={`mgx-${review.user.id}`} style={{cursor:'pointer'}}>{review.user.username}</p>
                                         <p className="review-date">{new Date(review.reviewWritedate).toLocaleDateString()}</p>
@@ -639,7 +640,7 @@ function ProductReview(){
                                             );
                                         })}
                                     </div>
-
+                                    {/* 리뷰 내용 */}
                                     <p className="review-content">{review.reviewContent}</p>
                                     {/* 리뷰 이미지 */}
                                     {review.images && review.images.length > 0 && (
