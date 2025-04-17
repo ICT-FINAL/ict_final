@@ -7,6 +7,8 @@ import Logo from '../../img/mimyo_logo.png';
 import { useInView } from "react-intersection-observer";
 import axios from "axios";
 import HotProduct from "./HotProduct";
+import RAWProduct from "./RAWProduct";
+
 
 function ProductIndex() {
 
@@ -14,6 +16,24 @@ function ProductIndex() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    const [visibleSections, setVisibleSections] = useState({
+        hotProduct: false,
+        RAW: false,
+    });
+
+    useEffect(()=>{
+        const handleScroll = () => {
+            const y = window.scrollY;
+            const newState = {
+                hotProduct: y > 600 && y <= 1200,
+                RAW: y > 1200
+            };
+            setVisibleSections(newState);
+        };
+    
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    },[])
 
     const modal = useSelector((state) => state.modal);
 
@@ -53,16 +73,24 @@ function ProductIndex() {
         "기타": ["기타"]
     };
 
-    /* start : 전체 리스트 */
     const serverIP = useSelector((state) => state.serverIP);
     const user = useSelector((state) => state.auth.user);
 
     return (
         <>
-        <div style={{ paddingTop: '200px' }}>
-            <div className='product-main-container'>
+        <div style={{ height:'2400px' }}>
+            <div className="scroll-indicator-shadow" />
+            <div className="scroll-indicator-icon"><div className="aaaarrow"></div></div>
+            <div
+            className={`product-main-container ${
+                !visibleSections.hotProduct && !visibleSections.RAW ? 'fade-in' : 'fade-out'
+            }`}
+            >
+                <div className="search-page-banner">
+                    <h1>👐 손끝에서 전해지는 정성, 핸드메이드의 따뜻함</h1>
+                    <p>취향과 순간에 어울리는 핸드메이드 아이템을 지금 찾아보세요</p>
+                </div>
                 <div className='product-main-box'>
-                    <img src={Logo} />
                     <div className='product-right-box'>
                         <select
                             value={search.eventCategory}
@@ -100,22 +128,33 @@ function ProductIndex() {
                                 <input onKeyDown={handleSearch} type="text" value={search.searchWord} placeholder="검색어 입력" onChange={changeSearchWord} className="searchWord-style" />
                                 <button onClick={doSearch} className="searchBtn-style">검색</button>
                             </div>
-                            <div className="hashtag-box">
+                            <div className="hashtag-box" style={{marginBottom:'20px'}}>
                                 {search.eventCategory && <span id='search-hashtag'>#{search.eventCategory}</span>}
                                 {search.targetCategory && <span id='search-hashtag'>#{search.targetCategory}</span>}
                                 {search.productCategory && search.productCategory.map((item, index) => (
                                     <span key={index} id='search-hashtag'>#{item}</span>
                                 ))}
                             </div>
-                            <div className="sellBtn-wrapper">
-                                { user && <button onClick={doSell} className="sellBtn-style">상품 등록</button>}
+                            { user &&
+                            <div className="talent-share-box">
+                                <div className="talent-text">
+                                    ✨ 당신의 손길이 작품이 됩니다<br />
+                                    <span className="highlight">지금, 재능을 공유해보세요</span>
+                                </div>
+                                <button onClick={doSell} className="sellBtn-style">+ 상품 등록</button>
                             </div>
+                            }
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <HotProduct/>
+        <div className={`hot-container ${visibleSections.hotProduct ? 'fade-in' : 'fade-out'}`}>
+            <HotProduct />
+        </div>
+        <div className={`raw-container ${visibleSections.RAW ? 'fade-in' : 'fade-out'}`}>
+            <RAWProduct />
+        </div>
         </>
     )
 }
