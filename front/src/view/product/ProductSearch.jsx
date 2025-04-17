@@ -217,7 +217,7 @@ function ProductSearch() {
                                 backgroundColor: product.shippingFee === 0 ? "#ff4d4d" : "#f2f2f2",
                                 color: product.shippingFee === 0 ? "white" : "black",
                                 minHeight: "10px",
-                                lineHeight: "10px" // 가운데 정렬
+                                lineHeight: "10px",
                             }}>
                                 {product.shippingFee === 0 ? "🚚 무료배송" : `배송비 ${product.shippingFee.toLocaleString()}원`} {/* 배송비 */}
                             </div>

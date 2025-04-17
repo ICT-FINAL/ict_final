@@ -42,8 +42,7 @@ public class SecurityConfig {
                                 "/auth/reset-password",
                                 "/auth/me",
                                 "/auction/room/**",
-                                "/auction/**",
-                                "/review/averageStar"
+                                "/auction/**"
                         ).permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/signup/**", "/auth/login").permitAll()
@@ -58,6 +57,7 @@ public class SecurityConfig {
                         .requestMatchers("/event/getMelonRank").permitAll()
                         .requestMatchers("/payment/**").permitAll()
                         .requestMatchers("/submenu/getSubMenuList").permitAll()
+                        .requestMatchers("/review/**").permitAll()
                         .requestMatchers("/api/roulette/check").authenticated()
                         .requestMatchers("/api/roulette/spin").authenticated()
                         .anyRequest().authenticated() // 나머지는 인증 필요
