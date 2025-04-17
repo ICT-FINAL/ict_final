@@ -169,34 +169,56 @@ function AuctionSearch() {
                     </div>
                 </div>
             </div>
-            <div className="product-grid">
+            <div className="product-grid" style={{textAlign:'left'}}>
                 {products.map((auction, index) => (
                     <div
                         key={`${auction.product.id}-${index}`}
                         className="product-card"
                         ref={index === products.length - 1 ? ref : null}
+                        style={{position:'relative'}}
                     >
+                            {isEndingSoon(auction.room.endTime) && (
+                                <div className="ending-soon">마감 임박</div>
+                            )}
                         <img style={{ cursor: 'pointer' }} onClick={() => moveInfo(auction.room.roomId)}
                             src={`${serverIP.ip}/uploads/auction/product/${auction.product.id}/${auction.product.images[0]?.filename}`}
                             alt={auction.product.productName}
                             className="w-full h-40 object-cover"
                         />
                         <div style={{ cursor: 'pointer' }} onClick={() => moveInfo(auction.room.roomId)} className="product-info">
-                            <span style={{ fontSize: "16px", color: "#333", fontWeight:'700' }}>{auction.product.productName}</span> {/* 상품명 */} <br />
-                             <span>현재 입찰가:</span><span style={{ fontWeight: "700", fontSize:'17px' }}> {auction.room.currentPrice}</span>원<br/>
+                            <span style={{ fontSize: "16px", color: "#333" }}>{auction.product.productName}</span> <br />
+                            <span style={{color:'black'}}><span>현재 입찰가:</span><span style={{ fontWeight: "700", fontSize:'17px' }}> {auction.room.currentPrice}</span>원</span><br/>
                              <span style={{ fontSize:'13px', color:'#777' }}>즉시 구매가:</span><span style={{ fontWeight: "700", fontSize:'15px', color:'#444' }}> {auction.room.buyNowPrice}</span>원<br/>
                              <span style={{fontSize:'12px',color: '#444'}}>👤입찰자: <span style={{fontSize:'16px', fontWeight:'700'}}>{auction.room.hit}</span></span>&nbsp;&nbsp; <span style={{ color: '#444' }}>⏰{formatDateTime(auction.room.endTime)}</span> {/* 할인된가격 */}
 
                             <br />
                             <div style={{
-                                marginTop: "5px", padding: "4px 8px", display: "inline-block",
-                                borderRadius: "5px", fontSize: "12px", fontWeight: "600",
-                                backgroundColor: auction.product.shippingFee === 0 ? "#ff4d4d" : "#f2f2f2",
-                                color: auction.product.shippingFee === 0 ? "white" : "black",
-                                minHeight: "10px",
-                                lineHeight: "10px" // 가운데 정렬
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                marginTop: "5px"
                             }}>
-                                {auction.product.shippingFee === 0 ? "🚚 무료배송" : `배송비 ${auction.product.shippingFee}원`} {/* 배송비 */}
+                                <div style={{
+                                    padding: "4px 8px",
+                                    borderRadius: "5px",
+                                    fontSize: "12px",
+                                    fontWeight: "600",
+                                    backgroundColor: auction.room.state === "OPEN" ? "green" : "#f2f2f2",
+                                    color: auction.room.state === "OPEN" ? "white" : "black",
+                                    marginLeft:'30px',whiteSpace:'nowrap'
+                                }}>
+                                    {auction.room.state === "OPEN" ? "경매 진행중" : "경매 마감"}
+                                </div>
+                                <div style={{
+                                    padding: "4px 8px",
+                                    borderRadius: "5px",
+                                    fontSize: "12px",
+                                    fontWeight: "600",
+                                    backgroundColor: auction.product.shippingFee === 0 ? "#ff4d4d" : "#f2f2f2",
+                                    color: auction.product.shippingFee === 0 ? "white" : "black",
+                                    marginRight:'30px'
+                                }}>
+                                    {auction.product.shippingFee === 0 ? "🚚 무료배송" : `배송비 ${auction.product.shippingFee}원`}
+                                </div>
                             </div>
                         </div>
                     </div>

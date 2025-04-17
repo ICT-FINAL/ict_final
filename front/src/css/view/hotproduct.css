@@ -1,7 +1,23 @@
 .hot-container {
-    width: 100%;
-    padding: 40px 0;
-    margin-top:40px;
+    position:fixed;
+    width:70%;
+    margin:auto;
+    min-width: 1200px;
+    max-width: 1600px;
+    top:39%;
+    left:50%;
+    transform: translate(-50%,-40%);
+}
+
+.raw-container {
+    position:fixed;
+    width:70%;
+    margin:auto;
+    min-width: 1200px;
+    max-width: 1600px;
+    top:40%;
+    left:50%;
+    transform: translate(-50%,-40%);
 }
 
 .hot-title {
