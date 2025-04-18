@@ -35,7 +35,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
-            "AND p.product_category IN (:productCategories)",
+            "AND p.product_category IN (:productCategories) ORDER BY DESC p.product_id",
             nativeQuery = true)
     List<Product> findProductsAllCategory(
             @Param("keyword") String keyword,
@@ -65,7 +65,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "FROM product p " +
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
-            "AND p.target_category LIKE %:targetCategory%",
+            "AND p.target_category LIKE %:targetCategory% ORDER BY p.product_id DESC",
             nativeQuery = true)
     List<Product> findProductsNoCategory(@Param("keyword") String keyword,
                                          @Param("eventCategory") String eventCategory,
@@ -73,6 +73,17 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findAllBySellerNo(User user);
 
+
+    @Query("""
+        SELECT p
+        FROM Product p
+        WHERE p.rating >= 3.5
+        ORDER BY 
+            (SELECT COUNT(r) FROM Review r WHERE r.product = p) +
+            (SELECT COUNT(w) FROM Wishlist w WHERE w.product = p) 
+        DESC
+        """)
+    List<Product> findTop10PopularProductsByRating();
 
     // List<Product> findAllByProductNameContaining(String searchWord, PageRequest of);
 }

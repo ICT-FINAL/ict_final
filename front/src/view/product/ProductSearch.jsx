@@ -85,19 +85,22 @@ function ProductSearch() {
 
                 setTotalPage(pvo.totalPage);
 
-                 // 각 상품에 대해 별점과 리뷰 개수 불러오기
-                productList.forEach(product => {
-                    axios.get(`${serverIP.ip}/review/averageStar?productId=${product.id}`)
-                        .then((res) => {
-                            const { average, reviewCount } = res.data;
-                            // 상품에 별점과 리뷰 개수 추가
-                            product.average = average;
-                            product.reviewCount = reviewCount;
+                Promise.all(
+                    productList.map(product =>
+                      axios.get(`${serverIP.ip}/review/averageStar?productId=${product.id}`)
+                        .then(res => ({
+                          ...product,
+                          average: res.data.average,
+                          reviewCount: res.data.reviewCount
+                        }))
+                        .catch(err => {
+                          console.error(err);
+                          return { ...product, average: 0, reviewCount: 0 };
                         })
-                        .catch((err) => console.log(err));
+                    )
+                  ).then(updatedList => {
+                    setProducts(updatedList);
                 });
-
-                console.log(productList);
             })
             .catch((err) => {
                 console.log(err)
@@ -219,7 +222,7 @@ function ProductSearch() {
                                 backgroundColor: product.shippingFee === 0 ? "#ff4d4d" : "#f2f2f2",
                                 color: product.shippingFee === 0 ? "white" : "black",
                                 minHeight: "10px",
-                                lineHeight: "10px" // 가운데 정렬
+                                lineHeight: "10px",
                             }}>
                                 {product.shippingFee === 0 ? "🚚 무료배송" : `배송비 ${product.shippingFee.toLocaleString()}원`} {/* 배송비 */}
                             </div>

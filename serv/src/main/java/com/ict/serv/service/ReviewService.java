@@ -12,7 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -68,4 +70,21 @@ public class ReviewService {
     public List<Review> selectProductId(Product product) {
         return repository.findByProduct(product);
     }
+
+    public List<Review> selectMyReviewList(User user) {
+        return repository.findByUser(user);
+    }
+
+    public Map<Long, List<Review>> findByProduct(List<Product> products) {
+        Map<Long, List<Review>> result = new HashMap<>();
+
+        // 각 상품에 대해 리뷰를 조회
+        for (Product product : products) {
+            List<Review> reviews = repository.findByProduct(product); // DB에서 리뷰 조회
+            result.put(product.getId(), reviews); // 결과 맵에 추가
+        }
+
+        return result; // 최종적으로 각 상품 ID에 대한 리뷰 리스트를 반환
+    }
+
 }

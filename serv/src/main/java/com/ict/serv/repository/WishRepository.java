@@ -1,5 +1,6 @@
 package com.ict.serv.repository;
 
+import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.entity.wish.Wishlist;
 import org.springframework.data.domain.PageRequest;
@@ -21,4 +22,6 @@ public interface WishRepository extends JpaRepository<Wishlist, Long> {
             "JOIN wishlist w ON p.product_id = w.product_no " +
             "WHERE p.seller_no = :sellerId", nativeQuery = true)
     int countWishBySeller(@Param("sellerId") Long sellerId);
+
+    int countIdByProduct(Product product);
 }

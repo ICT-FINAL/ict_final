@@ -382,7 +382,7 @@ function ProductInfo() {
                             </div>
                         }
                         <ul>
-                            <li style={{ display: 'flex' }}>
+                            <li style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div className='product-profile-box'>
                                     <img id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' src={loc.state.product.sellerNo.uploadedProfileUrl ? `${serverIP.ip}${loc.state.product.sellerNo.uploadedProfileUrl}` : `${loc.state.product.sellerNo.profileImageUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
                                     <div id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{loc.state.product.sellerNo.username} &gt;</div>
@@ -425,10 +425,6 @@ function ProductInfo() {
                                             <span>좋아요</span>
                                         </div>
                                     )}
-                                    <div className="cart-icon" onClick={() => { addBasket() }}>
-                                        <FaShoppingCart />
-                                        <span>장바구니</span>
-                                    </div>
                                     <div className="inquiry-icon" onClick={() => { inquiry() }}>
                                         <FaRocketchat />
                                         <span>문의하기</span>
@@ -599,7 +595,10 @@ function ProductInfo() {
                                     <strong>총 금액:</strong> {formatNumberWithCommas(totalPrice)}원
                                 </div>
                             </li>
-                            <li>
+                            <li style={{display:'flex', justifyContent: 'space-between'}}>
+                                <button className='product-basket-button' onClick={() => addBasket()}>
+                                    장바구니
+                                </button>
                                 <button className='product-buy-button' onClick={() => moveBuy()}>
                                     구매하기
                                 </button>
@@ -626,11 +625,11 @@ function ProductInfo() {
                     <div>
                         {changeMenu === "detail" &&
                             <>
-                                {
-                                    // productList.length === 0 &&
-                                    <div style={{ padding: '20px', textAlign: 'center' }}>등록된 정보가 없습니다.</div>
-                                }
-                                상세정보 내용
+                                {loc.state.product.detail ? (
+                                    <div dangerouslySetInnerHTML={{ __html: loc.state.product.detail }} style={{marginTop:'30px'}}/>
+                                ) : (
+                                    <p>등록된 상세 정보가 없습니다.</p>
+                                )}
                             </>
                         }
 

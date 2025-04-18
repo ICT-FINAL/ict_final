@@ -1,5 +1,6 @@
 package com.ict.serv.service;
 
+import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.user.Follow;
 import com.ict.serv.entity.wish.WishPagingVO;
 import com.ict.serv.entity.wish.Wishlist;
@@ -53,6 +54,9 @@ public class InteractService {
 
     public Wishlist selectWish(Long userId, Long productId) {
         return wish_repo.findByUser_IdAndProduct_Id(userId,productId);
+    }
+    public int selectWishCountByProduct(Product product){
+        return wish_repo.countIdByProduct(product);
     }
     public Wishlist insertWish(Wishlist wish) {
         return wish_repo.save(wish);
