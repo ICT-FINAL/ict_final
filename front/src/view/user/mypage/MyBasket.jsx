@@ -137,7 +137,7 @@ function MyBasket() {
             if (checkedItems[item.basketNo]) {
                 const discountedPrice = item.productDiscountRate > 0
                     ? item.productPrice * item.productDiscountRate / 100
-                    : item.productPrice;
+                    : 0;
 
                 const itemPrice = item.productPrice;
 
@@ -212,8 +212,8 @@ function MyBasket() {
     return (
         <div style={{ paddingLeft: "10px" }}>
             <div className="basket-sel-all">
-                <input type="checkbox" checked={allChecked} onChange={handleAllCheck} /> 전체 선택 {" "}
-                <button type="button" onClick={handleDeleteSelected}>선택 삭제</button>
+                <input type="checkbox" checked={allChecked} onChange={handleAllCheck} /> 전체 선택
+                <button id="selected-delete-btn" type="button" onClick={handleDeleteSelected}>선택 삭제</button>
                 <hr />
             </div>
             {Object.keys(groupedItems).length > 0 ? (
@@ -236,69 +236,64 @@ function MyBasket() {
                         /> <b>{group.sellerName}</b>님의 상품
 
                         <ul className="basket-list">
-                            <li></li>
-                            <li>제품</li>
-                            <li>옵션</li>
-                            <li>배송비</li>
-                        </ul>
-
-                        <ul className="basket-list">
-                            <li></li>
-                            <li style={{ cursor: "pointer", display: "flex", alignItems: "center" }}
-                                onClick={() => moveProductInfo(group.productNo)}>
-                                <img
+                            <li>
+                                <img id="basket-product-img" onClick={() => moveProductInfo(group.productNo)}
                                     src={`${serverIP.ip}/uploads/product/${group.productNo}/${group.productImage}`}
-                                    style={{ width: '10vw', height: '10vw', borderRadius: '10px', marginRight: '10px' }}
                                 />
+                            </li>
+                            <li>
                                 <div>
-                                    <span>상품명: {group.productName}</span><br />
-                                    <span>가격: {formatNumberWithCommas(group.productPrice)}원</span><br />
-                                    <span>할인율: {group.productDiscountRate}%</span>
+                                    <span style={{fontSize: '14pt', cursor: 'pointer'}} onClick={() => moveProductInfo(group.productNo)}>{group.productName}</span><br/>
+                                    {
+                                        group.productDiscountRate > 0 ?
+                                        <>
+                                            <b>{formatNumberWithCommas(group.productPrice - group.productPrice * group.productDiscountRate / 100)}원</b>
+                                            <span style={{textDecoration: 'line-through', color: '#aaa', paddingLeft: '5px'}}>{formatNumberWithCommas(group.productPrice)}</span>
+                                        </> :
+                                        <b>{formatNumberWithCommas(group.productPrice)}원</b>}
+                                </div>
+                                <div>
+                                    {group.items.map((item, idx) => (
+                                        <div key={idx}>
+                                            <input
+                                                type="checkbox"
+                                                checked={checkedItems[item.basketNo] || false}
+                                                onChange={() => handleItemCheck(item.basketNo)}
+                                            />
+                                            <span>옵션: {item.optionName} / {item.categoryName} - 추가금액 +{formatNumberWithCommas(item.additionalPrice)}원</span><br/>
+                                            <span>수량: {item.quantity}</span>
+                                            <button id="order-modify-btn"
+                                                onClick={() => dispatch(setModal({ isOpen: true, selected: 'basket-box', selectedItem: item }))}
+                                            >수정</button>
+                                        </div>
+                                    ))}
                                 </div>
                             </li>
-                            <li colSpan={3}>
-                                {group.items.map((item, idx) => (
-                                    <div key={idx} style={{ borderBottom: '1px solid #ddd', padding: '5px 0' }}>
-                                        <input
-                                            type="checkbox"
-                                            checked={checkedItems[item.basketNo] || false}
-                                            onChange={() => handleItemCheck(item.basketNo)}
-                                        />
-                                        옵션: {item.optionName} / {item.categoryName} - 추가금액 +{formatNumberWithCommas(item.additionalPrice)}원
-                                        <br />수량: {item.quantity}
-                                        <button
-                                            style={{ marginLeft: "10px" }}
-                                            onClick={() => dispatch(setModal({ isOpen: true, selected: 'basket-box', selectedItem: item }))}
-                                        >
-                                            주문수정
-                                        </button>
-                                    </div>
-                                ))}
-                            </li>
-                            <li>{formatNumberWithCommas(group.productShippingFee)}원</li>
+                            <li style={{textAlign: 'center', alignSelf: 'center'}}>배송비<br/>{formatNumberWithCommas(group.productShippingFee)}원</li>
                         </ul>
                     </div>
                 ))
             ) : (
-                <div style={{ marginTop: "10px" }}>장바구니에 담긴 상품이 없습니다.</div>
+                <div>장바구니에 담긴 상품이 없습니다.</div>
             )}
 
 
-            <div className="basket-body" style={{ backgroundColor: "beige", borderRadius: "10px" }}>
-                <ul className="price-list">
-                    <li>선택상품금액</li>
-                    <li>총배송비</li>
-                    <li>할인예상금액</li>
-                    <li>주문금액</li>
-                    <li></li>
-                </ul>
-                <ul className="price-list">
-                    <li>{formatNumberWithCommas(totals.selectedPrice)}원 ➕</li>
-                    <li>{formatNumberWithCommas(totals.totalShippingFee)}원 ➖</li>
-                    <li>{formatNumberWithCommas(totals.totalDiscountedPrice)}원 🟰</li>
-                    <li>{formatNumberWithCommas(totals.totalAmount)}원</li>
-                    <li><button type="button" style={{ width: '100px' }} onClick={handleOrder}>{getOrderButtonText()}</button></li>
-                </ul>
+            <div className="basket-body" style={{display: 'flex', alignItems: 'center'}}>
+                <div style={{width: '80%'}}>
+                    <ul className="price-list">
+                        <li>선택상품금액</li>
+                        <li>총배송비</li>
+                        <li>할인예상금액</li>
+                        <li>주문금액</li>
+                    </ul>
+                    <ul className="price-list">
+                        <li>{formatNumberWithCommas(totals.selectedPrice)}원 ➕</li>
+                        <li>{formatNumberWithCommas(totals.totalShippingFee)}원 ➖</li>
+                        <li>{formatNumberWithCommas(totals.totalDiscountedPrice)}원 🟰</li>
+                        <li>{formatNumberWithCommas(totals.totalAmount)}원</li>
+                    </ul>
+                </div>
+                <button id="order-btn" type="button" onClick={handleOrder}>{getOrderButtonText()}</button>
             </div>
         </div>
     );

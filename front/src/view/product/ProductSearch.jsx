@@ -5,6 +5,8 @@ import { useInView } from "react-intersection-observer";
 import { useNavigate } from "react-router-dom";
 import { setSearch } from "../../store/searchSlice";
 import { setModal } from "../../store/modalSlice";
+import { FaStar } from "react-icons/fa";
+import useDebounce from "../../effect/useDebounce";
 
 function ProductSearch() {
     const search = useSelector((state) => state.search);
@@ -16,6 +18,7 @@ function ProductSearch() {
     const modal = useSelector((state) => state.modal);
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const debouncedSearchWord = useDebounce(search.searchWord, 500);
 
     const eventOptions = ["생일", "결혼", "졸업", "시험", "출산", "기타"];
     const targetOptions = ["여성", "남성", "연인", "직장동료", "부모님", "선생님", "기타"];
@@ -42,7 +45,7 @@ function ProductSearch() {
         setProducts([]);
         setNowPage(1);
         getProductList(1);
-    }, [search.searchWord, search.eventCategory, search.targetCategory, search.productCategory]);
+    }, [debouncedSearchWord, search.eventCategory, search.targetCategory, search.productCategory]);
 
     useEffect(() => {
         if (nowPage > 1) {
@@ -68,7 +71,9 @@ function ProductSearch() {
     const getProductList = (page) => {
         axios
             .get(
-                `${serverIP.ip}/product/search?searchWord=${search.searchWord}&eventCategory=${search.eventCategory}&targetCategory=${search.targetCategory}&productCategory=${search.productCategory}&nowPage=${page}`,
+                `${serverIP.ip}/product/search?searchWord=${search.searchWord}&eventCategory=${search.eventCategory}&targetCategory=${search.targetCategory}&productCategory=${search.productCategory}&nowPage=${page}`,{
+                    headers:{Authorization:`Bearer ${ user && user.token}`}
+                }
             )
             .then((res) => {
                 const { pvo, productList } = res.data;
@@ -79,12 +84,42 @@ function ProductSearch() {
                 });
 
                 setTotalPage(pvo.totalPage);
-                console.log(productList);
+
+                Promise.all(
+                    productList.map(product =>
+                      axios.get(`${serverIP.ip}/review/averageStar?productId=${product.id}`)
+                        .then(res => ({
+                          ...product,
+                          average: res.data.average,
+                          reviewCount: res.data.reviewCount,
+                          reviewContent: res.data.reviewContent
+                        }))
+                        .catch(err => {
+                          console.error(err);
+                          return { ...product, average: 0, reviewCount: 0 };
+                        })
+                    )
+                  ).then(updatedList => {
+                    setProducts(updatedList);
+                });
             })
             .catch((err) => {
                 console.log(err)
             });
     };
+
+    {/* 평균 별점, 리뷰 갯수 구하기 */}
+    const [averageStar, setAverageStar] = useState(null);
+    const [reviewCount, setReviewCount] = useState(0);
+    // useEffect(() => {
+    //     axios.get(`${serverIP.ip}/review/averageStar?productId=${loc.state.product.id}`)
+    //     .then(res => {
+    //         console.log(res.data); 
+    //         setAverageStar(res.data.average);
+    //         setReviewCount(res.data.reviewCount);
+    //     })
+    //     .catch(err => console.log(err));
+    // }, []);
 
     return (
         <div className="product-grid-container">
@@ -152,12 +187,13 @@ function ProductSearch() {
                     </div>
                 </div>
             </div>
-            <div className="product-grid">
+            <div className="product-grid" style={{textAlign:'left'}}>
                 {products.map((product, index) => (
                     <div
                         key={`${product.id}-${index}`}
                         className="product-card"
                         ref={index === products.length - 1 ? ref : null}
+                        style={{minWidth:0}}
                     >
                         <img style={{ cursor: 'pointer' }} onClick={() => moveInfo(product)}
                             src={`${serverIP.ip}/uploads/product/${product.id}/${product.images[0]?.filename}`}
@@ -166,9 +202,20 @@ function ProductSearch() {
                         />
                         <div style={{ cursor: 'pointer' }} onClick={() => moveInfo(product)} className="product-info">
                             <span style={{ fontSize: "14px", color: "#333" }}>{product.productName}</span> {/* 상품명 */} <br />
-                            <span style={{ color: 'red', fontWeight: "700" }}>{product.discountRate}%</span> {/* 할인 */}
-                            <span style={{ textDecoration: "line-through", textDecorationColor: "red", textDecorationThickness: "2px", fontWeight: "700" }}>{product.price}원</span> {/* 기존 가격 */}
-                            <span style={{ color: 'red', fontWeight: "700" }}>{Math.round(product.price * (1 - product.discountRate / 100))}원</span> {/* 할인된가격 */}
+
+                            {product.discountRate === '' || product.discountRate === 0 ? (
+                                <span style={{ fontWeight: "700" }}>{product.price.toLocaleString()}원</span> // 할인율이 0%일 때는 기존 가격만 표시
+                                ) : (
+                                <>
+                                    <span style={{ color: 'red', fontWeight: "700", marginRight: "3px" }}>{product.discountRate}%</span>
+                                    <span style={{ textDecoration: "line-through", textDecorationColor: "red", textDecorationThickness: "2px", fontWeight: "700", marginRight: '3px' }}>
+                                        {product.price.toLocaleString()}원
+                                    </span>
+                                    <span style={{ color: 'red', fontWeight: "700" }}>
+                                        {Math.round(product.price * (1 - product.discountRate / 100)).toLocaleString()}원
+                                    </span> 
+                                </>
+                            )}
 
                             <br />
                             <div style={{
@@ -177,10 +224,38 @@ function ProductSearch() {
                                 backgroundColor: product.shippingFee === 0 ? "#ff4d4d" : "#f2f2f2",
                                 color: product.shippingFee === 0 ? "white" : "black",
                                 minHeight: "10px",
-                                lineHeight: "10px" // 가운데 정렬
+                                lineHeight: "10px",
                             }}>
-                                {product.shippingFee === 0 ? "🚚 무료배송" : `배송비 ${product.shippingFee}원`} {/* 배송비 */}
+                                {product.shippingFee === 0 ? "🚚 무료배송" : `배송비 ${product.shippingFee.toLocaleString()}원`} {/* 배송비 */}
                             </div>
+
+                            {/* 별과 평균 별점, 리뷰 개수 */}
+                            <div style={{ display: 'flex', alignItems: 'center', marginTop: '3px' }}>
+                                <FaStar style={{ color: '#FFD700', fontSize: '15px' }} />
+                                <div style={{ marginLeft: '8px', fontSize: '12px', color: '#555' }}>
+                                    <b>{product.average ? product.average.toFixed(1) : '0.0'}</b>
+                                    <span style={{ marginLeft: '4px', color: '#999' }}>
+                                        ({product.reviewCount})
+                                    </span>
+                                </div>
+                            </div>
+                            <div
+                            style={{
+                                width: '100%',
+                                maxWidth: '100%',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                fontSize: '13px',
+                                color: '#666',
+                                marginTop: '5px',
+                                lineHeight: '1.4',
+                            }}
+                            >
+                            <span style={{ fontWeight: '600', marginRight: '5px', color: '#333' }}>후기</span>
+                            {product.reviewContent !== '' && product.reviewContent}
+                            </div>
+
                         </div>
                     </div>
                 ))}

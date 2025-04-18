@@ -1,6 +1,8 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { setModal } from "../../../store/modalSlice";
+
 import axios from "axios";
 
 function MySell() {
@@ -15,6 +17,9 @@ function MySell() {
 
     const pageSize = 5;
     const pagedOrderList = orderList.slice((nowPage - 1) * pageSize, nowPage * pageSize);
+
+    const dispatch = useDispatch();
+    const modal = useSelector((state)=>state.modal);
 
     useEffect(() => {
         getBoardList();
@@ -42,6 +47,10 @@ function MySell() {
 
     function formatNumberWithCommas(num) {
         return num.toLocaleString();
+    }
+
+    const setShipping = (id) => {
+        dispatch(setModal({...modal, selected:'shipping', isOpen:true, info:{id:id}}));
     }
 
     return (
@@ -85,10 +94,36 @@ function MySell() {
                                                 <strong>배송비:</strong> +{formatNumberWithCommas(order.shippingFee)}원
                                             </div>
                                         )}
+                                        <div style={{ marginTop: '10px' }}>
+                                                <strong>배송 상태:</strong>{' '}
+                                                {order.shippingState === 'BEFORE' && (
+                                                    <span style={{ color: '#888', fontWeight: '600' }}>
+                                                    ⏳ 배송 준비 중
+                                                    </span>
+                                                )}
+                                                {order.shippingState === 'ONGOING' && (
+                                                    <span style={{ color: '#007bff', fontWeight: '600' }}>
+                                                    🚚 배송 중
+                                                    </span>
+                                                )}
+                                                {order.shippingState === 'FINISH' && (
+                                                    <span style={{ color: '#28a745', fontWeight: '600' }}>
+                                                    ✅ 배송 완료
+                                                    </span>
+                                                )}
+                                                {order.shippingState === 'CANCELED' && (
+                                                    <span style={{ color: '#dc3545', fontWeight: '600' }}>
+                                                    ❌ 배송 취소
+                                                    </span>
+                                                )}
+                                                </div>
                                     </div>
                                     <div className="final-total">
                                         <strong>최종 결제 금액:</strong> {formatNumberWithCommas(orderSum + order.shippingFee)}원
                                     </div>
+                                    {order.shippingState!=='FINISH' && <button style={{marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'
+                                        ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#8CC7A5'
+                                    }} onClick={()=>setShipping(order.id)}>배송 등록</button>}
                                 </div>
                             );
                         })}

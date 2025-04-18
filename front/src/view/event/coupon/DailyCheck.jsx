@@ -1,63 +1,94 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
+import "../../../css/view/roulette.css";
 
 const DailyCheck = () => {
   const canvasRef = useRef(null);
-  const needleRef = useRef(null);
   const [isSpinning, setIsSpinning] = useState(false);
-  const [rotation, setRotation] = useState(0);
+  const [rotationState, setRotationState] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const [prize, setPrize] = useState("");
+  const [result, setResult] = useState(null);
 
   const token = useSelector((state) => state.auth.user.token);
   const serverIP = useSelector((state) => state.serverIP.ip);
 
   const product = [
-    "1000원 쿠폰", "꽝", "100원 쿠폰", "꽝", "100원 쿠폰", "꽝", "꽝", "꽝", "5000원 쿠폰",
+    "10% COUPON",
+    "1,000P",
+    "20% COUPON",
+    "500P",
+    "꽝",
+    "2000P",
+    "30% COUPON",
+    "1500P",
   ];
 
   const colors = [
-    "#dc0936", "#e6471d", "#f7a416", "#efe61f", "#60b236", "#209b6c", "#169ed8", "#0d66e4", "#87207b",
+    "#ffcc00",
+    "#ff6666",
+    "#66ccff",
+    "#99cc33",
+    "#cccccc",
+    "#ff9999",
+    "#9966cc",
+    "#cccccc",
   ];
 
-  const drawRouletteWheel = () => {
+  const drawRouletteWheel = (angle = 0) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     const [cw, ch] = [canvas.width / 2, canvas.height / 2];
     const arc = (2 * Math.PI) / product.length;
 
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.translate(cw, ch);
+    ctx.rotate((angle * Math.PI) / 180);
+    ctx.translate(-cw, -ch);
+
     for (let i = 0; i < product.length; i++) {
       ctx.beginPath();
       ctx.fillStyle = colors[i % colors.length];
       ctx.moveTo(cw, ch);
-      ctx.arc(cw, ch, cw - 2, arc * i - Math.PI / 2, arc * (i + 1) - Math.PI / 2);
+      ctx.arc(
+        cw,
+        ch,
+        cw - 2,
+        arc * i - Math.PI / 2,
+        arc * (i + 1) - Math.PI / 2
+      );
       ctx.fill();
       ctx.closePath();
     }
 
     ctx.fillStyle = "#000";
-    ctx.font = "bold 18px Pretendard";
+    ctx.font = "bold 16px sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
+
     for (let i = 0; i < product.length; i++) {
-      const angle = arc * i + arc / 2 - Math.PI / 2;
+      const angleText = arc * i + arc / 2 - Math.PI / 2;
       ctx.save();
-      ctx.translate(cw + Math.cos(angle) * (cw - 60), ch + Math.sin(angle) * (ch - 60));
-      ctx.rotate(angle + Math.PI / 2);
+      ctx.translate(
+        cw + Math.cos(angleText) * (cw - 60),
+        ch + Math.sin(angleText) * (ch - 60)
+      );
+      ctx.rotate(angleText + Math.PI / 2);
       ctx.fillText(product[i], 0, 0);
       ctx.restore();
     }
 
-    ctx.fillStyle = "#000";
     ctx.beginPath();
     ctx.arc(cw, ch, 3, 0, Math.PI * 2);
     ctx.fill();
     ctx.closePath();
+    ctx.restore();
   };
 
   const rotateWheel = async () => {
     if (isSpinning) return;
     setIsSpinning(true);
-
-    console.log("Initiating spin - Server IP:", serverIP, "Token:", token);
 
     try {
       const canSpin = await checkCanSpin();
@@ -69,55 +100,63 @@ const DailyCheck = () => {
 
       const result = await performSpin();
       const index = product.indexOf(result);
-      if (index === -1) {
-        alert("알 수 없는 결과입니다.");
-        setIsSpinning(false);
-        return;
-      }
+      if (index === -1) throw new Error("서버 결과가 product에 없습니다.");
 
       const arcDeg = 360 / product.length;
-      const target = 3600 + index * arcDeg + arcDeg / 2;
-      const canvas = canvasRef.current;
-      canvas.style.transform = `rotate(${target}deg)`;
-      canvas.style.transition = `transform 3s ease-out`;
+      const targetDeg = 360 * 5 + (360 - (index * arcDeg + arcDeg / 2));
+      const duration = 3000;
+      const frameRate = 1000 / 60;
+      const totalFrames = duration / frameRate;
+      let frame = 0;
 
-      setTimeout(() => {
-        alert(`결과: ${result}\n보상: 100포인트가 지급되었습니다.`);
-        setRotation(target % 360);
-        setIsSpinning(false);
-      }, 3000);
+      const animate = () => {
+        frame++;
+        const progress = frame / totalFrames;
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const currentAngle = targetDeg * easeOut;
+
+        drawRouletteWheel(currentAngle);
+
+        if (frame < totalFrames) {
+          requestAnimationFrame(animate);
+        } else {
+          setPrize(result);
+          setShowModal(true);
+          setRotationState(currentAngle % 360);
+          setResult(result);
+        }
+      };
+
+      animate();
     } catch (err) {
-      console.error("Spin error:", err.message);
-      alert(`오류: ${err.message || "서버 오류 또는 인증 실패입니다."}`);
+      alert("오류 발생: " + err.message);
+    } finally {
       setIsSpinning(false);
     }
   };
 
   const checkCanSpin = async () => {
-    const checkRes = await fetch(`${serverIP}/api/roulette/check`, {
+    const res = await fetch(`${serverIP}/api/roulette/check`, {
       method: "GET",
-      headers: { Authorization: `Bearer ${token}`, "Cache-Control": "no-cache" },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Cache-Control": "no-cache",
+      },
     });
-
-    if (!checkRes.ok) {
-      throw new Error(`Check API failed with status: ${checkRes.status}`);
-    }
-
-    return await checkRes.json();
+    if (!res.ok) throw new Error(`Check API failed: ${res.status}`);
+    return await res.json();
   };
 
   const performSpin = async () => {
-    const spinRes = await fetch(`${serverIP}/api/roulette/spin`, {
+    const res = await fetch(`${serverIP}/api/roulette/spin`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     });
-
-    if (!spinRes.ok) {
-      const errorText = await spinRes.text();
-      throw new Error(`Spin API failed with status: ${spinRes.status} - ${errorText}`);
-    }
-
-    return await spinRes.text();
+    if (!res.ok) throw new Error(`Spin API failed: ${res.status}`);
+    return await res.text();
   };
 
   useEffect(() => {
@@ -125,19 +164,52 @@ const DailyCheck = () => {
   }, []);
 
   return (
-    <div style={containerStyle}>
-      <canvas ref={canvasRef} width={500} height={500} style={canvasStyle}></canvas>
-      <div ref={needleRef} style={needleStyle}></div>
-      <button onClick={rotateWheel} style={buttonStyle} disabled={isSpinning}>
-        {isSpinning ? "회전 중..." : "룰렛 돌리기"}
-      </button>
+    <div className="roulette-background">
+      <div className="roulette-card">
+        <h1 className="roulette-title">🎉 매일 룰렛 이벤트!</h1>
+        <p className="roulette-desc">
+          하루 한 번 룰렛을 돌리고 포인트와 쿠폰을 받아가세요!
+        </p>
+
+        <div className="roulette-container">
+          <canvas
+            ref={canvasRef}
+            width={500}
+            height={500}
+            className="roulette-canvas"
+          />
+          <div className="roulette-needle"></div>
+          <button
+            className="roulette-button"
+            onClick={rotateWheel}
+            disabled={isSpinning}
+          >
+            {isSpinning ? "..." : "START"}
+          </button>
+        </div>
+
+        {showModal && (
+          <div className="roulette-modal-overlay">
+            <div className="roulette-modal">
+              <h2 className="roulette-modal-title">🎊 축하합니다! 🎊</h2>
+              <p className="roulette-modal-result">
+                당첨 결과: <strong>{prize}</strong>
+              </p>
+              <p className="roulette-modal-sub">
+                💰 100 포인트가 지급되었습니다.
+              </p>
+              <button
+                onClick={() => setShowModal(false)}
+                className="roulette-modal-button"
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
-
-const containerStyle = { display: 'flex', alignItems: 'center', flexDirection: 'column', position: 'relative', paddingTop: '200px' };
-const canvasStyle = { transition: 'transform 3s ease-out', pointerEvents: 'none' };
-const needleStyle = { width: 0, height: 0, borderLeft: '10px solid transparent', borderRight: '10px solid transparent', borderTop: '30px solid red', position: 'absolute', top: '170px', left: '50%', transform: 'translateX(-50%)', zIndex: 1 };
-const buttonStyle = { marginTop: '20px', padding: '10px 20px', fontSize: '18px', backgroundColor: '#f57c00', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' };
 
 export default DailyCheck;

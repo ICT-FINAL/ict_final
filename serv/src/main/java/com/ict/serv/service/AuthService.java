@@ -3,6 +3,7 @@ package com.ict.serv.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ict.serv.dto.*;
+import com.ict.serv.entity.Authority;
 import com.ict.serv.entity.user.Account;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.UserRepository;
@@ -202,8 +203,6 @@ public class AuthService {
             System.out.println("카카오 이메일이 존재하지 않습니다.");
             throw new IllegalArgumentException("카카오 이메일이 존재하지 않습니다.");
         }
-        User result = userRepository.findByEmail(kakaoEmail);
-        if(result != null) return null;
         Account selectedAccount = mapKakaoInfo(kakaoAccountDto);
         System.out.println("수신된 account 정보 : " + selectedAccount);
         SignupResponseDto loginResponseDto = new SignupResponseDto();
@@ -211,6 +210,23 @@ public class AuthService {
 
         return selectedAccount;
     }
+
+    public User isAlreadySignUp(Account account) {
+        User user = userRepository.findByEmail(account.getEmail());
+        if(user == null) {
+            User new_user = new User();
+            new_user.setEmail(account.getEmail());
+            new_user.setAuthority(Authority.ROLE_USER);
+            new_user.setGrade(0);
+            new_user.setGradePoint(0);
+            new_user.setKakaoProfileUrl(account.getPicture());
+            new_user.setUsername(account.getNickname());
+            new_user.setUserid(account.getEmail());
+            user = userRepository.save(new_user);
+        }
+        return user;
+    }
+
     public User findUserByEmail(String email){
         return userRepository.findByEmail(email);
     }

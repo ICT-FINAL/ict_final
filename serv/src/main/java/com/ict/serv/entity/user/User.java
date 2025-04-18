@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ict.serv.entity.Authority;
-import com.ict.serv.entity.product.ProductImage;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -31,7 +30,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="user_id", nullable = false, unique = true)
+    @Column(name="user_id", unique = true)
     private String userid;
 
     @Column(name="user_name")
@@ -40,20 +39,17 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(name="user_pw", nullable = false)
+    @Column(name="user_pw")
     @JsonIgnore
     private String userpw;
 
-    @Column(nullable = false)
     private String tel;
 
-    @Column(nullable = false)
     private String address;
 
-    @Column(name="address_detail", nullable = false)
+    @Column(name="address_detail")
     private String addressDetail;
 
-    @Column(nullable = false)
     private String zipcode;
 
     @Column(name="info_text")

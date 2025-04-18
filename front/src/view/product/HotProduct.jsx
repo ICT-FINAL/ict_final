@@ -63,8 +63,11 @@ function HotProduct() {
     }
 
     return (
-        <div className="hot-container">
-            <strong className='hot-title'>오늘의 미묘 카테고리</strong>
+        <>
+            <div className="search-page-banner">
+            <h1>🏆 인기 카테고리 TOP 확인하기!</h1>
+            <p>🛍️ 지금 사람들이 많이 고른 핸드메이드 아이템은?</p>
+            </div>
             <ul className='hot-category-list'>
                 {categoryList.map((item, index) => (
                     <li
@@ -88,9 +91,10 @@ function HotProduct() {
                                 {productList.map((product, index) => (
                                     <div className="hot-product-card" key={index}>
                                         <div className="hot-card-content" style={{cursor:'pointer'}} onClick={()=>moveInfo(product)}>
-                                            <img width='100%' src={`${serverIP.ip}/uploads/product/${product.id}/${product.images[0].filename}`}/>
-                                            {product.productName}<br />
+                                            <img style={{ width: '250px', height: '250px', objectFit: 'cover', borderRadius: '10px' }} src={`${serverIP.ip}/uploads/product/${product.id}/${product.images[0].filename}`}/>
+                                            <div style={{height:'60px'}}>{product.productName}<br />
                                             {formatNumberWithCommas(product.price)}원
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
@@ -100,7 +104,7 @@ function HotProduct() {
                     </div>
                 )}
             </div>
-        </div>
+        </>
     );
 }
 

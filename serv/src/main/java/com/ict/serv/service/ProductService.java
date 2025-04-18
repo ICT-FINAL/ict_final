@@ -76,4 +76,6 @@ public class ProductService {
     public Optional<OptionCategory> selectOptionCategory(Long id) { return optionCategoryRepository.findById(id);}
 
     public List<Product> selectProductByUser(User user) { return repo.findAllBySellerNo(user);}
+
+    public List<Product> getRAWList(){ return repo.findTop10PopularProductsByRating(); }
 }

@@ -1,21 +1,27 @@
+import { Stomp } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 function MyChatting() {
     const serverIP = useSelector(state => state.serverIP);
     const user = useSelector(state => state.auth.user);
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const selectedTab = searchParams.get('tab') || 'send';
+    const stompClientRef = useRef(null);
 
     const [chatRoomList, setChatRoomList] = useState([]);
     const [sellerChatRoomList, setSellerChatRoomList] = useState([]);
-    const [chatMenu, setChatMenu] = useState('');
-
+    const [isMessage, setIsMessage] = useState(false);
+    
     useEffect(()=>{
         getChatRoomList();
         getSellerChatRoomList();
-    }, []);
+        console.log("!!!!");
+    }, [isMessage]);
 
     const getChatRoomList = ()=>{ // 구매자로서 문의한 내역
         axios.get(`${serverIP.ip}/chat/chatRoomList?role=buyer`,
@@ -23,6 +29,18 @@ function MyChatting() {
         .then(res=>{
             console.log(res.data);
             setChatRoomList(res.data);
+            res.data.map(room=>{
+                console.log(room);
+                const socket = new SockJS(`${serverIP.ip}/ws`);
+                const stompClient = Stomp.over(socket);
+                stompClientRef.current = stompClient;
+    
+                stompClient.connect({ Authorization: `Bearer ${user.token}` }, ()=>{
+                    stompClient.subscribe(`/topic/chat/${room.chatRoomId}`, (msg)=>{
+                        setIsMessage(!isMessage);
+                    });
+                })
+            })
         })
         .catch(err=>console.log(err));
     }
@@ -33,44 +51,63 @@ function MyChatting() {
         .then(res=>{
             console.log(res.data);
             setSellerChatRoomList(res.data);
+            res.data.map(room=>{
+                console.log(room);
+                const socket = new SockJS(`${serverIP.ip}/ws`);
+                const stompClient = Stomp.over(socket);
+                stompClientRef.current = stompClient;
+    
+                stompClient.connect({ Authorization: `Bearer ${user.token}` }, ()=>{
+                    stompClient.subscribe(`/topic/chat/${room.chatRoomId}`, (msg)=>{
+                        setIsMessage(!isMessage);
+                    });
+                })
+            })
         })
         .catch(err=>console.log(err));
     }
 
+    const getTime = (times)=>{
+        const time = new Date(times);
+        const month = (time.getMonth() + 1).toString().padStart(2, '0'); // 월 (1월은 0부터 시작하므로 +1)
+        const day = time.getDate().toString().padStart(2, '0'); // 일
+        const hour = time.getHours().toString().padStart(2, '0'); // 시
+        const minute = time.getMinutes().toString().padStart(2, '0'); // 분
+
+        return `${month}-${day} ${hour}:${minute}`;
+    }
+
     return (
         <div>
-            {/* <div className='follow-list'>
-            {
-                (selectedTab === "follower" ? followerList : followingList).map(user => (
-                    <div key={user.id}>
-                        <img className="follow-user-img" src = {user.profileImageUrl.indexOf('http') !==-1 ? `${user.profileImageUrl}`:`${serverIP.ip}${user.profileImageUrl}`} alt=''/>
-                        <div id={`mgx-${user.id}`} className='message-who' style={{cursor: 'pointer'}}>{user.username}<span>{grade[user.grade]}</span></div>
-                    </div>
-                ))
-            }
-            </div>
             <ul className='chat-menu'>
-                <li className={selectedTab === 'send' ? 'selected-menu' : {}} onClick={() => }>팔로워</li>
-                <li className={selectedTab === 'receive' ? 'selected-menu' : {}} onClick={() => }>팔로잉</li>
-            </ul> */}
+                <li className={selectedTab === 'send' ? 'selected-menu' : {}} onClick={() => navigate('?tab=send')}>발신</li>
+                <li className={selectedTab === 'receive' ? 'selected-menu' : {}} onClick={() => navigate('?tab=receive')}>수신</li>
+            </ul>
             {
-                chatRoomList.map((room, idx)=>{
+                (selectedTab === 'send' ? chatRoomList : sellerChatRoomList).map((room, idx)=>{
+                    const selectedUser = selectedTab === 'send' ? room.product.sellerNo : room.buyer
                     return (
-                        <div key={idx} className="chat-room" onClick={()=>navigate(`/product/chat/${room.chatRoomId}`)}>
-                            <span><b>{room.product.sellerNo.username}</b></span>
-                            <span className='date'>{room.createdAt}</span><br/>
-                            <span></span>
-                        </div>
-                    )
-                })
-            }
-            {
-                sellerChatRoomList.map((room, idx)=>{
-                    return (
-                        <div key={idx} className="seller-chat-room" onClick={()=>navigate(`/product/chat/${room.chatRoomId}`)}>
-                            <span><b>{room.buyer.username}</b></span>
-                            <span className='date'>{room.createdAt}</span><br/>
-                            <span></span>
+                        <div key={idx} className="chat-room" onClick={()=>navigate(`/product/chat/${room.chatRoomId}`)}
+                            style={room.lastChat.read || room.lastChat.sender.id === user.user.id ? {background: '#f7f7f7'} : {}}>
+                            <img className="chat-user-img" style={{width: '80px', height: '80px'}} src = {selectedUser.profileImageUrl.indexOf('http') !==-1 ? `${selectedUser.profileImageUrl}`:`${serverIP.ip}${selectedUser.profileImageUrl}`} alt=''/>
+                            <div style={{display: 'flex', flexDirection: 'column', paddingLeft: '3%'}}>
+                                <div>
+                                    <span><b>{selectedUser.username}</b></span>
+                                    <span className='date'>{getTime(room.lastChat.sendTime)}</span><br/>
+                                </div>
+                                <div style={{
+                                    whiteSpace: 'nowrap',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    width: '500px'
+                                }}>
+                                    {room.lastChat.message}
+                                    {
+                                        !room.lastChat.read && room.lastChat.sender.id !== user.user.id &&
+                                        <span id="new-chat-sticker">new</span>
+                                    }
+                                </div>
+                            </div>
                         </div>
                     )
                 })
