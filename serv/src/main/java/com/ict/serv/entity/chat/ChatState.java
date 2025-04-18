@@ -1,5 +1,5 @@
 package com.ict.serv.entity.chat;
 
 public enum ChatState {
-    OPEN,ACTIVE,CLOSED
+    OPEN,ACTIVE,LEFT,CLOSED
 }

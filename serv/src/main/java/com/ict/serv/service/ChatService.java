@@ -97,7 +97,7 @@ public class ChatService {
     }
 
     public List<ChatRoom> getChatRoomList(User user) {
-        return chatRoomRepository.findByBuyerAndStateOrderByLastChat_SendTimeDesc(user, ChatState.ACTIVE);
+        return chatRoomRepository.findByBuyerAndStateNotOrderByLastChatSendTimeDesc(user, ChatState.CLOSED);
     }
 
     public List<ChatRoom> getSellerChatRoomList(User user) {
@@ -134,5 +134,9 @@ public class ChatService {
                 .orElseThrow(() -> new RuntimeException("채팅방 없음"));
 
         return chatRepository.existsByRoomAndSenderNotAndIsReadFalse(room, user);
+    }
+
+    public void leaveChatRoom(String roomId) {
+        chatRoomRepository.updateChatRoomStateToLeft(roomId);
     }
 }
