@@ -61,8 +61,11 @@ import AuctionSell from './auction/AuctionSell';
 import AuctionBid from './auction/AuctionBid';
 import AuctionBidSuccess from './auction/AuctionBidSuccess';
 import ShippingTracker from './shipping/ShippingTracker';
+import Notice from './customerservice/Notice';
 import Chatting from './product/Chatting';
 import DeleteModal from '../modal/DeleteModal';
+import MelonGame from './event/coupon/MelonGame';
+import AuctionSearch from './auction/AuctionSearch';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -177,6 +180,7 @@ function Body() {
       <Route path='/customerservice/*' element={<CenterHome />}>
         <Route path="inquirywrite" element={<InquiryWrite />} />
         <Route path="faq" element={<FAQ />} />
+        <Route path="notice" element={<Notice />} />
       </Route>
       <Route path='/inquiry/inquiryview/:id' element={<InquiryView />} />
 
@@ -192,6 +196,7 @@ function Body() {
       <Route path='/event/write' element={<EventWrite />}></Route>
       <Route path='/event/info' element={<EventInfo />}></Route>
       <Route path='/event/dailycheck' element={<DailyCheck />}></Route>
+      <Route path='/event/melongame' element={<MelonGame/>}></Route>
 
       <Route path='/submenu/*' element={<SubMenuIndex />}></Route>
       <Route path='/submenu/write' element={<SubMenuWrite />}></Route>
@@ -204,6 +209,8 @@ function Body() {
       <Route path='/auction/sell' element={<AuctionSell />}></Route>
       <Route path='/auction/bid' element={<AuctionBid />}></Route>
       <Route path="/auction/bid/success" element={<AuctionBidSuccess />} />
+      <Route path="/auction/search" element={<AuctionSearch />} />
+      
 
       <Route path="/shipping/track" element={<ShippingTracker />}></Route>
     </Routes>

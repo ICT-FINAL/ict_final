@@ -12,7 +12,7 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, String> {
 
     ChatRoom findByBuyerAndProductId(User user, Long productId);
 
-    List<ChatRoom> findByBuyerAndState(User user, ChatState state);
+    List<ChatRoom> findByBuyerAndStateOrderByLastChat_SendTimeDesc(User user, ChatState state);
 
-    List<ChatRoom> findByProductInAndState(List<Product> productList, ChatState state);
+    List<ChatRoom> findByProductInAndStateOrderByLastChat_SendTimeDesc(List<Product> productList, ChatState state);
 }

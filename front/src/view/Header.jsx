@@ -36,11 +36,48 @@ function Header() {
 
     const [basketCount, setBasketCount] = useState(0);
 
+    const [hotSearch, setHotSearch] = useState([]);
+    const [currentRank, setCurrentRank] = useState(0);
+    const [hotSearchOpen, setHotSearchOpen] = useState(false);
+    const [recentSearchList, setRecentSearchList] = useState([]);
+    
+    useEffect(() => {
+        const changeRankInterval = setInterval(() => {
+            setCurrentRank((prevRank) => (prevRank + 1) % hotSearch.length); // 순위를 순차적으로 변경
+        }, 3000);
+
+        return () => clearInterval(changeRankInterval);
+    }, [hotSearch]);
+
     function handleLogout() {
         localStorage.removeItem("token");
         dispatch(clearUser());
         window.location.href = '/';
     }
+
+    useEffect(()=>{
+        if (user) {
+            axios.get(`${serverIP.ip}/log/recentSearch`, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            })
+            .then(res=>{
+                console.log(res.data);
+                setRecentSearchList(res.data);
+            })
+            .catch(err=>console.log(err));
+        }
+
+        const fetchKeywords = async () => {
+            const res = await axios.get(`${serverIP.ip}/log/searchRank?hours=24&topN=10`);
+            console.log(res.data);
+            setHotSearch(res.data);
+        };
+    
+        fetchKeywords();
+        const intervalId = setInterval(fetchKeywords, 600000); //10분이용
+    
+        return () => clearInterval(intervalId);
+    },[])
 
     useEffect(() => {
         if (user)
@@ -103,6 +140,13 @@ function Header() {
         console.log(where);
     }
 
+    const deleteRecentSearch = (searchWord)=>{
+        // axios.get(`${serverIP.ip}/log/deleteRecentSearch?searchWord=${searchWord}`)
+        // .then(res=>{
+            
+        // })
+    }
+
     return (
         <div className={user && user.user.authority == 'ROLE_ADMIN' ? 'header-container-admin' : 'header-container'}>
             <ul className='header-nav'>
@@ -124,7 +168,6 @@ function Header() {
                             <Link to='/recommend'><li>상품 추천</li></Link>
                             <Link to='/event'><li>이벤트</li></Link>
                             <Link to='/auction'><li>실시간 경매</li></Link>
-                            <Link to='/community'><li>커뮤니티</li></Link>
                         </ul>
                     </li>
                 }
@@ -133,18 +176,55 @@ function Header() {
                         <>
                             <div ref={menuButtonRef} className="menu-icon" onClick={() => dispatch(setMenuModal(!menuModal))}>
                                 <img src={user.user.imgUrl.indexOf('http') !== -1 ? `${user.user.imgUrl}` : `${serverIP.ip}${user.user.imgUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white' }} />
-                                <div style={{ color: 'white', paddingLeft: '10px', textAlign: 'center', width: '120px', fontSize: '14px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{user.user.username}<br /><div style={{ paddingTop: '5px' }}>등급: {grade[user.user.grade]}</div></div>
+                                <div style={{ color: 'white', textAlign: 'center', width: '120px', fontSize: '14px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{user.user.username}<br /><div style={{ paddingTop: '5px' }}>등급: {grade[user.user.grade]}</div></div>
                             </div>
                         </>
                     ) : (
                         <div className="login-btn" onClick={() => dispatch(setLoginView(true))}>로그인</div>
                     )}
+                    <div className='header-hot-box' onMouseEnter={() => setHotSearchOpen(true)}
+                                onMouseLeave={() => setHotSearchOpen(false)}>
+                    {hotSearch.length > 0 && (
+                        <div className="hot-search">
+                            <div className="hot-search-item">
+                                <span>{currentRank + 1} </span>
+                                <span> {hotSearch[currentRank]?.keyword}</span>
+                                <span style={{fontSize:'12px', color:'red'}}> {hotSearch[currentRank]?.change >0 && `${hotSearch[currentRank]?.change}▲` }</span>
+                                <span style={{fontSize:'12px', color:'blue'}}> {hotSearch[currentRank]?.change <0 && `${hotSearch[currentRank]?.change}▼` }</span>
+                                <span style={{fontSize:'12px', color:'green'}}> {hotSearch[currentRank]?.change === 'NEW' && 'NEW' }</span>
+                            </div>
+                            {hotSearchOpen && (
+                                <div className="hot-search-dropdown" onMouseEnter={() => setHotSearchOpen(true)}
+                                onMouseLeave={() => setHotSearchOpen(false)}>
+                                    {hotSearch.map((item, index) => (
+                                        <div key={index} className="hot-search-list-item">
+                                            <span>{index + 1} </span>
+                                            <span> {item.keyword}</span>
+                                            <span style={{fontSize:'12px'}}> {item.change > 0  ? `${item.change}▲` : item.change < 0 ? `${item.change}▼` : ''}</span>
+                                            <span style={{fontSize:'12px'}}> {item.change === 'NEW' && 'NEW' }</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    </div>
                     <div className='header-search-box'>
                         <svg style={{ paddingLeft: '10px' }} className='search-icon' width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="10" cy="10" r="7" stroke="white" strokeWidth="2" />
                             <line x1="15" y1="15" x2="22" y2="22" stroke="white" strokeWidth="2" strokeLinecap="round" />
                         </svg>
                         <input type='text' className="search-input" placeholder="검색어를 입력해주세요" onChange={changeSearch} onKeyDown={handleSearch} />
+                        <div className="recent-search-list" style={{display:'none'}}>
+                            <span style={{color: '#999'}}>최근 검색어</span><span style={{color: '#999', fontSize: '10pt'}}>전체 삭제</span>
+                            {recentSearchList.map((item, index) => (
+                                <div key={index} className="recent-search-list-item">
+                                    <span>⏲ {item}</span>
+                                    <span onClick={deleteRecentSearch(item)} style={{color: '#999', float: 'right'}}>×</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </li>
                 <div
@@ -167,7 +247,6 @@ function Header() {
                                 <Link to='/recommend'><li>상품 추천</li></Link>
                                 <Link to='/event'><li>이벤트</li></Link>
                                 <Link to='/auction'><li>실시간 경매</li></Link>
-                                <Link to='/community'><li>커뮤니티</li></Link>
                             </ul>
                         )
                     )}

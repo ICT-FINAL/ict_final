@@ -86,7 +86,6 @@ public class AdminController {
             errorMap.put("pvo", pvo);
             return errorMap;
         }
-
         List<Inquiry> inquiryList;
         try {
             inquiryList = service.getAdminInquiryList(pvo, status, inquiryType);
@@ -97,7 +96,7 @@ public class AdminController {
         Map<String, Object> map = new HashMap<>();
         map.put("pvo", pvo);
         map.put("inquiryList", inquiryList);
-
+        System.out.println(inquiryList.get(0).getInquiryStatus() + ":" +inquiryList.size());
         return map;
     }
 

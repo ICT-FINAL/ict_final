@@ -35,12 +35,15 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/signup/**",
                                 "/auth/login",
+                                "/auth/signup-send-code",
+                                "/auth/email-verify",
                                 "/auth/send-code",
                                 "/auth/find-id/verify",
                                 "/auth/reset-password/request",
                                 "/auth/reset-password/verify",
                                 "/auth/reset-password",
                                 "/auth/me",
+                                "/auth/socialLogin",
                                 "/auction/room/**",
                                 "/auction/**"
                         ).permitAll()
@@ -49,11 +52,18 @@ public class SecurityConfig {
                         .requestMatchers("/uploads/**").permitAll() //파일
                         .requestMatchers("/static/**", "/resources/**").permitAll()
                         .requestMatchers("/product/search").permitAll()
+                        .requestMatchers("/auction/search").permitAll()
                         .requestMatchers("/product/info").permitAll()
                         .requestMatchers("/product/getOption").permitAll()
                         .requestMatchers("/product/getList/**").permitAll()
                         .requestMatchers("/event/getEventList").permitAll()
+                        .requestMatchers("/event/getMelonRank").permitAll()
                         .requestMatchers("/payment/**").permitAll()
+                        .requestMatchers("/log/**").permitAll()
+                        .requestMatchers("/submenu/getSubMenuList").permitAll()
+                        .requestMatchers("/review/**").permitAll()
+                        .requestMatchers("/api/roulette/check").authenticated()
+                        .requestMatchers("/api/roulette/spin").authenticated()
                         .anyRequest().authenticated() // 나머지는 인증 필요
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가

@@ -28,6 +28,7 @@ function Chatting() {
                 behavior: 'smooth',
             });
         }
+        console.log(chatHistory);
     },[chatHistory])
 
     useEffect(()=>{
@@ -36,12 +37,6 @@ function Chatting() {
             getChatList();
         }
     },[isOpen]);
-
-    useEffect(()=> {
-        getRoomInfo();
-        getChatList();
-        console.log(chatHistory);
-    },[]);
 
     useEffect(()=>{
         const socket = new SockJS(`${serverIP.ip}/ws`);
@@ -53,7 +48,21 @@ function Chatting() {
                 const body = JSON.parse(msg.body);
                 setChatHistory(prev => [...prev, body]);
                 setIsOpen(true);
+                if (body.urd.id != user.user.id) {
+                    changeReadState(body.id);
+                }
+                stompClient.send(`/app/chat/read/${roomId}`, {}, JSON.stringify({
+                    roomId: roomId,
+                    urd: { userid: user.user.userid }
+                }));
             });
+            stompClient.subscribe(`/topic/chat/read/${roomId}`, (msg)=>{
+                changeAllReadState();
+            });
+            stompClient.send(`/app/chat/read/${roomId}`, {}, JSON.stringify({
+                roomId: roomId,
+                urd: { userid: user.user.userid }
+            }));
         })
 
         return () => {
@@ -61,6 +70,7 @@ function Chatting() {
                 console.log('Disconnected from chat room');
             });
         };
+        
     }, [roomId, serverIP, user.token]);
 
     const getRoomInfo =()=>{
@@ -68,7 +78,6 @@ function Chatting() {
             { headers: {Authorization: `Bearer ${user.token}`}}
         )
         .then(res => {
-            console.log(res.data);
             setRoomInfo(res.data);
         })
         .catch(err => console.log(err));
@@ -79,10 +88,30 @@ function Chatting() {
             { headers: {Authorization: `Bearer ${user.token}`}}
         )
         .then(res => {
-            console.log(res.data);
             setChatHistory(res.data);
         })
         .catch(err => console.log(err));
+    }
+
+    const changeReadState = (chatId)=>{
+        axios.post(`${serverIP.ip}/chat/read/${chatId}`, null, {
+            headers: { Authorization: `Bearer ${user.token}` }
+        }).then(()=>{
+            getChatList();
+        }).catch(err => {
+        console.error('읽음 처리 실패', err);
+        });
+    }
+    const changeAllReadState = ()=>{
+        axios.post(`${serverIP.ip}/chat/read/room/${roomId}`, null, {
+            headers: { Authorization: `Bearer ${user.token}` }
+        }).then(()=>{
+            getRoomInfo();
+            getChatList();
+        }).
+        catch(err => {
+            console.error('읽음 처리 실패', err);
+        });
     }
 
     const sendMessage = useCallback((e)=>{
@@ -117,27 +146,49 @@ function Chatting() {
                     </div>
                     <div className="iphone-frame">
                         <div className='chat-container'>
-                            <div className='chat-content' ref={refDialogDiv}>
-                                {/* 프사, 읽음처리(가능하면), 문구 고민 */}
+                            <div className="chat-display" ref={refDialogDiv}>
+                                {/* 읽음처리(가능하면), 문구 고민 */}
                                 {
                                     roomInfo.state === "OPEN" ? "문의주세요" :
                                     chatHistory.map((history, idx)=>{
+                                        const isMe = history.urd.id === user.user.id;
                                         return (
-                                            <>
-                                                <div key={idx} className={history.urd.id === user.user.id ? 'me' : 'other'}>
-                                                    <span>{history.urd.username}</span>                                     
-                                                    <span>{history.message}</span>
+                                            <div className='chat-content'>
+                                                <div style={{
+                                                    display: 'flex',
+                                                    flexDirection: isMe ? 'row-reverse' : 'row',
+                                                    alignItems: 'flex-end',
+                                                    gap: '8px',
+                                                    marginBottom: '10px'
+                                                }}>
+                                                    <div style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '4px'
+                                                    }}>
+                                                        <img className="chat-user-img" src={history.urd.imgUrl.indexOf('http') !== -1 ? history.urd.imgUrl : `${serverIP.ip}${history.urd.imgUrl}`} alt='' />
+                                                        <span className='message-who' id = {isMe ? `mgx-${user.user.id}`: `mgx-${history.urd.id}`} style={{fontWeight:'bold', fontSize:'10pt', cursor:'pointer'}}>{history.urd.username}</span>
+                                                    </div>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: isMe ? 'flex-end' : 'flex-start' }}>
+                                                        <div className={isMe ? 'me' : 'other'} style={{maxWidth:'250px'}}>{history.message}</div>
+                                                        <div className={isMe ? 'me-date' : 'other-date'}>{getTime(history.sendTime)}</div>
+                                                        {
+                                                            !history.read &&
+                                                            <span id='unread-sticker'>읽지 않음</span>
+                                                        }
+                                                    </div>
                                                 </div>
-                                                <span className={history.urd.id === user.user.id ? 'me-date' : 'other-date'}>{getTime(history.sendTime)}</span><br/>
-                                            </>
+                                            </div>
                                         )
                                     })
+                                    
                                 }
                             </div>
                             <div className="chat-input">
                                 <textarea id="chat-textarea"
                                     value={message}
                                     onChange={e => setMessage(e.target.value)}
+                                    onKeyDown={e => {if (e.key === 'Enter') {sendMessage(e);}}}
                                 />
                                 <input type="button" value="보내기" id="chat-send-btn"
                                     onClick={sendMessage}

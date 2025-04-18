@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
+import CustomerReview from './CustomerReview';
 
 function UserInfo() {
     const user = useSelector((state) => state.auth.user);
@@ -346,10 +347,7 @@ function UserInfo() {
                     </div>
                 }
                 {
-                    profileMenu === "review" &&
-                    <>
-                        review
-                    </>
+                    profileMenu === "review" && <CustomerReview/>
                 }
             </div>
         </div>

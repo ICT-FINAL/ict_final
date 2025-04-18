@@ -1,5 +1,7 @@
 package com.ict.serv.entity.chat;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.user.User;
 import jakarta.persistence.*;
@@ -32,6 +34,8 @@ public class ChatRoom {
 
     private LocalDateTime createdAt;
 
-    @Column(name = "last_chat_time")
-    private LocalDateTime lastChatTime;
+    @OneToOne
+    @JsonManagedReference
+    @JoinColumn(name = "last_chat_id")
+    private ChatMessage lastChat;
 }

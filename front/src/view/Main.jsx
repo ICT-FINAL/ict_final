@@ -10,7 +10,7 @@ import "slick-carousel/slick/slick-theme.css";
 
 function Main() {
     const [activeTab, setActiveTab] = useState("ongoing");
-    const [visibleSubMenus, setVisibleSubMenus] = useState(5);
+    const [visibleSubMenus, setVisibleSubMenus] = useState(12);
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
     const isFetching = useRef(false);
@@ -70,13 +70,13 @@ function Main() {
 
     const settings = {
         dots: true,
-        infinite: true,
+        infinite: event_list.length > 1,
         speed: 500,
         slidesToShow: 1,
         slidesToScroll: 1,
-        centerMode: true,
-        centerPadding: "20%",
-        autoplay: true,
+        centerMode: event_list.length > 1,
+        centerPadding: event_list.length > 1 ? "20%" : "0",
+        autoplay: event_list.length > 1,
         autoplaySpeed: 5000,
         appendDots: (dots) => (
             <div
@@ -97,10 +97,7 @@ function Main() {
     useEffect(() => {
         const now = new Date();
         now.setHours(0, 0, 0, 0);
-
-        axios.get(`${serverIP.ip}/submenu/getSubMenuList`, {
-            headers: { Authorization: `Bearer ${user.token}` },
-        })
+        axios.get(`${serverIP.ip}/submenu/getSubMenuList`)
             .then(res => {
                 const ongoing = res.data.filter(submenu => {
                     const end = new Date(submenu.endDate);
@@ -167,7 +164,7 @@ function Main() {
     }, [inView, filteredSubMenus]);
 
     useEffect(() => {
-        setVisibleSubMenus(5);
+        setVisibleSubMenus(12);
     }, [activeTab, currentMonth, currentYear]);
 
     const moveSubMenu = (tar) => {
@@ -177,42 +174,50 @@ function Main() {
     return (
         <div style={{ height: '1000px', paddingTop: '140px' }}>
             <div className="slider-container">
-                <Slider {...settings}>
+                <Slider {...settings} className={event_list.length === 1 ? "slick-center" : ""}>
                     {event_list.map((item, idx) => (
                         <div key={idx} className="slider-image-banner">
-                            <img
-                                className="slider-image"
-                                src={item.src}
-                                alt={item.eventName}
-                            />
+                            <div className="slider-image-wrapper">
+                                <img
+                                    className="slider-image"
+                                    src={item.src}
+                                    alt={item.eventName}
+                                />
+                                <div className="event-date-badge">
+                                    📅 {item.startDate.substring(0, 10)} ~ 📅 {item.endDate.substring(0, 10)}
+                                </div>
 
-                            <div className="event-date-badge">
-                                📅 {item.startDate.substring(0, 10)} ~ 📅 {item.endDate.substring(0, 10)}
+                                {item.state === "COUPON" && <div className="main-coupon-badge">쿠폰 지급!</div>}
+
+                                <div className="event-button" onClick={() => moveToEvent(item)}>자세히보기 ▶</div>
                             </div>
 
-                            {item.state === "COUPON" && <div className="main-coupon-badge">쿠폰 지급!</div>}
-
-                            <div className="event-button" onClick={() => moveToEvent(item)}>자세히보기 ▶</div>
                         </div>
                     ))}
                 </Slider>
             </div>
-
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', textAlign: 'center', justifyContent: 'flex-start' }} >
+            <div style={{ textAlign: 'center', marginTop: '50px', marginBottom: '10px' }}>
+            <h2 style={{ fontSize: '28px', color: '#333' }}>
+                🎁 MIMYO 핸드메이드 셀렉션
+            </h2>
+            <p style={{ fontSize: '18px', color: '#666', marginTop: '10px' }}>
+                정성과 감성을 담아 만든 핸드메이드 아이템,  
+                MIMYO가 이번 달 추천하는 컬렉션을 만나보세요.
+            </p>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', textAlign: 'center', justifyContent: 'center', margin: 'auto', maxWidth:'800px' }} >
                 {visibleList.length > 0 ? (
                     visibleList.map((submenu) => (
-                        <div onClick={() => moveSubMenu(submenu)} key={submenu.id} style={{ marginLeft: '100px', width: 'calc(10%)' }}>
-                            <img src={submenu.src} alt={submenu.subMenuName} />
-                            <div>{submenu.subMenuName}</div>
+                        <div onClick={() => moveSubMenu(submenu)} key={submenu.id}
+                            style={{ padding: '0 10px', width: '100px' }}>
+                            <img id="submenu-img" src={submenu.src} alt={submenu.subMenuName}/>
+                            <div style={{fontSize: '11pt', padding: '10px 0'}}>{submenu.subMenuName}</div>
                         </div>
                     ))
                 ) : (
                     <div className="no-events">📌 해당 월에는 서브메뉴가 없습니다.</div>
                 )}
             </div>
-
-
-
         </div>
     );
 }

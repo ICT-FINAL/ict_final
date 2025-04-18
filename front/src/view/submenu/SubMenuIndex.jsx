@@ -132,7 +132,7 @@ function SubMenuIndex() {
                     {visibleList.length > 0 ? (
                         visibleList.map((submenu) => (
                             <div onClick={() => moveSubMenu(submenu)} key={submenu.id} style={{ width: 'calc(22%)' }}>
-                                <img src={submenu.src} alt={submenu.subMenuName} />
+                                <img style={{width: '100%'}} src={submenu.src} alt={submenu.subMenuName} />
                                 <div>{submenu.subMenuName}</div>
                                 <div>📅 {submenu.startDate.substring(0, 10)} ~ 📅 {submenu.endDate.substring(0, 10)}</div>
                                 <div></div>

@@ -12,7 +12,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/chat")
@@ -47,5 +46,23 @@ public class ChatController {
     @GetMapping("/getChatList/{roomId}")
     public ResponseEntity<List<ChatDTO>> getChatList(@PathVariable String roomId) {
         return ResponseEntity.ok(chatService.getChatList(roomId));
+    }
+
+    @PostMapping("/read/{id}")
+    public ResponseEntity<?> markAsRead(@PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
+        User user = interactService.selectUserByName(userDetails.getUsername());
+
+        chatService.markChatAsRead(id, user);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/read/room/{roomId}")
+    public ResponseEntity<?> markRoomMessagesAsRead(
+            @PathVariable String roomId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        User user = interactService.selectUserByName(userDetails.getUsername());
+        chatService.markAllAsRead(roomId, user);
+        return ResponseEntity.ok().build();
     }
 }

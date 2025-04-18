@@ -1,7 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { FaHeart, FaShoppingCart, FaTimes, FaRocketchat } from "react-icons/fa";
+import { FaHeart, FaShoppingCart, FaTimes, FaRocketchat, FaStar } from "react-icons/fa";
 import { setLoginView } from "../../store/loginSlice";
 
 import axios from "axios";
@@ -23,8 +23,6 @@ function ProductInfo() {
     const [selectedItems, setSelectedItems] = useState([]);
     const [totalPrice, setTotalPrice] = useState(0);
     const [addBasketItems, setAddBasketItems] = useState(null);
-    const [changeMenu, setChangeMenu] = useState('detail');
-
     const [isSubOptionRegistered, setIsSubOptionRegistered] = useState(false);
     const [totalQuantity, setTotalQuantity] = useState(0);
 
@@ -41,6 +39,56 @@ function ProductInfo() {
         getWish();
     }, []);
 
+    // 평균 별점 구하기 
+    const [averageStar, setAverageStar] = useState(null);
+    useEffect(() => {
+        axios.get(`${serverIP.ip}/review/averageStar?productId=${loc.state.product.id}`)
+        .then(res => {
+            console.log(res.data); 
+            setAverageStar(res.data.average);
+        })
+        .catch(err => console.log(err));
+    }, []);
+
+    // 별점 UI 렌더링 함수
+    const renderStars = (average) => {
+        return (
+            <div style={{ display: 'flex', gap: '1px'}}>
+                {[1, 2, 3, 4, 5].map((star) => {
+                    let fillPercent = 0;
+    
+                    const diff = average - (star - 1);
+                    if (diff >= 1) {
+                        fillPercent = 100;
+                    } else if (diff > 0) {
+                        fillPercent = diff * 100;
+                    } else {
+                        fillPercent = 0;
+                    }
+    
+                    return (
+                        <span key={star} style={{ position: 'relative', width: '20px', height: '20px', fontSize: '20px', display: 'inline-block'}}>
+                            <FaStar style={{ color: '#C0C0C0', position: 'absolute', top: 0, left: 0, fontSize: '20px',}}
+/>
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    overflow: 'hidden',
+                                    width: `${fillPercent}%`,
+                                    height: '100%',
+                                }}
+                            >
+                                <FaStar style={{ color: '#FFD700', fontSize: '20px' }} />
+                            </div>
+                        </span>
+                    );
+                })}
+            </div>
+        );
+    };
+    
     useEffect(() => {
         let newTotalPrice = 0;
         selectedItems.forEach(item => {
@@ -181,10 +229,6 @@ function ProductInfo() {
         setQuantity(1);
     };
 
-    const handleCouponChange = (e) => {
-        setSelectedCoupon(Number(e.target.value));
-    };
-
     const handleAddItem = () => {
         if (!selectedOptionId) {
             alert("대분류를 선택해주세요.");
@@ -272,6 +316,21 @@ function ProductInfo() {
             navigate(`/product/chat/${res.data}`)
         })
     }
+
+    // changMenu 상태 추가 (상세정보, 리뷰 등등 탭에 들어갈 메뉴들)
+    const [changeMenu, setChangeMenu] = useState("detail");
+    useEffect(()=>{
+        const savedMenu = localStorage.getItem("changeMenu");
+        if(savedMenu){
+            setChangeMenu(savedMenu);
+            localStorage.removeItem("changeMenu");
+        }
+    }, []);
+
+    const handleChangeMenu = (menuName) => {
+        setChangeMenu(menuName);
+        localStorage.setItem("changeMenu", menuName); // 현재 메뉴 저장
+    };
     
     return (
         <>
@@ -323,14 +382,31 @@ function ProductInfo() {
                             </div>
                         }
                         <ul>
-                            <li style={{ display: 'flex' }}>
+                            <li style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div className='product-profile-box'>
-                                    <img id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' src={loc.state.product.sellerNo.uploadedProfileUrl && loc.state.product.sellerNo.uploadedProfileUrl.indexOf('http') !== -1 ? `${loc.state.product.sellerNo.uploadedProfileUrl}` : `${serverIP.ip}${loc.state.product.sellerNo.uploadedProfileUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
+                                    <img id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' src={loc.state.product.sellerNo.uploadedProfileUrl ? `${serverIP.ip}${loc.state.product.sellerNo.uploadedProfileUrl}` : `${loc.state.product.sellerNo.profileImageUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
                                     <div id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{loc.state.product.sellerNo.username} &gt;</div>
                                 </div>
-                                <div className='product-star-rating'>
-                                    ★★★★★ <span style={{ color: 'black' }}>{loc.state.product.rating}</span>
-                                </div>
+                                {/* 평균 별점 */}
+                                {averageStar !== null ? (
+                                    <>
+                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                            {/* 별점 표시 */}
+                                            {renderStars(averageStar)}
+                                            <p
+                                                style={{
+                                                    marginLeft: '8px',
+                                                    fontSize: '13px',
+                                                    color: '#555',
+                                                    fontWeight: '600',
+                                                    lineHeight: '24px', // 텍스트와 별 사이 간격 조정
+                                                }}
+                                            >
+                                                {averageStar.toFixed(1)} / 5
+                                            </p>
+                                        </div>
+                                    </>
+                                ) : null}
                             </li>
                             <li style={{ display: 'flex', marginTop: '20px', fontSize: '25px', lineHeight: '30px' }}>
                                 <div className='product-info-name'>
@@ -349,10 +425,6 @@ function ProductInfo() {
                                             <span>좋아요</span>
                                         </div>
                                     )}
-                                    <div className="cart-icon" onClick={() => { addBasket() }}>
-                                        <FaShoppingCart />
-                                        <span>장바구니</span>
-                                    </div>
                                     <div className="inquiry-icon" onClick={() => { inquiry() }}>
                                         <FaRocketchat />
                                         <span>문의하기</span>
@@ -371,11 +443,6 @@ function ProductInfo() {
                                     )}
                                     <li><span style={{ fontWeight: 'bold', fontSize: '24px' }}>{loc.state.product.discountRate === 0 ? formatNumberWithCommas(loc.state.product.price) : formatNumberWithCommas(loc.state.product.price * (100 - loc.state.product.discountRate) / 100)}</span> 원</li>
                                     <li>
-                                        <select className='product-info-selectbox' onChange={handleCouponChange} value={selectedCoupon}>
-                                            <option value="0">쿠폰을 선택해주세요</option>
-                                            <option value="1000">1000원 쿠폰</option>
-                                            <option value="3000">3000원 쿠폰</option>
-                                        </select>
                                     </li>
                                     {(loc.state.product.discountRate !== 0 || selectedCoupon !== 0) &&
                                         <li className='info-coupon-box' style={{ color: '#d34141', border: '1px solid #ddd', width: '76%', margin: '15px 0px 15px 20px', borderRadius: '10px' }}>
@@ -528,7 +595,10 @@ function ProductInfo() {
                                     <strong>총 금액:</strong> {formatNumberWithCommas(totalPrice)}원
                                 </div>
                             </li>
-                            <li>
+                            <li style={{display:'flex', justifyContent: 'space-between'}}>
+                                <button className='product-basket-button' onClick={() => addBasket()}>
+                                    장바구니
+                                </button>
                                 <button className='product-buy-button' onClick={() => moveBuy()}>
                                     구매하기
                                 </button>
@@ -546,8 +616,8 @@ function ProductInfo() {
                             fontSize: '16px',
                             fontWeight: '600'
                         }}>
-                            <div onClick={() => setChangeMenu("detail")} className="product-div">상세정보</div>
-                            <div onClick={() => setChangeMenu("review")} className="product-div">리뷰</div>
+                            <div onClick={() => handleChangeMenu("detail")} className="product-div">상세정보</div>
+                            <div onClick={() => handleChangeMenu("review")} className="product-div">리뷰</div>
                         </div>
                         <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
                     </div>
@@ -555,11 +625,11 @@ function ProductInfo() {
                     <div>
                         {changeMenu === "detail" &&
                             <>
-                                {
-                                    // productList.length === 0 &&
-                                    <div style={{ padding: '20px', textAlign: 'center' }}>등록된 정보가 없습니다.</div>
-                                }
-                                상세정보 내용
+                                {loc.state.product.detail ? (
+                                    <div dangerouslySetInnerHTML={{ __html: loc.state.product.detail }} style={{marginTop:'30px'}}/>
+                                ) : (
+                                    <p>등록된 상세 정보가 없습니다.</p>
+                                )}
                             </>
                         }
 

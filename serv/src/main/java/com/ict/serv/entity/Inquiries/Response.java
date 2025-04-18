@@ -1,5 +1,6 @@
 package com.ict.serv.entity.Inquiries;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.ict.serv.entity.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -18,9 +19,6 @@ public class Response {
     @Column(name="response_no")
     private Long id;
 
-    @Column(name="response_subject")
-    private String responseSubject;
-
     @Column(name="response_content", columnDefinition = "LONGTEXT")
     private String responseContent;
 
@@ -33,5 +31,6 @@ public class Response {
 
     @ManyToOne
     @JoinColumn(name="inquiry_no")
+    @JsonBackReference
     private Inquiry inquiry;
 }

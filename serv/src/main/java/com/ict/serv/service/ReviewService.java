@@ -2,15 +2,19 @@ package com.ict.serv.service;
 
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.review.Review;
+import com.ict.serv.entity.review.ReviewImage;
 import com.ict.serv.entity.review.ReviewLike;
 import com.ict.serv.entity.user.User;
+import com.ict.serv.repository.review.ReviewImageRepository;
 import com.ict.serv.repository.review.ReviewLikeRepository;
 import com.ict.serv.repository.review.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -19,11 +23,11 @@ import java.util.Optional;
 public class ReviewService {
     private final ReviewRepository repository;
     private final ReviewLikeRepository like_repository;
+    private final ReviewImageRepository image_repository;
 
     public Review saveReview(Review review) {
         return repository.save(review);
     }
-
 
     public boolean selectCheckReview(User user, Product product) {
         return repository.findByUserAndProduct(user, product).isPresent();
@@ -52,4 +56,35 @@ public class ReviewService {
     public Optional<Review> selectReviewId(Long id) {
         return repository.findById(id);
     }
+
+    public int deleteReviewImage(Review review) {
+        return image_repository.deleteByReview(review);
+    }
+
+    public void deleteReview(Optional<Review> review) {
+        repository.deleteById(review.get().getId()); // 리뷰 삭제
+        image_repository.deleteByReview(review.get()); // 리뷰 이미지 삭제
+        like_repository.deleteByReview(review.get()); // 리뷰 좋아요 삭제
+    }
+
+    public List<Review> selectProductId(Product product) {
+        return repository.findByProduct(product);
+    }
+
+    public List<Review> selectMyReviewList(User user) {
+        return repository.findByUser(user);
+    }
+
+    public Map<Long, List<Review>> findByProduct(List<Product> products) {
+        Map<Long, List<Review>> result = new HashMap<>();
+
+        // 각 상품에 대해 리뷰를 조회
+        for (Product product : products) {
+            List<Review> reviews = repository.findByProduct(product); // DB에서 리뷰 조회
+            result.put(product.getId(), reviews); // 결과 맵에 추가
+        }
+
+        return result; // 최종적으로 각 상품 ID에 대한 리뷰 리스트를 반환
+    }
+
 }
