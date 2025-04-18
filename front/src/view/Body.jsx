@@ -66,6 +66,7 @@ import Chatting from './product/Chatting';
 import DeleteModal from '../modal/DeleteModal';
 import MelonGame from './event/coupon/MelonGame';
 import AuctionSearch from './auction/AuctionSearch';
+import ShippingModal from '../modal/ShippingModal';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -157,6 +158,7 @@ function Body() {
     {modal.isOpen && modal.selected == 'reportapprove' && <ReportApprove />}
     {modal.isOpen && modal.selected == 'categorymodal' && <CategoryModal />}
     {modal.isOpen && modal.selected == 'inquiry-box' && <InquiryModal />}
+    {modal.isOpen && modal.selected == 'shipping' && <ShippingModal />}
     {interact.isOpen && <Interact />}
     {modal.isOpen && modal.selected.indexOf('delll') !== -1 && <DeleteModal />}
     <Routes>

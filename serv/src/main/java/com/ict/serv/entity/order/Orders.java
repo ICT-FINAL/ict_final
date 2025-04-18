@@ -53,4 +53,8 @@ public class Orders {
 
     @Column(name="product_id")
     private Long productId;
+
+    @Column(name="shipping_state")
+    @Enumerated(EnumType.STRING)
+    ShippingState shippingState;
 }

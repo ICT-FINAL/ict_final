@@ -91,7 +91,8 @@ function ProductSearch() {
                         .then(res => ({
                           ...product,
                           average: res.data.average,
-                          reviewCount: res.data.reviewCount
+                          reviewCount: res.data.reviewCount,
+                          reviewContent: res.data.reviewContent
                         }))
                         .catch(err => {
                           console.error(err);
@@ -192,6 +193,7 @@ function ProductSearch() {
                         key={`${product.id}-${index}`}
                         className="product-card"
                         ref={index === products.length - 1 ? ref : null}
+                        style={{minWidth:0}}
                     >
                         <img style={{ cursor: 'pointer' }} onClick={() => moveInfo(product)}
                             src={`${serverIP.ip}/uploads/product/${product.id}/${product.images[0]?.filename}`}
@@ -228,7 +230,7 @@ function ProductSearch() {
                             </div>
 
                             {/* 별과 평균 별점, 리뷰 개수 */}
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '3px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', marginTop: '3px' }}>
                                 <FaStar style={{ color: '#FFD700', fontSize: '15px' }} />
                                 <div style={{ marginLeft: '8px', fontSize: '12px', color: '#555' }}>
                                     <b>{product.average ? product.average.toFixed(1) : '0.0'}</b>
@@ -236,6 +238,22 @@ function ProductSearch() {
                                         ({product.reviewCount})
                                     </span>
                                 </div>
+                            </div>
+                            <div
+                            style={{
+                                width: '100%',
+                                maxWidth: '100%',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                fontSize: '13px',
+                                color: '#666',
+                                marginTop: '5px',
+                                lineHeight: '1.4',
+                            }}
+                            >
+                            <span style={{ fontWeight: '600', marginRight: '5px', color: '#333' }}>후기</span>
+                            {product.reviewContent !== '' && product.reviewContent}
                             </div>
 
                         </div>

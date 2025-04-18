@@ -82,7 +82,7 @@ public class OrderController {
             order.setProductId(productId);
             order.setOrderGroup(orderGroup);
             order.setOrderItems(new ArrayList<>());
-
+            order.setShippingState(ShippingState.BEFORE);
             int orderTotal = 0;
 
             for (OrderRequestDto ord : orderDtos) {
@@ -108,7 +108,6 @@ public class OrderController {
                 item.setOptionName(opt.getOptionName());
                 item.setOptionCategoryName(optCat.getCategoryName());
                 item.setAdditionalFee(additional);
-
                 order.getOrderItems().add(item);
                 orderTotal += itemTotal;
             }
