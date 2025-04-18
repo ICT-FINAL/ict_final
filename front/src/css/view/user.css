@@ -225,8 +225,11 @@
     border: 1px solid #555;
     border-radius: 10px;
 }
-.sign-up-form input:first-of-type {
+.sign-up-form input[name=userid], #verification-code {
     width: calc(65% - 85px);
+}
+.sign-up-form input[name=email] {
+    width: calc(65% - 96px);
 }
 input.tel {
     width: 110px;
@@ -245,7 +248,7 @@ input.tel {
     font-weight: bold;
     color: #f37373;
 }
-#postcode, #profile-image-btn, #duplicate-check-btn {
+#postcode, #profile-image-btn, #duplicate-check-btn, #email-verification-btn, #verification-btn {
     margin-left: 10px;
     height: 30px;
     padding: 0 10px;
@@ -278,7 +281,8 @@ input.tel {
     font-size: 12pt;
     cursor: pointer;
 }
-#signup-btn:hover, #postcode:hover, #profile-image-btn:hover, #duplicate-check-btn:hover {
+#signup-btn:hover, #postcode:hover, #profile-image-btn:hover, #duplicate-check-btn:hover,
+#email-verification-btn:hover, #verification-btn:hover {
     background-color: #fff;
     color: #222;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);

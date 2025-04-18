@@ -111,7 +111,7 @@ function SubMenuWrite() {
                 <input type="date" name="endDate" className="event-write-input" value={formData.endDate} onChange={handleChange} />
 
                 <label className="event-write-label">서브메뉴 카테고리</label>
-                <input type="text" name="subMenuCategory" className="event-write-input" value={formData.subMenuCategory} onChange={handleChange} />
+                <input placeholder="Ex) 이벤트,대상,[상품1,상품2]"type="text" name="subMenuCategory" className="event-write-input" value={formData.subMenuCategory} onChange={handleChange} />
 
                 <div
                     ref={dropZoneRef}

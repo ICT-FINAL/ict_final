@@ -7,7 +7,6 @@
     align-items: center;
     padding-left: 20px;
     box-sizing: border-box;
-    overflow: hidden;
     box-shadow:
     0 4px 10px rgba(0, 0, 0, 0.5),
     inset 0 3px 5px rgba(255, 255, 255, 0.15);
@@ -148,19 +147,61 @@
 }
 
 .header-search-box {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 300px;
+    min-width: 150px;
     background-color: transparent;
     border-left: 1px solid #555;
     border-bottom: 2px solid #555;
     height: 80px;
     transition: all 0.5s;
 }
+
+.recent-search-list {
+    position: absolute;
+    top: 90px;
+    left: 10px;
+    line-height: 1.6;
+    font-size: 11pt;
+}
+
+/* 실검 */
+.header-hot-box {
+    padding: 10px;
+    min-width:100px;
+    color:white;
+    border-left:1px solid hsl(0, 0%, 33%);
+    line-height: 60px;
+    height: 60px;
+}
+
+.hot-search {
+    position: relative;
+}
+
+.hot-search-dropdown {
+    position: absolute;
+    top:70px;
+    left:-10px;
+    background-color: #444;
+    width:128px;
+    padding-bottom:10px;
+}   
+.hot-search-list-item {
+    display: block;
+    padding-left: 10px;
+    line-height: 30px;
+    font-size:14px;
+    cursor: pointer;
+}
+
+/* 실검끝 */
+
 @media(min-width: 1450px) {
     .header-search-box {
-        min-width: 350px;
+        min-width: 150px;
     }
 }
 @media(max-width: 1450px) {
@@ -169,12 +210,13 @@
         margin-right: 4%;
     }
 }
-@media(max-width: 1200px) {
-    .header-search-box {
-        display: none;
+@media(max-width: 1250px) {
+    .header-center ul {
+        gap: 0;
+        margin-right: 0;
     }
 }
-@media(max-width:900px) {
+@media(max-width:960px) {
     .header-center {
         display: none;
     }
@@ -187,11 +229,11 @@
     .header-search-box {
         display: flex;
     }
-}
-@media(max-width:750px) {
-    .header-search-box {
+    .header-hot-box {
         display: none;
     }
+}
+@media(max-width:750px) {
     .header-right {
         min-width: 300px;
     }

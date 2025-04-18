@@ -34,6 +34,7 @@ public class ReviewController {
     private final InteractService interactService;
     private final OrderService orderService;
     private final AuthService authService;
+    private final ProductService productService;
 
 
     // 리뷰 등록
@@ -130,10 +131,19 @@ public class ReviewController {
     // 전체 리뷰 리스트
     @GetMapping("/productReviewList")
     public ResponseEntity<?> productReviewList(Long productId){
-        Product product = new Product();
-        product.setId(productId);
+        Product product = productService.selectProduct(productId).get();
 
         List<Review> reviewList = service.productReviewList(product);
+
+        float sum = 0;
+        for(Review review:reviewList) {
+            sum+= Float.parseFloat(review.getRate());
+        }
+        float average = (float) sum / reviewList.size();
+        average = Math.round(average * 10f) / 10f;
+
+        product.setRating(average);
+        productService.saveProduct(product);
 
         if (reviewList.isEmpty()) {
             return ResponseEntity.ok(new ArrayList<>()); // 이렇게 변경!

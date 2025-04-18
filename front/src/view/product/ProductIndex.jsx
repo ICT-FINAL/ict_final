@@ -26,7 +26,8 @@ function ProductIndex() {
             const y = window.scrollY;
             const newState = {
                 hotProduct: y > 600 && y <= 1200,
-                RAW: y > 1200
+                RAW: y > 1200 && y <=1800,
+                FINAL: y>1800
             };
             setVisibleSections(newState);
         };
@@ -83,7 +84,7 @@ function ProductIndex() {
             <div className="scroll-indicator-icon"><div className="aaaarrow"></div></div>
             <div
             className={`product-main-container ${
-                !visibleSections.hotProduct && !visibleSections.RAW ? 'fade-in' : 'fade-out'
+                !visibleSections.hotProduct && !visibleSections.RAW && !visibleSections.FINAL ? 'fade-in' : 'fade-out'
             }`}
             >
                 <div className="search-page-banner">

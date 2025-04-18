@@ -91,9 +91,10 @@ function HotProduct() {
                                 {productList.map((product, index) => (
                                     <div className="hot-product-card" key={index}>
                                         <div className="hot-card-content" style={{cursor:'pointer'}} onClick={()=>moveInfo(product)}>
-                                            <img width='100%' src={`${serverIP.ip}/uploads/product/${product.id}/${product.images[0].filename}`}/>
-                                            {product.productName}<br />
+                                            <img style={{ width: '250px', height: '250px', objectFit: 'cover', borderRadius: '10px' }} src={`${serverIP.ip}/uploads/product/${product.id}/${product.images[0].filename}`}/>
+                                            <div style={{height:'60px'}}>{product.productName}<br />
                                             {formatNumberWithCommas(product.price)}원
+                                            </div>
                                         </div>
                                     </div>
                                 ))}

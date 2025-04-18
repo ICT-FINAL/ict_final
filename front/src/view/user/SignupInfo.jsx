@@ -68,8 +68,11 @@ function SignupInfo() {
                         본 약관에서 정하지 않은 사항은 관련 법령 및 일반적인 상관례를 따릅니다.<br/>
                     </div>
 
-                    <input type="radio" name="agreeFirst" required onChange={()=>setFirstCheck(true)}/>
-                    (필수) 위 내용을 확인하였으며, 이용약관에 동의합니다.<br/>
+                    <label htmlFor="agreeFirst" style={{cursor: 'pointer'}}>
+                        <input type="radio" id="agreeFirst" name="agreeFirst" required onChange={()=>setFirstCheck(true)}
+                         style={{cursor: 'pointer'}}/>
+                        (필수) 위 내용을 확인하였으며, 이용약관에 동의합니다.
+                    </label><br/>
                     {!firstCheck && <div id="terms-alert">이용약관에 동의해야 회원가입을 진행할 수 있습니다.</div>}
 
                     <h4>2. 개인정보의 수집 및 이용에 대한 동의</h4>
@@ -98,9 +101,11 @@ function SignupInfo() {
                         회원은 개인정보 제공에 대한 동의를 거부할 수 있으며, 이 경우 회원가입 및 서비스 이용이 제한될 수 있습니다.<br/>
                         
                     </div>
-
-                    <input type="radio" name="agreeSecond" required onChange={()=>setSecondCheck(true)}/>
-                    (필수) 위 내용을 확인하였으며, 개인정보 수집 및 이용에 동의합니다.<br/>
+                    <label htmlFor="agreeSecond" style={{cursor: 'pointer'}}>
+                        <input type="radio" id="agreeSecond" name="agreeSecond" required onChange={()=>setSecondCheck(true)}
+                         style={{cursor: 'pointer'}}/>
+                        (필수) 위 내용을 확인하였으며, 개인정보 수집 및 이용에 동의합니다.
+                    </label><br/>
                     {!secondCheck && <div id="terms-alert">개인정보 수집 및 이용에 동의해야 서비스를 이용할 수 있습니다.</div>}
                     
                     <button id="terms-next" onClick={termsCheck}>다음</button>

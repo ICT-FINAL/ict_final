@@ -71,7 +71,9 @@ function ProductSearch() {
     const getProductList = (page) => {
         axios
             .get(
-                `${serverIP.ip}/product/search?searchWord=${search.searchWord}&eventCategory=${search.eventCategory}&targetCategory=${search.targetCategory}&productCategory=${search.productCategory}&nowPage=${page}`,
+                `${serverIP.ip}/product/search?searchWord=${search.searchWord}&eventCategory=${search.eventCategory}&targetCategory=${search.targetCategory}&productCategory=${search.productCategory}&nowPage=${page}`,{
+                    headers:{Authorization:`Bearer ${ user && user.token}`}
+                }
             )
             .then((res) => {
                 const { pvo, productList } = res.data;
@@ -83,19 +85,22 @@ function ProductSearch() {
 
                 setTotalPage(pvo.totalPage);
 
-                 // 각 상품에 대해 별점과 리뷰 개수 불러오기
-                productList.forEach(product => {
-                    axios.get(`${serverIP.ip}/review/averageStar?productId=${product.id}`)
-                        .then((res) => {
-                            const { average, reviewCount } = res.data;
-                            // 상품에 별점과 리뷰 개수 추가
-                            product.average = average;
-                            product.reviewCount = reviewCount;
+                Promise.all(
+                    productList.map(product =>
+                      axios.get(`${serverIP.ip}/review/averageStar?productId=${product.id}`)
+                        .then(res => ({
+                          ...product,
+                          average: res.data.average,
+                          reviewCount: res.data.reviewCount
+                        }))
+                        .catch(err => {
+                          console.error(err);
+                          return { ...product, average: 0, reviewCount: 0 };
                         })
-                        .catch((err) => console.log(err));
+                    )
+                  ).then(updatedList => {
+                    setProducts(updatedList);
                 });
-
-                console.log(productList);
             })
             .catch((err) => {
                 console.log(err)
