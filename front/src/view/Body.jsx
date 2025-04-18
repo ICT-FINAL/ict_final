@@ -33,7 +33,9 @@ import ProductSearch from './product/ProductSearch';
 
 import CenterHome from './customerservice/CenterHome';
 import InquiryWrite from './customerservice/InquiryWrite';
+import NoticeWrite from './customerservice/NoticeWrite';
 import FAQ from './customerservice/FAQ';
+import NoticeInfo from './customerservice/NoticeInfo';
 import ProductSell from './product/ProductSell';
 import ReportApprove from '../interact/ReportApprove';
 import CategoryModal from '../modal/CategoryModal';
@@ -62,6 +64,8 @@ import Notice from './customerservice/Notice';
 import Chatting from './product/Chatting';
 import DeleteModal from '../modal/DeleteModal';
 import MelonGame from './event/coupon/MelonGame';
+import NoticeEdit from './customerservice/NoticeEdit';
+
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -177,6 +181,10 @@ function Body() {
         <Route path="inquirywrite" element={<InquiryWrite />} />
         <Route path="faq" element={<FAQ />} />
         <Route path="notice" element={<Notice />} />
+        <Route path="notice/:id" element={<NoticeInfo />} />
+        <Route path="noticewrite" element={<NoticeWrite />} />
+        <Route path="noticeedit/:id" element={<NoticeEdit />} />
+
       </Route>
       <Route path='/inquiry/inquiryview/:id' element={<InquiryView />} />
 

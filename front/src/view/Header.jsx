@@ -227,7 +227,7 @@ function Header() {
                         </svg>
                         <span>쿠폰함</span>
                     </div>
-                    <div className="menu-item" onClick={() => movePage('/customerservice')}>
+                    <div className="menu-item" onClick={() => movePage('/customerservice/faq')}>
                         <svg transform="translate(0,-4)" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M4 12V11a8 8 0 0 1 16 0v1" stroke="white" strokeWidth="2" />
                             <path d="M2 15a2 2 0 1 0 4 0v-2H2v2ZM18 13v2a2 2 0 1 0 4 0v-2h-4Z" stroke="white" strokeWidth="2" />
