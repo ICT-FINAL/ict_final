@@ -33,4 +33,13 @@ public class LogController {
 
         return logService.getRecentSearchList(user.getId());
     }
+
+    @GetMapping("/deleteRecentSearch")
+    public void deleteRecentSearch(@AuthenticationPrincipal UserDetails userDetails,
+                                   @RequestParam(required = false) String searchWord) {
+        System.out.println("searchWord: " + searchWord);
+        User user = interactService.selectUserByName(userDetails.getUsername());
+
+        logService.deleteRecentSearch(user, searchWord);
+    }
 }

@@ -125,6 +125,18 @@ function Chatting() {
             setMessage('');
         }
     },[message]);
+    
+    const leaveChatRoom = ()=>{
+        if (window.confirm("채팅방을 나가시겠습니까?")) {
+            axios.post(`${serverIP.ip}/chat/leaveChatRoom/${roomId}`, null, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            })
+            .then(()=>{
+                navigate(-1);
+            })
+            .catch(err=>console.log(err));
+        }
+    }
 
     const getTime = (times)=>{
         const time = new Date(times);
@@ -135,6 +147,7 @@ function Chatting() {
 
         return `${month}-${day} ${hour}:${minute}`;
     }
+    
 
     return (
         <div style={{paddingTop: '100px'}}>
@@ -146,10 +159,28 @@ function Chatting() {
                     </div>
                     <div className="iphone-frame">
                         <div className='chat-container'>
+                            {
+                                roomInfo.state === 'ACTIVE' &&
+                                <div style={{padding: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                    <b style={{fontSize: '14pt'}}>{roomInfo.product.productName}</b>
+                                    {
+                                        roomInfo.buyer.id === user.user.id &&
+                                        <span style={{padding: '5px', background: '#e54d4b', color: '#fff', borderRadius: '10px', fontSize: '10pt', cursor: 'pointer'}}
+                                            onClick={leaveChatRoom}>나가기</span>
+                                    }
+                                </div>
+                            }
                             <div className="chat-display" ref={refDialogDiv}>
-                                {/* 읽음처리(가능하면), 문구 고민 */}
                                 {
-                                    roomInfo.state === "OPEN" ? "문의주세요" :
+                                    roomInfo.state === "OPEN"
+                                    ?
+                                    <div id="info-message">
+                                        💬 작품 관련 궁금한 점이 있다면 편하게 문의해 주세요.<br/>
+                                        ⏱ 판매자는 최대한 빠르게 답변드릴게요.<br/>
+                                        🤝 서로를 존중하며 예의 있게 대화해 주세요.<br/>
+                                        🚫 부적절한 언행은 제재될 수 있어요.
+                                    </div>
+                                    :
                                     chatHistory.map((history, idx)=>{
                                         const isMe = history.urd.id === user.user.id;
                                         return (

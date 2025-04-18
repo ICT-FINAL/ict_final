@@ -65,4 +65,11 @@ public class ChatController {
         chatService.markAllAsRead(roomId, user);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/leaveChatRoom/{roomId}")
+    public ResponseEntity<?> leaveChatRoom(@PathVariable String roomId) {
+        System.out.println(roomId);
+        chatService.leaveChatRoom(roomId);
+        return ResponseEntity.ok().build();
+    }
 }

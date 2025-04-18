@@ -40,6 +40,7 @@ function Header() {
     const [currentRank, setCurrentRank] = useState(0);
     const [hotSearchOpen, setHotSearchOpen] = useState(false);
     const [recentSearchList, setRecentSearchList] = useState([]);
+    const [isFocused, setIsFocused] =useState(false);
     
     useEffect(() => {
         const changeRankInterval = setInterval(() => {
@@ -57,14 +58,7 @@ function Header() {
 
     useEffect(()=>{
         if (user) {
-            axios.get(`${serverIP.ip}/log/recentSearch`, {
-                headers: { Authorization: `Bearer ${user.token}` }
-            })
-            .then(res=>{
-                console.log(res.data);
-                setRecentSearchList(res.data);
-            })
-            .catch(err=>console.log(err));
+            getRecentSearch();
         }
 
         const fetchKeywords = async () => {
@@ -140,11 +134,27 @@ function Header() {
         console.log(where);
     }
 
+    const getRecentSearch = ()=>{
+        axios.get(`${serverIP.ip}/log/recentSearch`, {
+            headers: { Authorization: `Bearer ${user.token}` }
+        })
+        .then(res=>{
+            console.log(res.data);
+            setRecentSearchList(res.data);
+        })
+        .catch(err=>console.log(err));
+    }
     const deleteRecentSearch = (searchWord)=>{
-        // axios.get(`${serverIP.ip}/log/deleteRecentSearch?searchWord=${searchWord}`)
-        // .then(res=>{
-            
-        // })
+        console.log(searchWord);
+        const url = searchWord
+        ? `${serverIP.ip}/log/deleteRecentSearch?searchWord=${searchWord}`
+        : `${serverIP.ip}/log/deleteRecentSearch`;
+
+        axios.get(url, {
+            headers: { Authorization: `Bearer ${user.token}` }
+        })
+        .then(()=>getRecentSearch())
+        .catch(err=>console.log(err));
     }
 
     return (
@@ -187,21 +197,26 @@ function Header() {
                     {hotSearch.length > 0 && (
                         <div className="hot-search">
                             <div className="hot-search-item">
-                                <span>{currentRank + 1} </span>
-                                <span> {hotSearch[currentRank]?.keyword}</span>
-                                <span style={{fontSize:'12px', color:'red'}}> {hotSearch[currentRank]?.change >0 && `${hotSearch[currentRank]?.change}▲` }</span>
-                                <span style={{fontSize:'12px', color:'blue'}}> {hotSearch[currentRank]?.change <0 && `${hotSearch[currentRank]?.change}▼` }</span>
-                                <span style={{fontSize:'12px', color:'green'}}> {hotSearch[currentRank]?.change === 'NEW' && 'NEW' }</span>
+                                <div style={{width: '120px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>
+                                    <span>{currentRank + 1} </span>
+                                    {hotSearch[currentRank]?.keyword}
+                                    <span style={{fontSize:'12px', color:'red'}}> {hotSearch[currentRank]?.change >0 && `${hotSearch[currentRank]?.change}▲` }</span>
+                                    <span style={{fontSize:'12px', color:'blue'}}> {hotSearch[currentRank]?.change <0 && `${hotSearch[currentRank]?.change}▼` }</span>
+                                    <span style={{fontSize:'12px', color:'green'}}> {hotSearch[currentRank]?.change === 'NEW' && 'NEW' }</span>
+                                </div>
                             </div>
                             {hotSearchOpen && (
                                 <div className="hot-search-dropdown" onMouseEnter={() => setHotSearchOpen(true)}
                                 onMouseLeave={() => setHotSearchOpen(false)}>
                                     {hotSearch.map((item, index) => (
                                         <div key={index} className="hot-search-list-item">
-                                            <span>{index + 1} </span>
-                                            <span> {item.keyword}</span>
-                                            <span style={{fontSize:'12px'}}> {item.change > 0  ? `${item.change}▲` : item.change < 0 ? `${item.change}▼` : ''}</span>
-                                            <span style={{fontSize:'12px'}}> {item.change === 'NEW' && 'NEW' }</span>
+                                            <div style={{overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>
+                                                <span>{index + 1} </span>
+                                                {item.keyword}
+                                                <span style={{fontSize:'12px'}}> {item.change > 0  ? `${item.change}▲` : item.change < 0 ? `${item.change}▼` : ''}</span>
+                                                <span style={{fontSize:'12px'}}> {item.change === 'NEW' && 'NEW' }</span>
+                                            </div>
+                                            
                                         </div>
                                     ))}
                                 </div>
@@ -215,16 +230,43 @@ function Header() {
                             <circle cx="10" cy="10" r="7" stroke="white" strokeWidth="2" />
                             <line x1="15" y1="15" x2="22" y2="22" stroke="white" strokeWidth="2" strokeLinecap="round" />
                         </svg>
-                        <input type='text' className="search-input" placeholder="검색어를 입력해주세요" onChange={changeSearch} onKeyDown={handleSearch} />
-                        <div className="recent-search-list" style={{display:'none'}}>
-                            <span style={{color: '#999'}}>최근 검색어</span><span style={{color: '#999', fontSize: '10pt'}}>전체 삭제</span>
-                            {recentSearchList.map((item, index) => (
-                                <div key={index} className="recent-search-list-item">
-                                    <span>⏲ {item}</span>
-                                    <span onClick={deleteRecentSearch(item)} style={{color: '#999', float: 'right'}}>×</span>
+                        <input type='text' className="search-input" placeholder="검색어를 입력해주세요"
+                            onChange={changeSearch} onKeyDown={handleSearch}
+                            onFocus={()=>setIsFocused(true)} onBlur={()=>setIsFocused(false)} />
+                        {
+                            isFocused &&
+                            <div className="recent-search-list">
+                                <div style={{display: 'flex', justifyContent: 'space-between', color: '#999', fontSize: '9pt', paddingBottom: '10px'}}>
+                                    <span>최근 검색어</span>
+                                    <span style={{cursor: 'pointer'}}
+                                        onMouseDown={(e)=>{
+                                            e.preventDefault();
+                                            deleteRecentSearch()}}
+                                            >전체 삭제
+                                    </span>
                                 </div>
-                            ))}
-                        </div>
+                                {recentSearchList.map((item, index) => (
+                                    <div key={index}
+                                        className="recent-search-list-item">
+                                        ⏲ <span style={{cursor: 'pointer'}}
+                                            onMouseDown={()=>{
+                                            dispatch(setSearch({ ...search, searchWord: item }));
+                                            navigate('/product/search');
+                                        }}>{item}</span>
+                                        <span style={{color: '#999', float: 'right', cursor: 'pointer'}}
+                                            onMouseDown={(e)=>{
+                                            e.preventDefault();
+                                            deleteRecentSearch(item);}}
+                                            >×
+                                        </span>
+                                    </div>
+                                ))}
+                                {
+                                    recentSearchList.length === 0 &&
+                                    <div style={{fontSize: '9pt', paddingTop: '5px', textAlign: 'center'}}>최근 검색어 내역이 없습니다.</div>
+                                }
+                            </div>
+                        }
                     </div>
                 </li>
                 <div

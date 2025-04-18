@@ -90,4 +90,12 @@ public class LogService {
     public List<String> getRecentSearchList(Long userId) {
         return searchLogRepository.findDistinctTop5SearchWordsByUserId(userId);
     }
+
+    public void deleteRecentSearch(User user, String searchWord) {
+        if (searchWord == null || searchWord.trim().isEmpty()) {
+            searchLogRepository.softDeleteAllByUser(user);
+        } else {
+            searchLogRepository.softDeleteByUserAndSearchWord(user, searchWord);
+        }
+    }
 }
