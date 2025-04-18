@@ -5,6 +5,7 @@ import com.ict.serv.entity.chat.ChatDTO;
 import com.ict.serv.entity.chat.ChatMessage;
 import com.ict.serv.entity.chat.ChatRoom;
 import com.ict.serv.entity.chat.ChatState;
+import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.chat.ChatRepository;
 import com.ict.serv.repository.chat.ChatRoomRepository;
@@ -93,15 +94,17 @@ public class ChatService {
     }
 
     public ChatRoom findRoom(User user, Long productId) {
-        return chatRoomRepository.findByBuyerAndProductId(user, productId);
+        return chatRoomRepository.findByBuyerAndProductIdAndState(user, productId, ChatState.ACTIVE);
     }
 
     public List<ChatRoom> getChatRoomList(User user) {
-        return chatRoomRepository.findByBuyerAndStateNotOrderByLastChatSendTimeDesc(user, ChatState.CLOSED);
+        return chatRoomRepository.findByBuyerAndStateOrderByLastChat_SendTimeDesc(user, ChatState.ACTIVE);
     }
 
     public List<ChatRoom> getSellerChatRoomList(User user) {
-        return chatRoomRepository.findByProductInAndStateOrderByLastChat_SendTimeDesc(productRepository.findAllBySellerNo_Id(user.getId()), ChatState.ACTIVE);
+        List<Product> products = productRepository.findAllBySellerNo_Id(user.getId());
+        List<ChatState> states = List.of(ChatState.ACTIVE, ChatState.LEFT);
+        return chatRoomRepository.findByProductInAndStateInOrderByLastChatSendTimeDesc(products, states);
     }
 
     public void markChatAsRead(Long id, User user) {
@@ -129,14 +132,12 @@ public class ChatService {
         chatRepository.saveAll(unreadMessages);
     }
 
-    public boolean hasUnreadMessages(String roomId, User user) {
-        ChatRoom room = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new RuntimeException("채팅방 없음"));
-
-        return chatRepository.existsByRoomAndSenderNotAndIsReadFalse(room, user);
-    }
-
-    public void leaveChatRoom(String roomId) {
-        chatRoomRepository.updateChatRoomStateToLeft(roomId);
+    public void leaveChatRoom(String roomId, Long userId) {
+        ChatRoom room = getChatRoom(roomId).get();
+        if (room.getBuyer().getId().equals(userId)) {
+            chatRoomRepository.updateChatRoomStateToLeft(roomId);
+        } else {
+            chatRoomRepository.updateChatRoomStateToClosed(roomId);
+        }
     }
 }
