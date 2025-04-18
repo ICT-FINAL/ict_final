@@ -366,6 +366,7 @@ function AuctionSell() {
                     ))}
                 </select>
                 {formData.productCategory && productOptions[formData.productCategory] && (
+                    <>
                     <div className="product-checkbox-group">
                         <div className="product-checkbox-title">세부 카테고리 선택</div>
                         <div>
@@ -383,6 +384,10 @@ function AuctionSell() {
                         ))}
                         </div>
                     </div>
+                        <div style={{fontSize:'13px', color:'#888', marginBottom:'10px'}}>
+                        경매는 대분류 / 소분류 1개씩만 설정 가능합니다.
+                    </div>
+                    </>
                 )}     
                     {formData.subCategories && (
                         <>

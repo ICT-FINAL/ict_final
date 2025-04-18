@@ -144,6 +144,29 @@ function MyPurchases() {
                                                     <strong>배송비:</strong> +{formatNumberWithCommas(order.shippingFee)}원
                                                 </div>
                                             )}
+                                            <div style={{ marginTop: '10px' }}>
+                                            <strong>배송 상태:</strong>{' '}
+                                            {order.shippingState === 'BEFORE' && (
+                                                <span style={{ color: '#888', fontWeight: '600' }}>
+                                                ⏳ 배송 준비 중
+                                                </span>
+                                            )}
+                                            {order.shippingState === 'ONGOING' && (
+                                                <span style={{ color: '#007bff', fontWeight: '600' }}>
+                                                🚚 배송 중
+                                                </span>
+                                            )}
+                                            {order.shippingState === 'FINISH' && (
+                                                <span style={{ color: '#28a745', fontWeight: '600' }}>
+                                                ✅ 배송 완료
+                                                </span>
+                                            )}
+                                            {order.shippingState === 'CANCELED' && (
+                                                <span style={{ color: '#dc3545', fontWeight: '600' }}>
+                                                ❌ 배송 취소
+                                                </span>
+                                            )}
+                                            </div>
                                         </div>
                                     </div>
                                 );

@@ -367,15 +367,17 @@ public class ReviewController {
         }
 
         double average = 0;
+        String content = "";
         if(count>0){
             average = total / count;
+            content = reviewAverage.get(0).getReviewContent();
         }
 
         // Map에 평균 별점과 리뷰 개수를 넣어서 반환
         Map<String, Object> response = new HashMap<>();
         response.put("average", average);
         response.put("reviewCount", count);
-
+        response.put("reviewContent", content);
         return response;
     }
 
