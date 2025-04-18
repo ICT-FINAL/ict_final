@@ -42,6 +42,13 @@ function RAWProduct() {
         return num.toLocaleString();
     }
 
+    const moveInfo = (id) => {
+        axios.get(`${serverIP.ip}/product/getInfo?productId=${id}`)
+        .then(res =>{
+            navigate('/product/info', { state: { product: res.data } })
+        })
+        .catch(err => console.log(err));
+    }
     return (
         <>
             <div className="search-page-banner">
@@ -50,7 +57,7 @@ function RAWProduct() {
             </div>
             <div className="polaroid-wall">
             {RAWList.slice(0, 10).map((product, idx) => (
-                <div
+                <div onClick={() => moveInfo(product.id)}
                 className="polaroid"
                 key={product.id}
                 style={{

@@ -63,7 +63,7 @@ import 'ckeditor5/ckeditor5.css';
 
 const LICENSE_KEY = 'GPL';
 
-export default function CustomEditor({ content, setContent }) {
+export default function NoticeEditor({ formData, setFormData }) {
 	const editorContainerRef = useRef(null);
 	const editorRef = useRef(null);
 	const [isLayoutReady, setIsLayoutReady] = useState(false);
@@ -282,10 +282,10 @@ export default function CustomEditor({ content, setContent }) {
                         <CKEditor
                             editor={ClassicEditor}
                             config={editorConfig}
-                            data={content}
+                            data={formData.content}
                             onChange={(event, editor) => {
                                 const data = editor.getData();
-                                setContent(data);
+                                setFormData({ ...formData, content: data });
                             }}
 					    />}
                     </div>

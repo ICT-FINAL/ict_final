@@ -412,7 +412,7 @@ function ProductInfo() {
                                 <div className='product-info-name'>
                                     {loc.state.product.productName}
                                 </div>
-                                {user.user.id !== loc.state.product.sellerNo.id &&
+                                {user && user.user.id !== loc.state.product.sellerNo.id &&
                                 <div className='product-wish'>
                                     {!isWish ? (
                                         <div className="wishlist-icon" onClick={() => { addWish() }}>

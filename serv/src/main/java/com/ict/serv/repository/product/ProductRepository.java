@@ -35,7 +35,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
-            "AND p.product_category IN (:productCategories) ORDER BY DESC p.product_id",
+            "AND p.product_category IN (:productCategories) ORDER BY p.product_id DESC",
             nativeQuery = true)
     List<Product> findProductsAllCategory(
             @Param("keyword") String keyword,
