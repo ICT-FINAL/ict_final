@@ -216,7 +216,7 @@ function Header() {
                             <line x1="15" y1="15" x2="22" y2="22" stroke="white" strokeWidth="2" strokeLinecap="round" />
                         </svg>
                         <input type='text' className="search-input" placeholder="검색어를 입력해주세요" onChange={changeSearch} onKeyDown={handleSearch} />
-                        <div className="recent-search-list">
+                        <div className="recent-search-list" style={{display:'none'}}>
                             <span style={{color: '#999'}}>최근 검색어</span><span style={{color: '#999', fontSize: '10pt'}}>전체 삭제</span>
                             {recentSearchList.map((item, index) => (
                                 <div key={index} className="recent-search-list-item">

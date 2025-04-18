@@ -10,7 +10,7 @@ import "slick-carousel/slick/slick-theme.css";
 
 function Main() {
     const [activeTab, setActiveTab] = useState("ongoing");
-    const [visibleSubMenus, setVisibleSubMenus] = useState(5);
+    const [visibleSubMenus, setVisibleSubMenus] = useState(12);
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
     const isFetching = useRef(false);
@@ -164,7 +164,7 @@ function Main() {
     }, [inView, filteredSubMenus]);
 
     useEffect(() => {
-        setVisibleSubMenus(5);
+        setVisibleSubMenus(12);
     }, [activeTab, currentMonth, currentYear]);
 
     const moveSubMenu = (tar) => {
@@ -196,8 +196,16 @@ function Main() {
                     ))}
                 </Slider>
             </div>
-
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', textAlign: 'center', justifyContent: 'center', margin: '30px 100px' }} >
+            <div style={{ textAlign: 'center', marginTop: '50px', marginBottom: '10px' }}>
+            <h2 style={{ fontSize: '28px', color: '#333' }}>
+                🎁 MIMYO 핸드메이드 셀렉션
+            </h2>
+            <p style={{ fontSize: '18px', color: '#666', marginTop: '10px' }}>
+                정성과 감성을 담아 만든 핸드메이드 아이템,  
+                MIMYO가 이번 달 추천하는 컬렉션을 만나보세요.
+            </p>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', textAlign: 'center', justifyContent: 'center', margin: 'auto', maxWidth:'800px' }} >
                 {visibleList.length > 0 ? (
                     visibleList.map((submenu) => (
                         <div onClick={() => moveSubMenu(submenu)} key={submenu.id}

@@ -3,10 +3,7 @@ package com.ict.serv.controller.product;
 import com.ict.serv.entity.log.search.SearchLog;
 import com.ict.serv.entity.product.*;
 import com.ict.serv.entity.user.User;
-import com.ict.serv.service.InteractService;
-import com.ict.serv.service.LogService;
-import com.ict.serv.service.OrderService;
-import com.ict.serv.service.ProductService;
+import com.ict.serv.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,6 +29,7 @@ public class ProductController {
     private final ProductService service;
     private final OrderService orderService;
     private final LogService logService;
+    private final ReviewService reviewService;
 
     @PostMapping("/write")
     @Transactional(rollbackFor = {RuntimeException.class, SQLException.class})
@@ -163,6 +161,7 @@ public class ProductController {
     public List<HotCategoryDTO> hotCategory() {
         return orderService.getHotCategory();
     }
+
     @GetMapping("/getList/byCategory")
     public List<Product> byCategory(String category) {
         System.out.println(category);
@@ -177,6 +176,21 @@ public class ProductController {
         }
 
         return productList;
+    }
+
+    @GetMapping("/getList/getRAW")
+    public List<RAWDTO> getRAW() {
+        List<Product> productList = service.getRAWList();
+        List<RAWDTO> rawList = new ArrayList<>();
+        for(Product product:productList){
+            int review_count = reviewService.productReviewList(product).size();
+            int wish_count = interactService.selectWishCountByProduct(product);
+            if(!product.getImages().isEmpty()) {
+                RAWDTO raw = new RAWDTO(product.getId(), product.getProductName(), product.getPrice(), product.getQuantity(), product.getShippingFee(), product.getDiscountRate(), product.getImages().get(0), product.getRating(), review_count, wish_count);
+                rawList.add(raw);
+            }
+        }
+        return rawList;
     }
     @GetMapping("/getInfo")
     public Product getInfo(Long productId) {

@@ -22,7 +22,7 @@ function MyReviewList(){
 
     useEffect(() => {
         getMyReviewList();
-    }, [])
+    }, [userNo])
 
     const getMyReviewList = () => {
         axios.get(`${serverIP.ip}/review/myReviewList/${userNo}`, {
