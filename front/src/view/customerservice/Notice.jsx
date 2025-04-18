@@ -38,7 +38,7 @@ function Notice(){
         axios.get(`${serverIP.ip}/notice/getNoticeList`, {
             params,
             headers: {
-                Authorization: `Bearer ${user?.token}`
+                Authorization: `Bearer ${user.token}`
             }
         })
         .then(res => {

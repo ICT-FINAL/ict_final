@@ -301,8 +301,9 @@ function Main() {
                 이 달의 MIMYO 인기 작가💕💕 
             </h2>
             <p style={{ fontSize: '18px', color: '#666', marginTop: '10px' }}>
-                정성과 감성을 담아 만든 핸드메이드 아이템,  
-                MIMYO가 이번 달 추천하는 컬렉션을 만나보세요.
+                손끝에서 피어나는 감성,
+                <span style={{ fontWeight: '600', color: '#8CC7A5' }}>
+                이번 달 가장 주목받는 MIMYO 작가</span>들을 소개합니다 🌿
             </p>
             </div>
         </div>

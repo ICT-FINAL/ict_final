@@ -283,6 +283,7 @@
         border-top: 1px solid #eee;
         animation: fadeIn 0.3s ease-in-out;
         white-space: pre-wrap;
+        text-align: left;
       }
       
       .faq-answer::before {
@@ -298,10 +299,8 @@
         justify-content: center;
         align-items: center;
         margin-right: 10px;
-        float: left;
       }
       .faq-question, .faq-answer {
-        display: flex;
         align-items: center;
         gap: 10px;  
       }
