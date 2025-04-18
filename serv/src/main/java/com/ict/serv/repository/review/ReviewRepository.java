@@ -19,5 +19,5 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     List<Review> findByUser(User user);
 
-
+    List<Review> findByOrderByReviewWritedateDesc();
 }

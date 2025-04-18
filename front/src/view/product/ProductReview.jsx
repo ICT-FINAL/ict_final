@@ -401,6 +401,38 @@ function ProductReview(){
         };
       }, [showAllImages]);
 
+
+    // 마이페이지에서 나의 리뷰를 찾게할때
+    const [getReviewId, setGetReviewId] = useState(null);
+
+    useEffect(() => {
+        const id = localStorage.getItem("currentReviewId");
+
+        if (id) {
+            if(id!=null && localStorage.getItem("changeMenu")!="review"){
+                localStorage.setItem("changeMenu", "review");
+            }
+
+            setTimeout(() => {
+                const targetElement = document.getElementById(`myReviewSearch-${id}`);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
+            
+                    targetElement.style.border = "2px solid #8CC7A5";
+                    targetElement.style.borderRadius = "12px";
+            
+                    // 3초 후 강조 제거
+                    setTimeout(() => {
+                        targetElement.style.border = "none";
+                        targetElement.style.borderRadius = "0";
+                    }, 3000);
+                }
+            }, 100);
+
+            localStorage.removeItem("currentReviewId");
+        }
+    }, []);
+    
     return(
         <>
             <div style={{fontSize:'20px', fontWeight:'700', padding:'10px 30px'}}>리뷰({reviewList.length})</div>
@@ -596,7 +628,7 @@ function ProductReview(){
                 <div className="review-grid">
                     {reviewList.length > 0 ? (
                         reviewList.map((review, index) => (
-                            <div key={index} className="review-card">
+                            <div key={index} className="review-card" id={`myReviewSearch-${review.id}`}>
                                 <div className="review-header">
                                     {review.user.profileImageUrl && 
                                         <img src={review.user.profileImageUrl.indexOf('http') !== -1 ? `${review.user.profileImageUrl}` : `${serverIP.ip}${review.user.profileImageUrl}`} 
