@@ -9,6 +9,8 @@ import { setSearch } from "../store/searchSlice";
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import HotProduct from "./product/HotProduct";
+import RAWProduct from "./product/RAWProduct";
 
 function Main() {
     const [activeTab, setActiveTab] = useState("ongoing");
@@ -209,7 +211,7 @@ function Main() {
     }
 
     return (
-        <div style={{ height: '1500px', paddingTop: '100px' }}>
+        <div style={{ paddingTop: '100px' }}>
             <div className="slider-container">
                 <Slider {...settings} className={event_list.length === 1 ? "slick-center" : ""}>
                     {event_list.map((item, idx) => (
@@ -235,14 +237,15 @@ function Main() {
             </div>
             <div style={{
                 width:'70%',
+                minWidth:'1200px',
+                maxWidth:'1600px',
                 margin:'auto',
                 textAlign: 'center',
                 marginTop: '80px',
                 marginBottom: '60px',
-                background: 'linear-gradient(135deg, #fef6f9 0%, #f0f8f4 100%)',
                 padding: '40px 20px',
-                borderRadius: '16px',
-                boxShadow: '0 8px 20px rgba(0,0,0,0.05)'
+                borderBottom:'1px solid #e0dcd5',
+                fontFamily:'Pretendard, san-serif'
             }}>
             <h2 style={{
                 fontSize: '32px',
@@ -258,7 +261,7 @@ function Main() {
                 color: '#555',
                 maxWidth: '600px',
                 margin: '0 auto',
-                lineHeight: '1.6'
+                lineHeight: '1.6',
             }}>
                 정성과 감성을 담아 만든 핸드메이드 아이템,<br />
                 <span style={{ fontWeight: '600', color: '#8CC7A5' }}>
@@ -267,7 +270,7 @@ function Main() {
             </p>
             </div>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', textAlign: 'center', justifyContent: 'center', margin: 'auto', maxWidth:'800px' }} >
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', textAlign: 'center', justifyContent: 'center', margin: 'auto', width:'800px' }} >
                 {visibleList.length > 0 ? (
                     visibleList.map((submenu) => (
                         <div onClick={() => moveSubMenu(submenu)} key={submenu.id}
@@ -280,16 +283,20 @@ function Main() {
                     <div className="no-events">📌 해당 월에는 서브메뉴가 없습니다.</div>
                 )}
             </div>
+            <div className='hot-product-container'>
+                <HotProduct/>
+            </div>
+            <div className='raw-container'>
+                <RAWProduct/>
+            </div>
             <div style={{
                 width:'70%',
                 margin:'auto',
                 textAlign: 'center',
                 marginTop: '80px',
                 marginBottom: '60px',
-                background: 'linear-gradient(135deg, #fef6f9 0%, #f0f8f4 100%)',
                 padding: '40px 20px',
-                borderRadius: '16px',
-                boxShadow: '0 8px 20px rgba(0,0,0,0.05)'
+                fontFamily:'Pretendard, san-serif'
             }}>
             <h2 style={{
                 fontSize: '32px',

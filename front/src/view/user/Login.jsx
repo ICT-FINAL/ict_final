@@ -62,7 +62,7 @@ function Login({ onClose }) {
 
             if (response.status === 200) {
                 dispatch(setUser(response.data));
-                navigate('/');
+                window.location.href='/';
                 onClose();
             }
         } catch (err) {

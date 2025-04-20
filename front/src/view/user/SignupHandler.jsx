@@ -17,7 +17,7 @@ const SignupHandler = () => {
 
             if (response.status === 200) {
                 dispatch(setUser(response.data));
-                navigate('/');
+                window.location.href='/';
             }
         } catch (err) {
             if(err.response.data.substring(0,2) === '정지') {

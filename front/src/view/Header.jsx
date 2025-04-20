@@ -174,7 +174,7 @@ function Header() {
                         </ul>
                     </li> : <li className='header-center'>
                         <ul>
-                            <li style={{ cursor: 'pointer' }} onClick={() => movePage('/product')}>상품 검색</li>
+                            <li style={{ cursor: 'pointer' }} onClick={() => movePage('/product/search')}>상품 검색</li>
                             <Link to='/recommend'><li>상품 추천</li></Link>
                             <Link to='/event'><li>이벤트</li></Link>
                             <Link to='/auction'><li>실시간 경매</li></Link>
@@ -186,41 +186,38 @@ function Header() {
                         <>
                             <div ref={menuButtonRef} className="menu-icon" onClick={() => dispatch(setMenuModal(!menuModal))}>
                                 <img src={user.user.imgUrl.indexOf('http') !== -1 ? `${user.user.imgUrl}` : `${serverIP.ip}${user.user.imgUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white' }} />
-                                <div style={{ color: 'white', textAlign: 'center', width: '120px', fontSize: '14px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{user.user.username}<br /><div style={{ paddingTop: '5px' }}>등급: {grade[user.user.grade]}</div></div>
+                                <div style={{ color: 'white', textAlign: 'center', width: '120px', fontSize: '14px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{user.user.username} {grade[user.user.grade]}</div>
                             </div>
                         </>
                     ) : (
-                        <div className="login-btn" onClick={() => dispatch(setLoginView(true))}>로그인</div>
+                        <div style={{color:'white', justifyContent:'center'}} className="menu-icon" onClick={() => dispatch(setLoginView(true))}><div style={{width:'100%',textAlign:'right', paddingRight:'20px'}}>로그인</div></div>
                     )}
                     <div className='header-hot-box' onMouseEnter={() => setHotSearchOpen(true)}
                                 onMouseLeave={() => setHotSearchOpen(false)}>
                     {hotSearch.length > 0 && (
-                        <div className="hot-search">
-                            <div className="hot-search-item">
-                                <div style={{width: '120px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>
-                                    <span>{currentRank + 1} </span>
-                                    {hotSearch[currentRank]?.keyword}
-                                </div>
+                        <div className="hot-search-item">
+                            <div style={{overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>
+                                <span style={{paddingLeft:'10px'}}>{currentRank + 1} </span>
+                                {hotSearch[currentRank]?.keyword}
                             </div>
-                            {hotSearchOpen && (
-                                <div className="hot-search-dropdown" onMouseEnter={() => setHotSearchOpen(true)}
-                                onMouseLeave={() => setHotSearchOpen(false)}>
-                                    {hotSearch.map((item, index) => (
-                                        <div key={index} className="hot-search-list-item">
-                                            <div onClick={()=>{dispatch(setSearch({ ...search, searchWord: item.keyword }));navigate('/product/search');}} style={{overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>
-                                                <span>{index + 1} </span>
-                                                {item.keyword}
-                                                <span style={item.change>0?{fontSize:'12px',color:'red'}:{fontSize:'12px',color:'blue'}}> {item.change > 0  ? `${item.change}▲` : item.change < 0 ? `${item.change}▼` : ''}</span>
-                                                <span style={{fontSize:'12px',color:'green'}}> {item.change === 'NEW' && 'NEW' }</span>
-                                            </div>
-                                            
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
                         </div>
                     )}
-
+                    {hotSearchOpen && (
+                        <div className="hot-search-dropdown" onMouseEnter={() => setHotSearchOpen(true)}
+                        onMouseLeave={() => setHotSearchOpen(false)}>
+                            {hotSearch.map((item, index) => (
+                                <div key={index} className="hot-search-list-item">
+                                    <div onClick={()=>{dispatch(setSearch({ ...search, searchWord: item.keyword }));navigate('/product/search');}} style={{overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>
+                                        <span>{index + 1} </span>
+                                        {item.keyword}
+                                        <span style={item.change>0?{fontSize:'12px',color:'red'}:{fontSize:'12px',color:'blue'}}> {item.change > 0  ? `${item.change}▲` : item.change < 0 ? `${item.change}▼` : ''}</span>
+                                        <span style={{fontSize:'12px',color:'green'}}> {item.change === 'NEW' && 'NEW' }</span>
+                                    </div>
+                                    
+                                </div>
+                            ))}
+                        </div>
+                    )}
                     </div>
                     <div className='header-search-box'>
                         <svg style={{ paddingLeft: '10px' }} className='search-icon' width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -265,8 +262,7 @@ function Header() {
                             </div>
                         }
                     </div>
-                </li>
-                <div
+                    <div
                     className="hamburger-wrapper"
                     style={{ width: '80ox', lineHeight: '80px' }}
                     onMouseEnter={() => setHamburgerOpen(true)}
@@ -282,7 +278,7 @@ function Header() {
                             </ul>
                         ) : (
                             <ul className="hamburger-menu">
-                                <li style={{ cursor: 'pointer' }} onClick={() => movePage('/product')}>상품 검색</li>
+                                <li style={{ cursor: 'pointer' }} onClick={() => movePage('/product/search')}>상품 검색</li>
                                 <Link to='/recommend'><li>상품 추천</li></Link>
                                 <Link to='/event'><li>이벤트</li></Link>
                                 <Link to='/auction'><li>실시간 경매</li></Link>
@@ -290,6 +286,8 @@ function Header() {
                         )
                     )}
                 </div>
+                </li>
+
             </ul>
 
             <motion.div
@@ -297,7 +295,7 @@ function Header() {
                 className={`dropdown-menu ${menuModal ? "show" : ""}`}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: menuModal ? 1 : 0 }}
-                style={{ top: `${menuPosition.top + 10}px`, left: `${menuPosition.left - 55}px` }}
+                style={{ top: `${menuPosition.top + 10}px`, left: `${menuPosition.left}px` }}
             >
                 <div className="menu-grid">
                     <div className="menu-item" onClick={() => movePage('/mypage/profile')}>
