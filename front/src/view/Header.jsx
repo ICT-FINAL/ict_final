@@ -200,9 +200,6 @@ function Header() {
                                 <div style={{width: '120px', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>
                                     <span>{currentRank + 1} </span>
                                     {hotSearch[currentRank]?.keyword}
-                                    <span style={{fontSize:'12px', color:'red'}}> {hotSearch[currentRank]?.change >0 && `${hotSearch[currentRank]?.change}▲` }</span>
-                                    <span style={{fontSize:'12px', color:'blue'}}> {hotSearch[currentRank]?.change <0 && `${hotSearch[currentRank]?.change}▼` }</span>
-                                    <span style={{fontSize:'12px', color:'green'}}> {hotSearch[currentRank]?.change === 'NEW' && 'NEW' }</span>
                                 </div>
                             </div>
                             {hotSearchOpen && (
@@ -210,11 +207,11 @@ function Header() {
                                 onMouseLeave={() => setHotSearchOpen(false)}>
                                     {hotSearch.map((item, index) => (
                                         <div key={index} className="hot-search-list-item">
-                                            <div style={{overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>
+                                            <div onClick={()=>{dispatch(setSearch({ ...search, searchWord: item.keyword }));navigate('/product/search');}} style={{overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>
                                                 <span>{index + 1} </span>
                                                 {item.keyword}
-                                                <span style={{fontSize:'12px'}}> {item.change > 0  ? `${item.change}▲` : item.change < 0 ? `${item.change}▼` : ''}</span>
-                                                <span style={{fontSize:'12px'}}> {item.change === 'NEW' && 'NEW' }</span>
+                                                <span style={item.change>0?{fontSize:'12px',color:'red'}:{fontSize:'12px',color:'blue'}}> {item.change > 0  ? `${item.change}▲` : item.change < 0 ? `${item.change}▼` : ''}</span>
+                                                <span style={{fontSize:'12px',color:'green'}}> {item.change === 'NEW' && 'NEW' }</span>
                                             </div>
                                             
                                         </div>

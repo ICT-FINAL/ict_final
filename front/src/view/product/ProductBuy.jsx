@@ -138,6 +138,7 @@ function ProductBuy() {
   };
 
   const handlePayment = () => {
+    console.log(user);
     if (!selectedAddress) {
       alert("배송지를 선택해주세요.");
       return;
@@ -176,7 +177,6 @@ function ProductBuy() {
       headers: { Authorization: `Bearer ${user.token}` },
     })
       .then(res => {
-        console.log(res.data);
           const basketNos = orderDetails.map(item => item.basketNo).join(',');
           const successUrl = `${serverIP.front}/payment/success?iid=${res.data.id}&basketNos=${basketNos}&couponId=${selectedCouponId}`;
           tossPayments
