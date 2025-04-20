@@ -22,56 +22,61 @@ function Chatting() {
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(()=>{
-        if (refDialogDiv.current) {
-            refDialogDiv.current.scroll({
-                top: refDialogDiv.current.scrollHeight,
-                behavior: 'smooth',
-            });
+        if (user) {
+            if (refDialogDiv.current) {
+                refDialogDiv.current.scroll({
+                    top: refDialogDiv.current.scrollHeight,
+                    behavior: 'smooth',
+                });
+            }
+            console.log(chatHistory);
         }
-        console.log(chatHistory);
     },[chatHistory])
 
     useEffect(()=>{
-        if (isOpen) {
-            getRoomInfo();
-            getChatList();
+        if (user) {
+            if (isOpen) {
+                getRoomInfo();
+                getChatList();
+            }
         }
     },[isOpen]);
 
     useEffect(()=>{
-        const socket = new SockJS(`${serverIP.ip}/ws`);
-        const stompClient = Stomp.over(socket);
-        stompClientRef.current = stompClient;
+        if (user) {
+            const socket = new SockJS(`${serverIP.ip}/ws`);
+            const stompClient = Stomp.over(socket);
+            stompClientRef.current = stompClient;
 
-        stompClient.connect({ Authorization: `Bearer ${user.token}` }, ()=>{
-            stompClient.subscribe(`/topic/chat/${roomId}`, (msg)=>{
-                const body = JSON.parse(msg.body);
-                setChatHistory(prev => [...prev, body]);
-                setIsOpen(true);
-                if (body.urd.id != user.user.id) {
-                    changeReadState(body.id);
-                }
+            stompClient.connect({ Authorization: `Bearer ${user.token}` }, ()=>{
+                stompClient.subscribe(`/topic/chat/${roomId}`, (msg)=>{
+                    const body = JSON.parse(msg.body);
+                    setChatHistory(prev => [...prev, body]);
+                    setIsOpen(true);
+                    if (body.urd.id != user.user.id) {
+                        changeReadState(body.id);
+                    }
+                    stompClient.send(`/app/chat/read/${roomId}`, {}, JSON.stringify({
+                        roomId: roomId,
+                        urd: { userid: user.user.userid }
+                    }));
+                });
+                stompClient.subscribe(`/topic/chat/read/${roomId}`, (msg)=>{
+                    changeAllReadState();
+                });
                 stompClient.send(`/app/chat/read/${roomId}`, {}, JSON.stringify({
                     roomId: roomId,
                     urd: { userid: user.user.userid }
                 }));
-            });
-            stompClient.subscribe(`/topic/chat/read/${roomId}`, (msg)=>{
-                changeAllReadState();
-            });
-            stompClient.send(`/app/chat/read/${roomId}`, {}, JSON.stringify({
-                roomId: roomId,
-                urd: { userid: user.user.userid }
-            }));
-        })
-
-        return () => {
-            stompClient.disconnect(() => {
-                console.log('Disconnected from chat room');
-            });
-        };
+            })
+            return () => {
+                stompClient.disconnect(() => {
+                    console.log('Disconnected from chat room');
+                });
+            };
+        }
         
-    }, [roomId, serverIP, user.token]);
+    }, [roomId, serverIP, user?.token]);
 
     const getRoomInfo =()=>{
         axios.get(`${serverIP.ip}/chat/getChatRoom/${roomId}`,
@@ -115,14 +120,16 @@ function Chatting() {
     }
 
     const sendMessage = useCallback((e)=>{
-        e.preventDefault();
-        if (stompClientRef.current && message.trim() !== '') {
-            stompClientRef.current.send(`/app/chat/${roomId}`, {}, JSON.stringify({
-                roomId: roomId,
-                message: message,
-                urd: { userid: user.user.userid }
-            }));
-            setMessage('');
+        if (user) {
+            e.preventDefault();
+            if (stompClientRef.current && message.trim() !== '') {
+                stompClientRef.current.send(`/app/chat/${roomId}`, {}, JSON.stringify({
+                    roomId: roomId,
+                    message: message,
+                    urd: { userid: user.user.userid }
+                }));
+                setMessage('');
+            }
         }
     },[message]);
     
@@ -152,7 +159,7 @@ function Chatting() {
     return (
         <div style={{paddingTop: '100px'}}>
             {
-                roomInfo.product &&
+                (user && roomInfo.product) &&
                 <>
                     <div className='chat-header'>
                         <span>{roomInfo.product.productName}</span>
@@ -160,11 +167,11 @@ function Chatting() {
                     <div className="iphone-frame">
                         <div className='chat-container'>
                             {
-                                roomInfo.state === 'ACTIVE' &&
+                                roomInfo.state !== 'CLOSED' &&
                                 <div style={{padding: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                                     <b style={{fontSize: '14pt'}}>{roomInfo.product.productName}</b>
                                     {
-                                        roomInfo.buyer.id === user.user.id &&
+                                        ((roomInfo.state === 'ACTIVE' && roomInfo.buyer.id === user.user.id) || roomInfo.state === 'LEFT') &&
                                         <span style={{padding: '5px', background: '#e54d4b', color: '#fff', borderRadius: '10px', fontSize: '10pt', cursor: 'pointer'}}
                                             onClick={leaveChatRoom}>나가기</span>
                                     }
@@ -212,7 +219,10 @@ function Chatting() {
                                             </div>
                                         )
                                     })
-                                    
+                                }
+                                {
+                                    roomInfo.state === 'LEFT' &&
+                                    <div style={{textAlign: 'center', padding: '10px', color: '#555'}}>- {roomInfo.buyer.username}님이 방을 나가셨습니다 -</div>
                                 }
                             </div>
                             <div className="chat-input">
@@ -220,6 +230,7 @@ function Chatting() {
                                     value={message}
                                     onChange={e => setMessage(e.target.value)}
                                     onKeyDown={e => {if (e.key === 'Enter') {sendMessage(e);}}}
+                                    disabled={roomInfo.state === 'LEFT'}
                                 />
                                 <input type="button" value="보내기" id="chat-send-btn"
                                     onClick={sendMessage}

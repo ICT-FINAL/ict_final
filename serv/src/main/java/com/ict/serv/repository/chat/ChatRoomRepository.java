@@ -14,14 +14,19 @@ import java.util.List;
 
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, String> {
 
-    ChatRoom findByBuyerAndProductId(User user, Long productId);
+    ChatRoom findByBuyerAndProductIdAndState(User user, Long productId, ChatState state);
 
-    List<ChatRoom> findByBuyerAndStateNotOrderByLastChatSendTimeDesc(User user, ChatState state);
+    List<ChatRoom> findByBuyerAndStateOrderByLastChat_SendTimeDesc(User user, ChatState state);
 
-    List<ChatRoom> findByProductInAndStateOrderByLastChat_SendTimeDesc(List<Product> productList, ChatState state);
+    List<ChatRoom> findByProductInAndStateInOrderByLastChatSendTimeDesc(List<Product> productList, List<ChatState> states);
 
     @Modifying
     @Transactional
     @Query("UPDATE ChatRoom c SET c.state = 'LEFT' WHERE c.chatRoomId = :roomId")
     void updateChatRoomStateToLeft(@Param("roomId") String roomId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE ChatRoom c SET c.state = 'CLOSED' WHERE c.chatRoomId = :roomId")
+    void updateChatRoomStateToClosed(@Param("roomId") String roomId);
 }
