@@ -25,6 +25,8 @@ function ProductBuy() {
   const [selectedCouponId, setSelectedCouponId] = useState(0);
   const [couponList, setCouponList] = useState([]);
 
+  const [isAuction, setIsAuction] = useState(false);
+
   const handleCouponChange = (e) => {
     console.log(selectedCouponId);
     console.log(selectedCoupon);
@@ -68,6 +70,11 @@ function ProductBuy() {
       setIsBasketPurchase(true);
       setPurchasedItems(state.basketItems);
     } else if (location.state && Array.isArray(location.state.selectedItems) && location.state.product) { // location.state.product 추가 확인
+      if(location.state.selectedItems.length === 0) {
+        setIsAuction(true);
+        setTotalPaymentAmount(location.state.shippingFee + location.state.totalPrice - location.state.selectedCoupon);
+        return;
+      }
       setIsBasketPurchase(false);
       const items = location.state.selectedItems.map(item => {
         const discountRate = location.state.product.discountRate || 0;
@@ -138,7 +145,6 @@ function ProductBuy() {
   };
 
   const handlePayment = () => {
-    console.log(user);
     if (!selectedAddress) {
       alert("배송지를 선택해주세요.");
       return;
@@ -147,11 +153,46 @@ function ProductBuy() {
       alert("TossPayments SDK가 로드되지 않았습니다.");
       return;
     }
-    const tossPayments = window.TossPayments("test_ck_ORzdMaqN3w2RZ1XBgmxM85AkYXQG");
     const orderId = new Date().getTime();
+    const tossPayments = window.TossPayments("test_ck_ORzdMaqN3w2RZ1XBgmxM85AkYXQG");
+    if(isAuction) {
+      axios.post(`${serverIP.ip}/order/setAuctionOrder`, {
+        productId: location.state.product.id,
+        addrId: selAddrId,
+        req: request,
+        orderId: orderId,
+        shippingFee: location.state.product.shippingFee,
+        totalPrice: totalPaymentAmount
+      },{
+        headers:{Authorization:`Bearer ${user.token}`}
+      })
+      .then(res => {
+        console.log(res.data);
+        const successUrl = `${serverIP.front}/payment/auction/success?iid=${res.data.id}`;
+          tossPayments
+            .requestPayment("카드", {
+              amount: parseInt(totalPaymentAmount),
+              orderId,
+              orderName: '경매 즉시구매',
+              customerName: user.user.username,
+              successUrl,
+              failUrl: `${window.location.origin}/payment/fail`,
+            })
+            .catch(error => {
+              console.error("결제 실패:", error);
+              axios.get(`${serverIP.ip}/order/auctionCancel?orderId=${res.data.id}`, {
+                headers: { Authorization: `Bearer ${user.token}` },
+              }).catch(cancelErr => console.error("결제 취소 실패:", cancelErr));
+              alert(`결제 실패: ${error.message}`);
+            });
+      })
+      .catch(err => {
+        console.log(err);
+      })
+      return;
+    }
     const orderName = orderItems.length > 0 ? `${orderItems[0].productName} 외 ${orderItems.length - 1}건` : "주문";
     const productIds = orderItems.map(item => item.productNo);
-    console.log(orderItems);
     const orderDetails = [];
     const usedProductNos = new Set();
     orderItems.forEach(item => {
@@ -210,6 +251,18 @@ function ProductBuy() {
     <div style={{ paddingTop: '150px' }}>
       <div className="product-buy-container">
         <h2 className="product-buy-header">상품 결제</h2>
+        {isAuction && 
+          <div className="product-buy-info">
+            <div className="order-item">
+              <h3>{location.state.product.productName}</h3>
+              <p style={{fontSize:'20px'}}>가격: <strong>{formatNumberWithCommas(location.state.totalPrice)}</strong> 원</p>
+              <p>배송비: <strong style={{ color: '#1976d2' }}>+{formatNumberWithCommas(location.state.shippingFee)}</strong>원</p>
+              { location.state.selectedCoupon!==0 && <p>보증금: <strong style={{color:'#e74c3c'}}>-{formatNumberWithCommas(location.state.selectedCoupon)}</strong>원</p>}
+              <span className="final-price" style={{borderTop:'1px solid #ddd'}}>
+                  합계: <strong style={{ fontWeight: 'bold', fontSize: '20px' }}>{formatNumberWithCommas(totalPaymentAmount)}</strong> 원
+                </span>
+            </div>
+          </div>}
         {orderItems.length > 0 && (
           <div className="product-buy-info">
             {Object.values(groupedItems).map((group, index) => (

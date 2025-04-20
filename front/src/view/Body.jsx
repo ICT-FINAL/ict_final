@@ -78,6 +78,7 @@ import Menu from './Menu';
 
 import Item from './Item';
 import { setLoginView } from '../store/loginSlice';
+import AuctionPaymentSuccess from './product/AuctionPaymentSuccess';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -230,6 +231,7 @@ function Body() {
       <Route path='/product/info' element={<ProductInfo />}></Route>
       <Route path='/product/buying' element={<ProductBuy />}></Route>
       <Route path="/payment/success" element={<PaymentSuccess />}></Route>
+      <Route path="/payment/auction/success" element={<AuctionPaymentSuccess/>}></Route>
       <Route path="/payment/fail" element={<PaymentFail />}></Route>
 
       <Route path='/recommend/*' element={<RecommendIndex />}></Route>

@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
 import { useInView } from "react-intersection-observer";
 import { setSearch } from "../store/searchSlice";
+import { motion } from 'framer-motion';
 
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
@@ -210,6 +211,46 @@ function Main() {
         navigate('/product/search');
     }
 
+    const { ref: hotRef, inView: isHotInView } = useInView({
+        triggerOnce: true,
+        threshold: 0.2,
+        rootMargin: "0px 0px -200px 0px"
+    });
+
+    const [hasAnimated, setHasAnimated] = useState(false);
+
+    useEffect(() => {
+        if (isHotInView && !hasAnimated) {
+            setHasAnimated(true);
+        }
+    }, [isHotInView, hasAnimated]);
+
+    const fadeUp = {
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+          opacity: 1,
+          y: 0,
+          transition: {
+            duration: 0.6,
+            ease: 'easeOut',
+          },
+        },
+    };
+
+    const { ref: rawRef, inView: rawInView } = useInView({
+        triggerOnce: true,
+        threshold: 0.2,
+        rootMargin: "0px 0px -200px 0px"
+    });
+    const [rawAnimated, setRawAnimated] = useState(false);
+    
+    useEffect(() => {
+        if (rawInView && !rawAnimated) {
+            setRawAnimated(true);
+        }
+    }, [rawInView, rawAnimated]);
+
+
     return (
         <div style={{ paddingTop: '100px' }}>
             <div className="slider-container">
@@ -283,12 +324,24 @@ function Main() {
                     <div className="no-events">📌 해당 월에는 서브메뉴가 없습니다.</div>
                 )}
             </div>
-            <div className='hot-product-container'>
+            <motion.div
+                className='hot-product-container'
+                ref={hotRef}
+                initial="hidden"
+                animate={hasAnimated ? 'visible' : 'hidden'}
+                variants={fadeUp}
+            >
                 <HotProduct/>
-            </div>
-            <div className='raw-container'>
+            </motion.div>
+            <motion.div
+                className='raw-container'
+                ref={rawRef}
+                initial="hidden"
+                animate={rawAnimated ? 'visible' : 'hidden'}
+                variants={fadeUp}
+            >
                 <RAWProduct/>
-            </div>
+            </motion.div>
             <div style={{
                 width:'70%',
                 margin:'auto',

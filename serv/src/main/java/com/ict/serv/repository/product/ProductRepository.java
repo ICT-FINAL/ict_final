@@ -21,7 +21,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
-            "AND p.product_category IN (:productCategories)",
+            "AND p.product_category IN (:productCategories) AND p.quantity > 0 ",
             nativeQuery = true)
     int countProductsAllCategory(
             @Param("keyword") String keyword,
@@ -35,7 +35,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
-            "AND p.product_category IN (:productCategories) ORDER BY p.product_id DESC",
+            "AND p.product_category IN (:productCategories) AND p.quantity > 0 ORDER BY p.product_id DESC",
             nativeQuery = true)
     List<Product> findProductsAllCategory(
             @Param("keyword") String keyword,
@@ -55,7 +55,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "FROM product p " +
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
-            "AND p.target_category LIKE %:targetCategory%",
+            "AND p.target_category LIKE %:targetCategory% AND p.quantity > 0 ",
             nativeQuery = true)
     int countProductsNoCategory(@Param("keyword") String keyword,
                                 @Param("eventCategory") String eventCategory,
@@ -65,7 +65,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "FROM product p " +
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
-            "AND p.target_category LIKE %:targetCategory% ORDER BY p.product_id DESC",
+            "AND p.target_category LIKE %:targetCategory% AND p.quantity > 0 ORDER BY p.product_id DESC",
             nativeQuery = true)
     List<Product> findProductsNoCategory(@Param("keyword") String keyword,
                                          @Param("eventCategory") String eventCategory,
@@ -77,7 +77,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("""
         SELECT p
         FROM Product p
-        WHERE p.rating >= 3.5
+        WHERE p.rating >= 3.5 AND p.quantity > 0 
         ORDER BY 
             (SELECT COUNT(r) FROM Review r WHERE r.product = p) +
             (SELECT COUNT(w) FROM Wishlist w WHERE w.product = p) 
