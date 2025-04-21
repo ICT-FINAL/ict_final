@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import "../../../css/view/roulette.css";
+import { setLoginView } from "../../../store/loginSlice";
 
 const DailyCheck = () => {
   const canvasRef = useRef(null);
@@ -10,8 +11,10 @@ const DailyCheck = () => {
   const [prize, setPrize] = useState("");
   const [result, setResult] = useState(null);
 
-  const token = useSelector((state) => state.auth.user.token);
+  const user = useSelector((state) => state.auth.user);
   const serverIP = useSelector((state) => state.serverIP.ip);
+
+  const dispatch = useDispatch();
 
   const product = [
     "10% COUPON",
@@ -87,6 +90,10 @@ const DailyCheck = () => {
   };
 
   const rotateWheel = async () => {
+    if (!user) {
+      dispatch(setLoginView(true));
+      return;
+    }
     if (isSpinning) return;
     setIsSpinning(true);
 
@@ -136,10 +143,11 @@ const DailyCheck = () => {
   };
 
   const checkCanSpin = async () => {
+    if(!user) return;
     const res = await fetch(`${serverIP}/api/roulette/check`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${user.token}`,
         "Cache-Control": "no-cache",
       },
     });
@@ -148,10 +156,11 @@ const DailyCheck = () => {
   };
 
   const performSpin = async () => {
+    if(!user) return;
     const res = await fetch(`${serverIP}/api/roulette/spin`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${user.token}`,
         "Content-Type": "application/json",
       },
     });
