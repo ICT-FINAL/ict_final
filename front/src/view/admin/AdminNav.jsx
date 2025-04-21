@@ -63,8 +63,8 @@ function AdminNav({ path }) {
                 <li onClick={() => navigate("/admin/salesbyperiod")} style={path.l_name === "판매 통계" ? clickedStyle : {}}>
                     <span style={path.l_name === "판매 통계" ? clickedStyle2 : {}}>판매 통계</span>
                 </li>
-                <li onClick={() => navigate("/admin/stats-activity")} style={path.l_name === "활동 통계" ? clickedStyle : {}}>
-                    <span style={path.l_name === "활동 통계" ? clickedStyle2 : {}}>활동 통계</span>
+                <li onClick={() => navigate("/admin/salesbycategori")} style={path.l_name === "상품별 판매 통계" ? clickedStyle : {}}>
+                    <span style={path.l_name === "상품별 판매 통계" ? clickedStyle2 : {}}>상품별 판매 통계</span>
                 </li>
                 <li onClick={() => navigate("/admin/stats-purchases")} style={path.l_name === "구매 통계" ? clickedStyle : {}}>
                     <span style={path.l_name === "구매 통계" ? clickedStyle2 : {}}>구매 통계</span>
