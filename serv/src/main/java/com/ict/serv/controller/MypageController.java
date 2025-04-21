@@ -1,17 +1,22 @@
 package com.ict.serv.controller;
 
 import com.ict.serv.controller.admin.PagingVO;
+import com.ict.serv.dto.UserPwdModDto;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.report.ReportState;
 import com.ict.serv.entity.user.Address;
 import com.ict.serv.entity.user.Guestbook;
 import com.ict.serv.entity.user.User;
+import com.ict.serv.service.AuthService;
 import com.ict.serv.service.InteractService;
 import com.ict.serv.service.MypageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.SQLOutput;
 import java.time.LocalDateTime;
@@ -27,6 +32,7 @@ import java.util.Optional;
 public class MypageController {
     private final MypageService service;
     private final InteractService interactService;
+    private final AuthService authService;
 
     @GetMapping("/reportList")
     public Map reportList(@AuthenticationPrincipal UserDetails userDetails, PagingVO pvo) {
@@ -115,5 +121,37 @@ public class MypageController {
         Optional<User> getUserInfo = service.selectUserInfo(user);
 
         return getUserInfo;
+    }
+
+    @PostMapping("/editInfo")
+    public ResponseEntity<String> editInfo(@AuthenticationPrincipal UserDetails userDetails, @RequestBody User user){
+        User updated_user = interactService.selectUserByName(userDetails.getUsername());
+        updated_user.setAddress(user.getAddress());
+        updated_user.setZipcode(user.getZipcode());
+        updated_user.setAddressDetail(user.getAddressDetail());
+        updated_user.setUsername(user.getUsername());
+        authService.saveUser(updated_user);
+        return ResponseEntity.ok("수정 완료");
+    }
+
+    @PostMapping("/pwdCheck")
+    public ResponseEntity<String> pwdCheck(@AuthenticationPrincipal UserDetails userDetails, @RequestBody UserPwdModDto userPwdModDto){
+        System.out.println(userPwdModDto.toString());
+
+        User user = new User();
+        user.setId(userPwdModDto.getUserId());
+
+        Optional<User> selectUser = service.selectUserInfo(user);
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String encodedPassword = encoder.encode(userPwdModDto.getModUserPw()); // 비밀번호 암호화
+
+        if(encodedPassword.equals(selectUser.get().getUserpw())){ // 비밀번호가 같은지 확인
+            System.out.println("비밀번호가 같습니다.");
+        }
+
+        System.out.println(selectUser.toString());
+
+        return  ResponseEntity.ok("비밀번호 변경 백엔드 연결");
     }
 }
