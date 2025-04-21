@@ -3,6 +3,7 @@ package com.ict.serv.service;
 import com.ict.serv.entity.order.*;
 import com.ict.serv.entity.product.HotCategoryDTO;
 import com.ict.serv.entity.user.User;
+import com.ict.serv.repository.order.AuctionOrderRepository;
 import com.ict.serv.repository.order.OrderGroupRepository;
 import com.ict.serv.repository.order.OrderItemRepository;
 import com.ict.serv.repository.order.OrderRepository;
@@ -10,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +21,7 @@ public class OrderService {
     private final OrderRepository order_repo;
     private final OrderItemRepository order_item_repo;
     private final OrderGroupRepository order_group_repo;
+    private final AuctionOrderRepository auctionOrderRepository;
 
     public Orders insertOrder(Orders orders) {
         return order_repo.save(orders);
@@ -89,4 +89,7 @@ public class OrderService {
 
         return hotCategoryList;
     }
+
+    public AuctionOrder saveAuctionOrder(AuctionOrder auctionOrder) { return auctionOrderRepository.save(auctionOrder); }
+    public Optional<AuctionOrder> selectAuctionOrder(Long id) { return auctionOrderRepository.findById(id);}
 }

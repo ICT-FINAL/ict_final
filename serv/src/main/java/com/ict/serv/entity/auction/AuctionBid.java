@@ -27,7 +27,7 @@ public class AuctionBid {
 
     private LocalDateTime bidTime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "room_id")
     private AuctionRoom room;
 

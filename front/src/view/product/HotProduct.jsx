@@ -32,7 +32,6 @@ function HotProduct() {
         axios.get(`${serverIP.ip}/product/getList/byCategory?category=${category}`)
             .then((res) => {
                 setProductList(res.data);
-                console.log(res.data);
             })
             .catch((err) => console.log(err));
     };

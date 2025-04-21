@@ -6,10 +6,9 @@ import { setModal } from "../../../store/modalSlice";
 import axios from "axios";
 
 function MyInfoEdit() {
-    // start : 개인정보 수정
+    // 개인정보 수정
     const getUser = useSelector((state) => state.auth.user);
     const [userInfo, setUserInfo] = useState({});
-    // end : 개인정보 수정
 
     const loc = useLocation();
     const serverIP = useSelector((state) => {return state.serverIP});
@@ -33,10 +32,11 @@ function MyInfoEdit() {
     });
 
     useEffect(() => {
-        if (modal.info && modal.info.address) {
-            addressCheck({ target: { name: "address", value: modal.info.address } });
-        }
-    }, [modal.info?.address]);
+    if (modal.info && modal.info.address) {
+        addressCheck({ target: { name: "address", value: modal.info.address } });
+        setUser(prev => ({ ...prev, address: modal.info.address }));
+    }
+}, [modal.info?.address]);
 
     const validationRules = {
         userid: {
@@ -67,9 +67,9 @@ function MyInfoEdit() {
         // console.log(loc.state)
         // console.log(user);
         const { name, value } = e.target;
-        setUser({...user, [name]: value}); // 입력하는 데이터값 저장
-        setUserInfo({...user, [name]: value}); // 기존 회원정보 데이터값 저장
-        const updatedUser = { ...user, [name]: value };
+
+        const updatedUser = { ...user, [name]: value }; // 상태 업데이트 전에 updatedUser를 만들고 그 값을 setUser로 업데이트
+        setUser(prevState => ({...prevState, [name]: value}));
         
         if (["tel1", "tel2", "tel3"].includes(name)) {
             updatedUser.tel = `${updatedUser.tel1}-${updatedUser.tel2}-${updatedUser.tel3}`;
@@ -82,8 +82,10 @@ function MyInfoEdit() {
                     state: isTelValid
                 }
             });
+
             telCheck();
             setUser(updatedUser);
+            
         } else if (name === "userpwCheck") {
             const isMatch = document.getElementById("pw1").value === document.getElementById("pw2").value;
             
@@ -289,16 +291,16 @@ function MyInfoEdit() {
         <div id="modal-background" style={modalBackStyle}></div>
             <div className="sign-up-form">
                 <label>아이디</label>
-                <input type="text" name="userid" onChange={changeUser} value={userInfo.userid} readOnly/>
+                <input type="text" name="userid" value={user.userid || ''} onChange={changeUser} style={{backgroundColor:"#ddd"}} readOnly/>
 
                 <label>이름</label>
-                <input type="text" name="username" value={user.username} onChange={changeUser}/><br/>
+                <input type="text" name="username" value={userInfo.username} onChange={changeUser}/><br/>
                 {alert.username.content && <><span className="form-alert">{alert.username.content}</span><br/></>}
 
                 <label>이메일</label>
-                <input type="text" name="email" disabled value={user.email} onChange={changeUser}/><br/>
+                <input type="text" name="email" disabled value={userInfo.email || ''} onChange={changeUser}/><br/>
 
-                <label>비밀번호</label>
+                <label>비밀번호 재설정</label>
                 <input type='password' id="pw1" name="userpw" onChange={changeUser}/><br/>
                 {alert.userpw.content && <><span className="form-alert">{alert.userpw.content}</span><br/></>}
                 
@@ -307,22 +309,22 @@ function MyInfoEdit() {
                 {alert.userpwCheck.content && <><span className="form-alert">{alert.userpwCheck.content}</span><br/></>}
 
                 <label>휴대폰 번호</label>
-                <input type="text" name="tel1" className="tel" maxLength="3" value={user.tel1} onChange={changeUser}/>-
-                <input type="text" name="tel2" className="tel" maxLength="4" value={user.tel2} onChange={changeUser}/>-
-                <input type="text" name="tel3" className="tel" maxLength="4" value={user.tel3} onChange={changeUser}/><br/>
+                <input type="text" name="tel1" className="tel" maxLength="3" value={userInfo.tel1 || ''} onChange={changeUser}/>-
+                <input type="text" name="tel2" className="tel" maxLength="4" value={userInfo.tel2 || '' } onChange={changeUser}/>-
+                <input type="text" name="tel3" className="tel" maxLength="4" value={userInfo.tel3 || ''} onChange={changeUser}/><br/>
                 {alert.tel.content && <><span className="form-alert">{alert.tel.content}</span><br/></>}
 
                 <label>우편번호</label>
-                <input type="text" style={{width: '110px'}} name="zipcode" value={modal.info && modal.info.zonecode ? modal.info.zonecode : (userInfo.zipcode || '')} disabled/>
+                <input type="text" style={{width: '110px'}} name="zipcode" value={(modal.info && modal.info.zonecode) || userInfo.zipcode || ''} disabled/>
                 <button id="postcode" onClick={handleComplete}>주소찾기</button><br/>
 
                 <label>주소</label>
-                <input type="text" name="address" readOnly value={modal.info && modal.info.address ? modal.info.address : userInfo.address}/><br/>
+                <input type="text" name="address" readOnly value={(modal.info && modal.info.address) || userInfo.address || ''}/><br/>
                 {alert.address.content && <><span className="form-alert">{alert.address.content}</span><br/></>}
                 
                 <label>상세주소</label>
-                <input type='text' name="addressDetail" value={userInfo.addressDetail} onChange={changeUser}/><br/>
-
+                <input type='text' name="addressDetail" value={userInfo.addressDetail || ''} onChange={changeUser}/><br/>
+                
                 <label>프로필 사진 {userInfo.uploadedProfilePreview}</label>
                 <img id="profile-img" src={userInfo.kakaoProfileUrl ? `${userInfo.kakaoProfileUrl}` : `${serverIP.ip}${userInfo.uploadedProfileUrl}`} alt="프로필 이미지" referrerPolicy="no-referrer" />
             

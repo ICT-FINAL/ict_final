@@ -425,3 +425,55 @@
   }
   
 /* 주문 내역 끝 */
+
+/* 입찰내역 */
+
+.mypage-bid-list{
+    list-style-type: none;
+    display: flex;
+    margin:0;
+    padding:10px;
+    margin-top:10px;
+}
+
+.mypage-bid-list > li{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.mypage-bid-list > li:nth-child(1) {
+    width:30%;
+}
+
+.mypage-bid-list > li:nth-child(2) {
+    width:12%
+}
+
+.mypage-bid-list > li:nth-child(3) {
+    width:15%;
+}
+
+.mypage-bid-list > li:nth-child(4) {
+    width:12%;
+    text-align:center;
+}
+.mypage-bid-list > li:nth-child(5) {
+    width:10%;
+    text-align:center;
+}
+.mypage-bid-list > li:nth-child(6) {
+    width:10%;
+    text-align:center;
+}
+.mypage-bid-list > li:nth-child(7) {
+    width:10%;
+    text-align:center;
+}
+
+.wish-image:hover{
+    transition: all 0.5s ease-in-out;
+    transform: scale(3.5);
+}
+
+/* 입찰내역끝 */

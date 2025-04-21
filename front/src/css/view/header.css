@@ -30,6 +30,9 @@
 }
 .header-right {
     width: 40%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .header-center ul {
@@ -71,10 +74,9 @@
     left: 10%;
 }
 
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.hamburger-wrapper{
+    position: absolute;
+    right:0;
 }
 
 .hamburger {
@@ -146,8 +148,7 @@
     align-items: center;
     justify-content: center;
     background-color: transparent;
-    border-left: 1px solid #555;
-    width: 25%;
+    width: 17%;
     height: 80px;
     transition: all 0.5s;
 }
@@ -168,12 +169,12 @@
 /* 실검 */
 .header-hot-box {
     position: relative;
-    padding: 10px;
-    width: 40%;
     color:white;
     border-left:1px solid hsl(0, 0%, 33%);
-    line-height: 60px;
-    height: 60px;
+    border-right:1px solid hsl(0, 0%, 33%);
+    line-height: 78px;
+    height: 78px;
+    width: 26%;
 }
 
 .hot-search {
@@ -182,10 +183,10 @@
 
 .hot-search-dropdown {
     position: absolute;
-    top:70px;
-    left:-10px;
+    top:78px;
+    left:0px;
     background-color: #444;
-    width:149px;
+    width: 100%;
     padding-bottom:10px;
 }   
 .hot-search-list-item {
@@ -198,7 +199,7 @@
 
 /* 실검끝 */
 
-/* @media(min-width: 1450px) {
+ @media(min-width: 1450px) {
     .header-search-box {
         min-width: 150px;
     }
@@ -209,13 +210,7 @@
         margin-right: 4%;
     }
 }
-@media(max-width: 1250px) {
-    .header-center ul {
-        gap: 0;
-        margin-right: 0;
-    }
-}
-@media(max-width:960px) {
+@media(max-width:1220px) {
     .header-center {
         display: none;
     }
@@ -226,17 +221,28 @@
         display: flex;
     }
     .header-search-box {
-        display: flex;
+        position: absolute;
+        right:80px;
+        width:200px;
     }
+    .header-hot-box {
+        position:absolute;
+        right:300px;
+        width:150px;
+    }
+    .menu-icon{
+        position:absolute;
+        right:420px;
+    }
+}
+@media(max-width:840px) {
     .header-hot-box {
         display: none;
     }
-}
-@media(max-width:750px) {
-    .header-right {
-        min-width: 300px;
+    .menu-icon{
+        right:280px;
     }
-} */
+}
 .header-search-box:has(.search-input:focus) {
     background-color: rgba(255, 255, 255, 1);
 }

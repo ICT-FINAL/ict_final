@@ -40,6 +40,27 @@ public class OrderController {
         orderService.saveOrderGroup(orderGroup); // 변경 감지로 orders까지 반영
     }
 
+    @GetMapping("auctionCancel")
+    public void auctionCancel(@RequestParam Long orderId) {
+        AuctionOrder auctionOrder = orderService.selectAuctionOrder(orderId).orElseThrow(() -> new RuntimeException("주문이 없습니다."));
+        auctionOrder.setState(OrderState.CANCELED);
+        orderService.saveAuctionOrder(auctionOrder);
+    }
+
+    @PostMapping("/setAuctionOrder")
+    public AuctionOrder setAuctionOrder(@AuthenticationPrincipal UserDetails userDetails, @RequestBody AuctionOrderRequest request) {
+        User user = interactService.selectUserByName(userDetails.getUsername());
+        Address address = new Address();
+        address.setId(Long.valueOf(request.getAddrId()));
+
+        AuctionOrder order = new AuctionOrder();
+        order.setAuctionProductId(request.getProductId());
+        order.setUser(user);
+        order.setState(OrderState.BEFORE);
+        order.setTotalPrice(request.getTotalPrice());
+        order.setTotalShippingFee(request.getShippingFee());
+        return orderService.saveAuctionOrder(order);
+    }
 
     @PostMapping("/setOrder")
     public OrderGroup setOrder(@AuthenticationPrincipal UserDetails userDetails, @RequestBody OrderRequest or) {

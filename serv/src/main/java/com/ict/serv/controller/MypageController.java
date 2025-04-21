@@ -13,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLOutput;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -94,6 +95,7 @@ public class MypageController {
     public List<Address> getAddrList(@AuthenticationPrincipal UserDetails userDetails) {
         return service.getAddrList(interactService.selectUserByName(userDetails.getUsername()));
     }
+
     @PostMapping("/insertAddrList")
     public Address insertAddrList(@AuthenticationPrincipal UserDetails userDetails, @RequestBody Address address) {
         address.setUser(interactService.selectUserByName(userDetails.getUsername()));
@@ -102,5 +104,16 @@ public class MypageController {
 
         System.out.println(address);
         return service.insertAddress(address);
+    }
+
+    /* 개인 정보 수정 */
+    @GetMapping("/getUser")
+    public Optional<User> getUser(@AuthenticationPrincipal UserDetails userDetails){
+        User user = interactService.selectUserByName(userDetails.getUsername());
+        System.out.println(user.getId());
+
+        Optional<User> getUserInfo = service.selectUserInfo(user);
+
+        return getUserInfo;
     }
 }
