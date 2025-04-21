@@ -6,6 +6,7 @@ import com.ict.serv.entity.Authority;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.AuthService;
 import com.ict.serv.service.InteractService;
+import com.ict.serv.service.LogService;
 import com.ict.serv.util.JwtProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,6 +37,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final InteractService interactService;
+    private final LogService logService;
 
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
@@ -62,7 +64,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("정지된 사용자입니다.");
         }
         String token = jwtProvider.createToken(user.getUserid());
-
+        logService.userJoinSave(user);
         HttpSession session = request.getSession();
         session.setAttribute("JWT", token);
 
