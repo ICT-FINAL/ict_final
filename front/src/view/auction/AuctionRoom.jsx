@@ -38,37 +38,38 @@ function AuctionRoom() {
         const socket = new SockJS(`${serverIP.ip}/ws`);
         const stompClient = Stomp.over(socket);
         stompClientRef.current = stompClient;
-    
-        stompClient.connect({ Authorization: `Bearer ${user.token}` }, () => {
-            stompClient.subscribe(`/topic/auction/${roomId}`, (message) => {
-                const body = JSON.parse(message.body);
-                /*
-                setMessages(prev => [...prev, body]);
-                setBidHistory(prev => [...prev, {
-                    username: body.urd.username,
-                    price: body.price,
-                    bidTime: new Date().toISOString() //추후 정렬용
-                }]);*/
-                getRoomInfo();
-            });
+        if(user)
+            stompClient.connect({ Authorization: `Bearer ${user.token}` }, () => {
+                stompClient.subscribe(`/topic/auction/${roomId}`, (message) => {
+                    const body = JSON.parse(message.body);
+                    /*
+                    setMessages(prev => [...prev, body]);
+                    setBidHistory(prev => [...prev, {
+                        username: body.urd.username,
+                        price: body.price,
+                        bidTime: new Date().toISOString() //추후 정렬용
+                    }]);*/
+                    getRoomInfo();
+                });
 
-            stompClient.subscribe(`/topic/auction/${roomId}/end`, (message) => {
-                alert('경매가 종료되었습니다..');
-                navigate('/auction');
+                stompClient.subscribe(`/topic/auction/${roomId}/end`, (message) => {
+                    alert('경매가 종료되었습니다..');
+                    navigate('/auction');
+                });
+        
+                setIsConnected(true);
             });
-    
-            setIsConnected(true);
-        });
     
         return () => {
             stompClient.disconnect(() => {
                 console.log('Disconnected from auction room');
             });
         };
-    }, [roomId, serverIP, user.token]);
+    }, [roomId, serverIP, user]);
 
     useEffect(() => {
         const fetchPreviousBids = async () => {
+            if(user)
             try {
                 const res = await axios.get(`${serverIP.ip}/auction/bids/${roomId}`, {
                     headers: { Authorization: `Bearer ${user.token}` }
@@ -89,12 +90,10 @@ function AuctionRoom() {
     }, [roomId]);
 
     const getRoomInfo =()=>{
-        axios.get(`${serverIP.ip}/auction/getAuctionItem/${roomId}`,
-            { headers: {Authorization: `Bearer ${user.token}`}}
+        axios.get(`${serverIP.ip}/auction/getAuctionItem/${roomId}`
         )
         .then(res => {
             setRoomInfo(res.data);
-            console.log(res.data);
         })
         .catch(err => console.log(err));
     }
@@ -228,7 +227,7 @@ function AuctionRoom() {
                             <ul>
                                 <li style={{ display: 'flex' }}>
                                 <div className='product-profile-box'>
-                                    <img id={`mgx-${roomInfo.auctionProduct.sellerNo.id}`} className='message-who' src={roomInfo.auctionProduct.sellerNo.uploadedProfileUrl && roomInfo.auctionProduct.sellerNo.uploadedProfileUrl.indexOf('http') !== -1 ? `${roomInfo.auctionProduct.sellerNo.uploadedProfileUrl}` : `${serverIP.ip}${roomInfo.auctionProduct.sellerNo.uploadedProfileUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
+                                <img id={`mgx-${roomInfo.auctionProduct.sellerNo.id}`} className='message-who' src={roomInfo.auctionProduct.sellerNo.uploadedProfileUrl ? `${serverIP.ip}${roomInfo.auctionProduct.sellerNo.uploadedProfileUrl}` : `${roomInfo.auctionProduct.sellerNo.profileImageUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
                                     <div id={`mgx-${roomInfo.auctionProduct.sellerNo.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{roomInfo.auctionProduct.sellerNo.username} &gt;</div>
                                 </div>
                                 </li>

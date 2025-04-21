@@ -21,6 +21,7 @@
     list-style: none;
     padding: 0;
     margin: 0;
+    min-width: 560px;
 }
 .header-left {
     width: 10%;

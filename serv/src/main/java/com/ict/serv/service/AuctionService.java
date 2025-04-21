@@ -128,7 +128,7 @@ public class AuctionService {
                 auctionProductRepository.save(product);
                 messagingTemplate.convertAndSend("/topic/auction/" + roomId + "/end", "경매 종료");
                 User user = userRepository.findUserById(room.getHighestBidderId());
-                AuctionBid bid = bidRepository.findByStateAndUser(BidState.LIVE, user).get(0);
+                AuctionBid bid = bidRepository.findByStateAndUserAndRoom(BidState.LIVE, user, room).get(0);
                 bid.setState(BidState.SUCCESS);
                 bidRepository.save(bid);
                 Message msg = new Message();

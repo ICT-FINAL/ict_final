@@ -9,11 +9,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Map;
 
 public interface AuctionBidRepository extends JpaRepository<AuctionBid, Long> {
     List<AuctionBid> findByRoomOrderByBidTimeAsc(AuctionRoom room);
     void deleteByRoom_RoomId(String roomId);
-    List<AuctionBid> findByStateAndUser(BidState state, User user);
 
     int countIdByUser(User user);
 
@@ -24,4 +24,6 @@ public interface AuctionBidRepository extends JpaRepository<AuctionBid, Long> {
     List<AuctionBid> findAllByUserOrderByIdDesc(User user, PageRequest of);
 
     List<AuctionBid> findAllByRoomAndState(AuctionRoom room, BidState state);
+
+    List<AuctionBid> findByStateAndUserAndRoom(BidState bidState, User user, AuctionRoom room);
 }

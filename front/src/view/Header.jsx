@@ -186,11 +186,11 @@ function Header() {
                         <>
                             <div ref={menuButtonRef} className="menu-icon" onClick={() => dispatch(setMenuModal(!menuModal))}>
                                 <img src={user.user.imgUrl.indexOf('http') !== -1 ? `${user.user.imgUrl}` : `${serverIP.ip}${user.user.imgUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white' }} />
-                                <div style={{ color: 'white', textAlign: 'center', width: '120px', fontSize: '14px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{user.user.username} {grade[user.user.grade]}</div>
+                                <div style={{ color: 'white', textAlign: 'center', width: '120px', fontSize: '15px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{user.user.username} {grade[user.user.grade]}</div>
                             </div>
                         </>
                     ) : (
-                        <div style={{color:'white', justifyContent:'center'}} className="menu-icon" onClick={() => dispatch(setLoginView(true))}><div style={{width:'100%',textAlign:'right', paddingRight:'20px'}}>로그인</div></div>
+                        <div style={{color:'white', justifyContent:'center'}} className="menu-icon" onClick={() => dispatch(setLoginView(true))}><div style={{width:'100%',textAlign:'center', paddingRight:'20px'}}>로그인</div></div>
                     )}
                     <div className='header-hot-box' onMouseEnter={() => setHotSearchOpen(true)}
                                 onMouseLeave={() => setHotSearchOpen(false)}>
