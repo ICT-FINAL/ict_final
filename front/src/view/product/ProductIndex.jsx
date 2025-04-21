@@ -194,12 +194,14 @@ function ProductIndex() {
                 </div>
             </div>
         </div>
+        {/*
         <div className={`hot-container ${visibleSections.hotProduct ? 'fade-in' : 'fade-out'}`}>
             <HotProduct />
         </div>
         <div className={`raw-container ${visibleSections.RAW ? 'fade-in' : 'fade-out'}`}>
             <RAWProduct />
         </div>
+        */}
         </>
     )
 }

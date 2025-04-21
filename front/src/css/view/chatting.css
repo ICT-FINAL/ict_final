@@ -37,9 +37,22 @@
     flex: 1;
     background-color: #fff;
     border: 1px solid #e5e5ea;
-    padding: 15px;
+    padding: 10px;
     overflow-y: auto;
 }
+
+#info-message {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    line-height: 2;
+    color: #333;
+    font-weight: bold;
+    background: radial-gradient(circle at center, #b4e7ca 0%, #ffffff 70%);
+    height: 100%;
+  }
+
 .message-wrapper {
     width: 100%;
     display: flex;
@@ -213,6 +226,7 @@ div.me-date, div.other-date, #unread-sticker {
     background-color: rgb(247, 85, 85);
     font-size: 14pt;
     width: 50px;
+    margin-left: 20px;
     line-height: 30px;
     text-align: center;
     border-radius: 10px;

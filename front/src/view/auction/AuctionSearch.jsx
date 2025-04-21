@@ -103,6 +103,10 @@ function AuctionSearch() {
         return `${year}-${month}-${day}｜${hours}:${minutes}`;
     };
 
+    function formatNumberWithCommas(num) {
+        return num.toLocaleString();
+    }
+
     return (
         <div className="product-grid-container">
             <h2 style={{ fontSize: '28px' }}>{search.searchWord && `'${search.searchWord}'`} 상품 검색 결과</h2>
@@ -187,11 +191,10 @@ function AuctionSearch() {
                         />
                         <div style={{ cursor: 'pointer' }} onClick={() => moveInfo(auction.room.roomId)} className="product-info">
                             <span style={{ fontSize: "16px", color: "#333" }}>{auction.product.productName}</span> <br />
-                            <span style={{color:'black'}}><span>현재 입찰가:</span><span style={{ fontWeight: "700", fontSize:'17px' }}> {auction.room.currentPrice}</span>원</span><br/>
-                             <span style={{ fontSize:'13px', color:'#777' }}>즉시 구매가:</span><span style={{ fontWeight: "700", fontSize:'15px', color:'#444' }}> {auction.room.buyNowPrice}</span>원<br/>
-                             <span style={{fontSize:'12px',color: '#444'}}>👤입찰자: <span style={{fontSize:'16px', fontWeight:'700'}}>{auction.room.hit}</span></span>&nbsp;&nbsp; <span style={{ color: '#444' }}>⏰{formatDateTime(auction.room.endTime)}</span> {/* 할인된가격 */}
+                            <span style={{color:'black'}}><span>현재 입찰가:</span><span style={{ fontWeight: "700", fontSize:'17px' }}> {formatNumberWithCommas(auction.room.currentPrice)}</span>원</span><br/>
+                             <span style={{ fontSize:'13px', color:'#777' }}>즉시 구매가:</span><span style={{ fontWeight: "700", fontSize:'15px', color:'#444' }}> {formatNumberWithCommas(auction.room.buyNowPrice)}</span>원<br/>
+                            <div style={{display:'flex',justifyContent:'space-between'}}><span style={{fontSize:'12px',color: '#444'}}>👤입찰자: <span style={{fontSize:'16px', fontWeight:'700'}}>{auction.room.hit}</span></span>&nbsp;&nbsp; <span style={{ color: '#444' }}>⏰{formatDateTime(auction.room.endTime)}</span></div>
 
-                            <br />
                             <div style={{
                                 display: 'flex',
                                 justifyContent: 'space-between',

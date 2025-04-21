@@ -2,10 +2,13 @@ import { useState,useRef } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import ProductEditor from "./ProductEditor";
+import { useNavigate } from "react-router-dom";
 
 function ProductSell() {
     const serverIP = useSelector((state) => state.serverIP);
     const user = useSelector((state) => state.auth.user);
+
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         productName: "",
@@ -299,7 +302,8 @@ function ProductSell() {
             }
         })
         .then(res => {
-            console.log("상품 등록 성공:", res.data);
+            alert("상품 등록 성공");
+            navigate('/product');
         })
         .catch(err => console.error("상품 등록 실패:", err));
     };

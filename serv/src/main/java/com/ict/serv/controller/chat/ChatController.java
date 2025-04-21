@@ -2,6 +2,7 @@ package com.ict.serv.controller.chat;
 
 import com.ict.serv.entity.chat.ChatDTO;
 import com.ict.serv.entity.chat.ChatRoom;
+import com.ict.serv.entity.chat.ChatState;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.ChatService;
 import com.ict.serv.service.InteractService;
@@ -26,7 +27,7 @@ public class ChatController {
         User user = interactService.selectUserByName(userDetails.getUsername());
         ChatRoom room = chatService.findRoom(user, productId);
 
-        if (room != null) return room.getChatRoomId();
+        if (room != null && room.getState() != ChatState.CLOSED) return room.getChatRoomId();
         else return chatService.createRoom(user, productId);
     }
 
@@ -63,6 +64,14 @@ public class ChatController {
 
         User user = interactService.selectUserByName(userDetails.getUsername());
         chatService.markAllAsRead(roomId, user);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/leaveChatRoom/{roomId}")
+    public ResponseEntity<?> leaveChatRoom(@PathVariable String roomId,
+                                           @AuthenticationPrincipal UserDetails userDetails) {
+        User user = interactService.selectUserByName(userDetails.getUsername());
+        chatService.leaveChatRoom(roomId, user.getId());
         return ResponseEntity.ok().build();
     }
 }

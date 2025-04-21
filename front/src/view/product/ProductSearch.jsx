@@ -60,7 +60,6 @@ function ProductSearch() {
     }, [inView, totalPage]);
 
     const moveInfo = (prod) => {
-        console.log(prod);
         navigate('/product/info', { state: { product: prod } });
     }
 
@@ -77,12 +76,6 @@ function ProductSearch() {
             )
             .then((res) => {
                 const { pvo, productList } = res.data;
-
-                setProducts((prev) => {
-                    if (page === 1) return productList;
-                    return [...prev, ...productList];
-                });
-
                 setTotalPage(pvo.totalPage);
 
                 Promise.all(
@@ -100,7 +93,10 @@ function ProductSearch() {
                         })
                     )
                   ).then(updatedList => {
-                    setProducts(updatedList);
+                    setProducts(prev => {
+                        if (page === 1) return updatedList;
+                        return [...prev, ...updatedList]; 
+                      });
                 });
             })
             .catch((err) => {

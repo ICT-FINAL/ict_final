@@ -18,7 +18,6 @@ function RAWProduct() {
         axios.get(`${serverIP.ip}/product/getList/getRAW`)
             .then((res) => {
                 setRAWList(res.data);
-                console.log(res.data);
                 if (res.data.length > 0)
                     handleCategoryClick(res.data[0].productCategory);
             })
@@ -32,7 +31,6 @@ function RAWProduct() {
         axios.get(`${serverIP.ip}/product/getList/byCategory?category=${category}`)
             .then((res) => {
                 setProductList(res.data);
-                console.log(res.data);
             })
             .catch((err) => console.log(err));
     };

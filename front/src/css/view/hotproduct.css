@@ -1,23 +1,15 @@
-.hot-container {
-    position:fixed;
+.hot-product-container {
     width:70%;
     margin:auto;
     min-width: 1200px;
     max-width: 1600px;
-    top:35%;
-    left:50%;
-    transform: translate(-50%,-40%);
 }
 
 .raw-container {
-    position:fixed;
     width:70%;
     margin:auto;
     min-width: 1200px;
     max-width: 1600px;
-    top:3%;
-    left:50%;
-    transform: translate(-50%,-3%);
 }
 
 .hot-title {

@@ -56,6 +56,9 @@ function MyPageNav({ path, isOpen, closeNav }) {
                     <li onClick={() => handleClick("/mypage/sales")} style={path.l_name === "판매 내역" ? clickedStyle : {}}>
                         <span style={path.l_name === "판매 내역" ? clickedStyle2 : {}}>판매 내역</span>
                     </li>
+                    <li onClick={() => handleClick("/mypage/buybid")} style={path.l_name === "구매 입찰 내역" ? clickedStyle : {}}>
+                        <span style={path.l_name === "구매 입찰 내역" ? clickedStyle2 : {}}>구매 입찰 내역</span>
+                    </li>
                 </ul>
 
                 <ul>
