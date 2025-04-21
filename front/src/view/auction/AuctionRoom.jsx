@@ -2,9 +2,10 @@ import { useParams,useNavigate } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { FaHeart } from 'react-icons/fa';
+import { setLoginView } from '../../store/loginSlice';
 
 function AuctionRoom() {
     const { roomId } = useParams();
@@ -12,6 +13,8 @@ function AuctionRoom() {
     const user = useSelector(state => state.auth.user);
 
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
 
     const [roomInfo, setRoomInfo] = useState({});
     const [imageIndex, setImageIndex] = useState(0);
@@ -91,6 +94,7 @@ function AuctionRoom() {
         )
         .then(res => {
             setRoomInfo(res.data);
+            console.log(res.data);
         })
         .catch(err => console.log(err));
     }
@@ -125,6 +129,27 @@ function AuctionRoom() {
                 roomInfo:roomInfo
             }
         });
+    };
+
+    const moveOneBuy = () => {
+        if (!user) {
+            dispatch(setLoginView(true));
+        }
+        else {
+            if (user.user.id !== roomInfo.auctionProduct.sellerNo.id)
+                navigate('/product/buying', {
+                    state: {
+                        selectedItems: [],
+                        product: roomInfo.auctionProduct,
+                        totalPrice: roomInfo.buyNowPrice,
+                        shippingFee: roomInfo.auctionProduct.shippingFee || 0,
+                        selectedCoupon: 0,
+                    }
+                });
+            else {
+                alert('본인의 상품입니다');
+            }
+        }
     };
 
     useEffect(() => {
@@ -165,8 +190,9 @@ function AuctionRoom() {
         return `${year}-${month}-${day} ｜ ${hours}:${minutes}`;
     };
 
+    
     return (
-        <div style={{ paddingTop: "140px" }}>
+        <div style={{ paddingTop: "170px" }}>
              { roomInfo.auctionProduct && <>
                     <div className="product-info-container">
                         <div className="product-info-left">
@@ -240,7 +266,11 @@ function AuctionRoom() {
                                             배송비: {roomInfo.auctionProduct.shippingFee} 원
                                         </span>
                                     </li>
+                                    
                                     <li style={{marginTop:'50px',display:'flex', justifyContent:'center', gap:'20px'}}>
+                                    { roomInfo.state === 'OPEN' && user &&<>
+                                    { roomInfo.highestBidderId !== user.user.id ?
+                                    <>
                                     <button onClick={()=> moveBuy()}
                                         style={{
                                             width: '120px',
@@ -277,10 +307,14 @@ function AuctionRoom() {
                                         }}
                                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d33'}
                                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#FF5C5C'}
+                                        onClick={moveOneBuy}
                                     >
                                         즉시구매
                                     </button>
-
+                                    </> : <div style={{fontSize:'20px'}}>'{user.user.username}' 님은 현재 최고 입찰자 입니다.</div>
+                                    }
+                                    </>
+                                    }
                                     </li>
                                     </ul>
                                 </li>

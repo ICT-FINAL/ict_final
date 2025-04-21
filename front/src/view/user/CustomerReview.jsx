@@ -1,8 +1,8 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { FaStar } from "react-icons/fa";
+import { FaArrowRight, FaStar } from "react-icons/fa";
 import { useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
 function CustomerReview(){
     const user = useSelector((state) => state.auth.user);
@@ -57,41 +57,57 @@ function CustomerReview(){
         .then(res => {
             console.log("후기 리스트 응답:", res.data);
             setCusReviewList(res.data);
+
+            // 각 productId별로 후기 작성일만 찍어보기
+            Object.entries(res.data).forEach(( [reviews]) => {
+                
+                reviews.forEach((review, idx) => {
+                    console.log(`  ${idx + 1}위 - ${review.reviewWritedate} - by ${review.user.username}`);
+                });
+            });
         })
         .catch(err => console.log(err));
     }
 
     // 리뷰 이미지 슬라이드 기능
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [slideIndices, setSlideIndices] = useState({});
 
-    const nextSlide = (images) => {
-        if (currentIndex < images.length - 1) {
-        setCurrentIndex(currentIndex + 1);
-        } else {
-        setCurrentIndex(0);
-        }
+    const getCurrentIndex = (reviewId) => {
+        return slideIndices[reviewId] || 0;
     };
 
-    const prevSlide = (images) => {
-        if (currentIndex > 0) {
-        setCurrentIndex(currentIndex - 1);
-        } else {
-        setCurrentIndex(images.length - 1);
-        }
+    const prevSlide = (reviewId, images) => {
+        const index = getCurrentIndex(reviewId);
+        const newIndex = index === 0 ? images.length - 1 : index - 1;
+        setSlideIndices(prev => ({ ...prev, [reviewId]: newIndex }));
+    };
+    
+    const nextSlide = (reviewId, images) => {
+        const index = getCurrentIndex(reviewId);
+        const newIndex = index === images.length - 1 ? 0 : index + 1;
+        setSlideIndices(prev => ({ ...prev, [reviewId]: newIndex }));
+    };
+    
+    const goToSlide = (reviewId, index) => {
+        setSlideIndices(prev => ({ ...prev, [reviewId]: index }));
     };
 
-    const goToSlide = (index) => {
-        setCurrentIndex(index);
+    const navigate = useNavigate();
+
+    const moveInfo = (prod) => {
+        console.log(prod);
+        navigate('/product/info', { state: { product: prod } });
     };
 
     return(
         <>
             <div>
-                {cusReviewList && Object.entries(cusReviewList).map(([productId, reviews]) => (
-                    <div key={productId}>
+                {cusReviewList && cusReviewList.length > 0 ? (
+                    <div >
                         <div className="cusReview-wrapper">
                             <ul className="cusReview-list">
-                                {reviews.map((review, index) => (
+                                {cusReviewList.map((review, index) => (
                                     <>
                                     {/* 리뷰 정보 */}
                                     <li key={index} className="cusReview-item">
@@ -141,38 +157,34 @@ function CustomerReview(){
                                         {/* 이미지 슬라이드 */}
                                         {review.images && review.images.length > 0 && (
                                             <div className="cusReview-images-wrapper">
-                                                {/* 이전 화살표 */}
-                                                <button
-                                                className="cusReview-arrow cusReview-prev"
-                                                onClick={() => prevSlide(review.images)}
-                                                >
-                                                &#8249;
-                                                </button>
-
-                                                {/* 현재 이미지 */}
                                                 <img
-                                                src={`${serverIP.ip}/uploads/review/${review.id}/${review.images[currentIndex].filename}`}
-                                                alt={`Review Image ${currentIndex}`}
-                                                className="cusReview-image"
+                                                    src={`${serverIP.ip}/uploads/review/${review.id}/${review.images[getCurrentIndex(review.id)].filename}`}
+                                                    alt={`Review Image ${getCurrentIndex(review.id)}`}
+                                                    className="cusReview-image"
                                                 />
 
-                                                {/* 다음 화살표 */}
                                                 <button
-                                                className="cusReview-arrow cusReview-next"
-                                                onClick={() => nextSlide(review.images)}
+                                                    className="cusReview-arrow cusReview-prev"
+                                                    onClick={() => prevSlide(review.id, review.images)}
                                                 >
-                                                &#8250;
+                                                    &#8249;
                                                 </button>
 
-                                                {/* 점 네비게이션 */}
+                                                <button
+                                                    className="cusReview-arrow cusReview-next"
+                                                    onClick={() => nextSlide(review.id, review.images)}
+                                                >
+                                                    &#8250;
+                                                </button>
+
                                                 <div className="cusReview-image-dots">
-                                                {review.images.map((_, imgIndex) => (
-                                                    <button
-                                                    key={imgIndex}
-                                                    className={`cusReview-dot ${currentIndex === imgIndex ? "active" : ""}`}
-                                                    onClick={() => goToSlide(imgIndex)}
-                                                    ></button>
-                                                ))}
+                                                    {review.images.map((_, imgIndex) => (
+                                                        <button
+                                                            key={imgIndex}
+                                                            className={`cusReview-dot ${getCurrentIndex(review.id) === imgIndex ? "active" : ""}`}
+                                                            onClick={() => goToSlide(review.id, imgIndex)}
+                                                        ></button>
+                                                    ))}
                                                 </div>
                                             </div>
                                         )}
@@ -184,24 +196,31 @@ function CustomerReview(){
 
                                         {/* 상품 정보 출력 */}
                                         <div className="cusReview-product-info">
-                                            {reviews[0]?.product && (
+                                            {review.product && (
                                                 <>
-                                                    {reviews[0].product.images && reviews[0].product.images.length > 0 && (
+                                                    {review.product.images && review.product.images.length > 0 && (
                                                         <div className="cusReview-product-image">
                                                             <img
-                                                                src={`${serverIP.ip}/uploads/product/${reviews[0].product.id}/${reviews[0].product.images[0].filename}`}
-                                                                alt={`Product Thumbnail`}
+                                                                src={`${serverIP.ip}/uploads/product/${review.product.id}/${review.product.images[0].filename}`}
+                                                                alt="Product Thumbnail"
                                                                 className="cusReview-image-thumbnail"
                                                             />
                                                         </div>
                                                     )}
                                                     <div className="cusReview-product-details">
                                                         <div className="cusReview-product-name">
-                                                            {reviews[0].product.productName}
+                                                            {review.product.productName}
                                                         </div>
                                                         <div className="cusReview-product-price">
-                                                            {reviews[0].product.price.toLocaleString()}원
+                                                            {review.product.price.toLocaleString()}원
                                                         </div>
+                                                    </div>
+
+                                                    <div 
+                                                        className="cusReview-product-arrow"
+                                                        onClick={() => moveInfo(review.product)}
+                                                    >
+                                                        <FaArrowRight />
                                                     </div>
                                                 </>
                                             )}
@@ -214,7 +233,9 @@ function CustomerReview(){
 
                         
                     </div>
-                ))}
+                ) : (
+                    <p  style={{ padding: '3px', textAlign: 'center' }}>작성된 구매 후기가 없습니다.</p>
+                )}
             </div>
         </>
     )

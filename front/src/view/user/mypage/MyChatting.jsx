@@ -80,9 +80,15 @@ function MyChatting() {
     return (
         <div>
             <ul className='chat-menu'>
-                <li className={selectedTab === 'send' ? 'selected-menu' : {}} onClick={() => navigate('?tab=send')}>발신</li>
-                <li className={selectedTab === 'receive' ? 'selected-menu' : {}} onClick={() => navigate('?tab=receive')}>수신</li>
+                <li className={selectedTab === 'send' ? 'selected-menu' : {}} onClick={() => navigate('?tab=send')}>구매 문의</li>
+                <li className={selectedTab === 'receive' ? 'selected-menu' : {}} onClick={() => navigate('?tab=receive')}>판매 문의</li>
             </ul>
+            {
+                (selectedTab === 'send' && chatRoomList.length === 0) ||
+                (selectedTab === 'receive' && sellerChatRoomList.length === 0) ? (
+                    <div style={{padding: '50px', textAlign: 'center'}}>진행 중인 채팅이 없습니다.</div>
+                ) : null
+            }
             {
                 (selectedTab === 'send' ? chatRoomList : sellerChatRoomList).map((room, idx)=>{
                     const selectedUser = selectedTab === 'send' ? room.product.sellerNo : room.buyer
@@ -90,18 +96,22 @@ function MyChatting() {
                         <div key={idx} className="chat-room" onClick={()=>navigate(`/product/chat/${room.chatRoomId}`)}
                             style={room.lastChat.read || room.lastChat.sender.id === user.user.id ? {background: '#f7f7f7'} : {}}>
                             <img className="chat-user-img" style={{width: '80px', height: '80px'}} src = {selectedUser.profileImageUrl.indexOf('http') !==-1 ? `${selectedUser.profileImageUrl}`:`${serverIP.ip}${selectedUser.profileImageUrl}`} alt=''/>
-                            <div style={{display: 'flex', flexDirection: 'column', paddingLeft: '3%'}}>
+                            <div style={{display: 'flex', flexDirection: 'column', paddingLeft: '3%', width: '95%'}}>
                                 <div>
                                     <span><b>{selectedUser.username}</b></span>
                                     <span className='date'>{getTime(room.lastChat.sendTime)}</span><br/>
                                 </div>
                                 <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
-                                    width: '500px'
+                                    width: '90%'
                                 }}>
-                                    {room.lastChat.message}
+                                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '90%' }}>
+                                        {room.lastChat.message}
+                                    </span>
                                     {
                                         !room.lastChat.read && room.lastChat.sender.id !== user.user.id &&
                                         <span id="new-chat-sticker">new</span>

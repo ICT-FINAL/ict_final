@@ -22,56 +22,61 @@ function Chatting() {
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(()=>{
-        if (refDialogDiv.current) {
-            refDialogDiv.current.scroll({
-                top: refDialogDiv.current.scrollHeight,
-                behavior: 'smooth',
-            });
+        if (user) {
+            if (refDialogDiv.current) {
+                refDialogDiv.current.scroll({
+                    top: refDialogDiv.current.scrollHeight,
+                    behavior: 'smooth',
+                });
+            }
+            console.log(chatHistory);
         }
-        console.log(chatHistory);
     },[chatHistory])
 
     useEffect(()=>{
-        if (isOpen) {
-            getRoomInfo();
-            getChatList();
+        if (user) {
+            if (isOpen) {
+                getRoomInfo();
+                getChatList();
+            }
         }
     },[isOpen]);
 
     useEffect(()=>{
-        const socket = new SockJS(`${serverIP.ip}/ws`);
-        const stompClient = Stomp.over(socket);
-        stompClientRef.current = stompClient;
+        if (user) {
+            const socket = new SockJS(`${serverIP.ip}/ws`);
+            const stompClient = Stomp.over(socket);
+            stompClientRef.current = stompClient;
 
-        stompClient.connect({ Authorization: `Bearer ${user.token}` }, ()=>{
-            stompClient.subscribe(`/topic/chat/${roomId}`, (msg)=>{
-                const body = JSON.parse(msg.body);
-                setChatHistory(prev => [...prev, body]);
-                setIsOpen(true);
-                if (body.urd.id != user.user.id) {
-                    changeReadState(body.id);
-                }
+            stompClient.connect({ Authorization: `Bearer ${user.token}` }, ()=>{
+                stompClient.subscribe(`/topic/chat/${roomId}`, (msg)=>{
+                    const body = JSON.parse(msg.body);
+                    setChatHistory(prev => [...prev, body]);
+                    setIsOpen(true);
+                    if (body.urd.id != user.user.id) {
+                        changeReadState(body.id);
+                    }
+                    stompClient.send(`/app/chat/read/${roomId}`, {}, JSON.stringify({
+                        roomId: roomId,
+                        urd: { userid: user.user.userid }
+                    }));
+                });
+                stompClient.subscribe(`/topic/chat/read/${roomId}`, (msg)=>{
+                    changeAllReadState();
+                });
                 stompClient.send(`/app/chat/read/${roomId}`, {}, JSON.stringify({
                     roomId: roomId,
                     urd: { userid: user.user.userid }
                 }));
-            });
-            stompClient.subscribe(`/topic/chat/read/${roomId}`, (msg)=>{
-                changeAllReadState();
-            });
-            stompClient.send(`/app/chat/read/${roomId}`, {}, JSON.stringify({
-                roomId: roomId,
-                urd: { userid: user.user.userid }
-            }));
-        })
-
-        return () => {
-            stompClient.disconnect(() => {
-                console.log('Disconnected from chat room');
-            });
-        };
+            })
+            return () => {
+                stompClient.disconnect(() => {
+                    console.log('Disconnected from chat room');
+                });
+            };
+        }
         
-    }, [roomId, serverIP, user.token]);
+    }, [roomId, serverIP, user?.token]);
 
     const getRoomInfo =()=>{
         axios.get(`${serverIP.ip}/chat/getChatRoom/${roomId}`,
@@ -115,16 +120,30 @@ function Chatting() {
     }
 
     const sendMessage = useCallback((e)=>{
-        e.preventDefault();
-        if (stompClientRef.current && message.trim() !== '') {
-            stompClientRef.current.send(`/app/chat/${roomId}`, {}, JSON.stringify({
-                roomId: roomId,
-                message: message,
-                urd: { userid: user.user.userid }
-            }));
-            setMessage('');
+        if (user) {
+            e.preventDefault();
+            if (stompClientRef.current && message.trim() !== '') {
+                stompClientRef.current.send(`/app/chat/${roomId}`, {}, JSON.stringify({
+                    roomId: roomId,
+                    message: message,
+                    urd: { userid: user.user.userid }
+                }));
+                setMessage('');
+            }
         }
     },[message]);
+    
+    const leaveChatRoom = ()=>{
+        if (window.confirm("채팅방을 나가시겠습니까?")) {
+            axios.post(`${serverIP.ip}/chat/leaveChatRoom/${roomId}`, null, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            })
+            .then(()=>{
+                navigate(-1);
+            })
+            .catch(err=>console.log(err));
+        }
+    }
 
     const getTime = (times)=>{
         const time = new Date(times);
@@ -135,21 +154,40 @@ function Chatting() {
 
         return `${month}-${day} ${hour}:${minute}`;
     }
+    
 
     return (
         <div style={{paddingTop: '100px'}}>
             {
-                roomInfo.product &&
+                (user && roomInfo.product) &&
                 <>
                     <div className='chat-header'>
                         <span>{roomInfo.product.productName}</span>
                     </div>
                     <div className="iphone-frame">
                         <div className='chat-container'>
+                            {
+                                roomInfo.state !== 'CLOSED' &&
+                                <div style={{padding: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                    <b style={{fontSize: '14pt'}}>{roomInfo.product.productName}</b>
+                                    {
+                                        ((roomInfo.state === 'ACTIVE' && roomInfo.buyer.id === user.user.id) || roomInfo.state === 'LEFT') &&
+                                        <span style={{padding: '5px', background: '#e54d4b', color: '#fff', borderRadius: '10px', fontSize: '10pt', cursor: 'pointer'}}
+                                            onClick={leaveChatRoom}>나가기</span>
+                                    }
+                                </div>
+                            }
                             <div className="chat-display" ref={refDialogDiv}>
-                                {/* 읽음처리(가능하면), 문구 고민 */}
                                 {
-                                    roomInfo.state === "OPEN" ? "문의주세요" :
+                                    roomInfo.state === "OPEN"
+                                    ?
+                                    <div id="info-message">
+                                        💬 작품 관련 궁금한 점이 있다면 편하게 문의해 주세요.<br/>
+                                        ⏱ 판매자는 최대한 빠르게 답변드릴게요.<br/>
+                                        🤝 서로를 존중하며 예의 있게 대화해 주세요.<br/>
+                                        🚫 부적절한 언행은 제재될 수 있어요.
+                                    </div>
+                                    :
                                     chatHistory.map((history, idx)=>{
                                         const isMe = history.urd.id === user.user.id;
                                         return (
@@ -181,7 +219,10 @@ function Chatting() {
                                             </div>
                                         )
                                     })
-                                    
+                                }
+                                {
+                                    roomInfo.state === 'LEFT' &&
+                                    <div style={{textAlign: 'center', padding: '10px', color: '#555'}}>- {roomInfo.buyer.username}님이 방을 나가셨습니다 -</div>
                                 }
                             </div>
                             <div className="chat-input">
@@ -189,6 +230,7 @@ function Chatting() {
                                     value={message}
                                     onChange={e => setMessage(e.target.value)}
                                     onKeyDown={e => {if (e.key === 'Enter') {sendMessage(e);}}}
+                                    disabled={roomInfo.state === 'LEFT'}
                                 />
                                 <input type="button" value="보내기" id="chat-send-btn"
                                     onClick={sendMessage}

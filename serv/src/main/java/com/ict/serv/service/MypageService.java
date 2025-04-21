@@ -24,6 +24,7 @@ public class MypageService {
     private final WishRepository wish_repo;
     private final AddressRepository address_repo;
     private final FollowRepository follow_repo;
+    private final UserRepository user_repo;
 
     public List<Report> getReportByUserFrom(User user, PagingVO pvo) {
         return report_repo.findAllByUserFromOrderByCreateDateDesc(user, PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
@@ -63,4 +64,9 @@ public class MypageService {
     public List<Address> getAddrList(User user) { return address_repo.findAllByUser(user);}
 
     public Address insertAddress(Address address) { return address_repo.save(address);}
+
+
+    public Optional<User> selectUserInfo(User user) {
+        return user_repo.findById(user.getId());
+    }
 }

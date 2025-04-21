@@ -57,6 +57,7 @@ public class SecurityConfig {
                         .requestMatchers("/product/info").permitAll()
                         .requestMatchers("/product/getOption").permitAll()
                         .requestMatchers("/product/getList/**").permitAll()
+                        .requestMatchers("/notice/getNoticeList").permitAll()
                         .requestMatchers("/event/getEventList").permitAll()
                         .requestMatchers("/event/getMelonRank").permitAll()
                         .requestMatchers("/payment/**").permitAll()

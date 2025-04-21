@@ -9,16 +9,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface NoticeRepository extends JpaRepository<Notice, Long> {
-    @Query(value = "SELECT * FROM NOTICE ORDER BY write_date DESC LIMIT :size OFFSET :start", nativeQuery = true)
+    @Query(value = "SELECT * FROM notice ORDER BY write_date DESC LIMIT :size OFFSET :start", nativeQuery = true)
     List<Notice> findNoticeList(@Param("start") int start, @Param("size") int size);
 
-    @Query(value = "SELECT * FROM NOTICE WHERE notice_name LIKE %:keyword% ORDER BY write_date DESC LIMIT :size OFFSET :start", nativeQuery = true)
+    @Query(value = "SELECT * FROM notice WHERE notice_name LIKE %:keyword% ORDER BY write_date DESC LIMIT :size OFFSET :start", nativeQuery = true)
     List<Notice> findNoticeListByKeyword(@Param("keyword") String keyword, @Param("start") int start, @Param("size") int size);
 
-    @Query(value = "SELECT * FROM NOTICE WHERE state = :state ORDER BY write_date DESC LIMIT :size OFFSET :start", nativeQuery = true)
+    @Query(value = "SELECT * FROM notice WHERE state = :state ORDER BY write_date DESC LIMIT :size OFFSET :start", nativeQuery = true)
     List<Notice> findNoticeListByState(@Param("state") String state, @Param("start") int start, @Param("size") int size);
 
-    @Query(value = "SELECT * FROM NOTICE WHERE notice_name LIKE %:keyword% AND state = :state ORDER BY write_date DESC LIMIT :size OFFSET :start", nativeQuery = true)
+    @Query(value = "SELECT * FROM notice WHERE notice_name LIKE %:keyword% AND state = :state ORDER BY write_date DESC LIMIT :size OFFSET :start", nativeQuery = true)
     List<Notice> findNoticeListByKeywordAndState(
             @Param("keyword") String keyword,
             @Param("state") String state,
@@ -26,16 +26,16 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
             @Param("size") int size
     );
 
-    @Query(value = "SELECT COUNT(*) FROM NOTICE", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM notice", nativeQuery = true)
     int countAllNotices();
 
-    @Query(value = "SELECT COUNT(*) FROM NOTICE WHERE notice_name LIKE %:keyword%", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM notice WHERE notice_name LIKE %:keyword%", nativeQuery = true)
     int countNoticesByKeyword(@Param("keyword") String keyword);
 
-    @Query(value = "SELECT COUNT(*) FROM NOTICE WHERE state = :state", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM notice WHERE state = :state", nativeQuery = true)
     int countNoticesByState(@Param("state") String state);
 
-    @Query(value = "SELECT COUNT(*) FROM NOTICE WHERE notice_name LIKE %:keyword% AND state = :state", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM notice WHERE notice_name LIKE %:keyword% AND state = :state", nativeQuery = true)
     int countNoticesByKeywordAndState(
             @Param("keyword") String keyword,
             @Param("state") String state

@@ -2,6 +2,7 @@ package com.ict.serv.controller.auction;
 
 import com.ict.serv.controller.product.ProductPagingVO;
 import com.ict.serv.entity.auction.*;
+import com.ict.serv.entity.order.OrderPagingVO;
 import com.ict.serv.entity.product.*;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.AuctionService;
@@ -169,5 +170,15 @@ public class AuctionController {
         result.put("auction",auctionList);
         result.put("pvo",pvo);
         return result;
+    }
+    @GetMapping("/getBidList")
+    public Map getBidList(@AuthenticationPrincipal UserDetails userDetails, BidPagingVO pvo) {
+        pvo.setOnePageRecord(5);
+        User user = inter_service.selectUserByName(userDetails.getUsername());
+        pvo.setTotalRecord(service.totalAuctionBidCount(user, pvo));
+        Map map = new HashMap();
+        map.put("pvo", pvo);
+        map.put("bidList", service.searchAuctionBid(user,pvo));
+        return map;
     }
 }
