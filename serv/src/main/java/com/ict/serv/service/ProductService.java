@@ -138,4 +138,8 @@ public class ProductService {
     public List<Product> selectProductByUser(User user) { return repo.findAllBySellerNo(user);}
 
     public List<Product> getRAWList(){ return repo.findTop10PopularProductsByRating(); }
+
+    public List<Product> selectAllProduct() {
+        return repo.findAll();
+    }
 }

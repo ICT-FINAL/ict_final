@@ -26,6 +26,32 @@ public class RecommendController {
     private final InteractService interactService;
     private final ProductService productService;
 
+    @PostMapping("/getDefaultRecommend")
+    public Product getDefaultRecommend(@AuthenticationPrincipal UserDetails userDetails,
+                                       @RequestBody WishRecommendRequest productIdList) {
+        User user = interactService.selectUserByName(userDetails.getUsername());
+
+        List<Product> all_product_list = productService.selectAllProduct();
+
+        Collections.shuffle(all_product_list);
+
+        for (Product p : all_product_list) {
+            boolean isDuplicate = false;
+            for (Long id : productIdList.getProductIds()) {
+                if (p.getId().equals(id)) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+
+            if (!isDuplicate) {
+                return p;
+            }
+        }
+
+        throw new RuntimeException("추천 가능한 상품이 없습니다.");
+    }
+
     @PostMapping("/getWishRecommend")
     public Product getWishRecommend(@AuthenticationPrincipal UserDetails userDetails, @RequestBody WishRecommendRequest productIdList) {
         User user = interactService.selectUserByName(userDetails.getUsername());
