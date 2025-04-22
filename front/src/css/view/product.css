@@ -658,7 +658,8 @@
 
 .wishlist-icon,
 .cart-icon,
-.inquiry-icon {
+.inquiry-icon,
+.bell-icon {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -666,7 +667,8 @@
 
 .wishlist-icon span,
 .cart-icon span,
-.inquiry-icon span {
+.inquiry-icon span,
+.bell-icon span {
     font-size: 12px;
     margin-top: 5px;
     white-space: nowrap;

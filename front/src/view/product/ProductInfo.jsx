@@ -1,8 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { FaHeart, FaShoppingCart, FaTimes, FaRocketchat, FaStar } from "react-icons/fa";
+import { FaHeart, FaShoppingCart, FaBell, FaTimes, FaRocketchat, FaStar } from "react-icons/fa";
 import { setLoginView } from "../../store/loginSlice";
+import { setModal } from "../../store/modalSlice";
 
 import axios from "axios";
 import ProductReview from './ProductReview';
@@ -43,20 +44,20 @@ function ProductInfo() {
     const [averageStar, setAverageStar] = useState(null);
     useEffect(() => {
         axios.get(`${serverIP.ip}/review/averageStar?productId=${loc.state.product.id}`)
-        .then(res => {
-            console.log(res.data); 
-            setAverageStar(res.data.average);
-        })
-        .catch(err => console.log(err));
+            .then(res => {
+                console.log(res.data);
+                setAverageStar(res.data.average);
+            })
+            .catch(err => console.log(err));
     }, []);
 
     // 별점 UI 렌더링 함수
     const renderStars = (average) => {
         return (
-            <div style={{ display: 'flex', gap: '1px'}}>
+            <div style={{ display: 'flex', gap: '1px' }}>
                 {[1, 2, 3, 4, 5].map((star) => {
                     let fillPercent = 0;
-    
+
                     const diff = average - (star - 1);
                     if (diff >= 1) {
                         fillPercent = 100;
@@ -65,11 +66,11 @@ function ProductInfo() {
                     } else {
                         fillPercent = 0;
                     }
-    
+
                     return (
-                        <span key={star} style={{ position: 'relative', width: '20px', height: '20px', fontSize: '20px', display: 'inline-block'}}>
-                            <FaStar style={{ color: '#C0C0C0', position: 'absolute', top: 0, left: 0, fontSize: '20px',}}
-/>
+                        <span key={star} style={{ position: 'relative', width: '20px', height: '20px', fontSize: '20px', display: 'inline-block' }}>
+                            <FaStar style={{ color: '#C0C0C0', position: 'absolute', top: 0, left: 0, fontSize: '20px', }}
+                            />
                             <div
                                 style={{
                                     position: 'absolute',
@@ -88,7 +89,7 @@ function ProductInfo() {
             </div>
         );
     };
-    
+
     useEffect(() => {
         let newTotalPrice = 0;
         selectedItems.forEach(item => {
@@ -275,7 +276,6 @@ function ProductInfo() {
             };
             setSelectedItems([...selectedItems, newItem]);
         }
-
         setSelectedOptionId("");
         setSelectedSubOptionId("");
         setSubOptions([]);
@@ -306,22 +306,26 @@ function ProductInfo() {
         setSelectedItems(updatedItems);
     };
 
-
-    const inquiry = ()=>{
+    const inquiry = () => {
         axios.get(`${serverIP.ip}/chat/createChatRoom?productId=${loc.state.product.id}`, {
             headers: { Authorization: `Bearer ${user.token}` }
         })
-        .then(res=>{
-            console.log("roomId", res.data);
-            navigate(`/product/chat/${res.data}`)
-        })
+            .then(res => {
+                console.log("roomId", res.data);
+                navigate(`/product/chat/${res.data}`)
+            })
     }
+
+    const openMessage = (wh, name) => {
+        dispatch(setModal({ selected: wh, isOpen: true, selectedItem: name }));
+
+    };
 
     // changMenu 상태 추가 (상세정보, 리뷰 등등 탭에 들어갈 메뉴들)
     const [changeMenu, setChangeMenu] = useState("detail");
-    useEffect(()=>{
+    useEffect(() => {
         const savedMenu = localStorage.getItem("changeMenu");
-        if(savedMenu){
+        if (savedMenu) {
             setChangeMenu(savedMenu);
             localStorage.removeItem("changeMenu");
         }
@@ -331,7 +335,7 @@ function ProductInfo() {
         setChangeMenu(menuName);
         localStorage.setItem("changeMenu", menuName); // 현재 메뉴 저장
     };
-    
+
     return (
         <>
             <div style={{ paddingTop: "140px" }}>
@@ -413,23 +417,24 @@ function ProductInfo() {
                                     {loc.state.product.productName}
                                 </div>
                                 {user.user.id !== loc.state.product.sellerNo.id &&
-                                <div className='product-wish'>
-                                    {!isWish ? (
-                                        <div className="wishlist-icon" onClick={() => { addWish() }}>
-                                            <FaHeart />
-                                            <span>좋아요</span>
+                                    <div className='product-wish'>
+                                        {!isWish ? (
+                                            <div className="wishlist-icon" onClick={() => { addWish() }}>
+                                                <FaHeart />
+                                                <span>좋아요</span>
+                                            </div>
+                                        ) : (
+                                            <div className="wishlist-icon" onClick={() => { delWish() }} style={{ color: 'rgb(255, 70, 70)' }}>
+                                                <FaHeart />
+                                                <span>좋아요</span>
+                                            </div>
+                                        )}
+                                        <div className="inquiry-icon" onClick={() => { inquiry() }}>
+                                            <FaRocketchat />
+                                            <span>문의하기</span>
                                         </div>
-                                    ) : (
-                                        <div className="wishlist-icon" onClick={() => { delWish() }} style={{ color: 'rgb(255, 70, 70)' }}>
-                                            <FaHeart />
-                                            <span>좋아요</span>
-                                        </div>
-                                    )}
-                                    <div className="inquiry-icon" onClick={() => { inquiry() }}>
-                                        <FaRocketchat />
-                                        <span>문의하기</span>
-                                    </div>
-                                </div>}
+
+                                    </div>}
                             </li>
                             <li>
                                 <ul className='product-info-main-box'>
@@ -595,7 +600,7 @@ function ProductInfo() {
                                     <strong>총 금액:</strong> {formatNumberWithCommas(totalPrice)}원
                                 </div>
                             </li>
-                            <li style={{display:'flex', justifyContent: 'space-between'}}>
+                            <li style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <button className='product-basket-button' onClick={() => addBasket()}>
                                     장바구니
                                 </button>
@@ -626,10 +631,28 @@ function ProductInfo() {
                         {changeMenu === "detail" &&
                             <>
                                 {loc.state.product.detail ? (
-                                    <div dangerouslySetInnerHTML={{ __html: loc.state.product.detail }} style={{marginTop:'30px'}}/>
+                                    <div dangerouslySetInnerHTML={{ __html: loc.state.product.detail }} style={{ marginTop: '30px' }} />
                                 ) : (
                                     <p>등록된 상세 정보가 없습니다.</p>
                                 )}
+                                <div className="bell-icon" onClick={() => { openMessage('report', loc.state.product) }}
+                                    style={{
+                                        position: 'fixed',
+                                        right: '20px',
+                                        bottom: '20px',
+                                        zIndex: 100,
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        backgroundColor: 'white',
+                                        padding: '8px',
+                                        borderRadius: '5px',
+                                        border: '1px solid #ccc',
+                                    }}
+                                >
+                                    <FaBell />
+                                    <span>상품신고</span>
+                                </div>
                             </>
                         }
 

@@ -40,7 +40,6 @@ public class OrderController {
         orderService.saveOrderGroup(orderGroup); // 변경 감지로 orders까지 반영
     }
 
-
     @PostMapping("/setOrder")
     public OrderGroup setOrder(@AuthenticationPrincipal UserDetails userDetails, @RequestBody OrderRequest or) {
         User user = interactService.selectUserByName(userDetails.getUsername());
@@ -123,8 +122,6 @@ public class OrderController {
 
         return orderService.saveOrderGroup(orderGroup);
     }
-
-
 
     @GetMapping("/orderList")
     public Map orderList(@AuthenticationPrincipal UserDetails userDetails, OrderPagingVO pvo) {

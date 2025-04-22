@@ -8,6 +8,7 @@ import com.ict.serv.entity.message.Message;
 import com.ict.serv.entity.report.Report;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.*;
+import com.ict.serv.repository.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
