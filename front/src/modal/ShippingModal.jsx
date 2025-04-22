@@ -161,8 +161,14 @@ function ShippingModal() {
   
         <div id={`${modal_name.current}`} style={modalStyle}>
           <div style={exitStyle} onClick={modalClose}>X</div>
-          송장번호: <input type='text' onChange={(e)=> setInvoice(e.target.value)} value={invoice}/><br/>
-          <button onClick={doShipping}>배송 처리</button>
+          <div style={{ marginTop:'190px' }}>
+            <h1>배송 등록</h1>
+          송장번호: <input style={{height:'30px'}} type='text' onChange={(e)=> setInvoice(e.target.value)} value={invoice}/><br/>
+          <button style={{marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'
+              ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#8CC7A5'
+          }} onClick={doShipping}>배송 처리</button><br/><br/>
+          <span>※반드시 정확한 송장 번호를 입력해주세요※</span>
+          </div>
         </div>
       </>
     );

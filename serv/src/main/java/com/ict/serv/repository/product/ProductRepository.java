@@ -157,5 +157,42 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             PageRequest pageRequest
     );
 
+    @Query(value = "SELECT p.*, COUNT(o.PRODUCT_ID) AS order_count " +
+            "FROM product p " +
+            "LEFT JOIN orders o ON p.PRODUCT_ID = o.PRODUCT_ID " +
+            "WHERE p.product_name LIKE %:keyword% " +
+            "AND p.event_category LIKE %:eventCategory% " +
+            "AND p.target_category LIKE %:targetCategory% " +
+            "AND p.quantity > 0 " +
+            "GROUP BY p.PRODUCT_ID " +
+            "ORDER BY order_count DESC",
+            nativeQuery = true)
+    List<Product> findProductsNoCategoryOrderByOrderCount(
+            @Param("keyword") String keyword,
+            @Param("eventCategory") String eventCategory,
+            @Param("targetCategory") String targetCategory,
+            PageRequest of
+    );
+
+    @Query(value = "SELECT p.*, COUNT(o.PRODUCT_ID) AS order_count " +
+            "FROM product p " +
+            "LEFT JOIN orders o ON p.PRODUCT_ID = o.PRODUCT_ID " +
+            "WHERE p.product_name LIKE %:keyword% " +
+            "AND p.event_category LIKE %:eventCategory% " +
+            "AND p.target_category LIKE %:targetCategory% " +
+            "AND p.product_category IN (:productCategories) " +
+            "AND p.quantity > 0 " +
+            "GROUP BY p.PRODUCT_ID " +
+            "ORDER BY order_count DESC",
+            nativeQuery = true)
+    List<Product> findProductsAllCategoryOrderByOrderCount(
+            @Param("keyword") String keyword,
+            @Param("eventCategory") String eventCategory,
+            @Param("targetCategory") String targetCategory,
+            @Param("productCategories") List<String> productCategories,
+            PageRequest of
+    );
+
+
     // List<Product> findAllByProductNameContaining(String searchWord, PageRequest of);
 }

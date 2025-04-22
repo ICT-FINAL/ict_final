@@ -61,7 +61,6 @@ function Header() {
         if (user) {
             getRecentSearch();
             const gp = user.user.gradePoint;
-            console.log(gp);
             if(gp<1000) setGrades(0);
             else if(gp<2000) setGrades(1);
             else if(gp<3000) setGrades(2);
@@ -70,7 +69,6 @@ function Header() {
 
         const fetchKeywords = async () => {
             const res = await axios.get(`${serverIP.ip}/log/searchRank?hours=24&topN=10`);
-            console.log(res.data);
             setHotSearch(res.data);
         };
     
@@ -146,7 +144,6 @@ function Header() {
             headers: { Authorization: `Bearer ${user.token}` }
         })
         .then(res=>{
-            console.log(res.data);
             setRecentSearchList(res.data);
         })
         .catch(err=>console.log(err));
