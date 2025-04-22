@@ -64,8 +64,8 @@ function HotProduct() {
     return (
         <>
             <div className="search-page-banner">
-            <h1>🏆 인기 카테고리 TOP 확인하기!</h1>
-            <p>🛍️ 지금 사람들이 많이 고른 핸드메이드 아이템은?</p>
+                <h1>🏆 인기 카테고리 TOP 확인하기!</h1>
+                <p>🛍️ 지금 사람들이 많이 고른 핸드메이드 아이템은?</p>
             </div>
             <ul className='hot-category-list'>
                 {categoryList.map((item, index) => (

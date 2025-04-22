@@ -227,4 +227,12 @@ public class AuctionService {
     public AuctionBid updateBid(AuctionBid bid) {
         return bidRepository.save(bid);
     }
+
+    public List<AuctionRoom> getHotAuctionRooms() {
+        return auctionRepository.findTop10ByOrderByHitDesc();
+    }
+
+    public List<AuctionRoom> getClosingAuctionRooms() {
+        return auctionRepository.findTop10ByOrderByEndTime();
+    }
 }

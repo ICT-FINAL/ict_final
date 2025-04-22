@@ -148,6 +148,18 @@ public class AuctionController {
         return ResponseEntity.ok(service.getAuctionRoom(roomId).get());
     }
 
+    @GetMapping("/getAuctionMap")
+    public Map<String, List<AuctionRoom>> getAuctionMap() {
+        List<AuctionRoom> hotRooms = service.getHotAuctionRooms();
+        List<AuctionRoom> closingRooms = service.getClosingAuctionRooms();
+
+        Map<String, List<AuctionRoom>> result = new HashMap<>();
+        result.put("hotRooms", hotRooms);
+        result.put("closingRooms", closingRooms);
+
+        return result;
+    }
+
     @GetMapping("/search")
     public Map<String, Object> searchProducts(ProductPagingVO pvo) {
         pvo.setOnePageRecord(10);
