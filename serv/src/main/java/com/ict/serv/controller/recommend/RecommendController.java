@@ -27,40 +27,29 @@ public class RecommendController {
     private final ProductService productService;
 
     @PostMapping("/getDefaultRecommend")
-    public Product getDefaultRecommend(@AuthenticationPrincipal UserDetails userDetails, @RequestBody WishRecommendRequest productIdList) {
+    public Product getDefaultRecommend(@AuthenticationPrincipal UserDetails userDetails,
+                                       @RequestBody WishRecommendRequest productIdList) {
         User user = interactService.selectUserByName(userDetails.getUsername());
 
-        List<Wishlist> wish_list = recommendService.getWishListByUser(user);
+        List<Product> all_product_list = productService.selectAllProduct();
 
-        int count = 0;
-        boolean isDuplicate = false;
-        Product product = null;
+        Collections.shuffle(all_product_list);
 
-        List<Integer> indices = new ArrayList<>();
-        for (int i = 0; i < wish_list.size(); i++) {
-            indices.add(i);
-        }
-        Collections.shuffle(indices);
-
-        for (int index : indices) {
-            Wishlist wish = wish_list.get(index);
-
-            isDuplicate = false;
-            for (Long productId : productIdList.getProductIds()) {
-                if (productId.equals(wish.getProduct().getId())) {
+        for (Product p : all_product_list) {
+            boolean isDuplicate = false;
+            for (Long id : productIdList.getProductIds()) {
+                if (p.getId().equals(id)) {
                     isDuplicate = true;
                     break;
                 }
             }
 
             if (!isDuplicate) {
-                product = productService.selectProduct(wish.getProduct().getId()).get();
-                break;
+                return p;
             }
         }
 
-        System.out.println(productIdList);
-        return product;
+        throw new RuntimeException("추천 가능한 상품이 없습니다.");
     }
 
     @PostMapping("/getWishRecommend")
