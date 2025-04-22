@@ -69,7 +69,7 @@
     align-items: center;
     justify-content: center;
 }
-.hot-slide-btn {
+.hot-slide-btn, .auction-slide-btn {
     font-size: 24px;
     padding: 12px;
     background-color: #8CC7A5;
@@ -92,6 +92,26 @@
 
 .hot-slide-btn:focus {
     outline: none;
+}
+
+.auction-slide-btn-wrapper {
+    position: absolute;
+    top: 185px;
+    right: -15px;
+    z-index: 100;
+
+}
+#auction-rank {
+    position: absolute;
+    top: -26px;
+    left: -16px;
+    width: 15px;
+    height: 15px;
+    padding: 10px;
+    font-size: 18pt;
+    font-weight: 500;
+    color: #333;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .hot-product-cards-wrapper {
