@@ -194,7 +194,7 @@ function Header() {
                             </div>
                         </>
                     ) : (
-                        <div style={{color:'white', justifyContent:'center'}} className="menu-icon" onClick={() => dispatch(setLoginView(true))}><div style={{width:'100%',textAlign:'center', paddingRight:'20px'}}>로그인</div></div>
+                        <div style={{color:'white', justifyContent:'center'}} className="menu-icon" onClick={() => dispatch(setLoginView(true))}><div style={{width:'70%',textAlign:'right', paddingRight:'20px'}}>로그인</div></div>
                     )}
                     <div className='header-hot-box' onMouseEnter={() => setHotSearchOpen(true)}
                                 onMouseLeave={() => setHotSearchOpen(false)}>
