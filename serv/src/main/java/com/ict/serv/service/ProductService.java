@@ -90,6 +90,24 @@ public class ProductService {
                     return repo.findProductsAllCategoryOrderByReviewCount(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), categories, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord()));
                 }
             }
+            case "주문 많은 순" -> {
+                if (categories.isEmpty() || categories.get(0).isEmpty()) {
+                    return repo.findProductsNoCategoryOrderByOrderCount(
+                            pvo.getSearchWord(),
+                            pvo.getEventCategory(),
+                            pvo.getTargetCategory(),
+                            PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord())
+                    );
+                } else {
+                    return repo.findProductsAllCategoryOrderByOrderCount(
+                            pvo.getSearchWord(),
+                            pvo.getEventCategory(),
+                            pvo.getTargetCategory(),
+                            categories,
+                            PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord())
+                    );
+                }
+            }
         }
         if(categories.isEmpty() || categories.get(0).isEmpty()) {
             return repo.findProductsNoCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord()));

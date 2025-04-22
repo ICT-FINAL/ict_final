@@ -1003,3 +1003,12 @@
     background-color: #edfcf3;
     cursor: pointer;
 }
+
+
+/* 배송 모달 */
+#shipping-modal{
+    border-radius: 10px;
+    text-align: center;
+}
+
+/* 배송모달 끝 */

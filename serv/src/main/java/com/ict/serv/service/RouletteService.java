@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -70,11 +71,14 @@ public class RouletteService {
         User user = getUserByUserId(userId);
         if (user == null) return false;
 
-        UserPoint userPoint = userPointRepository.findByUserId(user.getId()).orElse(null);
-        if (userPoint == null) return true;
+        List<UserPoint> userPointList = userPointRepository.findByUserId(user.getId());
+        if (userPointList.isEmpty()) return true;
 
-        LocalDate lastSpinDate = userPoint.getLastSpinDate();
-        return lastSpinDate == null || !lastSpinDate.equals(LocalDate.now());
+        for(UserPoint userPoint : userPointList) {
+            LocalDate lastSpinDate = userPoint.getLastSpinDate();
+            if(lastSpinDate.equals(LocalDate.now())) return false;
+        }
+        return true;
     }
 
     // 룰렛을 돌리고 포인트를 추가하는 메서드
@@ -87,8 +91,7 @@ public class RouletteService {
         if (user == null) throw new RuntimeException("User not found for userId: " + userId);
 
         // 사용자의 포인트 정보가 없다면 새로 생성
-        UserPoint userPoint = userPointRepository.findByUserId(user.getId())
-                .orElseGet(() -> new UserPoint(user.getId(), 0, null, PointType.ROULETTE));
+        UserPoint userPoint = new UserPoint(user.getId(), 0, null, PointType.ROULETTE);
 
         // 오늘 이미 룰렛을 돌렸다면 예외 발생
         if (userPoint.getLastSpinDate() != null && userPoint.getLastSpinDate().equals(LocalDate.now())) {

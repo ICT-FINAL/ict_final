@@ -39,7 +39,7 @@ public class ShippingService {
         order.setShippingState(ShippingState.ONGOING);
         orderRepository.save(order);
 
-        LocalDateTime time = LocalDateTime.now().plusMinutes(1);
+        LocalDateTime time = LocalDateTime.now().plusMinutes(120);
         Date date = Date.from(time.atZone(ZoneId.systemDefault()).toInstant());
 
         taskScheduler.schedule(() -> finishShipping(shipping.getId(), order.getId()), date);
@@ -50,13 +50,18 @@ public class ShippingService {
                 .orElseThrow(() -> new RuntimeException("Shipping not found"));
         Orders order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
+        if(shipping.getState() == ShippingState.ONGOING) {
+            shipping.setState(ShippingState.FINISH);
+            shipping.setEnd_time(LocalDateTime.now());
 
-        shipping.setState(ShippingState.FINISH);
-        shipping.setEnd_time(LocalDateTime.now());
+            order.setShippingState(ShippingState.FINISH);
 
-        order.setShippingState(ShippingState.FINISH);
-
+            shippingRepository.save(shipping);
+            orderRepository.save(order);
+        }
+    }
+    public void saveOrderAndShipping(Shipping shipping, Orders orders) {
         shippingRepository.save(shipping);
-        orderRepository.save(order);
+        orderRepository.save(orders);
     }
 }

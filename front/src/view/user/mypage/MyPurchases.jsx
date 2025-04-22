@@ -19,6 +19,7 @@ function MyPurchases() {
     const [totalRecord, setTotalRecord] = useState(1);
 
     const [searchOption, setSearchOption] = useState('');
+    const [shippingOption, setShippingOption] = useState('');
 
     const moveInfo = (prodId) => {
         if(user)
@@ -37,11 +38,11 @@ function MyPurchases() {
 
     useEffect(() => {
         getBoardList();
-    }, [loc, searchOption]);
+    }, [loc, searchOption, shippingOption]);
 
     const getBoardList = () => {
         if (user)
-            axios.get(`${serverIP.ip}/order/orderList?nowPage=${nowPage}&state=${searchOption}`, {
+            axios.get(`${serverIP.ip}/order/orderList?nowPage=${nowPage}&state=${searchOption}&shippingState=${shippingOption}`, {
                 headers: { Authorization: `Bearer ${user.token}` }
             })
                 .then(res => {
@@ -86,7 +87,7 @@ function MyPurchases() {
 
     return (
         <div className="report-box">
-            <select onChange={(e) => setSearchOption(e.target.value)} style={{ width: '120px', borderRadius: '10px', padding: '5px 10px', border: '1px solid #ddd' }}>
+            <select onChange={(e) => setSearchOption(e.target.value)} style={{ width: '120px', borderRadius: '10px', padding: '5px 10px', border: '1px solid #ddd'}}>
                 <option value="">전체</option>
                 <option value="PAID">결제 완료</option>
                 <option value="CANCELED">결제 취소</option>
