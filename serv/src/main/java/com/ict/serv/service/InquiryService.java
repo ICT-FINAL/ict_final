@@ -149,7 +149,6 @@ public class InquiryService {
             throw new EntityNotFoundException("응답자 정보를 찾을 수 없습니다: " + responseUsername);
         }
 
-
         Inquiry inquiry = inquiryRepository.findById(inquiryId)
                 .orElseThrow(() -> new EntityNotFoundException("답변 대상 문의를 찾을 수 없습니다: ID " + inquiryId));
 

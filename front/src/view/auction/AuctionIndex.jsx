@@ -294,13 +294,13 @@ function AuctionIndex() {
 
             {[
                 {
-                    title: '🔥인기 Top10🔥',
+                    title: '🔥인기 Top50🔥',
                     list: hotAuctionList,
                     visible: visibleSections.hotAuction,
                     slideIndex: 1,
                 },
                 {
-                    title: '🚨마감 임박 Top10🚨',
+                    title: '🚨마감 임박 Top50🚨',
                     list: closingAuctionList,
                     visible: visibleSections.closingAuction,
                     slideIndex: 2,

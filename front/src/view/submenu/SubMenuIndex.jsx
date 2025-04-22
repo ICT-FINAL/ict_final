@@ -123,7 +123,7 @@ function SubMenuIndex() {
                     완료된 서브메뉴
                 </button>
                 {user && user.user.authority === "ROLE_ADMIN" && (
-                    <button onClick={() => navigate("/submenu/write")}>서브메뉴만들기</button>
+                    <button onClick={() => navigate("/submenu/write")}>서브메뉴 만들기</button>
                 )}
             </div>
             <div className="event-list">
@@ -132,7 +132,7 @@ function SubMenuIndex() {
                     {visibleList.length > 0 ? (
                         visibleList.map((submenu) => (
                             <div onClick={() => moveSubMenu(submenu)} key={submenu.id} style={{ width: 'calc(22%)' }}>
-                                <img style={{width: '100%'}} src={submenu.src} alt={submenu.subMenuName} />
+                                <img style={{ width: '100%' }} src={submenu.src} alt={submenu.subMenuName} />
                                 <div>{submenu.subMenuName}</div>
                                 <div>📅 {submenu.startDate.substring(0, 10)} ~ 📅 {submenu.endDate.substring(0, 10)}</div>
                                 <div></div>

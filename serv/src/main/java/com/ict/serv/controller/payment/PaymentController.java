@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +81,7 @@ public class PaymentController {
             if(couponId!=0) {
                 Coupon coupon = couponService.selectCoupon(couponId).get();
                 coupon.setState(CouponState.EXPIRED);
+                coupon.setUseDate(LocalDateTime.now());
                 couponService.saveCoupon(coupon);
             }
             return ResponseEntity.ok(response.getBody());

@@ -1,5 +1,8 @@
 package com.ict.serv.service;
 
+import com.ict.serv.entity.coupon.Coupon;
+import com.ict.serv.entity.coupon.CouponPagingVO;
+import com.ict.serv.entity.coupon.CouponState;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.user.Follow;
 import com.ict.serv.entity.wish.WishPagingVO;
@@ -8,6 +11,7 @@ import com.ict.serv.entity.message.Message;
 import com.ict.serv.entity.report.Report;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.*;
+import com.ict.serv.repository.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -24,6 +28,7 @@ public class InteractService {
     private final ReportRepository report_repo;
     private final WishRepository wish_repo;
     private final FollowRepository follow_repo;
+    private final CouponRepository coupon_repo;
 
     public User selectUser(Long id) {
         return user_repo.findUserById(id);
@@ -70,6 +75,16 @@ public class InteractService {
     }
     public List<Wishlist> getAllWishList(WishPagingVO pvo, User user){
         return wish_repo.findAllByUserOrderByIdDesc(user, PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+    }
+
+    public int couponTotalRecord(CouponPagingVO pvo, User user){
+        if(pvo.getState() == null) return coupon_repo.countIdByUser(user);
+        return coupon_repo.countIdByUserAndState(user, pvo.getState());
+    }
+
+    public List<Coupon> getAllCouponList(CouponPagingVO pvo, User user){
+        if(pvo.getState() == null) return coupon_repo.findAllByUserOrderByIdDesc(user);
+        return coupon_repo.findAllByUserAndStateOrderByIdDesc(user, pvo.getState());
     }
 
     public Follow selectFollow(Long from, Long to) {

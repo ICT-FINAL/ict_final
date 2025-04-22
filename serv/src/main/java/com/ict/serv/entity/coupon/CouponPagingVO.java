@@ -1,7 +1,5 @@
-package com.ict.serv.controller.admin;
+package com.ict.serv.entity.coupon;
 
-import com.ict.serv.entity.report.ReportSort;
-import com.ict.serv.entity.report.ReportState;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,13 +7,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PagingVO {
+public class CouponPagingVO {
     private String searchWord;
-    private String category;
 
-    private ReportSort sort;
+    private String sort;
 
-    private ReportState state;
+    private CouponState state;
 
     private int nowPage = 1;
     private int onePageRecord = 5;

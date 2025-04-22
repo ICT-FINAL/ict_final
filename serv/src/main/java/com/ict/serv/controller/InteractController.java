@@ -2,7 +2,9 @@ package com.ict.serv.controller;
 
 import com.ict.serv.dto.UserResponseDto;
 import com.ict.serv.entity.coupon.Coupon;
+import com.ict.serv.entity.coupon.CouponPagingVO;
 import com.ict.serv.entity.coupon.CouponState;
+import com.ict.serv.entity.report.ReportSort;
 import com.ict.serv.entity.report.ReportState;
 import com.ict.serv.entity.user.Follow;
 import com.ict.serv.entity.wish.WishPagingVO;
@@ -92,9 +94,11 @@ public class InteractController {
         return "ok";
     }
     @GetMapping("/sendReport")
-    public String sendReport(@AuthenticationPrincipal UserDetails userDetails, Long toId, String reportType, String comment) {
+    public String sendReport(@AuthenticationPrincipal UserDetails userDetails, Long toId, String reportType, String comment, ReportSort sort, Long sortId ) {
         Report report = new Report();
         report.setComment(comment);
+        report.setSort(sort);
+        report.setSortId(sortId);
         report.setReportUser(service.selectUser(toId));
         report.setUserFrom(service.selectUserByName(userDetails.getUsername()));
         report.setReportType(reportType);
@@ -141,6 +145,7 @@ public class InteractController {
         service.deleteWish(service.selectWish(userId,productId));
         return "ok";
     }
+
     @GetMapping("/getWishList")
     public Map getWishList(@AuthenticationPrincipal UserDetails userDetails, WishPagingVO pvo) {
         User user = service.selectUserByName(userDetails.getUsername());
@@ -149,6 +154,17 @@ public class InteractController {
         Map map = new HashMap();
         map.put("pvo",pvo);
         map.put("wishList", service.getAllWishList(pvo,user));
+        return map;
+    }
+
+    @GetMapping("/getAllCouponList")
+    public Map getAllCouponList(@AuthenticationPrincipal UserDetails userDetails, CouponPagingVO pvo) {
+        User user = service.selectUserByName(userDetails.getUsername());
+        pvo.setOnePageRecord(5);
+        pvo.setTotalRecord(service.couponTotalRecord(pvo,user));
+        Map map = new HashMap();
+        map.put("pvo",pvo);
+        map.put("couponList", service.getAllCouponList(pvo,user));
         return map;
     }
 

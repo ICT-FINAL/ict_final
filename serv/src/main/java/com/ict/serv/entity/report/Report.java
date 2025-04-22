@@ -33,6 +33,13 @@ public class Report {
     @Column(name = "report_type")
     private String reportType;
 
+    @Column(name="sort")
+    @Enumerated(EnumType.STRING)
+    private ReportSort sort;
+
+    @Column(name="sort_id")
+    private Long sortId;
+
     private String comment;
 
     @CreationTimestamp
@@ -42,7 +49,6 @@ public class Report {
     @Column(columnDefinition = "DATETIME")
     private String endDate;
 
-    // 컬럼추가
     @Column(name = "report_text", length = 500)
     private String reportText;
 
