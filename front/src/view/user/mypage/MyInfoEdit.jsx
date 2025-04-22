@@ -2,13 +2,16 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setModal } from "../../../store/modalSlice";
+import { clearUser } from "../../../store/authSlice";
 
 import axios from "axios";
+import MyPwdEdit from "./MyPwdEdit";
 
 function MyInfoEdit() {
     // start : 개인정보 수정
     const getUser = useSelector((state) => state.auth.user);
     const [userInfo, setUserInfo] = useState({});
+    const [currentPage, setCurrentPage] = useState('infoEditPage');
     // end : 개인정보 수정
 
     const loc = useLocation();
@@ -17,8 +20,17 @@ function MyInfoEdit() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const handleComplete = () => {
+    const uuser = useSelector((state) => state.auth.user);
+
+    const handleComplete = (e) => {
+        e.preventDefault();
         dispatch(setModal({isOpen: !modal.isOpen, selected: "DaumPost"}));
+    }
+
+    function handleLogout() {
+        localStorage.removeItem("token");
+        dispatch(clearUser());
+        window.location.href = '/';
     }
 
     const [alert, setAlert] = useState({
@@ -29,6 +41,7 @@ function MyInfoEdit() {
         tel: {content: "", state: false},
         address: {content: "", state: false}
     });
+    
     const [user, setUser] = useState({
     });
 
@@ -39,20 +52,9 @@ function MyInfoEdit() {
     }, [modal.info?.address]);
 
     const validationRules = {
-        userid: {
-            regex: /^[a-z0-9]{6,12}$/,
-            message: "아이디는 6자 이상 12자 이하의 영어 소문자, 숫자만 가능합니다."
-        },
         username: {
             regex: /^[A-Za-z가-힣]{2,7}$/,
             message: "이름은 2자 이상 7자 이하의 한글 또는 영어 대소문자만 가능합니다."
-        },
-        userpw: {
-            regex: /^[A-Za-z0-9`~!@#$%^&*?]{8,14}$/,
-            message: "비밀번호는 8자 이상 14자 이하의 영어, 숫자, 특수문자만 가능합니다."
-        },
-        userpwCheck: {
-            message: "비밀번호가 일치하지 않습니다."
         },
         tel: {
             regex: /^(010|011|016|017|018|019)-\d{3,4}-\d{4}$/,
@@ -64,8 +66,6 @@ function MyInfoEdit() {
     }
 
     const changeUser = (e) => {
-        // console.log(loc.state)
-        // console.log(user);
         const { name, value } = e.target;
         setUser({...user, [name]: value}); // 입력하는 데이터값 저장
         setUserInfo({...user, [name]: value}); // 기존 회원정보 데이터값 저장
@@ -151,21 +151,16 @@ function MyInfoEdit() {
     }
 
     const validateForm = () => {
+        if(user.username==userInfo.username && modal.info.address === undefined){
+            window.alert("변경사항이 없습니다.");
+            return false;
+        }
+
         let isValid = true;
-    
-        telCheck();
+
         for (const key of Object.keys(validationRules)) {
-            if (key === "userpwCheck") {
-                const isMatch = user.userpw === user.userpwCheck;
-                if (!isMatch) {
-                    setAlert(prev => ({ 
-                        ...prev, 
-                        [key]: { content: validationRules[key].message, state: false } 
-                    }));
-                    return false;  // 첫 번째 오류에서 종료
-                }
-            } else if (key === "address") {
-                const hasAddress = modal.info && modal.info.address;
+            if (key === "address") {
+                const hasAddress = user.address !== "";
                 if (!hasAddress) {
                     setAlert(prev => ({ 
                         ...prev, 
@@ -185,48 +180,38 @@ function MyInfoEdit() {
                 }
             }
         }
-    
         return isValid;
     };
 
-    const doSignUp = () => {
-        if (!validateForm()) {
-            return;
-        }
+    const doSignUp = (event) => {
+        event.preventDefault(); // 폼이 제출될 때 페이지 리로드를 막음
 
-        if (!telNumCheck) {
-            window.alert("사용 할 수 없는 번호입니다.");
+        if (!validateForm()) {
             return;
         }
         
         const formData = new FormData();
-        formData.append("userid", user.userid);
         formData.append("username", user.username);
-        formData.append("email", user.email);
-        formData.append("userpw", user.userpw);
-        formData.append("tel", user.tel);
         if (modal.info && modal.info.address) formData.append("address", modal.info.address);
         formData.append("addressDetail", user.addressDetail);
         if (modal.info && modal.info.zonecode) formData.append("zipcode", modal.info.zonecode);
     
+        /*
         if (user.uploadedProfile) {
             formData.append("profileImage", user.uploadedProfile);
         } else {
             formData.append("kakaoProfileUrl", user.kakaoProfileUrl);
-        }
-    
-        if (Object.values(alert).every(item => item.state)) {
-            axios.post(`${serverIP.ip}/signup/doSignUp`, formData, {
-                headers: { "Content-Type": "multipart/form-data" }
+        }*/
+
+        if(uuser)        
+            axios.post(`${serverIP.ip}/mypage/editInfo`,user, {
+                headers: {Authorization:`Bearer ${uuser.token}`}
             })
             .then(res => {
-                window.alert(res.data);
-                navigate('/');
+                window.alert("정상적으로 수정이 완료되었습니다. \n 다시 로그인해주세요.");
+                handleLogout();
             })
-            .catch(err => console.log(err));
-        } else {
-            console.log("실패");
-        }
+            .catch(err=> console.log(err))
     };
 
     const modalBackStyle = {    //모달 배경
@@ -245,10 +230,8 @@ function MyInfoEdit() {
     const [telNumCheck, setTelNumCheck] = useState(false);
 
     const telCheck = ()=>{
-        console.log("telcheck");
         axios.get(`${serverIP.ip}/signup/telCheck?tel=${user.tel}`)
         .then(res=>{
-            console.log(res.data);
             if (res.data === 0) {
                 setTelNumCheck(true);
             }
@@ -266,7 +249,6 @@ function MyInfoEdit() {
                 headers: { Authorization: `Bearer ${getUser.token}` }
             })
             .then((res) => {
-                console.log(res.data);
                 const tel = res.data.tel || '';
                 const [tel1, tel2, tel3] = tel.split('-');
                 setUser({ 
@@ -275,7 +257,12 @@ function MyInfoEdit() {
                     tel2: tel2 || '',
                     tel3: tel3 || ''
                 });
-                setUserInfo(res.data); // 서버에서 받아온 정보 저장
+                setUserInfo({ 
+                    ...res.data,
+                    tel1: tel1 || '',
+                    tel2: tel2 || '',
+                    tel3: tel3 || ''
+                });
             })
             .catch((err) => {
                 console.log(err);
@@ -283,55 +270,55 @@ function MyInfoEdit() {
         }
     }, [getUser, serverIP.ip]);
 
-
     return (
+        
         <>
-        <div id="modal-background" style={modalBackStyle}></div>
-            <div className="sign-up-form">
-                <label>아이디</label>
-                <input type="text" name="userid" onChange={changeUser} value={userInfo.userid} readOnly/>
+        { currentPage === "infoEditPage" &&
+            <>
+                <div id="modal-background" style={modalBackStyle}></div>
+                <form className="sign-up-form" onSubmit={doSignUp}>
+                    <label>아이디</label>
+                    <input type="text" name="userid" value={userInfo.userid || ''} style={{width:'calc(65%)', backgroundColor:'#ddd'}} disabled/>
 
-                <label>이름</label>
-                <input type="text" name="username" value={user.username} onChange={changeUser}/><br/>
-                {alert.username.content && <><span className="form-alert">{alert.username.content}</span><br/></>}
+                    <label>이름</label>
+                    <input type="text" name="username" value={userInfo.username || ''} onChange={changeUser}/><br/>
+                    {alert.username.content && <><span className="form-alert">{alert.username.content}</span><br/></>}
 
-                <label>이메일</label>
-                <input type="text" name="email" disabled value={user.email} onChange={changeUser}/><br/>
+                    <label>이메일</label>
+                    <input type="text" name="email" value={userInfo.email || ''} style={{width:'calc(65%)', backgroundColor:'#ddd'}} autoComplete="useremail" readOnly/><br/>
 
-                <label>비밀번호</label>
-                <input type='password' id="pw1" name="userpw" onChange={changeUser}/><br/>
-                {alert.userpw.content && <><span className="form-alert">{alert.userpw.content}</span><br/></>}
+                    <label>휴대폰 번호</label>
+                    <input type="text" name="tel1" className="tel" maxLength="3" value={userInfo.tel1 || ''} onChange={changeUser}/>-
+                    <input type="text" name="tel2" className="tel" maxLength="4" value={userInfo.tel2 || ''} onChange={changeUser}/>-
+                    <input type="text" name="tel3" className="tel" maxLength="4" value={userInfo.tel3 || ''} onChange={changeUser}/><br/>
+                    {alert.tel.content && <><span className="form-alert">{alert.tel.content}</span><br/></>}
+
+                    <label>우편번호</label>
+                    <input type="text" style={{width: '110px'}} name="zipcode" value={modal.info && modal.info.zonecode ? modal.info.zonecode : (userInfo.zipcode || '')} disabled/>
+                    <button id="postcode" onClick={handleComplete}>주소찾기</button><br/>
+
+                    <label>주소</label>
+                    <input type="text" name="address" readOnly value={modal.info && modal.info.address ? modal.info.address : userInfo.address || ''}/><br/>
+                    {alert.address.content && <><span className="form-alert">{alert.address.content}</span><br/></>}
+                    
+                    <label>상세주소</label>
+                    <input type='text' name="addressDetail" value={userInfo.addressDetail || ''} onChange={changeUser}/><br/>
+
+                    <label>프로필 사진 {userInfo.uploadedProfilePreview}</label>
+                    <img id="profile-img" src={userInfo.kakaoProfileUrl ? `${userInfo.kakaoProfileUrl}` : `${serverIP.ip}${userInfo.uploadedProfileUrl}`} alt="프로필 이미지" referrerPolicy="no-referrer" />
                 
-                <label>비밀번호 확인</label>
-                <input type='password' id="pw2" name="userpwCheck" onChange={changeUser}/><br/>
-                {alert.userpwCheck.content && <><span className="form-alert">{alert.userpwCheck.content}</span><br/></>}
+                    <input type="file" id="profile-image-file" style={{display: "none"}} accept="image/*" onChange={handleImageChange} /><br/>
+                    <label htmlFor="profile-image-file" id="profile-image-btn">사진첨부</label>
 
-                <label>휴대폰 번호</label>
-                <input type="text" name="tel1" className="tel" maxLength="3" value={user.tel1} onChange={changeUser}/>-
-                <input type="text" name="tel2" className="tel" maxLength="4" value={user.tel2} onChange={changeUser}/>-
-                <input type="text" name="tel3" className="tel" maxLength="4" value={user.tel3} onChange={changeUser}/><br/>
-                {alert.tel.content && <><span className="form-alert">{alert.tel.content}</span><br/></>}
+                    <button type="submit" id="signup-btn">수정</button>
+                </form>
+                <div style={{textAlign:'right', fontSize:'12px'}} onClick={()=>setCurrentPage("pwdPage")} >비밀번호 재설정</div>
+            </>
+        }
 
-                <label>우편번호</label>
-                <input type="text" style={{width: '110px'}} name="zipcode" value={modal.info && modal.info.zonecode ? modal.info.zonecode : (userInfo.zipcode || '')} disabled/>
-                <button id="postcode" onClick={handleComplete}>주소찾기</button><br/>
-
-                <label>주소</label>
-                <input type="text" name="address" readOnly value={modal.info && modal.info.address ? modal.info.address : userInfo.address}/><br/>
-                {alert.address.content && <><span className="form-alert">{alert.address.content}</span><br/></>}
-                
-                <label>상세주소</label>
-                <input type='text' name="addressDetail" value={userInfo.addressDetail} onChange={changeUser}/><br/>
-
-                <label>프로필 사진 {userInfo.uploadedProfilePreview}</label>
-                <img id="profile-img" src={userInfo.kakaoProfileUrl ? `${userInfo.kakaoProfileUrl}` : `${serverIP.ip}${userInfo.uploadedProfileUrl}`} alt="프로필 이미지" referrerPolicy="no-referrer" />
-            
-                <input type="file" id="profile-image-file" style={{display: "none"}} accept="image/*" onChange={handleImageChange} /><br/>
-                <label htmlFor="profile-image-file" id="profile-image-btn">사진첨부</label>
-            </div>
-
-            <button id="signup-btn" onClick={()=>doSignUp()}>회원가입</button>
+        {currentPage === "pwdPage" && <MyPwdEdit/>}
         </>
+        
     );
 }
 
