@@ -234,11 +234,11 @@ public class AuctionService {
     }
 
     public List<AuctionRoom> getHotAuctionRooms() {
-        return auctionRepository.findTop50ByOrderByHitDesc();
+        return auctionRepository.findTop50ByStateOrderByHitDesc(AuctionState.OPEN);
     }
 
     public List<AuctionRoom> getClosingAuctionRooms() {
-        return auctionRepository.findTop50ByOrderByEndTime();
+        return auctionRepository.findTop50ByStateOrderByEndTime(AuctionState.OPEN);
     }
 
     @Transactional
