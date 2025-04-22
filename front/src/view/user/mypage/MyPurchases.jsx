@@ -140,7 +140,7 @@ function MyPurchases() {
                                             })}
                                             </div>
                                             <div style={{textAlign:'center'}}>
-                                                <img style={{width:'300px', height:'300px', cursor:'pointer'}} onClick={()=>moveInfo(order.productId)} src={`${serverIP.ip}/uploads/product/${order.productId}/${order.filename}`}/>
+                                                <img style={{width:'200px', height:'200px', borderRadius:'10px', cursor:'pointer'}} onClick={()=>moveInfo(order.productId)} src={`${serverIP.ip}/uploads/product/${order.productId}/${order.filename}`}/>
                                             </div>
                                         </div>
                                         <div className="order-total">

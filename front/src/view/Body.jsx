@@ -168,7 +168,7 @@ function Body() {
     homeButton.addEventListener('click', () => {
       menu.close();
       if(user)  
-        navigate('product/sell');
+        navigate('/product/sell');
       else dispatch(setLoginView(true));
     });
 
