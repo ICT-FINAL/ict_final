@@ -14,7 +14,7 @@
 }
 .recommend-sort li {
     margin: 10px;
-    padding: 10px;
+    padding: 7px 10px;
     color: #555;
     font-size: 11pt;
     border: 1px solid #ddd;
@@ -22,16 +22,24 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: all 0.3s;
     cursor: pointer;
+    min-width: 80px;
+    text-align: center;
 }
 .recommend-sort li:hover {
     background-color: #eee;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+.recommend-sort li.active {
+    font-weight: bold;
+    color: #8cc7a5;
+    cursor: pointer;
+}
+
 #refresh-btn {
     position: absolute;
-    top: 190px;
-    right: 30px;
+    top: 195px;
+    right: 20px;
     font-size: 20pt;
     color: #333;
     background-color: #8CC7A5;
@@ -62,4 +70,5 @@
     border: 1px solid #ddd;
     margin: 10px;
     padding: 10px;
+    max-height: 240px;
 }
