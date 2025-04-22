@@ -126,7 +126,6 @@ public class AdminController {
         report.setSort(sort);
         report.setSortId(sortId);
 
-        System.out.println("!?"+approveType);
         if(sort != null && sort.toString().equals("USER")) {
             if (approveType != null && approveType.equals("신고 취소")) {
                 System.out.println("유저 신고 취소");

@@ -72,15 +72,25 @@ function Report() {
       setIsRegex({ isOpen: true, msg: '내용이 너무 깁니다' });
       return;
     }
-    if (user)
-      //console.log(`${serverIP.ip}/interact/sendReport?toId=${interact.selected}&reportType=${report_cat}&comment=${encodeURIComponent(comment)}${modalSel.selectedItem ? `&sort=PRODUCT&sortId=${modalSel.selectedItem.id}` : `&sort=USER&sortId=${interact.selected}`}`);
-      axios.get(`${serverIP.ip}/interact/sendReport?toId=${interact.selected}&reportType=${report_cat}&comment=${encodeURIComponent(comment)}${modalSel.selectedItem ? `&sort=PRODUCT&sortId=${modalSel.selectedItem.id}&reportUser=${interact.selected}` : `&sort=USER&sortId=${interact.selected}`}`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      })
-        .then(res => {
+    if (user) {
+      if (modalSel.selectedItem) {
+        axios.get(`${serverIP.ip}/interact/sendReport?toId=${modalSel.selectedItem.sellerNo.id}&reportType=${report_cat}&comment=${encodeURIComponent(comment)}&sort=PRODUCT&sortId=${modalSel.selectedItem.id}`, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        })
+          .then(res => {
+            modalClose();
+          })
+          .catch(err => console.log(err))
+      }
+      else {
+        axios.get(`${serverIP.ip}/interact/sendReport?toId=${interact.selected}&reportType=${report_cat}&comment=${encodeURIComponent(comment)}&sort=USER&sortId=${interact.selected}`, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        }).then(res => {
           modalClose();
         })
-        .catch(err => console.log(err))
+          .catch(err => console.log(err))
+      }
+    }
   }
 
   useEffect(() => {
@@ -304,5 +314,4 @@ function Report() {
     </>
   );
 }
-
 export default Report;
