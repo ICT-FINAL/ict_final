@@ -8,33 +8,49 @@ function RecommendIndex(){
     const serverIP = useSelector((state) => state.serverIP);
 
     const [alreadyProducts, setAlreadyProducts] = useState([]);
-    
+
+    const [defaultProduct, setDefaultProduct] = useState(null);
+
     const [wishProduct, setWishProduct] = useState(null);
 
     useEffect(()=>{
-        refresh();
+        getRecommendList();
     },[]);
 
-    const getRecommendProduct = ()=>{
-        if (user) {
-            axios.post(`${serverIP.ip}/recommend/getWishRecommend`, {productIds: alreadyProducts}
-            , {
-                headers: {Authorization: `Bearer ${user.token}`}
-            })
-            .then(res=>{
-                console.log(res.data);
-                setAlreadyProducts(prev=>
-                    [...prev, res.data.id]
-                );
-                setWishProduct(res.data);
-            })
-            .catch(err=>console.log(err));
-        }
-    }
+    const getRecommendList = async () => {
+        if (!user) return;
+    
+        const basePayload = { productIds: alreadyProducts };
+    
+        try {
+            const wishRes = await axios.post(`${serverIP.ip}/recommend/getWishRecommend`,
+                                                basePayload, 
+                                                { headers: { Authorization: `Bearer ${user.token}` } });
+            const wishId = wishRes.data.id;
+            setAlreadyProducts(prev => [...prev, wishId]);
+            setWishProduct(wishRes.data);
+            
+            const defaultRes = await axios.post(`${serverIP.ip}/recommend/getDefaultRecommend`,
+                                { productIds: [...alreadyProducts, wishId] }, 
+                                { headers: { Authorization: `Bearer ${user.token}` } });
+            const defaultId = defaultRes.data.id;
+            setAlreadyProducts(prev => [...prev, defaultId]);
+            setDefaultProduct(defaultRes.data);
+            
+            /*
+            const thirdRes = await axios.post(`${serverIP.ip}/recommend/getRecommend1`, {
+                productIds: [wishId, defaultId]
+            }, { headers: { Authorization: `Bearer ${user.token}` } });
+    
+            const thirdId = thirdRes.data.id;
+            setAlreadyProducts(prev => [...prev, thirdId]);
+            */
 
-    const refresh = () => {
-        getRecommendProduct();
-    }
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
 
     return(
         <div className='recommend-container'>
@@ -47,7 +63,7 @@ function RecommendIndex(){
                 <li>5만원대</li>
                 <li>6만원 이상</li>
             </ul>
-            <button id="refresh-btn" onClick={refresh}>⟳</button>
+            <button id="refresh-btn" onClick={getRecommendList}>⟳</button>
             <div className="recommend-list">
                 <div className='recommend-product'>
                     
@@ -65,7 +81,7 @@ function RecommendIndex(){
                     
                 </div>
                 <div className='recommend-product'>
-                    
+                    {defaultProduct && defaultProduct.productName}
                 </div>
             </div>
         </div>
