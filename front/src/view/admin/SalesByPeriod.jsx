@@ -1,99 +1,227 @@
 import React, { useEffect, useState } from "react";
-import { Line } from "react-chartjs-2";
+import { Line, Bar } from "react-chartjs-2";
 import '../../css/view/salesbyperiod.css';
 import {
   Chart as ChartJS,
   LineElement,
+  BarElement,
   CategoryScale,
   LinearScale,
   PointElement,
   Tooltip,
   Legend,
 } from "chart.js";
+import { useSelector } from "react-redux";
+import axios from "axios";
 
-ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip, Legend);
-
-const dummyData = [
-  {
-    date: "2025-04-01",
-    orders: 10,
-    totalSales: 100000,
-    shippingCost: 10000,
-  },
-  {
-    date: "2025-04-02",
-    orders: 41,
-    totalSales: 500000,
-    shippingCost: 50000,
-  },
-];
+ChartJS.register(LineElement, BarElement, CategoryScale, LinearScale, PointElement, Tooltip, Legend);
 
 function SalesByPeriod() {
-    const [data, setData] = useState([]);
-    const [selected, setSelected] = useState(null);
+  const today = new Date();
+
+  const [data, setData] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [filtered, setFiltered] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 16;
+
+  const serverIP = useSelector((state) => state.serverIP);
+  const user = useSelector((state) => state.auth.user);
+
+  useEffect(() => {
+    if (user)
+      axios.get(`${serverIP.ip}/stats/sales`, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      })
+      .then(res => {
+        setData(res.data);
+        setSelected(res.data[res.data.length - 1]);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  }, []);
+
+  useEffect(() => {
+    const filteredData = data.filter((item) => {
+      const date = new Date(item.date);
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
+
+      if (selectedMonth && selectedYear) {
+        return month === selectedMonth && year === selectedYear;
+      } else if (selectedMonth) {
+        return month === selectedMonth;
+      } else if (selectedYear) {
+        return year === selectedYear;
+      }
+      return true;
+    });
+
+    setFiltered(filteredData);
+  }, [selectedMonth, selectedYear, data]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedMonth, selectedYear]);
+
+  const summary = filtered.reduce(
+    (acc, curr) => {
+      const coupon = curr.couponDiscount || 0;
+      const productTotal = curr.totalSales + coupon - curr.shippingCost;
+      const profit = productTotal * 0.2 - coupon;
+
+      acc.orders += curr.orders;
+      acc.totalSales += curr.totalSales;
+      acc.shippingCost += curr.shippingCost;
+      acc.couponDiscount += coupon;
+      acc.profit += profit;
+      return acc;
+    },
+    { orders: 0, totalSales: 0, shippingCost: 0, couponDiscount: 0, profit: 0 }
+  );
+
+  const netSales = summary.totalSales - summary.shippingCost;
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+
+  const chartData = {
+    labels: filtered.map((item) => item.date),
+    datasets: [
+      {
+        label: "일자별 매출총액",
+        data: filtered.map((item) => item.totalSales),
+        borderColor: "#8CC7A5",
+        backgroundColor: "rgba(54, 162, 235, 0.2)",
+        fill: true,
+      },
+    ],
+  };
+
+  const monthlySales = Array.from({ length: 12 }, (_, i) => {
+    const monthData = data.filter((item) => {
+      const date = new Date(item.date);
+      const month = date.getMonth(); // 0 ~ 11
+      const year = date.getFullYear();
   
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const res = await fetch("/api/sales/statistics?startDate=2025-04-01&endDate=2025-04-30");
-          if (!res.ok) throw new Error("API 실패");
-          const result = await res.json();
-          if (!Array.isArray(result) || result.length === 0) throw new Error("데이터 없음");
-          setData(result);
-          setSelected(result[0]);
-        } catch (error) {
-          console.warn("API 실패, 더미 데이터 사용:", error.message);
-          setData(dummyData);
-          setSelected(dummyData[0]);
-        }
-      };
+      return month === i && year === selectedYear;
+    });
   
-      fetchData();
-    }, []);
-  
-    const chartData = {
-        labels: data.map((item) => item.date),
-        datasets: [
-          {
-            label: "일자별 매출총액",
-            data: data.map((item) => item.totalSales),
-            borderColor: "#36A2EB",
-            backgroundColor: "rgba(54, 162, 235, 0.2)",
-            fill: true,
-          },
-        ],
-      };
-  
-    return (
-      <div className="sales-container">
-        <div className="chartSection">
-          {selected ? <Line data={chartData} /> : <p>차트를 불러오는 중...</p>}
+    return monthData.reduce((sum, item) => sum + item.totalSales, 0);
+  });
+  const monthlyChartData = {
+    labels: Array.from({ length: 12 }, (_, i) => `${i + 1}월`),
+    datasets: [
+      {
+        label: "월별 총 매출총액",
+        data: monthlySales,
+        backgroundColor: "#F6B26B",
+        borderColor: "#DE8C4F",
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  return (
+    <div className="sales-container">
+      <div className="top-controls">
+        <div className="year-controls">
+          <button onClick={() => setSelectedYear(selectedYear - 1)}>&lt;</button>
+          <span>{selectedYear}년</span>
+          <button onClick={() => setSelectedYear(selectedYear + 1)}>&gt;</button>
         </div>
-        <div className="tableSection">
+        <div className="month-buttons">
+          {[1,2,3,4,5,6,7,8,9,10,11,12].map((m) => (
+            <button
+              key={m}
+              onClick={() => setSelectedMonth(m)}
+              className={selectedMonth === m ? 'selected' : ''}
+            >
+              {m}월
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="chart-and-table">
+        <div className="left-panel">
+          <div className="chartSection">
+            <h3>일별 매출 차트</h3>
+            {selected ? <Line data={chartData} /> : <p>차트를 불러오는 중...</p>}
+          </div>
+          <div className="chartSection">
+            <h3>월별 매출 차트</h3>
+            <Bar data={monthlyChartData} />
+          </div>
+        </div>
+
+        <div className="right-panel">
+          <div className="table-wrapper">
           <table className="sales-table">
             <thead>
               <tr>
                 <th>일자</th>
                 <th>주문수</th>
                 <th>매출총액</th>
-                <th>배송비총액</th>
+                <th>배송총액</th>
+                <th>쿠폰총액</th>
                 <th>순매출</th>
+                <th>순이익</th>
               </tr>
             </thead>
             <tbody>
-              {data.map((item) => (
-                <tr key={item.date} onClick={() => setSelected(item)}>
-                  <td>{item.date}</td>
-                  <td>{item.orders}</td>
-                  <td>{item.totalSales.toLocaleString()}원</td>
-                  <td>{item.shippingCost.toLocaleString()}원</td>
-                  <td>{(item.totalSales - item.shippingCost).toLocaleString()}원</td> {/* ✅ 계산 */}
+              {currentItems.map((item) => {
+                const coupon = item.couponDiscount || 0;
+                const productTotal = item.totalSales + coupon - item.shippingCost;
+                const profit = productTotal * 0.2 - coupon;
+
+                return (
+                  <tr key={item.date} onClick={() => setSelected(item)}>
+                    <td>{item.date}</td>
+                    <td>{item.orders}</td>
+                    <td>{item.totalSales.toLocaleString()}원</td>
+                    <td>{item.shippingCost.toLocaleString()}원</td>
+                    <td>{coupon.toLocaleString()}원</td>
+                    <td>{(item.totalSales - item.shippingCost).toLocaleString()}원</td>
+                    <td>{Math.round(profit).toLocaleString()}원</td>
+                  </tr>
+                );
+              })}
+              {currentPage === totalPages && filtered.length > 0 && (
+                <tr className="summary-row">
+                  <td><strong>합계</strong></td>
+                  <td><strong>{summary.orders}</strong></td>
+                  <td><strong>{summary.totalSales.toLocaleString()}원</strong></td>
+                  <td><strong>{summary.shippingCost.toLocaleString()}원</strong></td>
+                  <td><strong>{summary.couponDiscount.toLocaleString()}원</strong></td>
+                  <td><strong>{netSales.toLocaleString()}원</strong></td>
+                  <td><strong>{Math.round(summary.profit).toLocaleString()}원</strong></td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
+
+          <div className="pagination">
+            {Array.from({ length: totalPages }, (_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => setCurrentPage(i + 1)}
+                className={currentPage === i + 1 ? "active" : ""}
+              >
+                {i + 1}
+              </button>
+            ))}
+            </div>
+          </div>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
+
 export default SalesByPeriod;

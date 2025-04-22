@@ -101,6 +101,11 @@ function MySell() {
                                         <strong>요청사항:</strong> {order.request}<br />
                                     </div>
                                     <div className='order-wrapper'>
+                                    { fileList[idx] &&
+                                    <div style={{textAlign:'center'}}>
+                                        <img  onClick={()=>moveInfo(order.productId)} style={{width:'200px', height:'200px', borderRadius:'10px', cursor:'pointer'}} src={`${serverIP.ip}/uploads/product/${order.productId}/${fileList[idx]}`}/>
+                                    </div>
+                                    }
                                     <div>
                                     {order.orderItems.map((oi) => {
                                         const itemTotal = (oi.price * (100 - oi.discountRate) / 100 + oi.additionalFee) * oi.quantity;
@@ -117,11 +122,6 @@ function MySell() {
                                         );
                                     })}
                                     </div>
-                                    { fileList[idx] &&
-                                    <div style={{textAlign:'center'}}>
-                                        <img  onClick={()=>moveInfo(order.productId)} style={{width:'300px', height:'300px', cursor:'pointer'}} src={`${serverIP.ip}/uploads/product/${order.productId}/${fileList[idx]}`}/>
-                                    </div>
-                                    }
                                     </div>
                                     <div className="order-total">
                                         <div><strong>소계:</strong> {formatNumberWithCommas(orderSum)}원</div>

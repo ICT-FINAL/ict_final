@@ -43,22 +43,15 @@ function MyInfoEdit() {
     });
     
     const [user, setUser] = useState({
+        zipcode: "",
+        address: "",
+        detailAddress: ""
     });
-
-    useEffect(() => {
-        if (modal.info && modal.info.address) {
-            addressCheck({ target: { name: "address", value: modal.info.address } });
-        }
-    }, [modal.info?.address]);
 
     const validationRules = {
         username: {
             regex: /^[A-Za-z가-힣]{2,7}$/,
             message: "이름은 2자 이상 7자 이하의 한글 또는 영어 대소문자만 가능합니다."
-        },
-        tel: {
-            regex: /^(010|011|016|017|018|019)-\d{3,4}-\d{4}$/,
-            message: "전화번호를 올바르게 입력해주세요."
         },
         address: {
             message: "주소를 입력해주세요."
@@ -68,23 +61,8 @@ function MyInfoEdit() {
     const changeUser = (e) => {
         const { name, value } = e.target;
         setUser({...user, [name]: value}); // 입력하는 데이터값 저장
-        setUserInfo({...user, [name]: value}); // 기존 회원정보 데이터값 저장
-        const updatedUser = { ...user, [name]: value };
-        
-        if (["tel1", "tel2", "tel3"].includes(name)) {
-            updatedUser.tel = `${updatedUser.tel1}-${updatedUser.tel2}-${updatedUser.tel3}`;
-            
-            const isTelValid = validationRules.tel.regex.test(updatedUser.tel);
-            setAlert({
-                ...alert,
-                tel: {
-                    content: isTelValid ? "" : validationRules.tel.message,
-                    state: isTelValid
-                }
-            });
-            telCheck();
-            setUser(updatedUser);
-        } else if (name === "userpwCheck") {
+
+        if (name === "userpwCheck") {
             const isMatch = document.getElementById("pw1").value === document.getElementById("pw2").value;
             
             setAlert({
@@ -114,7 +92,7 @@ function MyInfoEdit() {
                 ...prev,
                 uploadedProfile: null,
                 uploadedProfilePreview: null,
-                kakaoProfileUrl: loc.state.picture
+                kakaoProfileUrl: user.kakaoProfileUrl
             }));
             return;
         }
@@ -124,9 +102,9 @@ function MyInfoEdit() {
             reader.onload = (event) => {
                 setUser((prev) => ({
                     ...prev,
-                    uploadedProfile: file, 
-                    uploadedProfilePreview: event.target.result, 
-                    kakaoProfileUrl: null 
+                    uploadedProfile: file,
+                    uploadedProfilePreview: event.target.result,
+                    kakaoProfileUrl: null
                 }));
             };
             reader.readAsDataURL(file);
@@ -136,22 +114,30 @@ function MyInfoEdit() {
         }
     };
 
-    const addressCheck = ()=>{
-        let isAddrValid = false;
-        if (modal.info && modal.info.address) {
-            isAddrValid = true;
-        }
-        setAlert({
-            ...alert,
-            address: {
-                content: isAddrValid ? "" : validationRules.address.message,
-                state: isAddrValid
+
+    useEffect(()=> {
+        console.log(modal.info);
+        if(modal.info !== undefined) {
+            if(modal.info.address !== undefined && modal.info.address !== null && modal.info.address !== '') {
+                setUser(prev => ({ 
+                    ...prev, 
+                    address: modal.info.address,
+                    zipcode: modal.info.zonecode
+                }));
             }
-        });
-    }
+        }
+    },[modal.info]);
 
     const validateForm = () => {
-        if(user.username==userInfo.username && modal.info.address === undefined){
+        const currentProfileImage = user.uploadedProfilePreview || user.kakaoProfileUrl || (user.uploadedProfileUrl && `${serverIP.ip}${user.uploadedProfileUrl}`);
+        const originalProfileImage = userInfo.kakaoProfileUrl || (userInfo.uploadedProfileUrl && `${serverIP.ip}${userInfo.uploadedProfileUrl}`);
+
+        if (
+            (user.username || '') === (userInfo.username || '') && 
+            (user.address || '') === (userInfo.address || '') && 
+            (user.addressDetail || '') === (userInfo.addressDetail || '') &&
+            currentProfileImage === originalProfileImage
+        ) {
             window.alert("변경사항이 없습니다.");
             return false;
         }
@@ -189,27 +175,28 @@ function MyInfoEdit() {
         if (!validateForm()) {
             return;
         }
-        
-        const formData = new FormData();
-        formData.append("username", user.username);
-        if (modal.info && modal.info.address) formData.append("address", modal.info.address);
-        formData.append("addressDetail", user.addressDetail);
-        if (modal.info && modal.info.zonecode) formData.append("zipcode", modal.info.zonecode);
     
-        /*
+        const formData = new FormData();
+        formData.append("user", new Blob([JSON.stringify(user)], { type: "application/json" }));
+
+        // 프로필 이미지가 있으면 그 이미지를 formData에 첨부
         if (user.uploadedProfile) {
             formData.append("profileImage", user.uploadedProfile);
-        } else {
-            formData.append("kakaoProfileUrl", user.kakaoProfileUrl);
-        }*/
-
+        } 
+        
         if(uuser)        
-            axios.post(`${serverIP.ip}/mypage/editInfo`,user, {
-                headers: {Authorization:`Bearer ${uuser.token}`}
+            axios.post(`${serverIP.ip}/mypage/editInfo`,formData, {
+                headers: {
+                    Authorization:`Bearer ${uuser.token}`,
+                    'Content-Type': 'multipart/form-data',
+                }
             })
             .then(res => {
-                window.alert("정상적으로 수정이 완료되었습니다. \n 다시 로그인해주세요.");
-                handleLogout();
+                console.log(res.data);
+                if(res.data==="editInfoOk"){
+                    window.alert("정상적으로 수정이 완료되었습니다.\n다시 로그인해주세요.");
+                    handleLogout();
+                }
             })
             .catch(err=> console.log(err))
     };
@@ -278,41 +265,50 @@ function MyInfoEdit() {
                 <div id="modal-background" style={modalBackStyle}></div>
                 <form className="sign-up-form" onSubmit={doSignUp}>
                     <label>아이디</label>
-                    <input type="text" name="userid" value={userInfo.userid || ''} style={{width:'calc(65%)', backgroundColor:'#ddd'}} disabled/>
+                    <input type="text" name="userid" value={user.userid || ''} style={{width:'calc(65%)', backgroundColor:'#ddd'}} disabled/>
 
                     <label>이름</label>
-                    <input type="text" name="username" value={userInfo.username || ''} onChange={changeUser}/><br/>
+                    <input type="text" name="username" value={user.username || ''} onChange={changeUser}/><br/>
                     {alert.username.content && <><span className="form-alert">{alert.username.content}</span><br/></>}
 
                     <label>이메일</label>
-                    <input type="text" name="email" value={userInfo.email || ''} style={{width:'calc(65%)', backgroundColor:'#ddd'}} autoComplete="useremail" readOnly/><br/>
+                    <input type="text" name="email" value={user.email || ''} style={{width:'calc(65%)', backgroundColor:'#ddd'}} autoComplete="useremail" disabled/><br/>
 
-                    <label>휴대폰 번호</label>
-                    <input type="text" name="tel1" className="tel" maxLength="3" value={userInfo.tel1 || ''} onChange={changeUser}/>-
-                    <input type="text" name="tel2" className="tel" maxLength="4" value={userInfo.tel2 || ''} onChange={changeUser}/>-
-                    <input type="text" name="tel3" className="tel" maxLength="4" value={userInfo.tel3 || ''} onChange={changeUser}/><br/>
-                    {alert.tel.content && <><span className="form-alert">{alert.tel.content}</span><br/></>}
+                    {!userInfo.kakaoProfileUrl && (
+                        <>
+                            <label>휴대폰 번호</label>
+                            <input type="text" name="tel1" className="tel" maxLength="3" value={user.tel1 || ''} onChange={changeUser} style={{backgroundColor:'#ddd'}} disabled/>-
+                            <input type="text" name="tel2" className="tel" maxLength="4" value={user.tel2 || ''} onChange={changeUser} style={{backgroundColor:'#ddd'}} disabled/>-
+                            <input type="text" name="tel3" className="tel" maxLength="4" value={user.tel3 || ''} onChange={changeUser} style={{backgroundColor:'#ddd'}} disabled/><br/>
+                            {alert.tel.content && <><span className="form-alert">{alert.tel.content}</span><br/></>}
+                        </>
+                    )}
 
                     <label>우편번호</label>
-                    <input type="text" style={{width: '110px'}} name="zipcode" value={modal.info && modal.info.zonecode ? modal.info.zonecode : (userInfo.zipcode || '')} disabled/>
+                    <input type="text" style={{width: '110px'}} name="zipcode" value={user.zipcode} disabled/>
                     <button id="postcode" onClick={handleComplete}>주소찾기</button><br/>
 
                     <label>주소</label>
-                    <input type="text" name="address" readOnly value={modal.info && modal.info.address ? modal.info.address : userInfo.address || ''}/><br/>
+                    <input type="text" name="address" readOnly value={user.address}/><br/>
                     {alert.address.content && <><span className="form-alert">{alert.address.content}</span><br/></>}
                     
                     <label>상세주소</label>
-                    <input type='text' name="addressDetail" value={userInfo.addressDetail || ''} onChange={changeUser}/><br/>
+                    <input type='text' name="addressDetail" value={user.addressDetail || ''} onChange={changeUser}/><br/>
 
-                    <label>프로필 사진 {userInfo.uploadedProfilePreview}</label>
-                    <img id="profile-img" src={userInfo.kakaoProfileUrl ? `${userInfo.kakaoProfileUrl}` : `${serverIP.ip}${userInfo.uploadedProfileUrl}`} alt="프로필 이미지" referrerPolicy="no-referrer" />
+                    {/* uploadedProfilePreview 미리보기 이미지 */}
+                    <label>프로필 사진</label>
+                    <img id="profile-img" src={user.uploadedProfilePreview || (user.kakaoProfileUrl && `${serverIP.ip}${user.kakaoProfileUrl}`) || (user.uploadedProfileUrl && `${serverIP.ip}${user.uploadedProfileUrl}`)} alt="프로필 이미지" referrerPolicy="no-referrer" onClick={() => document.getElementById('profile-image-file').click()} />
                 
                     <input type="file" id="profile-image-file" style={{display: "none"}} accept="image/*" onChange={handleImageChange} /><br/>
                     <label htmlFor="profile-image-file" id="profile-image-btn">사진첨부</label>
 
                     <button type="submit" id="signup-btn">수정</button>
                 </form>
-                <div style={{textAlign:'right', fontSize:'12px'}} onClick={()=>setCurrentPage("pwdPage")} >비밀번호 재설정</div>
+
+                {!userInfo.kakaoProfileUrl && (
+                    <div style={{textAlign:'right', fontSize:'14px', marginTop:'10px', cursor:'pointer'}} onClick={()=>setCurrentPage("pwdPage")} >비밀번호 재설정</div>
+                )}
+                
             </>
         }
 

@@ -2,6 +2,7 @@ package com.ict.serv.entity.order;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.user.Address;
 import com.ict.serv.entity.user.User;
 import jakarta.persistence.*;
@@ -57,4 +58,8 @@ public class Orders {
     @Column(name="shipping_state")
     @Enumerated(EnumType.STRING)
     ShippingState shippingState;
+
+    @ManyToOne
+    @JoinColumn(name = "product_id", insertable = false, updatable = false)
+    private Product product;
 }

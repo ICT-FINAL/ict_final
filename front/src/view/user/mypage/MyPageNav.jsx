@@ -22,6 +22,9 @@ function MyPageNav({ path, isOpen, closeNav }) {
                     <li onClick={() => handleClick("/mypage/edit")} style={path.l_name === "개인 정보 수정" ? clickedStyle : {}}>
                         <span style={path.l_name === "개인 정보 수정" ? clickedStyle2 : {}}>개인 정보 수정</span>
                     </li>
+                    <li onClick={() => handleClick("/mypage/deliveries")} style={path.l_name === "배송지 관리" ? clickedStyle : {}}>
+                        <span style={path.l_name === "배송지 관리" ? clickedStyle2 : {}}>배송지 관리</span>
+                    </li>
                 </ul>
                 <ul>
                     <li>나의 활동</li>
