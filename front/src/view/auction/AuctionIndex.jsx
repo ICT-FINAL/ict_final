@@ -20,8 +20,8 @@ function AuctionIndex() {
     const [closingAuctionList, setClosingAuctionList] = useState([]);
     const [firstSlide, setFirstSlide] = useState(0);
     const [secondSlide, setSecondSlide] = useState(0);
-    const itemsPerPage = 4;
-    const cardWidth = 284;
+    const [itemsPerPage, setItemsPerPage] = useState(5);
+    const cardHeight = 302;
 
     const [visibleSections, setVisibleSections] = useState({
         hotAuction: false,
@@ -54,6 +54,27 @@ function AuctionIndex() {
         return () => window.removeEventListener("scroll", handleScroll);
     },[])
 
+    useEffect(() => {
+        const updateItemsPerPage = () => {
+            const width = window.innerWidth;
+    
+            if (width >= 1500) {
+                setItemsPerPage(5);
+            } else if (width >= 1080) {
+                setItemsPerPage(4);
+            } else {
+                setItemsPerPage(3);
+            }
+            setFirstSlide(0);
+            setSecondSlide(0);
+        };
+    
+        updateItemsPerPage(); // 초기 실행
+        window.addEventListener('resize', updateItemsPerPage);
+    
+        return () => window.removeEventListener('resize', updateItemsPerPage); // 클린업
+    }, []);
+
     const moveScroll = (num) => {
         window.scrollTo({ top: num });
     }
@@ -76,17 +97,17 @@ function AuctionIndex() {
         }
     }
 
-    const handleNext = (index, length) => {
+    const handleTop = (index) => {
         if (index === 1) {
-            if (firstSlide < length - itemsPerPage) {
-                setFirstSlide(firstSlide + 1);
+            if (firstSlide > 0) {
+                setFirstSlide(0);
             }
         } else if (index === 2) {
-            if (secondSlide < length - itemsPerPage) {
-                setSecondSlide(secondSlide + 1);
+            if (secondSlide > 0) {
+                setSecondSlide(0);
             }
         }
-    };
+    }
     
     const handlePrev = (index) => {
         if (index === 1) {
@@ -100,11 +121,35 @@ function AuctionIndex() {
         }
     };
 
-    const getTransformX = (index) => {
+    const handleNext = (index, length) => {
         if (index === 1) {
-            return -firstSlide * cardWidth;
+            if (firstSlide < length / itemsPerPage - 2) {
+                setFirstSlide(firstSlide + 1);
+            }
         } else if (index === 2) {
-            return -secondSlide * cardWidth;
+            if (secondSlide < length / itemsPerPage - 2) {
+                setSecondSlide(secondSlide + 1);
+            }
+        }
+    };
+
+    const handleBottom = (index, length) => {
+        if (index === 1) {
+            if (firstSlide < length / itemsPerPage - 2) {
+                setFirstSlide(Math.ceil(hotAuctionList.length / itemsPerPage) - 2);
+            }
+        } else if (index === 2) {
+            if (secondSlide < length / itemsPerPage - 2) {
+                setSecondSlide(Math.ceil(closingAuctionList.length / itemsPerPage) - 2);
+            }
+        }
+    }
+
+    const getTransformY = (index) => {
+        if (index === 1) {
+            return -firstSlide * cardHeight;
+        } else if (index === 2) {
+            return -secondSlide * cardHeight;
         }
     };
 
@@ -155,6 +200,8 @@ function AuctionIndex() {
 
     return (
         <>
+            <div className="scroll-indicator-shadow" />
+            <div className="scroll-indicator-icon"><div className="aaaarrow"></div></div>
             <div style={{ paddingTop: '50px', height:'2400px' }}>
                 <div className={`product-main-container ${
                     !visibleSections.hotAuction && !visibleSections.closingAuction && !visibleSections.FINAL ? 'fade-in' : 'fade-out'
@@ -263,7 +310,7 @@ function AuctionIndex() {
                     <h2 style={{ textAlign: 'center' }}>{title}</h2>
                     <div className="hot-slider-container"
                         style={{
-                            width: '1200px',
+                            width: `${itemsPerPage * 200 + 100}px`,
                             backgroundColor: '#eee',
                             margin: '0 auto',
                             padding: '20px',
@@ -271,13 +318,13 @@ function AuctionIndex() {
                             borderRadius: '10px',
                         }}
                     >
-                        <button className="hot-slide-btn" onClick={() => handlePrev(slideIndex)}>{'<'}</button>
-                        <div className="hot-product-cards-wrapper">
-                            <div className="hot-product-cards" style={{ transform: `translateX(${getTransformX(slideIndex)}px)`, display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)' }}>
+                        <div className="hot-product-cards-wrapper" style={{width: `${itemsPerPage * 200 + 100}px`, height: '600px', paddingRight: '50px', position: 'relative'}}>
+                            <div className="hot-product-cards" style={{ transform: `translateY(${getTransformY(slideIndex)}px)`, display: 'grid', gridTemplateColumns: `repeat(${itemsPerPage}, 1fr)` }}>
                                 {list.map((auction, index) => (
                                     <div className="hot-product-card" key={index} style={{ position: 'relative', width: '190px', height: '280px', margin: '10px auto' }}>
+                                        <div id="auction-rank">{index + 1}</div>
                                         {isEndingSoon(auction.endTime) && (
-                                            <div className="ending-soon">마감 임박</div>
+                                            <div className="ending-soon" style={{top: '5px', left: '120px', padding: '1px 8px 4px'}}>마감 임박</div>
                                         )}
                                         <div
                                             className="hot-card-content"
@@ -327,8 +374,13 @@ function AuctionIndex() {
                                     </div>
                                 ))}
                             </div>
+                            <div className="auction-slide-btn-wrapper">
+                                <button className="auction-slide-btn" onClick={() => handleTop(slideIndex)}>{'⇑'}</button>
+                                <button className="auction-slide-btn" onClick={() => handlePrev(slideIndex)}>{'↑'}</button>
+                                <button className="auction-slide-btn" onClick={() => handleNext(slideIndex, list.length)}>{'↓'}</button>
+                                <button className="auction-slide-btn" onClick={() => handleBottom(slideIndex, list.length)}>{'⇓'}</button>
+                            </div>
                         </div>
-                        <button className="hot-slide-btn" onClick={() => handleNext(slideIndex, list.length)}>{'>'}</button>
                     </div>
                 </div>
             ))}

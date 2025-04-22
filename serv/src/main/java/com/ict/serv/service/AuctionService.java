@@ -229,10 +229,10 @@ public class AuctionService {
     }
 
     public List<AuctionRoom> getHotAuctionRooms() {
-        return auctionRepository.findTop10ByOrderByHitDesc();
+        return auctionRepository.findTop50ByOrderByHitDesc();
     }
 
     public List<AuctionRoom> getClosingAuctionRooms() {
-        return auctionRepository.findTop10ByOrderByEndTime();
+        return auctionRepository.findTop50ByOrderByEndTime();
     }
 }
