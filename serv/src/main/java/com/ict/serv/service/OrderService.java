@@ -2,6 +2,7 @@ package com.ict.serv.service;
 
 import com.ict.serv.entity.order.*;
 import com.ict.serv.entity.product.HotCategoryDTO;
+import com.ict.serv.entity.sales.CategorySalesDTO;
 import com.ict.serv.entity.sales.SalesStatsDTO;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.order.AuctionOrderRepository;
@@ -22,6 +23,7 @@ public class OrderService {
     private final OrderItemRepository order_item_repo;
     private final OrderGroupRepository order_group_repo;
     private final AuctionOrderRepository auctionOrderRepository;
+    private final OrderRepository orderRepository;
 
     public Orders insertOrder(Orders orders) {
         return order_repo.save(orders);
@@ -152,6 +154,34 @@ public class OrderService {
 
         return new ArrayList<>(statsMap.values()).stream()
                 .sorted(Comparator.comparing(SalesStatsDTO::getDate))
+                .collect(Collectors.toList());
+    }
+    public List<CategorySalesDTO> getSalesByCategory() {
+        List<Object[]> raw = orderRepository.getSalesDataByCategory();
+        return raw.stream()
+                .map(row -> new CategorySalesDTO(
+                        (String) row[0],
+                        ((Number) row[1]).longValue(),
+                        ((Number) row[2]).longValue()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<CategorySalesDTO> getSalesByEventCategory() {
+        return toDTO(orderRepository.getSalesByEventCategory());
+    }
+
+    public List<CategorySalesDTO> getSalesByTargetCategory() {
+        return toDTO(orderRepository.getSalesByTargetCategory());
+    }
+
+    private List<CategorySalesDTO> toDTO(List<Object[]> raw) {
+        return raw.stream()
+                .map(row -> new CategorySalesDTO(
+                        (String) row[0],
+                        ((Number) row[1]).longValue(),
+                        ((Number) row[2]).longValue()
+                ))
                 .collect(Collectors.toList());
     }
 }

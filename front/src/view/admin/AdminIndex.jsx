@@ -7,6 +7,8 @@ import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import '../../css/view/admin.css';
 import SalesByPeriod from "./SalesByPeriod";
+import SalesByCategory from "./SalesByCategory";
+import AdminMember from "./AdminMember";
 
 function AdminIndex() {
     const location = useLocation();
@@ -30,9 +32,9 @@ function AdminIndex() {
             basket: { f_name: "보관함", l_name: "장바구니" },
             coupons: { f_name: "보관함", l_name: "쿠폰함" },
             points: { f_name: "보관함", l_name: "적립 내역" },
-            "stats-activity": { f_name: "통계", l_name: "활동 통계" },
-            salesbyperiod: { f_name: "통계", l_name: "상품별 판매 통계" },
-            salesbyperiod: { f_name: "통계", l_name: "판매 통계" },
+            adminmember: { f_name: "통계", l_name: "회원 통계" },
+            salesbycategory: { f_name: "통계", l_name: "상품별 판매 통계" },
+            salesbyperiod: { f_name: "통계", l_name: "기간별 판매 통계" },
             "delete-account": { f_name: "회원 탈퇴", l_name: "회원 탈퇴" },
         };
 
@@ -57,7 +59,9 @@ function AdminIndex() {
                 {path.l_name == '신고 목록' && <AdminReport />}
                 {path.l_name == '문의 목록' && <AdminInquiry />}
                 {path.l_name == '회원 목록' && <AdminEdit />}
-                {path.l_name == '판매 통계' && <SalesByPeriod />}
+                {path.l_name == '기간별 판매 통계' && <SalesByPeriod />}
+                {path.l_name == '상품별 판매 통계' && <SalesByCategory />}
+                {path.l_name == '회원 통계' && <AdminMember />}
             </div>
         </div>
     </>)
