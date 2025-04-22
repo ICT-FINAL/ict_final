@@ -28,14 +28,8 @@ function MyPageNav({ path, isOpen, closeNav }) {
                 </ul>
                 <ul>
                     <li>나의 활동</li>
-                    <li onClick={() => handleClick("/mypage/posts")} style={path.l_name === "작성한 글" ? clickedStyle : {}}>
-                        <span style={path.l_name === "작성한 글" ? clickedStyle2 : {}}>작성한 글</span>
-                    </li>
                     <li onClick={() => handleClick("/mypage/reviews")} style={path.l_name === "리뷰 관리" ? clickedStyle : {}}>
                         <span style={path.l_name === "리뷰 관리" ? clickedStyle2 : {}}>리뷰 관리</span>
-                    </li>
-                    <li onClick={() => handleClick("/mypage/comments")} style={path.l_name === "댓글 관리" ? clickedStyle : {}}>
-                        <span style={path.l_name === "댓글 관리" ? clickedStyle2 : {}}>댓글 관리</span>
                     </li>
                     <li onClick={() => handleClick("/mypage/reports")} style={path.l_name === "신고 내역" ? clickedStyle : {}}>
                         <span style={path.l_name === "신고 내역" ? clickedStyle2 : {}}>신고 내역</span>

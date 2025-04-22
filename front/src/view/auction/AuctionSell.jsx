@@ -2,11 +2,12 @@ import { useState,useRef, useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import ProductEditor from '../product/ProductEditor';
+import { useNavigate } from "react-router-dom";
 
 function AuctionSell() {
     const serverIP = useSelector((state) => state.serverIP);
     const user = useSelector((state) => state.auth.user);
-
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         subject:"",
         productName: "",
@@ -296,7 +297,8 @@ function AuctionSell() {
             }
         })
         .then(res => {
-            console.log("상품 등록 성공:", res.data);
+            alert("상품 등록 성공");
+            navigate('/auction');
         })
         .catch(err => console.error("상품 등록 실패:", err));
     };
@@ -380,6 +382,7 @@ function AuctionSell() {
                 <label className="product-label">상세 설명</label>
                 <ProductEditor id='content' formData={formData} setFormData={setFormData}/>
                 </fieldset>
+            <div style={{fontWeight:'bold', marginBottom:'10px',fontSize:'18px'}}>썸네일 등록</div>
             <div 
                 onDragOver={(e) => e.preventDefault()} 
                 onDrop={handleDrop}
