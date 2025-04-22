@@ -193,6 +193,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             PageRequest of
     );
 
-
     // List<Product> findAllByProductNameContaining(String searchWord, PageRequest of);
 }

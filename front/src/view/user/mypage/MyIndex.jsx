@@ -17,6 +17,7 @@ import MyChatting from "./MyChatting";
 import MyInfoEdit from "./MyInfoEdit";
 import MyReviewList from "./MyReviewList";
 import MyBid from "./MyBid";
+import MyCoupon from "./MyCoupon";
 
 function MyIndex(){
     const location = useLocation();
@@ -106,6 +107,7 @@ useEffect(() => {
                     { path.l_name == '판매 내역' && <MySell/> }
                     { path.l_name == '리뷰 관리' && <MyReviewList/> }
                     { path.l_name == '구매 입찰 내역' && <MyBid/> }
+                    { path.l_name == '쿠폰함' && <MyCoupon/> }
                 </div>
             </div>
         </>
