@@ -375,6 +375,7 @@
     padding: 15px;
     background-color: #fafafa;
     border-radius: 10px;
+    border:1px solid #ddd;
   }
   
   .order-info {
@@ -383,6 +384,15 @@
     line-height: 1.6;
   }
   
+.order-wrapper{
+    border-top: 1px dashed #bbb;
+    border-bottom: 1px dashed #bbb;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    align-items: center;
+}
+
   .order-item {
     border-top: 1px dashed #ccc;
     padding: 10px 0;
@@ -409,7 +419,7 @@
   }
   
   .final-total {
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     color: #4a7b63;
     font-weight: bold;
     margin-top: 10px;

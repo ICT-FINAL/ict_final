@@ -794,6 +794,20 @@
     margin: 0 auto;
 }
 
+.search-sort{
+    display: flex;
+    list-style-type: none;
+    color:#666;
+}
+
+.search-sort > li{
+    padding:0px 10px;
+}
+
+.search-sort span {
+    cursor: pointer;
+}
+
 /* 상품구매 */
 .product-buy-container {
     padding: 30px;

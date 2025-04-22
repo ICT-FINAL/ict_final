@@ -14,7 +14,7 @@ import java.util.Map;
 public interface AuctionBidRepository extends JpaRepository<AuctionBid, Long> {
     List<AuctionBid> findByRoomOrderByBidTimeAsc(AuctionRoom room);
     void deleteByRoom_RoomId(String roomId);
-    
+
     int countIdByUser(User user);
 
     int countIdByUserAndState(User user, BidState state);

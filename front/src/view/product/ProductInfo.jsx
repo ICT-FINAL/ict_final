@@ -29,13 +29,17 @@ function ProductInfo() {
     const dispatch = useDispatch();
 
     useEffect(() => {
+        const headers = user?.token
+        ? { Authorization: `Bearer ${user.token}` }
+        : {};
         axios.get(`${serverIP.ip}/product/getOption?id=${loc.state.product.id}`, {
+            headers
         })
-            .then(res => {
-                setTotalQuantity(res.data[0].product.quantity);
-                setOptions(res.data);
-            })
-            .catch(err => console.log(err));
+        .then(res => {
+            setTotalQuantity(res.data[0].product.quantity);
+            setOptions(res.data);
+        })
+        .catch(err => console.log(err));
         getWish();
     }, []);
 
@@ -80,7 +84,7 @@ function ProductInfo() {
                                     height: '100%',
                                 }}
                             >
-                                <FaStar style={{ color: '#FFD700', fontSize: '20px' }} />
+                                <FaStar style={{verticalAlign: 'top', color: '#FFD700', fontSize: '20px' }} />
                             </div>
                         </span>
                     );

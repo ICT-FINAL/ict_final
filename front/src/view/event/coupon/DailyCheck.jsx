@@ -17,23 +17,23 @@ const DailyCheck = () => {
   const dispatch = useDispatch();
 
   const product = [
-    "10% COUPON",
-    "1,000P",
-    "20% COUPON",
-    "500P",
+    "1000원 쿠폰",
+    "+100P",
     "꽝",
-    "2000P",
-    "30% COUPON",
-    "1500P",
+    "+100P",
+    "꽝",
+    "꽝",
+    "+300P",
+    "꽝",
   ];
 
   const colors = [
     "#ffcc00",
     "#ff6666",
-    "#66ccff",
+    "#cccccc",
     "#99cc33",
     "#cccccc",
-    "#ff9999",
+    "#cccccc",
     "#9966cc",
     "#cccccc",
   ];
@@ -205,7 +205,7 @@ const DailyCheck = () => {
                 당첨 결과: <strong>{prize}</strong>
               </p>
               <p className="roulette-modal-sub">
-                💰 100 포인트가 지급되었습니다.
+                💰 50 포인트가 지급되었습니다.
               </p>
               <button
                 onClick={() => setShowModal(false)}

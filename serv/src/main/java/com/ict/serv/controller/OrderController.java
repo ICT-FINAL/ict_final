@@ -13,6 +13,7 @@ import com.ict.serv.service.InteractService;
 import com.ict.serv.service.OrderService;
 import com.ict.serv.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -151,9 +152,41 @@ public class OrderController {
         pvo.setOnePageRecord(5);
         User user = interactService.selectUserByName(userDetails.getUsername());
         pvo.setTotalRecord(orderService.totalOrderCount(user, pvo));
+        List<OrderGroup> og = orderService.getOrderByUser(user, pvo);
+        List<OrderGroupDTO> ogdto = new ArrayList<>();
+        for(OrderGroup group: og) {
+            OrderGroupDTO ogd = new OrderGroupDTO();
+            ogd.setOrderDate(group.getOrderDate());
+            ogd.setState(group.getState());
+            ogd.setTotalPrice(group.getTotalPrice());
+            ogd.setTotalShippingFee(group.getTotalShippingFee());
+            ogd.setCouponDiscount(group.getCouponDiscount());
+            ogd.setId(group.getId());
+            ogd.setUser(group.getUser());
+            List<OrdersDTO> ordersDTO = new ArrayList<>();
+            for(Orders order : group.getOrders()) {
+                OrdersDTO odd = new OrdersDTO();
+                odd.setFilename(productService.selectProduct(order.getProductId()).get().getImages().get(0).getFilename());
+                odd.setOrderItems(order.getOrderItems());
+                odd.setAddress(order.getAddress());
+                odd.setOrderNum(order.getOrderNum());
+                odd.setOrderGroup(order.getOrderGroup());
+                odd.setRequest(order.getRequest());
+                odd.setModifiedDate(order.getModifiedDate());
+                odd.setShippingState(order.getShippingState());
+                odd.setProductId(order.getProductId());
+                odd.setId(order.getId());
+                odd.setUser(order.getUser());
+                odd.setStartDate(order.getStartDate());
+                odd.setShippingFee(order.getShippingFee());
+                ordersDTO.add(odd);
+            }
+            ogd.setOrders(ordersDTO);
+            ogdto.add(ogd);
+        }
         Map map = new HashMap();
         map.put("pvo", pvo);
-        map.put("orderList", orderService.getOrderByUser(user, pvo));
+        map.put("orderList", ogdto);
 
         return map;
     }
