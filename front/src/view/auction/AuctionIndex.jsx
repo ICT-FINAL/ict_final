@@ -58,7 +58,7 @@ function AuctionIndex() {
         const updateItemsPerPage = () => {
             const width = window.innerWidth;
     
-            if (width >= 1500) {
+            if (width >= 1300) {
                 setItemsPerPage(5);
             } else if (width >= 1080) {
                 setItemsPerPage(4);

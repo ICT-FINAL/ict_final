@@ -24,4 +24,6 @@ public interface WishRepository extends JpaRepository<Wishlist, Long> {
     int countWishBySeller(@Param("sellerId") Long sellerId);
 
     int countIdByProduct(Product product);
+
+    List<Wishlist> findByUser(User user);
 }

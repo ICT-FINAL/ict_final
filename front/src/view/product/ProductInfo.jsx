@@ -344,7 +344,7 @@ function ProductInfo() {
         <>
             <div style={{ paddingTop: "140px" }}>
 
-                <div className="product-info-container">
+                <div className="product-info-container" style={{minWidth:'1000px'}}>
                     <div className="product-info-left">
                         <img
                             id="product-big-img"

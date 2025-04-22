@@ -119,7 +119,7 @@ function MySell() {
                                     </div>
                                     { fileList[idx] &&
                                     <div style={{textAlign:'center'}}>
-                                        <img  onClick={()=>moveInfo(order.productId)} style={{width:'300px', height:'300px', cursor:'pointer'}} src={`${serverIP.ip}/uploads/product/${order.productId}/${fileList[idx]}`}/>
+                                        <img  onClick={()=>moveInfo(order.productId)} style={{width:'200px', height:'200px', borderRadius:'10px', cursor:'pointer'}} src={`${serverIP.ip}/uploads/product/${order.productId}/${fileList[idx]}`}/>
                                     </div>
                                     }
                                     </div>
