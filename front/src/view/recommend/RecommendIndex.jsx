@@ -8,7 +8,8 @@ function RecommendIndex(){
     const serverIP = useSelector((state) => state.serverIP);
 
     const [alreadyProducts, setAlreadyProducts] = useState([]);
-    const [productList, setProductList] = useState([]);
+    
+    const [wishProduct, setWishProduct] = useState(null);
 
     useEffect(()=>{
         refresh();
@@ -25,7 +26,7 @@ function RecommendIndex(){
                 setAlreadyProducts(prev=>
                     [...prev, res.data.id]
                 );
-                // setProductList(res.data);
+                setWishProduct(res.data);
             })
             .catch(err=>console.log(err));
         }
@@ -48,15 +49,24 @@ function RecommendIndex(){
             </ul>
             <button id="refresh-btn" onClick={refresh}>⟳</button>
             <div className="recommend-list">
-                {
-                    productList.map(prod=>{
-                        return (
-                            <div className='recommend-product'>
-                                {prod}
-                            </div>
-                        )
-                    })
-                }
+                <div className='recommend-product'>
+                    
+                </div>
+                <div className='recommend-product'>
+                    
+                </div>
+                <div className='recommend-product'>
+                    {wishProduct && wishProduct.productName}
+                </div>
+                <div className='recommend-product'>
+                    
+                </div>
+                <div className='recommend-product'>
+                    
+                </div>
+                <div className='recommend-product'>
+                    
+                </div>
             </div>
         </div>
     );
