@@ -77,7 +77,7 @@ const PaymentSuccess = () => {
           <strong>결제금액:</strong> {formatNumberWithCommas(parseInt(amount, 10))}원
         </p>
         <p className="product-payment-thank-you">
-          '{user.user.username}'님 감사합니다 😊
+          '{ user && user.user.username}'님 감사합니다 😊
         </p>
       </div>
 

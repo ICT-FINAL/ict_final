@@ -12,5 +12,4 @@ public interface ChatRepository extends JpaRepository<ChatMessage, Long> {
 
     List<ChatMessage> findByRoomAndSenderNotAndIsReadFalse(ChatRoom room, User user);
 
-    boolean existsByRoomAndSenderNotAndIsReadFalse(ChatRoom room, User user);
 }

@@ -20,6 +20,8 @@ function ProductSearch() {
     const navigate = useNavigate();
     const debouncedSearchWord = useDebounce(search.searchWord, 500);
 
+    const [sort, setSort] = useState('최신순');
+
     const eventOptions = ["생일", "결혼", "졸업", "시험", "출산", "기타"];
     const targetOptions = ["여성", "남성", "연인", "직장동료", "부모님", "선생님", "기타"];
     const productOptions = {
@@ -45,7 +47,7 @@ function ProductSearch() {
         setProducts([]);
         setNowPage(1);
         getProductList(1);
-    }, [debouncedSearchWord, search.eventCategory, search.targetCategory, search.productCategory]);
+    }, [debouncedSearchWord, search.eventCategory, search.targetCategory, search.productCategory, sort]);
 
     useEffect(() => {
         if (nowPage > 1) {
@@ -60,7 +62,6 @@ function ProductSearch() {
     }, [inView, totalPage]);
 
     const moveInfo = (prod) => {
-        console.log(prod);
         navigate('/product/info', { state: { product: prod } });
     }
 
@@ -71,18 +72,12 @@ function ProductSearch() {
     const getProductList = (page) => {
         axios
             .get(
-                `${serverIP.ip}/product/search?searchWord=${search.searchWord}&eventCategory=${search.eventCategory}&targetCategory=${search.targetCategory}&productCategory=${search.productCategory}&nowPage=${page}`,{
+                `${serverIP.ip}/product/search?searchWord=${search.searchWord}&eventCategory=${search.eventCategory}&targetCategory=${search.targetCategory}&productCategory=${search.productCategory}&nowPage=${page}&sort=${sort}`,{
                     headers:{Authorization:`Bearer ${ user && user.token}`}
                 }
             )
             .then((res) => {
                 const { pvo, productList } = res.data;
-
-                setProducts((prev) => {
-                    if (page === 1) return productList;
-                    return [...prev, ...productList];
-                });
-
                 setTotalPage(pvo.totalPage);
 
                 Promise.all(
@@ -91,7 +86,8 @@ function ProductSearch() {
                         .then(res => ({
                           ...product,
                           average: res.data.average,
-                          reviewCount: res.data.reviewCount
+                          reviewCount: res.data.reviewCount,
+                          reviewContent: res.data.reviewContent
                         }))
                         .catch(err => {
                           console.error(err);
@@ -99,26 +95,16 @@ function ProductSearch() {
                         })
                     )
                   ).then(updatedList => {
-                    setProducts(updatedList);
+                    setProducts(prev => {
+                        if (page === 1) return updatedList;
+                        return [...prev, ...updatedList]; 
+                      });
                 });
             })
             .catch((err) => {
                 console.log(err)
             });
     };
-
-    {/* 평균 별점, 리뷰 갯수 구하기 */}
-    const [averageStar, setAverageStar] = useState(null);
-    const [reviewCount, setReviewCount] = useState(0);
-    // useEffect(() => {
-    //     axios.get(`${serverIP.ip}/review/averageStar?productId=${loc.state.product.id}`)
-    //     .then(res => {
-    //         console.log(res.data); 
-    //         setAverageStar(res.data.average);
-    //         setReviewCount(res.data.reviewCount);
-    //     })
-    //     .catch(err => console.log(err));
-    // }, []);
 
     return (
         <div className="product-grid-container">
@@ -185,6 +171,18 @@ function ProductSearch() {
                         />
                     </div>
                 </div>
+                <ul className='search-sort'>
+                    {["최신순", "찜 많은순", "후기 많은 순", "주문 많은 순", "할인율 높은 순", "높은 가격 순", "낮은 가격 순"].map((item, index) => (
+                        <li key={index}>
+                            <span
+                                onClick={() => setSort(item)}
+                                style={{ fontWeight: sort === item ? 'bold' : 'normal' }}
+                            >
+                                {item}
+                            </span>
+                        </li>
+                    ))}
+                </ul>
             </div>
             <div className="product-grid" style={{textAlign:'left'}}>
                 {products.map((product, index) => (
@@ -192,6 +190,7 @@ function ProductSearch() {
                         key={`${product.id}-${index}`}
                         className="product-card"
                         ref={index === products.length - 1 ? ref : null}
+                        style={{minWidth:0}}
                     >
                         <img style={{ cursor: 'pointer' }} onClick={() => moveInfo(product)}
                             src={`${serverIP.ip}/uploads/product/${product.id}/${product.images[0]?.filename}`}
@@ -228,7 +227,7 @@ function ProductSearch() {
                             </div>
 
                             {/* 별과 평균 별점, 리뷰 개수 */}
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '3px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', marginTop: '3px' }}>
                                 <FaStar style={{ color: '#FFD700', fontSize: '15px' }} />
                                 <div style={{ marginLeft: '8px', fontSize: '12px', color: '#555' }}>
                                     <b>{product.average ? product.average.toFixed(1) : '0.0'}</b>
@@ -236,6 +235,22 @@ function ProductSearch() {
                                         ({product.reviewCount})
                                     </span>
                                 </div>
+                            </div>
+                            <div
+                            style={{
+                                width: '100%',
+                                maxWidth: '100%',
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                fontSize: '13px',
+                                color: '#666',
+                                marginTop: '5px',
+                                lineHeight: '1.4',
+                            }}
+                            >
+                            <span style={{ fontWeight: '600', marginRight: '5px', color: '#333' }}>후기</span>
+                            {product.reviewContent !== '' && product.reviewContent}
                             </div>
 
                         </div>

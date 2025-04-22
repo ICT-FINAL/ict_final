@@ -1,14 +1,52 @@
-.CenterHome-container{
-    padding: 100px;
-    
-}
-.center-menu{
-    margin: 0 auto;
-    list-style-type: none;
-}
-.center-menu li{
-    float: left;
-    padding: 0 30px;
-    text-align: center;
+.CustomerServiceLayout-container {
+    padding-top: 100px;
+    width: 100%;
+    min-height: 100vh;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
+.CenterHome-container {
+    width: 100%;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ddd;
+    padding: 20px 0;
+}
+
+.center-menu {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 100px;
+}
+
+.center-menu li {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.center-menu li a {
+    text-decoration: none;
+    color: #333;
+    padding: 10px 16px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.center-menu li a:hover {
+   
+}
+
+.center-menu2 a, .center-menu3 a, .center-menu4 a {
+    display: inline-block;
+}
+
+.customer-service-content {
+    width: 90%;
+    max-width: 1200px;
+    padding: 40px 20px;
+}

@@ -1,16 +1,14 @@
 package com.ict.serv.controller.payment;
 
+import com.ict.serv.entity.auction.*;
 import com.ict.serv.entity.coupon.Coupon;
 import com.ict.serv.entity.coupon.CouponState;
-import com.ict.serv.entity.order.OrderGroup;
-import com.ict.serv.entity.order.OrderItem;
-import com.ict.serv.entity.order.OrderState;
-import com.ict.serv.entity.order.Orders;
+import com.ict.serv.entity.message.Message;
+import com.ict.serv.entity.order.*;
 import com.ict.serv.entity.product.OptionCategory;
 import com.ict.serv.entity.product.Product;
-import com.ict.serv.service.CouponService;
-import com.ict.serv.service.OrderService;
-import com.ict.serv.service.ProductService;
+import com.ict.serv.entity.product.ProductState;
+import com.ict.serv.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +28,9 @@ public class PaymentController {
     private final RestTemplate restTemplate = new RestTemplate();
     private final ProductService productService;
     private final CouponService couponService;
+    private final AuctionService auctionService;
+    private final InteractService interactService;
+
     @PostMapping("/confirm")
     public ResponseEntity<?> confirmPayment(@RequestBody Map<String, String> requestMap) {
         String secretKey = "test_sk_d46qopOB8972zE2BNblgVZmM75y0"; // 시크릿 키
@@ -80,6 +81,64 @@ public class PaymentController {
                 Coupon coupon = couponService.selectCoupon(couponId).get();
                 coupon.setState(CouponState.EXPIRED);
                 couponService.saveCoupon(coupon);
+            }
+            return ResponseEntity.ok(response.getBody());
+        } catch (HttpClientErrorException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsString());
+        }
+
+    }
+
+    @PostMapping("/auction/confirm")
+    public ResponseEntity<?> auctionConfirmPayment(@RequestBody Map<String, String> requestMap) {
+        String secretKey = "test_sk_d46qopOB8972zE2BNblgVZmM75y0"; // 시크릿 키
+        String paymentKey = requestMap.get("paymentKey");
+        String orderId = requestMap.get("orderId");
+        String iid = requestMap.get("iid");
+        AuctionOrder auctionOrder = orderService.selectAuctionOrder(Long.valueOf(iid)).get();
+        int amount = Integer.parseInt(requestMap.get("amount"));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBasicAuth(secretKey, "");
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("paymentKey", paymentKey);
+        payload.put("orderId", orderId);
+        payload.put("amount", amount);
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                    "https://api.tosspayments.com/v1/payments/confirm",
+                    request,
+                    String.class
+            );
+
+            auctionOrder.setState(OrderState.PAID);
+            AuctionProduct auctionProduct = auctionService.getAuctionProduct(auctionOrder.getAuctionProductId()).get();
+            AuctionRoom auctionRoom = auctionService.findAuctionRoomByAuctionProduct(auctionProduct).get(0);
+            auctionProduct.setState(ProductState.SOLDOUT);
+            auctionRoom.setState(AuctionState.CLOSED);
+            auctionService.saveAuctionProduct(auctionProduct);
+            auctionService.saveAuctionRoom(auctionRoom);
+            List<AuctionBid> bidList = auctionService.findAuctionBidByRoomAndState(auctionRoom, BidState.LIVE);
+            for(AuctionBid bid: bidList) {
+                bid.setState(BidState.DEAD);
+                auctionService.updateBid(bid);
+                Message msg = new Message();
+                msg.setUserFrom(auctionProduct.getSellerNo());
+                msg.setUserTo(bid.getUser());
+                msg.setSubject("입찰이 취소처리 되었습니다.");
+                msg.setComment("'" + auctionProduct.getProductName()+"' 물품의 입찰이 취소되었습니다. \n보증금은 1일 내 환불처리 됩니다.");
+                interactService.sendMessage(msg);
+            }
+            List<AuctionBid> buyerList = auctionService.findAuctionBidByRoomAndState(auctionRoom,BidState.SUCCESS);
+            if(!buyerList.isEmpty()) {
+                AuctionBid bbb = buyerList.get(0);
+                bbb.setState(BidState.PAID);
+                auctionService.updateBid(bbb);
             }
             return ResponseEntity.ok(response.getBody());
         } catch (HttpClientErrorException e) {

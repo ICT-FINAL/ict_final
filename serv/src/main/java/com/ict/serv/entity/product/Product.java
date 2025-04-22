@@ -40,7 +40,7 @@ public class Product {
 
     @Column(columnDefinition = "LONGTEXT")
     private String detail;
-    private int price;
+    private Integer price;
     private int quantity;
 
     @Column(name="shipping_fee")

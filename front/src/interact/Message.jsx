@@ -181,7 +181,7 @@ function Message() {
     const modalStyle = {    //모달 스타일은 이런 양식으로 plz 마음대로 커스텀
       position: 'fixed',
       width: '500px', 
-      height: '360px', 
+      height: '380px', 
       backgroundColor: 'white',
       zIndex: 10001,
       opacity: modalOpen ? 1 : 0,

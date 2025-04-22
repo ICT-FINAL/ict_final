@@ -12,6 +12,8 @@ import com.ict.serv.repository.product.ProductImageRepository;
 import com.ict.serv.repository.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -49,6 +51,64 @@ public class ProductService {
         else return repo.countProductsAllCategory(pvo.getSearchWord(),pvo.getEventCategory(),pvo.getTargetCategory(), categories);
     }
     public List<Product> searchAll(ProductPagingVO pvo, List<String> categories) {
+        switch (pvo.getSort()) {
+            case "최신순" -> {
+                if (categories.isEmpty() || categories.get(0).isEmpty()) {
+                    return repo.findProductsNoCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.desc("start_date"))));
+                } else
+                    return repo.findProductsAllCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), categories, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.desc("start_date"))));
+            }
+            case "높은 가격 순" -> {
+                if (categories.isEmpty() || categories.get(0).isEmpty()) {
+                    return repo.findProductsNoCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.desc("price"))));
+                } else
+                    return repo.findProductsAllCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), categories, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.desc("price"))));
+            }
+            case "낮은 가격 순" -> {
+                if (categories.isEmpty() || categories.get(0).isEmpty()) {
+                    return repo.findProductsNoCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.asc("price"))));
+                } else
+                    return repo.findProductsAllCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), categories, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.asc("price"))));
+            }
+            case "할인율 높은 순" -> {
+                if (categories.isEmpty() || categories.get(0).isEmpty()) {
+                    return repo.findProductsNoCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.desc("discount_rate"))));
+                } else
+                    return repo.findProductsAllCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), categories, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.desc("discount_rate"))));
+            }
+            case "찜 많은순" -> {
+                if (categories.isEmpty() || categories.get(0).isEmpty()) {
+                    return repo.findProductsNoCategoryOrderByWishCount(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord()));
+                } else {
+                    return repo.findProductsAllCategoryOrderByWishCount(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), categories, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord()));
+                }
+            }
+            case "후기 많은 순" -> {
+                if (categories.isEmpty() || categories.get(0).isEmpty()) {
+                    return repo.findProductsNoCategoryOrderByReviewCount(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord()));
+                } else {
+                    return repo.findProductsAllCategoryOrderByReviewCount(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), categories, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord()));
+                }
+            }
+            case "주문 많은 순" -> {
+                if (categories.isEmpty() || categories.get(0).isEmpty()) {
+                    return repo.findProductsNoCategoryOrderByOrderCount(
+                            pvo.getSearchWord(),
+                            pvo.getEventCategory(),
+                            pvo.getTargetCategory(),
+                            PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord())
+                    );
+                } else {
+                    return repo.findProductsAllCategoryOrderByOrderCount(
+                            pvo.getSearchWord(),
+                            pvo.getEventCategory(),
+                            pvo.getTargetCategory(),
+                            categories,
+                            PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord())
+                    );
+                }
+            }
+        }
         if(categories.isEmpty() || categories.get(0).isEmpty()) {
             return repo.findProductsNoCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord()));
         }else return repo.findProductsAllCategory(pvo.getSearchWord(),pvo.getEventCategory(),pvo.getTargetCategory(), categories,PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));

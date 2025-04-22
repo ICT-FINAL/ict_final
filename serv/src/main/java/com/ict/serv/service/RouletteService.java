@@ -2,7 +2,10 @@ package com.ict.serv.service;
 
 import com.ict.serv.entity.PointType;
 import com.ict.serv.entity.UserPoint;
+import com.ict.serv.entity.coupon.Coupon;
+import com.ict.serv.entity.coupon.CouponState;
 import com.ict.serv.entity.user.User;
+import com.ict.serv.repository.CouponRepository;
 import com.ict.serv.repository.UserPointRepository;
 import com.ict.serv.repository.UserRepository;
 import jakarta.persistence.EntityManager;
@@ -16,6 +19,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Random;
 
 @Service
@@ -26,6 +31,7 @@ public class RouletteService {
 
     private final UserRepository userRepository;
     private final UserPointRepository userPointRepository;
+    private final CouponRepository couponRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -65,11 +71,14 @@ public class RouletteService {
         User user = getUserByUserId(userId);
         if (user == null) return false;
 
-        UserPoint userPoint = userPointRepository.findByUserId(user.getId()).orElse(null);
-        if (userPoint == null) return true;
+        List<UserPoint> userPointList = userPointRepository.findByUserId(user.getId());
+        if (userPointList.isEmpty()) return true;
 
-        LocalDate lastSpinDate = userPoint.getLastSpinDate();
-        return lastSpinDate == null || !lastSpinDate.equals(LocalDate.now());
+        for(UserPoint userPoint : userPointList) {
+            LocalDate lastSpinDate = userPoint.getLastSpinDate();
+            if(lastSpinDate.equals(LocalDate.now())) return false;
+        }
+        return true;
     }
 
     // 룰렛을 돌리고 포인트를 추가하는 메서드
@@ -82,46 +91,46 @@ public class RouletteService {
         if (user == null) throw new RuntimeException("User not found for userId: " + userId);
 
         // 사용자의 포인트 정보가 없다면 새로 생성
-        UserPoint userPoint = userPointRepository.findByUserId(user.getId())
-                .orElseGet(() -> new UserPoint(user.getId(), 0, null, PointType.ROULETTE));
+        UserPoint userPoint = new UserPoint(user.getId(), 0, null, PointType.ROULETTE);
 
         // 오늘 이미 룰렛을 돌렸다면 예외 발생
         if (userPoint.getLastSpinDate() != null && userPoint.getLastSpinDate().equals(LocalDate.now())) {
-            throw new IllegalStateException("오늘 이미 돌렸습니다.");
+            throw new IllegalStateException("오늘은 이미 참가하셨습니다.");
         }
 
         // 룰렛 보상 항목
-        String[] rewards = {"10% COUPON", "1,000P", "20% COUPON", "500P", "꽝", "2000P", "30% COUPON", "1500P"};
+        String[] rewards = {"1000원 쿠폰", "+100P", "꽝", "+100P", "꽝", "꽝", "+300P", "꽝"};
         String reward = rewards[new Random().nextInt(rewards.length)];
 
         // 기본 100P 적립
-        int pointsToAdd = 100;
+        int pointsToAdd = 50;
 
         // 보상에 따른 추가 포인트
-        if (reward.equals("1,000P")) {
-            // 1000P가 당첨되면 1100P 적립
-            pointsToAdd = 1100;
-        } else if (reward.equals("500P")) {
+        if (reward.equals("1000원 쿠폰")) {
+            Coupon coupon = new Coupon();
+            coupon.setCouponName("룰렛 쿠폰");
+            coupon.setDiscount(1000);
+            coupon.setEndDate(LocalDateTime.now().plusYears(1));
+            coupon.setStartDate(LocalDateTime.now());
+            coupon.setState(CouponState.AVAILABLE);
+            coupon.setType("roulette");
+            coupon.setUser(user);
+            couponRepository.save(coupon);
+        } else if (reward.equals("+100P")) {
             // 500P가 당첨되면 600P 적립
-            pointsToAdd = 600;
-        } else if (reward.equals("2000P")) {
+            pointsToAdd = 150;
+        } else if (reward.equals("+300P")) {
             // 2000P가 당첨되면 2100P 적립
-            pointsToAdd = 2100;
-        } else if (reward.equals("1500P")) {
-            // 1500P가 당첨되면 1600P 적립
-            pointsToAdd = 1600;
-        } else if (reward.equals("꽝") || reward.contains("COUPON")) {
-            // 꽝이나 쿠폰이 당첨되면 100P만 적립
-            pointsToAdd = 100;
+            pointsToAdd = 350;
         }
 
         // 포인트 업데이트
-        userPoint.setPoint(userPoint.getPoint() + pointsToAdd); // 계산된 포인트 적립
-        userPoint.setLastSpinDate(LocalDate.now()); // 오늘 날짜 기록
-
+        userPoint.setPoint(userPoint.getPoint() + pointsToAdd);
+        userPoint.setLastSpinDate(LocalDate.now());
+        userPoint.setType(PointType.ROULETTE);
         try {
             userPointRepository.save(userPoint);
-            user.setGradePoint(user.getGradePoint()+100);
+            user.setGradePoint(user.getGradePoint()+ pointsToAdd);
             userRepository.save(user);
         } catch (Exception e) {
             log.error("Failed to save UserPoint for userId: {}, error: {}", user.getId(), e.getMessage(), e);

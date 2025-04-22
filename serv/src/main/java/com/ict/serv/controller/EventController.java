@@ -84,7 +84,7 @@ public class EventController {
     @GetMapping("/melonRank")
     public String melonRank(@AuthenticationPrincipal UserDetails userDetails, Melon melon) {
         User user = interactService.selectUserByName(userDetails.getUsername());
-        if(couponService.selectUserPointByMelon(PointType.MELON,user)==null) {
+        if(couponService.selectUserPointByMelon(PointType.MELON,user).isEmpty()) {
             user.setGradePoint(user.getGradePoint()+ melon.getScore());
             UserPoint user_point = new UserPoint(user.getId(), melon.getScore(), LocalDate.now(), PointType.MELON);
             userPointRepository.save(user_point);

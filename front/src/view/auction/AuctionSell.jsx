@@ -238,34 +238,6 @@ function AuctionSell() {
             return;
         }
 
-        // 세부 카테고리 검사 
-        if (formData.subCategories.length === 0) {
-            alert("세부 카테고리를 선택해주세요.");
-            return;
-        }
-        if(formData.options.length === 0) {
-            alert("옵션을 추가해주세요.");
-            return;
-        }
-        // 옵션 추가 버튼 클릭시 대분류 옵션 이름이 비어있으면 검사 
-        if (!validateMainOptions()) {
-            return;
-        }
-        console.log(formData.options);
-        // 소분류 옵션 추가시에 소분휴 이름이 비어있으면 검사
-        for (let i = 0; i < formData.options.length; i++) {
-            if(formData.options[i].subOptions.length === 0) {
-                alert("소분류를 추가해주세요.");
-                return;
-            }
-            for (let j = 0; j < formData.options[i].subOptions.length; j++) {
-                let subOption = formData.options[i].subOptions[j];
-                if (subOption.subOptionName.trim() === "") {
-                    alert("소분류 옵션 이름을 입력해주세요.");
-                    return;
-                }
-            }
-        }
     
         // 상세 설명 검사
         if (!formData.detail) {
@@ -294,7 +266,7 @@ function AuctionSell() {
             productName: formData.productName,
             eventCategory: formData.eventCategory,
             targetCategory: formData.targetCategory,
-            productCategory: formData.subCategories,
+            productCategory: formData.productCategory,
             detail: formData.detail,
             firstPrice: parseInt(formData.first_price, 10) || 0,
             buyNowPrice: parseInt(formData.buy_now_price, 10) || 0,
@@ -365,70 +337,7 @@ function AuctionSell() {
                         <option key={category} value={category}>{category}</option>
                     ))}
                 </select>
-                {formData.productCategory && productOptions[formData.productCategory] && (
-                    <div className="product-checkbox-group">
-                        <div className="product-checkbox-title">세부 카테고리 선택</div>
-                        <div>
-                        {productOptions[formData.productCategory].map((sub) => (
-                            <label key={sub} className="product-checkbox-label">
-                                <input
-                                    type="checkbox"
-                                    name="subCategories"
-                                    value={sub}
-                                    checked={formData.subCategories === sub} // 체크박스 → 한개만 선택되도록 
-                                    onChange={() => handleSubCategoryChange(sub)}
-                                />
-                                {sub}
-                            </label>
-                        ))}
-                        </div>
-                    </div>
-                )}     
-                    {formData.subCategories && (
-                        <>
-                            <button type="button" onClick={addMainOption} className="option-button">옵션 추가</button>
-                            <div className="option-container">
-                                {formData.options.map((option, mainIndex) => (
-                                    <div key={mainIndex} style={{ marginBottom: "15px" }}>
-                                        <input
-                                            type="text"
-                                            id={`mainOption-${mainIndex}`} // 각 대분류 옵션에 고유 id 추가
-                                            value={option.optionName}
-                                            onChange={(e) => handleMainOptionChange(mainIndex, e.target.value)}
-                                            placeholder="EX) 빨강"
-                                            className="option-input-style"
-                                        />
-
-                                        <button type="button" onClick={() => addSubOption(mainIndex)} className="option-button">+ 소분류 옵션 추가</button>
-                                        <button type="button" onClick={() => removeMainOption(mainIndex)} className="option-delete-button">대분류 삭제</button>
-                                        <div style={{ marginLeft: "20px" }}>
-                                            {option.subOptions.map((subOption, subIndex) => (
-                                                <div key={subIndex}>
-                                                    <input
-                                                        type="text"
-                                                        value={subOption.subOptionName}
-                                                        onChange={(e) => handleSubOptionChange(mainIndex, subIndex, e.target.value)}
-                                                        placeholder="EX) XL"
-                                                        className="option-input-style"
-                                                    />
-                                                    <input
-                                                        type="text"
-                                                        value={subOption.quantity}
-                                                        onChange={(e) => handleSubOptionQuantityChange(mainIndex, subIndex, e.target.value)}
-                                                        placeholder="수량"
-                                                        min="1"
-                                                        className="option-input-style"
-                                                        disabled
-                                                    />
-                                                     <button type="button" onClick={() => removeSubOption(mainIndex, subIndex)} className="option-delete-button">소분류 삭제</button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </>
-                    )}
+                
                     
                 <label className="product-label">수량</label>
                 <input

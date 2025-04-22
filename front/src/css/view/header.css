@@ -3,13 +3,11 @@
     background: linear-gradient(180deg, #2a2a2a, #1b1b1b);
     width: 100%;
     height: 80px;
-    display: flex;
-    align-items: center;
     padding-left: 20px;
     box-sizing: border-box;
     box-shadow:
-    0 4px 10px rgba(0, 0, 0, 0.5),
-    inset 0 3px 5px rgba(255, 255, 255, 0.15);
+        0 4px 10px rgba(0, 0, 0, 0.5),
+        inset 0 3px 5px rgba(255, 255, 255, 0.15);
     z-index: 2006;
 }
 .header-container-admin {
@@ -23,32 +21,32 @@
     list-style: none;
     padding: 0;
     margin: 0;
+    min-width: 560px;
 }
-
 .header-left {
-    flex: 1;
-    min-width: 100px;
-    max-width: 180px; 
+    width: 10%;
 }
-
 .header-center {
-    flex: 1.5;
+    width: 50%;
+}
+.header-right {
+    width: 40%;
     display: flex;
-    justify-content: flex-end;
-    padding-left: 20px;
+    align-items: center;
+    gap: 8px;
 }
 
 .header-center ul {
-    display: flex;
-    gap: 4vw;
     list-style: none;
     color: white;
-    padding: 0;
+    padding: auto 30px;
     margin: 0;
-    margin-right: 8%;
     white-space: nowrap;
 }
-
+.header-center ul li {
+    float: left;
+    margin: 0 3%;
+}
 .header-center a{
     text-decoration: none;
     color:white;
@@ -77,12 +75,9 @@
     left: 10%;
 }
 
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-left: auto;
-    justify-content: flex-end;
+.hamburger-wrapper{
+    position: absolute;
+    right:0;
 }
 
 .hamburger {
@@ -121,6 +116,7 @@
 }
 
 .login-btn {
+    width: 30%;
     color: white;
     padding: 10px 18px;
     border-radius: 5px;
@@ -147,34 +143,39 @@
 }
 
 .header-search-box {
-    position: relative;
+    position: absolute;
+    right: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 150px;
     background-color: transparent;
-    border-left: 1px solid #555;
-    border-bottom: 2px solid #555;
+    width: 17%;
     height: 80px;
     transition: all 0.5s;
 }
 
 .recent-search-list {
     position: absolute;
-    top: 90px;
-    left: 10px;
+    top: 80px;
+    left: 0px;
+    width: calc(100% - 20px);
+    padding: 10px;
     line-height: 1.6;
+    background-color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    border-radius: 0 0 5px 5px;
     font-size: 11pt;
 }
 
 /* 실검 */
 .header-hot-box {
-    padding: 10px;
-    min-width:100px;
+    position: relative;
     color:white;
     border-left:1px solid hsl(0, 0%, 33%);
-    line-height: 60px;
-    height: 60px;
+    border-right:1px solid hsl(0, 0%, 33%);
+    line-height: 78px;
+    height: 78px;
+    width: 26%;
 }
 
 .hot-search {
@@ -183,10 +184,10 @@
 
 .hot-search-dropdown {
     position: absolute;
-    top:70px;
-    left:-10px;
+    top:78px;
+    left:0px;
     background-color: #444;
-    width:128px;
+    width: 100%;
     padding-bottom:10px;
 }   
 .hot-search-list-item {
@@ -199,7 +200,7 @@
 
 /* 실검끝 */
 
-@media(min-width: 1450px) {
+ @media(min-width: 1450px) {
     .header-search-box {
         min-width: 150px;
     }
@@ -210,13 +211,7 @@
         margin-right: 4%;
     }
 }
-@media(max-width: 1250px) {
-    .header-center ul {
-        gap: 0;
-        margin-right: 0;
-    }
-}
-@media(max-width:960px) {
+@media(max-width:1220px) {
     .header-center {
         display: none;
     }
@@ -227,15 +222,26 @@
         display: flex;
     }
     .header-search-box {
-        display: flex;
+        position: absolute;
+        right:80px;
+        width:200px;
     }
+    .header-hot-box {
+        position:absolute;
+        right:300px;
+        width:150px;
+    }
+    .menu-icon{
+        position:absolute;
+        right:420px;
+    }
+}
+@media(max-width:840px) {
     .header-hot-box {
         display: none;
     }
-}
-@media(max-width:750px) {
-    .header-right {
-        min-width: 300px;
+    .menu-icon{
+        right:280px;
     }
 }
 .header-search-box:has(.search-input:focus) {
@@ -272,6 +278,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 30%;
 }
 
 .grid-icon {

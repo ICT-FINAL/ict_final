@@ -1,10 +1,12 @@
-import { BrowserRouter as Router, Routes, Route, BrowserRouter, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, BrowserRouter, useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
 import axios from 'axios';
 
 import Main from "./Main";
 
 import Test from './Test';
+
+import '../css/floatstyle.css';
 
 import SignupHandler from "./user/SignupHandler";
 import SignupInfo from './user/SignupInfo';
@@ -33,7 +35,9 @@ import ProductSearch from './product/ProductSearch';
 
 import CenterHome from './customerservice/CenterHome';
 import InquiryWrite from './customerservice/InquiryWrite';
+import NoticeWrite from './customerservice/NoticeWrite';
 import FAQ from './customerservice/FAQ';
+import NoticeInfo from './customerservice/NoticeInfo';
 import ProductSell from './product/ProductSell';
 import ReportApprove from '../interact/ReportApprove';
 import CategoryModal from '../modal/CategoryModal';
@@ -65,7 +69,16 @@ import Notice from './customerservice/Notice';
 import Chatting from './product/Chatting';
 import DeleteModal from '../modal/DeleteModal';
 import MelonGame from './event/coupon/MelonGame';
+import NoticeEdit from './customerservice/NoticeEdit';
+
 import AuctionSearch from './auction/AuctionSearch';
+import ShippingModal from '../modal/ShippingModal';
+
+import Menu from './Menu';
+
+import Item from './Item';
+import { setLoginView } from '../store/loginSlice';
+import AuctionPaymentSuccess from './product/AuctionPaymentSuccess';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -76,7 +89,7 @@ function Body() {
 
   const dispatch = useDispatch();
   const location = useLocation();
-
+  const navigate = useNavigate();
   const serverIP = useSelector((state) => state.serverIP);
   const user = useSelector((state) => state.auth.user);
   useEffect(() => {
@@ -141,6 +154,31 @@ function Body() {
     }
   }, []);
 
+  useEffect(()=>{
+    var menu = new Menu("#myMenu");
+    var item1 = new Item("list", "fas fa-bars", "");
+    var item2 = new Item("up", "fas fa-id-card", "", "");
+    var item3 = new Item("home", "fas fa-sign-out-alt", "", "");
+    menu.add(item1);
+    menu.add(item2);
+    menu.add(item3);
+    let homeButton=document.getElementById("home");
+    var upButton=document.getElementById("up");
+    
+    homeButton.addEventListener('click', () => {
+      menu.close();
+      if(user)  
+        navigate('product/sell');
+      else dispatch(setLoginView(true));
+    });
+
+    upButton.addEventListener('click', () => {
+        menu.close();
+        window.scrollTo({top:0,left:0,behavior:'smooth'});
+    });
+    let clicked = false;
+  },[]);
+
   return (<>
     {modal.isOpen && modal.selected == '1' && <ModalIndex />}
     {modal.isOpen && modal.selected == '2' && <Modal2 />}
@@ -157,6 +195,7 @@ function Body() {
     {modal.isOpen && modal.selected == 'reportapprove' && <ReportApprove />}
     {modal.isOpen && modal.selected == 'categorymodal' && <CategoryModal />}
     {modal.isOpen && modal.selected == 'inquiry-box' && <InquiryModal />}
+    {modal.isOpen && modal.selected == 'shipping' && <ShippingModal />}
     {interact.isOpen && <Interact />}
     {modal.isOpen && modal.selected.indexOf('delll') !== -1 && <DeleteModal />}
     <Routes>
@@ -181,6 +220,10 @@ function Body() {
         <Route path="inquirywrite" element={<InquiryWrite />} />
         <Route path="faq" element={<FAQ />} />
         <Route path="notice" element={<Notice />} />
+        <Route path="notice/:id" element={<NoticeInfo />} />
+        <Route path="noticewrite" element={<NoticeWrite />} />
+        <Route path="noticeedit/:id" element={<NoticeEdit />} />
+
       </Route>
       <Route path='/inquiry/inquiryview/:id' element={<InquiryView />} />
 
@@ -188,6 +231,7 @@ function Body() {
       <Route path='/product/info' element={<ProductInfo />}></Route>
       <Route path='/product/buying' element={<ProductBuy />}></Route>
       <Route path="/payment/success" element={<PaymentSuccess />}></Route>
+      <Route path="/payment/auction/success" element={<AuctionPaymentSuccess/>}></Route>
       <Route path="/payment/fail" element={<PaymentFail />}></Route>
 
       <Route path='/recommend/*' element={<RecommendIndex />}></Route>

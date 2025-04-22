@@ -6,6 +6,7 @@ import AdminEdit from "./AdminEdit";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import '../../css/view/admin.css';
+import SalesByPeriod from "./SalesByPeriod";
 
 function AdminIndex() {
     const location = useLocation();
@@ -31,7 +32,7 @@ function AdminIndex() {
             points: { f_name: "보관함", l_name: "적립 내역" },
             "stats-activity": { f_name: "통계", l_name: "활동 통계" },
             "stats-purchases": { f_name: "통계", l_name: "구매 통계" },
-            "stats-sales": { f_name: "통계", l_name: "판매 통계" },
+            salesbyperiod: { f_name: "통계", l_name: "판매 통계" },
             "delete-account": { f_name: "회원 탈퇴", l_name: "회원 탈퇴" },
         };
 
@@ -56,6 +57,7 @@ function AdminIndex() {
                 {path.l_name == '신고 목록' && <AdminReport />}
                 {path.l_name == '문의 목록' && <AdminInquiry />}
                 {path.l_name == '회원 목록' && <AdminEdit />}
+                {path.l_name == '판매 통계' && <SalesByPeriod />}
             </div>
         </div>
     </>)
