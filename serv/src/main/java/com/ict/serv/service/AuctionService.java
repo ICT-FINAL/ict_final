@@ -128,9 +128,12 @@ public class AuctionService {
                 auctionProductRepository.save(product);
                 messagingTemplate.convertAndSend("/topic/auction/" + roomId + "/end", "경매 종료");
                 User user = userRepository.findUserById(room.getHighestBidderId());
-                AuctionBid bid = bidRepository.findByStateAndUserAndRoom(BidState.LIVE, user, room).get(0);
-                bid.setState(BidState.SUCCESS);
-                bidRepository.save(bid);
+                List<AuctionBid> bids = bidRepository.findByStateAndUserAndRoom(BidState.LIVE, user, room);
+                if (!bids.isEmpty()) {
+                    AuctionBid bid = bids.get(0);
+                    bid.setState(BidState.SUCCESS);
+                    bidRepository.save(bid);
+                }
                 Message msg = new Message();
                 msg.setUserFrom(room.getAuctionProduct().getSellerNo());
                 msg.setUserTo(user);
@@ -234,5 +237,15 @@ public class AuctionService {
 
     public List<AuctionRoom> getClosingAuctionRooms() {
         return auctionRepository.findTop50ByOrderByEndTime();
+    }
+
+    @Transactional
+    public void closeAllAuctionIfClosed() {
+        List<AuctionRoom> auctionRoomList = auctionRepository.findByState(AuctionState.OPEN);
+        for(AuctionRoom auctionRoom: auctionRoomList) {
+            if(auctionRoom.getEndTime().isBefore(LocalDateTime.now())) {
+                closeAuctionRoom(auctionRoom.getRoomId());
+            }
+        }
     }
 }

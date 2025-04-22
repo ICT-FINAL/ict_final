@@ -487,3 +487,45 @@
 }
 
 /* 입찰내역끝 */
+
+/* 쿠폰 */
+.mypage-coupon-list{
+    list-style-type: none;
+    display: flex;
+    margin:0;
+    padding:10px;
+    margin-top:10px;
+}
+
+.mypage-coupon-list > li{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.mypage-coupon-list > li:nth-child(1) {
+    width:28%;
+}
+
+.mypage-coupon-list > li:nth-child(2) {
+    width:20%
+}
+
+.mypage-coupon-list > li:nth-child(3) {
+    width:16%;
+    text-align: center;
+}
+
+.mypage-coupon-list > li:nth-child(4) {
+    width:16%;
+    text-align:center;
+}
+.mypage-coupon-list > li:nth-child(5) {
+    width:16%;
+    text-align: center;
+}
+.mypage-coupon-list > li:nth-child(6) {
+    width:12%;
+    text-align: center;
+}
+/* 쿠폰 끝 */
