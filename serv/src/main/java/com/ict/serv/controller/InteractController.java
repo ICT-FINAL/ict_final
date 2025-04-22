@@ -93,7 +93,7 @@ public class InteractController {
         return "ok";
     }
     @GetMapping("/sendReport")
-    public String sendReport(@AuthenticationPrincipal UserDetails userDetails, Long toId, String reportType, ReportSort sort, Long sortId, String comment) {
+    public String sendReport(@AuthenticationPrincipal UserDetails userDetails, Long toId, String reportType, String comment, ReportSort sort, Long sortId ) {
         Report report = new Report();
         report.setComment(comment);
         report.setSort(sort);

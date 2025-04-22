@@ -84,7 +84,4 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         DESC
         """)
     List<Product> findTop10PopularProductsByRating();
-
-    Product findProductById(Long id);
-
 }
