@@ -1,5 +1,6 @@
 package com.ict.serv.controller.admin;
 
+import com.ict.serv.dto.UserResponseDto;
 import com.ict.serv.entity.Authority;
 import com.ict.serv.entity.Inquiries.Inquiry;
 import com.ict.serv.entity.Inquiries.InquiryPagingVO;
@@ -120,7 +121,6 @@ public class AdminController {
     public String reportApprove(@AuthenticationPrincipal UserDetails userDetails, Long toId, Long fromId, Long reportId, ReportSort sort, Long sortId, String approveType, String comment) {
         User user = inter_service.selectUser(toId);
         Product product = productService.selectProduct(sortId).get();
-
         Report report = inter_service.selectReport(reportId).get();
         report.setReportText(comment);
         report.setSort(sort);
@@ -187,6 +187,7 @@ public class AdminController {
             try {
                 if ("관리자".equals(authority)) auth = Authority.ROLE_ADMIN;
                 else if ("사용자".equals(authority)) auth = Authority.ROLE_USER;
+                else if ("정지중".equals(authority)) auth = Authority.ROLE_BANNED;
                 else throw new IllegalArgumentException();
             } catch (Exception e) {
                 response.put("message", "잘못된 권한 필터입니다.");
@@ -203,5 +204,27 @@ public class AdminController {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-}
+
+    @PostMapping("/banUser")
+    public ResponseEntity<String> banUser(@RequestBody UserResponseDto request) {
+    String userid = request.getUserid();
+    Authority authority = request.getAuthority();
+    Authority newAuthority;
+        try {
+            newAuthority = authority;
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>("잘못된 권한 값입니다.", HttpStatus.BAD_REQUEST);
+        }
+
+         User user = userRepository.findUserByUserid(userid);
+            if (user.toString().isEmpty()) {
+                return new ResponseEntity<>("해당 사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+        }
+
+        user.setAuthority(newAuthority);
+        userRepository.save(user);
+        return new ResponseEntity<>("사용자 권한이 성공적으로 변경되었습니다.", HttpStatus.OK);
+        }
+    }
+
 
