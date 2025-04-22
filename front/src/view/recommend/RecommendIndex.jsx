@@ -39,7 +39,7 @@ function RecommendIndex(){
             
             /*
             const thirdRes = await axios.post(`${serverIP.ip}/recommend/getRecommend1`, {
-                productIds: [wishId, defaultId]
+                productIds: [...alreadyProducts, wishId, defaultId]
             }, { headers: { Authorization: `Bearer ${user.token}` } });
     
             const thirdId = thirdRes.data.id;

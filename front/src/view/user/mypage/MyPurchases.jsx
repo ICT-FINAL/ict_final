@@ -123,6 +123,9 @@ function MyPurchases() {
                                             <strong>주문번호:</strong> {order.orderNum}<br />
                                         </div>
                                         <div className='order-wrapper'>
+                                            <div style={{textAlign:'center'}}>
+                                                <img style={{width:`200px`, height:`200px`, borderRadius:'10px', cursor:'pointer'}} onClick={()=>moveInfo(order.productId)} src={`${serverIP.ip}/uploads/product/${order.productId}/${order.filename}`}/>
+                                            </div>
                                             <div>
                                             {order.orderItems.map((oi) => {
                                                 const itemTotal = (oi.price * (100 - oi.discountRate) / 100 + oi.additionalFee) * oi.quantity;
@@ -138,9 +141,6 @@ function MyPurchases() {
                                                     </div>
                                                 );
                                             })}
-                                            </div>
-                                            <div style={{textAlign:'center'}}>
-                                                <img style={{width:'200px', height:'200px', borderRadius:'10px', cursor:'pointer'}} onClick={()=>moveInfo(order.productId)} src={`${serverIP.ip}/uploads/product/${order.productId}/${order.filename}`}/>
                                             </div>
                                         </div>
                                         <div className="order-total">
