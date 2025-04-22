@@ -133,7 +133,7 @@ function MyPurchases() {
                                                 return (
                                                     <div className="order-item" key={oi.id} style={{cursor:'pointer'}} onClick={()=>moveInfo(order.productId)}>
                                                         <div className="product-details">
-                                                            <strong>{oi.productName} - {oi.optionName}</strong>
+                                                            <strong>{oi.productName}<br/>{oi.optionName}</strong>
                                                             <div style={{ marginTop: '5px' }}>
                                                                 {oi.optionCategoryName} : {formatNumberWithCommas(oi.price)}원 <strong style={{ color: '#e74c3c' }}>(-{formatNumberWithCommas(oi.discountRate * oi.price / 100)}원)</strong> <strong style={{ color: '#1976d2' }}>(+{formatNumberWithCommas(oi.additionalFee)}원)</strong> x {formatNumberWithCommas(oi.quantity)} = <strong>{formatNumberWithCommas(itemTotal)}</strong>원
                                                             </div>

@@ -145,4 +145,12 @@ public class LogService {
 
         userHitLogRepository.save(log);
     }
+
+    public List<UserHitLog> getHitList(User user) {
+        return userHitLogRepository.findAllByUser(user);
+    }
+
+    public List<SearchLog> getSearchList(User user) {
+        return searchLogRepository.findAllByUser(user);
+    }
 }

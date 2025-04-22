@@ -10,8 +10,10 @@ function RecommendIndex(){
     const [alreadyProducts, setAlreadyProducts] = useState([]);
 
     const [defaultProduct, setDefaultProduct] = useState(null);
-
     const [wishProduct, setWishProduct] = useState(null);
+    const [basketProduct, setBasketProduct] = useState(null);
+    const [hitProduct, setHitProduct] = useState(null);
+    const [searchProduct, setSearchProduct] = useState(null);
 
     useEffect(()=>{
         getRecommendList();
@@ -37,14 +39,29 @@ function RecommendIndex(){
             setAlreadyProducts(prev => [...prev, defaultId]);
             setDefaultProduct(defaultRes.data);
             
-            /*
-            const thirdRes = await axios.post(`${serverIP.ip}/recommend/getRecommend1`, {
-                productIds: [...alreadyProducts, wishId, defaultId]
-            }, { headers: { Authorization: `Bearer ${user.token}` } });
+            const basketRes = await axios.post(`${serverIP.ip}/recommend/getBasketRecommend`, 
+                                { productIds: [...alreadyProducts, wishId, defaultId]}, 
+                                { headers: { Authorization: `Bearer ${user.token}` } });
     
-            const thirdId = thirdRes.data.id;
-            setAlreadyProducts(prev => [...prev, thirdId]);
-            */
+            const basketId = basketRes.data.id;
+            setAlreadyProducts(prev => [...prev, basketId]);
+            setBasketProduct(basketRes.data);
+
+            const hitRes = await axios.post(`${serverIP.ip}/recommend/getHitRecommend`, 
+                                { productIds: [...alreadyProducts, wishId, defaultId, basketId]}, 
+                                { headers: { Authorization: `Bearer ${user.token}` } });
+    
+            const hitId = hitRes.data.id;
+            setAlreadyProducts(prev => [...prev, hitId]);
+            setHitProduct(hitRes.data);
+
+            const searchRes = await axios.post(`${serverIP.ip}/recommend/getSearchRecommend`, 
+                                { productIds: [...alreadyProducts, wishId, defaultId, basketId, hitId]}, 
+                                { headers: { Authorization: `Bearer ${user.token}` } });
+    
+            const searchId = searchRes.data.id;
+            setAlreadyProducts(prev => [...prev, searchId]);
+            setSearchProduct(searchRes.data);
 
         } catch (err) {
             console.log(err);
@@ -66,22 +83,22 @@ function RecommendIndex(){
             <button id="refresh-btn" onClick={getRecommendList}>⟳</button>
             <div className="recommend-list">
                 <div className='recommend-product'>
-                    
+                    장바구니: {basketProduct && basketProduct.productName}
                 </div>
                 <div className='recommend-product'>
-                    
+                    검색: {searchProduct && searchProduct.productName}
                 </div>
                 <div className='recommend-product'>
-                    {wishProduct && wishProduct.productName}
+                    찜: {wishProduct && wishProduct.productName}
                 </div>
                 <div className='recommend-product'>
-                    
+                    방문: {hitProduct && hitProduct.productName}
                 </div>
                 <div className='recommend-product'>
-                    
+                    리뷰: 
                 </div>
                 <div className='recommend-product'>
-                    {defaultProduct && defaultProduct.productName}
+                    디폴트: {defaultProduct && defaultProduct.productName}
                 </div>
             </div>
         </div>
