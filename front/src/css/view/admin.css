@@ -100,24 +100,78 @@
 
 .admin-list > li:nth-child(1) {
     width:10%;
+    text-align:center;
 }
 
 .admin-list > li:nth-child(2) {
-    width:23%
+    width:10%;
+    text-align:center;
 }
 
 .admin-list > li:nth-child(3) {
-    width:42%;
+    width:20%;
+    text-align:center;
 }
 
 .admin-list > li:nth-child(4) {
-    width:15%;
+    width:40%;
     text-align:center;
 }
+
 .admin-list > li:nth-child(5) {
+    width:10%;
+    text-align:center;
+}
+
+.admin-list > li:nth-child(6) {
+    width:10%;
+    text-align:center;
+}
+
+.admin-report-list{
+    list-style-type: none;
+    display: flex;
+    margin:0;
+    padding:10px;
+    margin-top:10px;
+}
+
+.admin-report-list > li{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.admin-report-list > li:nth-child(1) {
+    width:5%;
+    text-align:center;
+}
+
+.admin-report-list > li:nth-child(2) {
     width:15%;
     text-align:center;
 }
+
+.admin-report-list > li:nth-child(3) {
+    width:20%;
+    text-align:center;
+}
+
+.admin-report-list > li:nth-child(4) {
+    width:30%;
+    text-align:center;
+}
+
+.admin-report-list > li:nth-child(5) {
+    width:10%;
+    text-align:center;
+}
+
+.admin-report-list > li:nth-child(6) {
+    width:20%;
+    text-align:center;
+}
+
 .report-box{
     padding:15px;
     margin-top:30px;
@@ -196,12 +250,16 @@
 .report-search{
     margin-top:20px;
     display:flex;
+    flex-wrap:wrap;
+    justify-content: space-between;
 }
+
 .report-search>div:nth-child(1){
-    width:50%;
+    width:20%;
 }
+
 .report-search>div:nth-child(2){
-    width:50%;
+    width:80%;
     text-align: right;
     margin-right: 0px;
 }

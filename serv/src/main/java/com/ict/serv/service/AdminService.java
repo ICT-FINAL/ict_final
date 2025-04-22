@@ -7,6 +7,7 @@ import com.ict.serv.entity.Inquiries.InquiryState;
 import com.ict.serv.entity.report.Report;
 import com.ict.serv.entity.report.ReportState;
 import com.ict.serv.repository.ReportRepository;
+import com.ict.serv.repository.UserRepository;
 import com.ict.serv.repository.inquiry.InquiryRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
@@ -32,6 +33,8 @@ public class AdminService {
     private final ReportRepository report_repo;
     private final InquiryRepository inquiryRepository;
     private final EntityManager entityManager;
+    private final UserRepository userRepository;
+    private final ReportRepository reportRepository;
 
     public Optional<Report> selectReport(Long id) {
         return report_repo.findById(id);
@@ -42,32 +45,44 @@ public class AdminService {
     public List<Report> getAllReport(PagingVO pvo, ReportState state){
         boolean no_word = pvo.getSearchWord() == null || pvo.getSearchWord().isEmpty();
         boolean no_cat = pvo.getCategory()==null || pvo.getCategory().isEmpty();
+        boolean no_sort = pvo.getSort()==null;
+        if(no_word) pvo.setSearchWord("");
         if(no_word && no_cat) {
-            return report_repo.findAllByStateOrderByIdDesc(state, PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+            if(no_sort) return report_repo.findAllByStateOrderByIdDesc(pvo.getState(), PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+            return report_repo.findAllByStateAndSortOrderByIdDesc(pvo.getState(),pvo.getSort(), PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
         }
         else if(no_word){
-            return report_repo.findAllByStateAndReportTypeContainingOrderByIdDesc(state,pvo.getCategory(),PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+            if(no_sort) return report_repo.findAllByStateAndReportTypeContainingOrderByIdDesc(pvo.getState(),pvo.getCategory(),PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+            return report_repo.findAllByStateAndSortAndReportTypeContainingOrderByIdDesc(pvo.getState(),pvo.getSort(),pvo.getCategory(),PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
         }else if(no_cat) {
-            return report_repo.findAllIdByStateAndContainingSearchWord(state,pvo.getSearchWord(),PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+            if(no_sort) return report_repo.findAllIdByStateAndContainingSearchWord(pvo.getState(),pvo.getSearchWord(),PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+            return report_repo.findAllIdByStateAndSortAndContainingSearchWord(pvo.getState(),pvo.getSort(),pvo.getSearchWord(),PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
         }
         else {
-            return report_repo.findAllByStateAndReportTypeContainingAndSearchWord(state,pvo.getCategory(),pvo.getSearchWord(),PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+            if(no_sort) return report_repo.findAllByStateAndReportTypeContainingAndSearchWord(pvo.getState(),pvo.getCategory(),pvo.getSearchWord(),PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+            return report_repo.findAllByStateAndSortAndReportTypeContainingAndSearchWord(pvo.getState(),pvo.getSort(),pvo.getCategory(),pvo.getSearchWord(),PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
         }
     }
 
-    public int totalRecord(PagingVO pvo, ReportState state) {
+    public int totalRecord(PagingVO pvo) {
         boolean no_word = pvo.getSearchWord() == null || pvo.getSearchWord().isEmpty();
         boolean no_cat = pvo.getCategory()==null || pvo.getCategory().isEmpty();
+        boolean no_sort = pvo.getSort()==null;
+        if(no_word) pvo.setSearchWord("");
         if (no_word && no_cat){
-            return report_repo.countIdByState(state);
+            if(no_sort) return report_repo.countIdByState(pvo.getState());
+            return report_repo.countIdByStateAndSort(pvo.getState(),pvo.getSort());
         }
         else if(no_word) {
-            return report_repo.countIdByStateAndReportTypeContaining(state,pvo.getCategory());
+            if(no_sort) return report_repo.countIdByStateAndReportTypeContaining(pvo.getState(),pvo.getCategory());
+            return report_repo.countIdByStateAndSortAndReportTypeContaining(pvo.getState(),pvo.getSort(),pvo.getCategory());
         } else if(no_cat){
-            return report_repo.countIdByStateAndContainingSearchWord(state,pvo.getSearchWord());
+            if(no_sort) return report_repo.countIdByStateAndContainingSearchWord(pvo.getState(),pvo.getSearchWord());
+            return report_repo.countIdByStateAndSortAndContainingSearchWord(pvo.getState(),pvo.getSort(),pvo.getSearchWord());
         }
         else {
-            return report_repo.countIdByStateAndReportTypeContainingAndSearchWord(state,pvo.getCategory(),pvo.getSearchWord());
+            if(no_sort) return report_repo.countIdByStateAndReportTypeContainingAndSearchWord(pvo.getState(),pvo.getCategory(),pvo.getSearchWord());
+            return report_repo.countIdByStateAndSortAndReportTypeContainingAndSearchWord(pvo.getState(),pvo.getSort(),pvo.getCategory(),pvo.getSearchWord());
         }
     }
 
