@@ -35,7 +35,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
-            "AND p.product_category IN (:productCategories) AND p.quantity > 0 ORDER BY p.product_id DESC",
+            "AND p.product_category IN (:productCategories) AND p.quantity > 0",
             nativeQuery = true)
     List<Product> findProductsAllCategory(
             @Param("keyword") String keyword,
@@ -65,7 +65,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "FROM product p " +
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
-            "AND p.target_category LIKE %:targetCategory% AND p.quantity > 0 ORDER BY p.product_id DESC",
+            "AND p.target_category LIKE %:targetCategory% AND p.quantity > 0",
             nativeQuery = true)
     List<Product> findProductsNoCategory(@Param("keyword") String keyword,
                                          @Param("eventCategory") String eventCategory,
@@ -84,6 +84,78 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         DESC
         """)
     List<Product> findTop10PopularProductsByRating();
+
+    @Query(value = "SELECT p.*, COUNT(w.product_no) AS wish_count " +
+            "FROM product p " +
+            "LEFT JOIN wishlist w ON p.PRODUCT_ID = w.product_no " +
+            "WHERE p.product_name LIKE %:keyword% " +
+            "AND p.event_category LIKE %:eventCategory% " +
+            "AND p.target_category LIKE %:targetCategory% " +
+            "AND (:productCategories IS NULL OR p.product_category IN :productCategories) " +
+            "AND p.quantity > 0 " +
+            "GROUP BY p.PRODUCT_ID " +
+            "ORDER BY wish_count DESC",
+            nativeQuery = true)
+    List<Product> findProductsAllCategoryOrderByWishCount(
+            @Param("keyword") String keyword,
+            @Param("eventCategory") String eventCategory,
+            @Param("targetCategory") String targetCategory,
+            @Param("productCategories") List<String> productCategories,
+            PageRequest pageRequest
+    );
+
+    @Query(value = "SELECT p.*, COUNT(w.product_no) AS wish_count " +
+            "FROM product p " +
+            "LEFT JOIN wishlist w ON p.PRODUCT_ID = w.product_no " +
+            "WHERE p.product_name LIKE %:keyword% " +
+            "AND p.event_category LIKE %:eventCategory% " +
+            "AND p.target_category LIKE %:targetCategory% " +
+            "AND p.quantity > 0 " +
+            "GROUP BY p.PRODUCT_ID " +
+            "ORDER BY wish_count DESC",
+            nativeQuery = true)
+    List<Product> findProductsNoCategoryOrderByWishCount(
+            @Param("keyword") String keyword,
+            @Param("eventCategory") String eventCategory,
+            @Param("targetCategory") String targetCategory,
+            PageRequest pageRequest
+    );
+
+    @Query(value = "SELECT p.*, COUNT(r.PRODUCT_ID) AS review_count " +
+            "FROM product p " +
+            "LEFT JOIN review r ON p.PRODUCT_ID = r.PRODUCT_ID " +
+            "WHERE p.product_name LIKE %:keyword% " +
+            "AND p.event_category LIKE %:eventCategory% " +
+            "AND p.target_category LIKE %:targetCategory% " +
+            "AND (:productCategories IS NULL OR p.product_category IN :productCategories) " +
+            "AND p.quantity > 0 " +
+            "GROUP BY p.PRODUCT_ID " +
+            "ORDER BY review_count DESC",
+            nativeQuery = true)
+    List<Product> findProductsAllCategoryOrderByReviewCount(
+            @Param("keyword") String keyword,
+            @Param("eventCategory") String eventCategory,
+            @Param("targetCategory") String targetCategory,
+            @Param("productCategories") List<String> productCategories,
+            PageRequest pageRequest
+    );
+
+    @Query(value = "SELECT p.*, COUNT(r.PRODUCT_ID) AS review_count " +
+            "FROM product p " +
+            "LEFT JOIN review r ON p.PRODUCT_ID = r.PRODUCT_ID " +
+            "WHERE p.product_name LIKE %:keyword% " +
+            "AND p.event_category LIKE %:eventCategory% " +
+            "AND p.target_category LIKE %:targetCategory% " +
+            "AND p.quantity > 0 " +
+            "GROUP BY p.PRODUCT_ID " +
+            "ORDER BY review_count DESC",
+            nativeQuery = true)
+    List<Product> findProductsNoCategoryOrderByReviewCount(
+            @Param("keyword") String keyword,
+            @Param("eventCategory") String eventCategory,
+            @Param("targetCategory") String targetCategory,
+            PageRequest pageRequest
+    );
 
     // List<Product> findAllByProductNameContaining(String searchWord, PageRequest of);
 }

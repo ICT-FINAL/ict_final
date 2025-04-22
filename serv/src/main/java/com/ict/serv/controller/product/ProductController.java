@@ -8,7 +8,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -125,7 +127,6 @@ public class ProductController {
 
     @GetMapping("/search")
     public Map<String, Object> searchProducts(ProductPagingVO pvo, @AuthenticationPrincipal UserDetails userDetails, HttpServletRequest request) {
-
         User user = null;
         if (userDetails != null) {
             user = interactService.selectUserByName(userDetails.getUsername());
@@ -153,8 +154,16 @@ public class ProductController {
         return result;
     }
     @GetMapping("/getOption")
-    public List<Option> getOption(Long id) {
-        return service.selectOptions(service.selectProduct(id).get());
+    public List<Option> getOption(Long id, HttpServletRequest request) {
+        Product product = service.selectProduct(id).get();
+        User user = null;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+            UserDetails userDetails = (UserDetails) auth.getPrincipal();
+            user = interactService.selectUserByName(userDetails.getUsername());
+        }
+        logService.logProductHit(user,product,request.getRemoteAddr());
+        return service.selectOptions(product);
     }
 
     @GetMapping("/getList/hotCategory")

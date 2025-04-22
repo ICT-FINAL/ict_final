@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import "../../../css/view/roulette.css";
+import { setLoginView } from "../../../store/loginSlice";
 
 const DailyCheck = () => {
   const canvasRef = useRef(null);
@@ -10,27 +11,29 @@ const DailyCheck = () => {
   const [prize, setPrize] = useState("");
   const [result, setResult] = useState(null);
 
-  const token = useSelector((state) => state.auth.user.token);
+  const user = useSelector((state) => state.auth.user);
   const serverIP = useSelector((state) => state.serverIP.ip);
 
+  const dispatch = useDispatch();
+
   const product = [
-    "10% COUPON",
-    "1,000P",
-    "20% COUPON",
-    "500P",
+    "1000원 쿠폰",
+    "+100P",
     "꽝",
-    "2000P",
-    "30% COUPON",
-    "1500P",
+    "+100P",
+    "꽝",
+    "꽝",
+    "+300P",
+    "꽝",
   ];
 
   const colors = [
     "#ffcc00",
     "#ff6666",
-    "#66ccff",
+    "#cccccc",
     "#99cc33",
     "#cccccc",
-    "#ff9999",
+    "#cccccc",
     "#9966cc",
     "#cccccc",
   ];
@@ -87,6 +90,10 @@ const DailyCheck = () => {
   };
 
   const rotateWheel = async () => {
+    if (!user) {
+      dispatch(setLoginView(true));
+      return;
+    }
     if (isSpinning) return;
     setIsSpinning(true);
 
@@ -136,10 +143,11 @@ const DailyCheck = () => {
   };
 
   const checkCanSpin = async () => {
+    if(!user) return;
     const res = await fetch(`${serverIP}/api/roulette/check`, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${user.token}`,
         "Cache-Control": "no-cache",
       },
     });
@@ -148,10 +156,11 @@ const DailyCheck = () => {
   };
 
   const performSpin = async () => {
+    if(!user) return;
     const res = await fetch(`${serverIP}/api/roulette/spin`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${user.token}`,
         "Content-Type": "application/json",
       },
     });
@@ -196,7 +205,7 @@ const DailyCheck = () => {
                 당첨 결과: <strong>{prize}</strong>
               </p>
               <p className="roulette-modal-sub">
-                💰 100 포인트가 지급되었습니다.
+                💰 50 포인트가 지급되었습니다.
               </p>
               <button
                 onClick={() => setShowModal(false)}

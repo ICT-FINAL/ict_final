@@ -121,7 +121,7 @@ function MySell() {
                                     <div className="final-total">
                                         <strong>최종 결제 금액:</strong> {formatNumberWithCommas(orderSum + order.shippingFee)}원
                                     </div>
-                                    {order.shippingState!=='FINISH' && <button style={{marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'
+                                    {order.shippingState==='BEFORE' && <button style={{marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'
                                         ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#8CC7A5'
                                     }} onClick={()=>setShipping(order.id)}>배송 등록</button>}
                                 </div>

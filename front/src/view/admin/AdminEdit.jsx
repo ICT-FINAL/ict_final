@@ -123,7 +123,7 @@ function AdminEdit() {
                         <li>{idx + 1}</li>
                         <li>{user.authority}</li>
                         <li>{user.userid}</li>
-                        <li>{user.username}</li>
+                        <li className='message-who' id={`mgx-${user.id}`} style={{cursor:'pointer'}}>{user.username}</li>
                         <li>{user.address}</li>
                         <li>{user.tel}</li>
                     </ul>

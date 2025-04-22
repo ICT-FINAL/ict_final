@@ -333,8 +333,8 @@ function ProductReview(){
                     }
     
                     return (
-                        <span key={star} style={{ position: 'relative', width: '32px', height: '32px', fontSize: '32px', display: 'inline-block'}}>
-                            <FaStar style={{ color: '#C0C0C0' }}/>
+                        <span key={star} style={{ position: 'relative', width: '32px', height: '32px', fontSize: '32px'}}>
+                            <FaStar style={{ color: '#C0C0C0', position: 'absolute', top: 0, left: 0, fontSize:'32px' }}/>
                             <div
                                 style={{
                                     position: 'absolute',
@@ -345,7 +345,7 @@ function ProductReview(){
                                     height: '100%',
                                 }}
                             >
-                                <FaStar style={{ color: '#FFD700', fontSize: '32px' }} />
+                                <FaStar style={{verticalAlign:'top', color: '#FFD700', fontSize: '32px' }} />
                             </div>
                         </span>
                     );
@@ -448,7 +448,7 @@ function ProductReview(){
                                     marginLeft: '8px',
                                     fontSize: '25px',
                                     fontWeight: '800',
-                                    lineHeight: '24px' // 텍스트와 별 사이 간격 조정
+                                    lineHeight: '24px', // 텍스트와 별 사이 간격 조정
                                 }}
                             >
                                 {averageStar.toFixed(1)}
@@ -568,8 +568,9 @@ function ProductReview(){
                                             overflow: 'hidden',
                                             width: backstarStyle.width,
                                             height: '100%',
+                                            verticalAlign: 'top',
                                         }}>
-                                            <FaStar style={{ color: backstarStyle.background }} />
+                                            <FaStar style={{verticalAlign: 'top', color: backstarStyle.background }} />
                                         </div>
                                     </span>
                                 );
@@ -666,7 +667,7 @@ function ProductReview(){
                                                         width: backstarStyle.width,
                                                         height: '100%',
                                                     }}>
-                                                        <FaStar style={{ color: backstarStyle.background, fontSize: '20px' }} />
+                                                        <FaStar style={{ verticalAlign: 'top',color: backstarStyle.background, fontSize: '20px' }} />
                                                     </div>
                                                 </span>
                                             );
