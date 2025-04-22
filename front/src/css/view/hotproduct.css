@@ -1,23 +1,35 @@
-.hot-container {
-    position:fixed;
+.topten-auction {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    width: 90%;
+    transform: translate(-50%, -50%);
+}
+#auction-topten-btn {
+    background-color: #8CC7A5;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-right: 10px;
+    cursor: pointer;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s ease-in-out;
+}
+.hot-product-container {
     width:70%;
     margin:auto;
     min-width: 1200px;
     max-width: 1600px;
-    top:35%;
-    left:50%;
-    transform: translate(-50%,-40%);
 }
 
 .raw-container {
-    position:fixed;
     width:70%;
     margin:auto;
     min-width: 1200px;
     max-width: 1600px;
-    top:3%;
-    left:50%;
-    transform: translate(-50%,-3%);
 }
 
 .hot-title {
@@ -57,7 +69,7 @@
     align-items: center;
     justify-content: center;
 }
-.hot-slide-btn {
+.hot-slide-btn, .auction-slide-btn {
     font-size: 24px;
     padding: 12px;
     background-color: #8CC7A5;
@@ -82,6 +94,26 @@
     outline: none;
 }
 
+.auction-slide-btn-wrapper {
+    position: absolute;
+    top: 185px;
+    right: -15px;
+    z-index: 100;
+
+}
+#auction-rank {
+    position: absolute;
+    top: -26px;
+    left: -16px;
+    width: 15px;
+    height: 15px;
+    padding: 10px;
+    font-size: 18pt;
+    font-weight: 500;
+    color: #333;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+}
+
 .hot-product-cards-wrapper {
     width: 1130px;
     overflow: hidden;
@@ -89,7 +121,6 @@
 
 .hot-product-cards {
     display: flex;
-    
     transition: transform 0.3s ease-in-out;
 }
 

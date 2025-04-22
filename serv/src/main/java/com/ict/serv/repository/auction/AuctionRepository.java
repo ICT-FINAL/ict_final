@@ -11,4 +11,8 @@ public interface AuctionRepository extends JpaRepository<AuctionRoom, String> {
     List<AuctionRoom> findByState(AuctionState state);
 
     List<AuctionRoom> findByAuctionProduct(AuctionProduct auctionProduct);
+
+    List<AuctionRoom> findTop50ByOrderByHitDesc();
+
+    List<AuctionRoom> findTop50ByOrderByEndTime();
 }

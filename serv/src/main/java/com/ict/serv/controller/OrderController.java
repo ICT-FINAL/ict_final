@@ -13,6 +13,7 @@ import com.ict.serv.service.InteractService;
 import com.ict.serv.service.OrderService;
 import com.ict.serv.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +39,28 @@ public class OrderController {
 
         orderGroup.setState(OrderState.CANCELED);
         orderService.saveOrderGroup(orderGroup); // 변경 감지로 orders까지 반영
+    }
+
+    @GetMapping("auctionCancel")
+    public void auctionCancel(@RequestParam Long orderId) {
+        AuctionOrder auctionOrder = orderService.selectAuctionOrder(orderId).orElseThrow(() -> new RuntimeException("주문이 없습니다."));
+        auctionOrder.setState(OrderState.CANCELED);
+        orderService.saveAuctionOrder(auctionOrder);
+    }
+
+    @PostMapping("/setAuctionOrder")
+    public AuctionOrder setAuctionOrder(@AuthenticationPrincipal UserDetails userDetails, @RequestBody AuctionOrderRequest request) {
+        User user = interactService.selectUserByName(userDetails.getUsername());
+        Address address = new Address();
+        address.setId(Long.valueOf(request.getAddrId()));
+
+        AuctionOrder order = new AuctionOrder();
+        order.setAuctionProductId(request.getProductId());
+        order.setUser(user);
+        order.setState(OrderState.BEFORE);
+        order.setTotalPrice(request.getTotalPrice());
+        order.setTotalShippingFee(request.getShippingFee());
+        return orderService.saveAuctionOrder(order);
     }
 
     @PostMapping("/setOrder")
@@ -81,7 +104,7 @@ public class OrderController {
             order.setProductId(productId);
             order.setOrderGroup(orderGroup);
             order.setOrderItems(new ArrayList<>());
-
+            order.setShippingState(ShippingState.BEFORE);
             int orderTotal = 0;
 
             for (OrderRequestDto ord : orderDtos) {
@@ -107,7 +130,6 @@ public class OrderController {
                 item.setOptionName(opt.getOptionName());
                 item.setOptionCategoryName(optCat.getCategoryName());
                 item.setAdditionalFee(additional);
-
                 order.getOrderItems().add(item);
                 orderTotal += itemTotal;
             }
@@ -128,25 +150,77 @@ public class OrderController {
         pvo.setOnePageRecord(5);
         User user = interactService.selectUserByName(userDetails.getUsername());
         pvo.setTotalRecord(orderService.totalOrderCount(user, pvo));
+        List<OrderGroup> og = orderService.getOrderByUser(user, pvo);
+        List<OrderGroupDTO> ogdto = new ArrayList<>();
+        for(OrderGroup group: og) {
+            OrderGroupDTO ogd = new OrderGroupDTO();
+            ogd.setOrderDate(group.getOrderDate());
+            ogd.setState(group.getState());
+            ogd.setTotalPrice(group.getTotalPrice());
+            ogd.setTotalShippingFee(group.getTotalShippingFee());
+            ogd.setCouponDiscount(group.getCouponDiscount());
+            ogd.setId(group.getId());
+            ogd.setUser(group.getUser());
+            List<OrdersDTO> ordersDTO = new ArrayList<>();
+            for(Orders order : group.getOrders()) {
+                OrdersDTO odd = new OrdersDTO();
+                odd.setFilename(productService.selectProduct(order.getProductId()).get().getImages().get(0).getFilename());
+                odd.setOrderItems(order.getOrderItems());
+                odd.setAddress(order.getAddress());
+                odd.setOrderNum(order.getOrderNum());
+                odd.setOrderGroup(order.getOrderGroup());
+                odd.setRequest(order.getRequest());
+                odd.setModifiedDate(order.getModifiedDate());
+                odd.setShippingState(order.getShippingState());
+                odd.setProductId(order.getProductId());
+                odd.setId(order.getId());
+                odd.setUser(order.getUser());
+                odd.setStartDate(order.getStartDate());
+                odd.setShippingFee(order.getShippingFee());
+                ordersDTO.add(odd);
+            }
+            ogd.setOrders(ordersDTO);
+            ogdto.add(ogd);
+        }
         Map map = new HashMap();
         map.put("pvo", pvo);
-        map.put("orderList", orderService.getOrderByUser(user, pvo));
+        map.put("orderList", ogdto);
 
         return map;
     }
 
     @GetMapping("/sellList")
-    public List<Orders> sellList(@AuthenticationPrincipal UserDetails userDetails) {
+    public Map sellList(@AuthenticationPrincipal UserDetails userDetails, ShippingState shippingState) {
         User user = interactService.selectUserByName(userDetails.getUsername());
         List<Product> products = productService.selectProductByUser(user);
+        List<String> filenameList = new ArrayList<>();
         List<Orders> orders = new ArrayList<>();
-        for(Product product:products) {
-            List<Orders> order = orderService.getOrderByProduct(product.getId());
-            for(Orders mini:order) {
-                if(mini.getOrderGroup().getState()==OrderState.PAID) orders.add(mini);
+        if(shippingState == null)
+            for(Product product:products) {
+                List<Orders> order = orderService.getOrderByProduct(product.getId());
+                for(Orders mini:order) {
+                    if(mini.getOrderGroup().getState()==OrderState.PAID) {
+                        orders.add(mini);
+                        if(product.getImages().isEmpty()) filenameList.add("");
+                        else filenameList.add(product.getImages().get(0).getFilename());
+                    }
+                }
             }
-        }
-        return orders;
+        else
+            for(Product product:products) {
+                List<Orders> order = orderService.getOrderByProduct(product.getId());
+                for(Orders mini:order) {
+                    if(mini.getOrderGroup().getState()==OrderState.PAID && shippingState == mini.getShippingState()) {
+                        orders.add(mini);
+                        if(product.getImages().isEmpty()) filenameList.add("");
+                        else filenameList.add(product.getImages().get(0).getFilename());
+                    }
+                }
+            }
+        Map map = new HashMap();
+        map.put("orderList", orders);
+        map.put("filenameList", filenameList);
+        return map;
     }
 
 }

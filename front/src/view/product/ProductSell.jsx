@@ -2,10 +2,13 @@ import { useState,useRef } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import ProductEditor from "./ProductEditor";
+import { useNavigate } from "react-router-dom";
 
 function ProductSell() {
     const serverIP = useSelector((state) => state.serverIP);
     const user = useSelector((state) => state.auth.user);
+
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         productName: "",
@@ -299,7 +302,8 @@ function ProductSell() {
             }
         })
         .then(res => {
-            console.log("상품 등록 성공:", res.data);
+            alert("상품 등록 성공");
+            navigate('/product');
         })
         .catch(err => console.error("상품 등록 실패:", err));
     };
@@ -312,7 +316,7 @@ function ProductSell() {
             <fieldset className="product-fieldset">
                 <legend className="product-legend">기본 정보</legend>
                 <label className="product-label">상품명</label>
-                <input type="text" id="productName" name="productName" className="product-input" value={formData.productName} onChange={handleChange} />
+                <input type="text" placeholder="등록할 상품의 이름을 입력해주세요" id="productName" name="productName" className="product-input" value={formData.productName} onChange={handleChange} />
             </fieldset>
 
             <fieldset className="product-fieldset">
@@ -324,7 +328,6 @@ function ProductSell() {
                         <option key={event} value={event}>{event}</option>
                     ))}
                 </select>
-
                 <label className="product-label">대상</label>
                 <select id="targetCategory" name="targetCategory" className="product-select" value={formData.targetCategory} onChange={handleChange}>
                     <option value="">선택</option>
@@ -341,6 +344,7 @@ function ProductSell() {
                     ))}
                 </select>
                 {formData.productCategory && productOptions[formData.productCategory] && (
+                    <>
                     <div className="product-checkbox-group">
                         <div className="product-checkbox-title">세부 카테고리 선택</div>
                         <div>
@@ -358,6 +362,11 @@ function ProductSell() {
                         ))}
                         </div>
                     </div>
+                    <div style={{fontSize:'13px', color:'#888', marginBottom:'10px'}}>
+                        세부 카테고리를 고른후 1개 이상의 대분류 옵션과 1개 이상의 소분류 옵션을 설정하세요<br/><br/>
+                        각 소분류 옵션에는 설정 가격 + 추가금액 으로 가격이 산정됩니다.
+                    </div>
+                    </>
                 )}     
                     {formData.subCategories && (
                         <>

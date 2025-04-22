@@ -19,6 +19,7 @@ function MyPurchases() {
     const [totalRecord, setTotalRecord] = useState(1);
 
     const [searchOption, setSearchOption] = useState('');
+    const [shippingOption, setShippingOption] = useState('');
 
     const moveInfo = (prodId) => {
         if(user)
@@ -33,18 +34,15 @@ function MyPurchases() {
 
     useEffect(() => {
         getBoardList();
-        const det = document.querySelectorAll(".report-detail");
-        if (det)
-            det.forEach((det) => (det.style.display = "none"));
     }, [nowPage]);
 
     useEffect(() => {
         getBoardList();
-    }, [loc, searchOption]);
+    }, [loc, searchOption, shippingOption]);
 
     const getBoardList = () => {
         if (user)
-            axios.get(`${serverIP.ip}/order/orderList?nowPage=${nowPage}&state=${searchOption}`, {
+            axios.get(`${serverIP.ip}/order/orderList?nowPage=${nowPage}&state=${searchOption}&shippingState=${shippingOption}`, {
                 headers: { Authorization: `Bearer ${user.token}` }
             })
                 .then(res => {
@@ -60,6 +58,7 @@ function MyPurchases() {
                     setOrder(res.data.orderList);
                     setNowPage(res.data.pvo.nowPage);
                     setTotalRecord(res.data.pvo.totalRecord);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
                 })
                 .catch(err => console.log(err));
     };
@@ -88,7 +87,7 @@ function MyPurchases() {
 
     return (
         <div className="report-box">
-            <select onChange={(e) => setSearchOption(e.target.value)} style={{ width: '120px', borderRadius: '10px', padding: '5px 10px', border: '1px solid #ddd' }}>
+            <select onChange={(e) => setSearchOption(e.target.value)} style={{ width: '120px', borderRadius: '10px', padding: '5px 10px', border: '1px solid #ddd'}}>
                 <option value="">전체</option>
                 <option value="PAID">결제 완료</option>
                 <option value="CANCELED">결제 취소</option>
@@ -100,9 +99,15 @@ function MyPurchases() {
                     {order.map((group) => (
                         <div className="order-group-card" key={group.id}>
                             <div className="group-header">
+                                { group.orders.length >0 &&
                                 <div>
-                                    <strong>주문일:</strong> {group.orderDate?.substring(0, 19)}
+                                    <strong>주문일:</strong> {group.orderDate?.substring(0, 19)} <br/>
+                                    <strong>배송지:</strong> {group.orders[0].address.address} / {group.orders[0].address.addressDetail}<br />
+                                    <strong>수령인:</strong> {group.orders[0].address.recipientName}<br />
+                                    <strong>전화번호:</strong> {group.orders[0].address.tel}<br />
+                                    <strong>요청사항:</strong> {group.orders[0].request}<br />
                                 </div>
+                                }  
                                 <div>
                                     <span style={{ backgroundColor: getStateLabel(group.state).color }} className="order-state-label">
                                         {getStateLabel(group.state).label}
@@ -116,39 +121,63 @@ function MyPurchases() {
                                     <div className="order-section" key={order.id}>
                                         <div className="order-info">
                                             <strong>주문번호:</strong> {order.orderNum}<br />
-                                            <strong>배송지:</strong> {order.address.address} / {order.address.addressDetail}<br />
-                                            <strong>수령인:</strong> {order.address.recipientName}<br />
-                                            <strong>전화번호:</strong> {order.address.tel}<br />
-                                            <strong>요청사항:</strong> {order.request}<br />
                                         </div>
-
-                                        {order.orderItems.map((oi) => {
-                                            const itemTotal = (oi.price * (100 - oi.discountRate) / 100 + oi.additionalFee) * oi.quantity;
-                                            orderSum += itemTotal;
-                                            return (
-                                                <div className="order-item" key={oi.id} style={{cursor:'pointer'}} onClick={()=>moveInfo(order.productId)}>
-                                                    <div className="product-details">
-                                                        <strong>{oi.productName} - {oi.optionName}</strong>
-                                                        <div style={{ marginTop: '5px' }}>
-                                                            {oi.optionCategoryName} : {formatNumberWithCommas(oi.price)}원 <strong style={{ color: '#e74c3c' }}>(-{formatNumberWithCommas(oi.discountRate * oi.price / 100)}원)</strong> <strong style={{ color: '#1976d2' }}>(+{formatNumberWithCommas(oi.additionalFee)}원)</strong> x {formatNumberWithCommas(oi.quantity)} = <strong>{formatNumberWithCommas(itemTotal)}</strong>원
+                                        <div className='order-wrapper'>
+                                            <div>
+                                            {order.orderItems.map((oi) => {
+                                                const itemTotal = (oi.price * (100 - oi.discountRate) / 100 + oi.additionalFee) * oi.quantity;
+                                                orderSum += itemTotal;
+                                                return (
+                                                    <div className="order-item" key={oi.id} style={{cursor:'pointer'}} onClick={()=>moveInfo(order.productId)}>
+                                                        <div className="product-details">
+                                                            <strong>{oi.productName} - {oi.optionName}</strong>
+                                                            <div style={{ marginTop: '5px' }}>
+                                                                {oi.optionCategoryName} : {formatNumberWithCommas(oi.price)}원 <strong style={{ color: '#e74c3c' }}>(-{formatNumberWithCommas(oi.discountRate * oi.price / 100)}원)</strong> <strong style={{ color: '#1976d2' }}>(+{formatNumberWithCommas(oi.additionalFee)}원)</strong> x {formatNumberWithCommas(oi.quantity)} = <strong>{formatNumberWithCommas(itemTotal)}</strong>원
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            );
-                                        })}
-
+                                                );
+                                            })}
+                                            </div>
+                                            <div style={{textAlign:'center'}}>
+                                                <img style={{width:'300px', height:'300px', cursor:'pointer'}} onClick={()=>moveInfo(order.productId)} src={`${serverIP.ip}/uploads/product/${order.productId}/${order.filename}`}/>
+                                            </div>
+                                        </div>
                                         <div className="order-total">
-                                            <div><strong>소계:</strong> {formatNumberWithCommas(orderSum)}원</div>
+                                            <div style={{fontSize:'20px'}}><strong>소계:</strong> {formatNumberWithCommas(orderSum)}원</div>
                                             {order.shippingFee !== 0 && (
                                                 <div className="shipping-fee">
                                                     <strong>배송비:</strong> +{formatNumberWithCommas(order.shippingFee)}원
                                                 </div>
                                             )}
+                                            <div style={{ marginTop: '10px' }}>
+                                            <strong>배송 상태:</strong>{' '}
+                                            {order.shippingState === 'BEFORE' && (
+                                                <span style={{ color: '#888', fontWeight: '600' }}>
+                                                ⏳ 배송 준비 중
+                                                </span>
+                                            )}
+                                            {order.shippingState === 'ONGOING' && (
+                                                <span style={{ color: '#007bff', fontWeight: '600' }}>
+                                                🚚 배송 중
+                                                </span>
+                                            )}
+                                            {order.shippingState === 'FINISH' && (
+                                                <span style={{ color: '#28a745', fontWeight: '600' }}>
+                                                ✅ 배송 완료
+                                                </span>
+                                            )}
+                                            {order.shippingState === 'CANCELED' && (
+                                                <span style={{ color: '#dc3545', fontWeight: '600' }}>
+                                                ❌ 배송 취소
+                                                </span>
+                                            )}
+                                            </div>
                                         </div>
                                     </div>
                                 );
                             })}
-                            <div>
+                            <div style={{fontSize:'20px'}}>
                                 <strong>누계:</strong> {formatNumberWithCommas(group.totalPrice)}원
                             </div>
                             <div className="group-summary">

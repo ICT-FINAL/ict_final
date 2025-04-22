@@ -18,7 +18,6 @@ function RAWProduct() {
         axios.get(`${serverIP.ip}/product/getList/getRAW`)
             .then((res) => {
                 setRAWList(res.data);
-                console.log(res.data);
                 if (res.data.length > 0)
                     handleCategoryClick(res.data[0].productCategory);
             })
@@ -32,7 +31,6 @@ function RAWProduct() {
         axios.get(`${serverIP.ip}/product/getList/byCategory?category=${category}`)
             .then((res) => {
                 setProductList(res.data);
-                console.log(res.data);
             })
             .catch((err) => console.log(err));
     };
@@ -42,6 +40,13 @@ function RAWProduct() {
         return num.toLocaleString();
     }
 
+    const moveInfo = (id) => {
+        axios.get(`${serverIP.ip}/product/getInfo?productId=${id}`)
+        .then(res =>{
+            navigate('/product/info', { state: { product: res.data } })
+        })
+        .catch(err => console.log(err));
+    }
     return (
         <>
             <div className="search-page-banner">
@@ -50,7 +55,7 @@ function RAWProduct() {
             </div>
             <div className="polaroid-wall">
             {RAWList.slice(0, 10).map((product, idx) => (
-                <div
+                <div onClick={() => moveInfo(product.id)}
                 className="polaroid"
                 key={product.id}
                 style={{

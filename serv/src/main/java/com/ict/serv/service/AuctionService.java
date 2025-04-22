@@ -5,7 +5,6 @@ import com.ict.serv.controller.product.ProductPagingVO;
 import com.ict.serv.entity.Authority;
 import com.ict.serv.entity.auction.*;
 import com.ict.serv.entity.message.Message;
-import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.product.ProductState;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.MessageRepository;
@@ -128,9 +127,18 @@ public class AuctionService {
                 auctionRepository.save(room);
                 auctionProductRepository.save(product);
                 messagingTemplate.convertAndSend("/topic/auction/" + roomId + "/end", "경매 종료");
-                System.out.println("경매 종료");
+                User user = userRepository.findUserById(room.getHighestBidderId());
+                AuctionBid bid = bidRepository.findByStateAndUserAndRoom(BidState.LIVE, user, room).get(0);
+                bid.setState(BidState.SUCCESS);
+                bidRepository.save(bid);
+                Message msg = new Message();
+                msg.setUserFrom(room.getAuctionProduct().getSellerNo());
+                msg.setUserTo(user);
+                msg.setSubject("입찰 하신 물품 '"+ product.getProductName() +"'이 낙찰되었습니다.");
+                msg.setComment("<a href='/mypage/buybid'>마이페이지 > 구매 입찰 내역</a>에서 결제를 완료해주세요.");
+                messageRepository.save(msg);
             } else {
-                scheduleAuctionEnd(roomId); // 재입찰
+                scheduleAuctionEnd(roomId);
             }
         }
     }
@@ -197,5 +205,34 @@ public class AuctionService {
         if(categories.isEmpty() || categories.get(0).isEmpty()) {
             return auctionProductRepository.findAuctionProductsNoCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord()));
         }else return auctionProductRepository.findAuctionProductsAllCategory(pvo.getSearchWord(),pvo.getEventCategory(),pvo.getTargetCategory(), categories,PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+    }
+    public AuctionRoom saveAuctionRoom(AuctionRoom auctionRoom){
+        return auctionRepository.save(auctionRoom);
+    }
+
+    public int totalAuctionBidCount(User user, BidPagingVO pvo) {
+        if(pvo.getState() == null) return bidRepository.countIdByUser(user);
+        return bidRepository.countIdByUserAndState(user, pvo.getState());
+    }
+
+    public List<AuctionBid> searchAuctionBid(User user, BidPagingVO pvo) {
+        if(pvo.getState() == null) return bidRepository.findAllByUserOrderByIdDesc(user,PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+        return bidRepository.findAllByUserAndStateOrderByIdDesc(user, pvo.getState(),PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+    }
+
+    public List<AuctionBid> findAuctionBidByRoomAndState(AuctionRoom room, BidState state) {
+        return bidRepository.findAllByRoomAndState(room,state);
+    }
+
+    public AuctionBid updateBid(AuctionBid bid) {
+        return bidRepository.save(bid);
+    }
+
+    public List<AuctionRoom> getHotAuctionRooms() {
+        return auctionRepository.findTop50ByOrderByHitDesc();
+    }
+
+    public List<AuctionRoom> getClosingAuctionRooms() {
+        return auctionRepository.findTop50ByOrderByEndTime();
     }
 }

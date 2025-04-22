@@ -36,6 +36,10 @@ function ProductIndex() {
         return () => window.removeEventListener("scroll", handleScroll);
     },[])
 
+    const moveScroll = (num) => {
+        window.scrollTo({ top: num });
+    }
+
     const modal = useSelector((state) => state.modal);
 
     const changeSearchWord = (e) => {
@@ -145,17 +149,59 @@ function ProductIndex() {
                                 <button onClick={doSell} className="sellBtn-style">+ 상품 등록</button>
                             </div>
                             }
+                            <button
+                            style={{
+                                backgroundColor: '#8CC7A5',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '20px',
+                                padding: '8px 16px',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                marginRight: '10px',
+                                cursor: 'pointer',
+                                boxShadow: '0px 2px 6px rgba(0,0,0,0.1)',
+                                transition: 'background-color 0.2s ease-in-out',
+                            }}
+                            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#4a7b63'}
+                            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#8CC7A5'}
+                            onClick={()=>moveScroll(800)}
+                            >
+                            🏆 인기 카테고리
+                            </button>
+
+                            <button
+                            style={{
+                                backgroundColor: '#8CC7A5',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '20px',
+                                padding: '8px 16px',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                boxShadow: '0px 2px 6px rgba(0,0,0,0.1)',
+                                transition: 'background-color 0.2s ease-in-out',
+                            }}
+                            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#4a7b63'}
+                            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#8CC7A5'}
+                            onClick={()=>moveScroll(1400)}
+                            >
+                            🌟 인기 작품 💖
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        {/*
         <div className={`hot-container ${visibleSections.hotProduct ? 'fade-in' : 'fade-out'}`}>
             <HotProduct />
         </div>
         <div className={`raw-container ${visibleSections.RAW ? 'fade-in' : 'fade-out'}`}>
             <RAWProduct />
         </div>
+        */}
         </>
     )
 }

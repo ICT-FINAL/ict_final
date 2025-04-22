@@ -2,9 +2,10 @@ import { useParams,useNavigate } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { FaHeart } from 'react-icons/fa';
+import { setLoginView } from '../../store/loginSlice';
 
 function AuctionRoom() {
     const { roomId } = useParams();
@@ -12,6 +13,8 @@ function AuctionRoom() {
     const user = useSelector(state => state.auth.user);
 
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
 
     const [roomInfo, setRoomInfo] = useState({});
     const [imageIndex, setImageIndex] = useState(0);
@@ -35,37 +38,38 @@ function AuctionRoom() {
         const socket = new SockJS(`${serverIP.ip}/ws`);
         const stompClient = Stomp.over(socket);
         stompClientRef.current = stompClient;
-    
-        stompClient.connect({ Authorization: `Bearer ${user.token}` }, () => {
-            stompClient.subscribe(`/topic/auction/${roomId}`, (message) => {
-                const body = JSON.parse(message.body);
-                /*
-                setMessages(prev => [...prev, body]);
-                setBidHistory(prev => [...prev, {
-                    username: body.urd.username,
-                    price: body.price,
-                    bidTime: new Date().toISOString() //추후 정렬용
-                }]);*/
-                getRoomInfo();
-            });
+        if(user)
+            stompClient.connect({ Authorization: `Bearer ${user.token}` }, () => {
+                stompClient.subscribe(`/topic/auction/${roomId}`, (message) => {
+                    const body = JSON.parse(message.body);
+                    /*
+                    setMessages(prev => [...prev, body]);
+                    setBidHistory(prev => [...prev, {
+                        username: body.urd.username,
+                        price: body.price,
+                        bidTime: new Date().toISOString() //추후 정렬용
+                    }]);*/
+                    getRoomInfo();
+                });
 
-            stompClient.subscribe(`/topic/auction/${roomId}/end`, (message) => {
-                alert('경매가 종료되었습니다..');
-                navigate('/auction');
+                stompClient.subscribe(`/topic/auction/${roomId}/end`, (message) => {
+                    alert('경매가 종료되었습니다..');
+                    navigate('/auction');
+                });
+        
+                setIsConnected(true);
             });
-    
-            setIsConnected(true);
-        });
     
         return () => {
             stompClient.disconnect(() => {
                 console.log('Disconnected from auction room');
             });
         };
-    }, [roomId, serverIP, user.token]);
+    }, [roomId, serverIP, user]);
 
     useEffect(() => {
         const fetchPreviousBids = async () => {
+            if(user)
             try {
                 const res = await axios.get(`${serverIP.ip}/auction/bids/${roomId}`, {
                     headers: { Authorization: `Bearer ${user.token}` }
@@ -86,8 +90,7 @@ function AuctionRoom() {
     }, [roomId]);
 
     const getRoomInfo =()=>{
-        axios.get(`${serverIP.ip}/auction/getAuctionItem/${roomId}`,
-            { headers: {Authorization: `Bearer ${user.token}`}}
+        axios.get(`${serverIP.ip}/auction/getAuctionItem/${roomId}`
         )
         .then(res => {
             setRoomInfo(res.data);
@@ -125,6 +128,27 @@ function AuctionRoom() {
                 roomInfo:roomInfo
             }
         });
+    };
+
+    const moveOneBuy = () => {
+        if (!user) {
+            dispatch(setLoginView(true));
+        }
+        else {
+            if (user.user.id !== roomInfo.auctionProduct.sellerNo.id)
+                navigate('/product/buying', {
+                    state: {
+                        selectedItems: [],
+                        product: roomInfo.auctionProduct,
+                        totalPrice: roomInfo.buyNowPrice,
+                        shippingFee: roomInfo.auctionProduct.shippingFee || 0,
+                        selectedCoupon: 0,
+                    }
+                });
+            else {
+                alert('본인의 상품입니다');
+            }
+        }
     };
 
     useEffect(() => {
@@ -165,8 +189,9 @@ function AuctionRoom() {
         return `${year}-${month}-${day} ｜ ${hours}:${minutes}`;
     };
 
+    
     return (
-        <div style={{ paddingTop: "140px" }}>
+        <div style={{ paddingTop: "170px" }}>
              { roomInfo.auctionProduct && <>
                     <div className="product-info-container">
                         <div className="product-info-left">
@@ -202,7 +227,7 @@ function AuctionRoom() {
                             <ul>
                                 <li style={{ display: 'flex' }}>
                                 <div className='product-profile-box'>
-                                    <img id={`mgx-${roomInfo.auctionProduct.sellerNo.id}`} className='message-who' src={roomInfo.auctionProduct.sellerNo.uploadedProfileUrl && roomInfo.auctionProduct.sellerNo.uploadedProfileUrl.indexOf('http') !== -1 ? `${roomInfo.auctionProduct.sellerNo.uploadedProfileUrl}` : `${serverIP.ip}${roomInfo.auctionProduct.sellerNo.uploadedProfileUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
+                                <img id={`mgx-${roomInfo.auctionProduct.sellerNo.id}`} className='message-who' src={roomInfo.auctionProduct.sellerNo.uploadedProfileUrl ? `${serverIP.ip}${roomInfo.auctionProduct.sellerNo.uploadedProfileUrl}` : `${roomInfo.auctionProduct.sellerNo.profileImageUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
                                     <div id={`mgx-${roomInfo.auctionProduct.sellerNo.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{roomInfo.auctionProduct.sellerNo.username} &gt;</div>
                                 </div>
                                 </li>
@@ -240,7 +265,11 @@ function AuctionRoom() {
                                             배송비: {roomInfo.auctionProduct.shippingFee} 원
                                         </span>
                                     </li>
+                                    
                                     <li style={{marginTop:'50px',display:'flex', justifyContent:'center', gap:'20px'}}>
+                                    { roomInfo.state === 'OPEN' && user &&<>
+                                    { roomInfo.highestBidderId !== user.user.id ?
+                                    <>
                                     <button onClick={()=> moveBuy()}
                                         style={{
                                             width: '120px',
@@ -277,10 +306,14 @@ function AuctionRoom() {
                                         }}
                                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d33'}
                                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#FF5C5C'}
+                                        onClick={moveOneBuy}
                                     >
                                         즉시구매
                                     </button>
-
+                                    </> : <div style={{fontSize:'20px'}}>'{user.user.username}' 님은 현재 최고 입찰자 입니다.</div>
+                                    }
+                                    </>
+                                    }
                                     </li>
                                     </ul>
                                 </li>

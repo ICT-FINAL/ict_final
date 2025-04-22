@@ -75,16 +75,12 @@ public class ReviewService {
         return repository.findByUser(user);
     }
 
-    public Map<Long, List<Review>> findByProduct(List<Product> products) {
-        Map<Long, List<Review>> result = new HashMap<>();
+    public List<Review> findByProduct() {
 
-        // 각 상품에 대해 리뷰를 조회
-        for (Product product : products) {
-            List<Review> reviews = repository.findByProduct(product); // DB에서 리뷰 조회
-            result.put(product.getId(), reviews); // 결과 맵에 추가
-        }
+        List<Review> reviews = repository.findByOrderByReviewWritedateDesc(); // DB에서 리뷰 조회
 
-        return result; // 최종적으로 각 상품 ID에 대한 리뷰 리스트를 반환
+
+        return reviews; // 최종적으로 각 상품 ID에 대한 리뷰 리스트를 반환
     }
 
 }

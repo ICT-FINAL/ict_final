@@ -8,7 +8,7 @@ function FAQ() {
 const serverIP = useSelector((state) => state.serverIP);
 const [faqList, setFaqList] = useState([]);
 const [openIndex, setOpenIndex] = useState(null);
-const [selectedCategory, setSelectedCategory] = useState(null);
+const [selectedCategory, setSelectedCategory] = useState("account");
 const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 const [searchKeyword, setSearchKeyword] = useState("");
 const [newFAQ, setNewFAQ] = useState({
@@ -46,7 +46,7 @@ useEffect(() => {
       setFaqList([]);
     }
     setOpenIndex(null);
-  }, [selectedCategory,serverIP.ip, user.token, searchKeyword]);
+  }, [selectedCategory,serverIP.ip, user.token]);
 
   const handleCategoryClick = (categoryId) => {
     setSelectedCategory(categoryId);
@@ -115,23 +115,25 @@ useEffect(() => {
     };
   
     const fetchFaqsByKeyword = async (keyword) => {
-      if(user)
-      try {
-        const response = await axios.get(
-          `${serverIP.ip}/faq/search?keyword=${keyword}`,
-          {
-            headers: {
-              Authorization: `Bearer ${user.token}`,
-            },
-          }
-        );
-        setFaqList(response.data);
-        setSelectedCategory(null);
-        setOpenIndex(null);
-      } catch (error) {
-        console.error("FAQ 검색 실패:", error);
-        setFaqList([]);
-      }
+      if (!user) return;
+      setSelectedCategory(null);
+      setOpenIndex(null);
+      setTimeout(async () => {
+        try {
+          const response = await axios.get(
+            `${serverIP.ip}/faq/search?keyword=${keyword}`,
+            {
+              headers: {
+                Authorization: `Bearer ${user.token}`,
+              },
+            }
+          );
+          setFaqList(response.data);
+        } catch (error) {
+          console.error("FAQ 검색 실패:", error);
+          setFaqList([]);
+        }
+      }, 0);
     };
     const handleKeyDown = (e) => {
       if (e.key === "Enter") {
@@ -150,7 +152,10 @@ useEffect(() => {
           onChange={handleSearchInputChange}
           onKeyDown={handleKeyDown}
         />
-        <button className="faq-search-btn" onClick={handleSearchSubmit}>🔍</button>
+        <button className="faq-search-btn" onClick={handleSearchSubmit}> <svg style={{ paddingTop: '3px' }} className='search-icon' width="27" height="27" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="10" cy="10" r="7" stroke="black" strokeWidth="2" />
+                            <line x1="15" y1="15" x2="22" y2="22" stroke="black" strokeWidth="2" strokeLinecap="round" />
+                        </svg></button>
       </div>
       {user && user.user.authority=='ROLE_ADMIN' && (
       <button className="faq-add-btn" onClick={handleAddFAQClick}>
@@ -178,9 +183,10 @@ useEffect(() => {
           <div key={faq.id} className="faq-item">
             <div
               className="faq-question"
-              onClick={() => toggleAccordion(index)}
-            >
-              {faq.title}
+              onClick={() => toggleAccordion(index)}>
+              <div className="faq-question-content">
+                {faq.title}
+              </div>
               <span className="accordion-icon">{openIndex === index ? "▲" : "▼"}</span>
             </div>
             {openIndex === index && (

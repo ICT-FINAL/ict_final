@@ -14,6 +14,7 @@ const InquiryWrite = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [SuccessMessage,setSuccessMessage] = useState('');
     const [isSubmitting,setIsSubmitting] = useState(false);
+    const [agreeToTerms, setAgreeToTerms] = useState(false);
 
     const user = useSelector((state) => state.auth.user);
     const navigate = useNavigate();
@@ -42,7 +43,12 @@ const InquiryWrite = () => {
             setInquiryContent(content);
         }
     };
-
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    };
     const handleSubmit = (event) => {
         event.preventDefault();
         if (isSubmitting) return;
@@ -58,14 +64,22 @@ const InquiryWrite = () => {
       
         if (!inquirySubject.trim()) {
             setErrorMessage('문의제목을 입력해주세요.');
+            scrollToTop();
             return;
         }
         if (!inquiryType) {
             setErrorMessage('문의유형을 선택해주세요.');
+            scrollToTop();
             return;
         }
         if (!inquiryContent.trim()) {
             setErrorMessage('문의내용을 입력해주세요.');
+            scrollToTop();
+            return;
+        }
+        if (!agreeToTerms) {
+            setErrorMessage('개인정보 수집 및 이용에 동의해주세요.');
+            scrollToTop();
             return;
         }
         setIsSubmitting(true);
@@ -151,6 +165,7 @@ const InquiryWrite = () => {
     const removeFile = (fileToRemove) => {
         setFiles(prevFiles => prevFiles.filter(file => file !== fileToRemove));
     };
+    
     return (
         <div className="inquiry-form-container">
             {errorMessage && (
@@ -239,6 +254,7 @@ const InquiryWrite = () => {
                     onChange={changeFile}
                 />
                 <button 
+                    type="button"
                     style={{ 
                         backgroundColor: '#333', 
                         color: 'white', 
@@ -288,6 +304,17 @@ const InquiryWrite = () => {
                         </span>
                     </div>
                 ))}
+                <div style={{ marginTop: '20px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', fontSize: '14px' }}>
+                        <input
+                            type="checkbox"
+                            checked={agreeToTerms}
+                            onChange={(e) => setAgreeToTerms(e.target.checked)}
+                            style={{ marginRight: '8px' }}
+                        />
+                        개인정보 수집 및 이용에 동의합니다. (문의 처리 목적 외에는 사용되지 않습니다.)
+                    </label>
+                </div>
             </div>
                 <div className="button-group">
                     <button type="submit" className="btn btn-submit" onClick={handleSubmit}>
