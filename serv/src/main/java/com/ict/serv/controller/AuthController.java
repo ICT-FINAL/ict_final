@@ -187,7 +187,8 @@ public class AuthController {
                                            @RequestParam("tel") String tel, @RequestParam("address") String address,
                                            @RequestParam("addressDetail") String addressDetail, @RequestParam("zipcode") String zipcode,
                                            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
-                                           @RequestParam(value = "kakaoProfileUrl", required = false) String kakaoProfileUrl)
+                                           @RequestParam(value = "kakaoProfileUrl", required = false) String kakaoProfileUrl,
+                                           @RequestParam("infoText") String infoText)
     {
         System.out.println(username);
         try {
@@ -222,6 +223,7 @@ public class AuthController {
                     .zipcode(zipcode)
                     .kakaoProfileUrl(kakaoProfileUrl)
                     .uploadedProfileUrl(finalProfileUrl)
+                    .infoText(infoText)
                     .authority(Authority.ROLE_USER)
                     .build();
 

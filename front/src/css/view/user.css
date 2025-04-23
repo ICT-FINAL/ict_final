@@ -220,7 +220,8 @@
 .sign-up-form label {
     font-weight: bold;
 }
-.sign-up-form input {
+.sign-up-form input,
+.sign-up-form textarea {
     width: 65%;
     border: 1px solid #555;
     border-radius: 10px;

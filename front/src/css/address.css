@@ -181,3 +181,45 @@
   }
 
 /* 결제성공끝 */
+
+/* 배송지 관리 */
+.address-box{
+    padding:0 10px;
+    margin:0;
+}
+
+.mypage-address-list{
+    list-style-type: none;
+    display: flex;
+    margin:0;
+    padding:10px;
+    margin-top:10px;
+}
+
+.mypage-address-list > li{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.mypage-address-list > li:nth-child(1) {
+    width: 5%;
+}
+.mypage-address-list > li:nth-child(2) {
+    width: 10%;
+}
+.mypage-address-list > li:nth-child(3) {
+    width: 30%;
+}
+.mypage-address-list > li:nth-child(4) {
+    width: 20%;
+}
+.mypage-address-list > li:nth-child(5) {
+    width: 20%;
+}
+.mypage-address-list > li:nth-child(6) {
+    width: 10%;
+}
+.mypage-address-list > li:nth-child(7) {
+    width: 5%;
+}
