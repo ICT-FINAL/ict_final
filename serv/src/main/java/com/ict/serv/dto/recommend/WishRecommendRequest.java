@@ -9,4 +9,5 @@ import java.util.List;
 @NoArgsConstructor
 public class WishRecommendRequest {
     private List<Long> productIds;
+    private String priceRange;
 }

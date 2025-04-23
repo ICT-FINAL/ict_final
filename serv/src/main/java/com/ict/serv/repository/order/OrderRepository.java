@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface OrderRepository extends JpaRepository<Orders, Long> {
     int countIdByUser(User user);
@@ -71,4 +72,6 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
 """, nativeQuery = true)
     List<Object[]> getSalesByTargetCategory();
 
+    @Query("SELECT oi.product.id, COUNT(oi) FROM OrderItem oi GROUP BY oi.product.id")
+    List<Object[]> countAllGroupedByProduct();
 }
