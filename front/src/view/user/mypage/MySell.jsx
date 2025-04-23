@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { setModal } from "../../../store/modalSlice";
 
@@ -14,20 +14,21 @@ function MySell() {
     const [totalPage, setTotalPage] = useState(1);
     const [totalRecord, setTotalRecord] = useState(1);
     const [orderList, setOrderList] = useState([]);
-
+    const [fileList, setFileList] = useState([]);
     const pageSize = 5;
     const pagedOrderList = orderList.slice((nowPage - 1) * pageSize, nowPage * pageSize);
-
+    const [shippingOption, setShippingOption] = useState('');
     const dispatch = useDispatch();
     const modal = useSelector((state)=>state.modal);
-
+    const navigate = useNavigate();
+    
     useEffect(() => {
         getBoardList();
     }, []);
 
     useEffect(() => {
         getBoardList();
-    }, [loc]);
+    }, [loc, shippingOption]);
 
     useEffect(() => {
         setTotalPage(Math.ceil(orderList.length / pageSize));
@@ -35,12 +36,14 @@ function MySell() {
 
     const getBoardList = () => {
         if (user)
-            axios.get(`${serverIP.ip}/order/sellList`, {
+            axios.get(`${serverIP.ip}/order/sellList?shippingState=${shippingOption}`, {
                 headers: { Authorization: `Bearer ${user.token}` }
             })
                 .then(res => {
-                    setOrderList(res.data);
-                    setTotalRecord(res.data.length);
+                    setOrderList(res.data.orderList);
+                    setTotalRecord(res.data.orderList.length);
+                    setFileList(res.data.filenameList);
+                    console.log(res.data);
                 })
                 .catch(err => console.log(err));
     };
@@ -52,14 +55,40 @@ function MySell() {
     const setShipping = (id) => {
         dispatch(setModal({...modal, selected:'shipping', isOpen:true, info:{id:id}}));
     }
+    const endShipping = (id) => {
+        if(user)
+            axios.get(`${serverIP.ip}/shipping/finishShipping?orderId=${id}`,{
+                headers:{Authorization:`Bearer ${user.token}`}
+            })
+            .then(getBoardList())
+            .catch(err => console.log(err))
+    }
+
+    const moveInfo = (prodId) => {
+        if(user)
+            axios.get(`${serverIP.ip}/product/getInfo?productId=${prodId}`,{
+                headers:{Authorization:`Bearer ${user.token}`}
+            })
+            .then(res =>{
+                navigate('/product/info', { state: { product: res.data } });
+            })
+            .catch(err => console.log(err))
+    }
 
     return (
         <div className="report-box">
+            <select onChange={(e) => setShippingOption(e.target.value)} style={{ width: '120px', borderRadius: '10px', padding: '5px 10px', border: '1px solid #ddd', marginBottom:'30px'}}>
+                <option value="">전체</option>
+                <option value="BEFORE">배송 준비 중</option>
+                <option value="ONGOING">배송 중</option>
+                <option value="FINISH">배송 완료</option>
+                <option value="CANCELED">배송 취소</option>
+            </select>
             {
                 orderList.length === 0 ?
                     <div className="no-list">검색 결과가 없습니다.</div> :
                     <div className="order-list">
-                        {pagedOrderList.map((order) => {
+                        {pagedOrderList.map((order,idx) => {
                             let orderSum = 0;
                             return (
                                 <div className="order-section" key={order.id} style={{ border: '1px solid #ddd' }}>
@@ -71,12 +100,18 @@ function MySell() {
                                         <strong>전화번호:</strong> {order.address.tel}<br />
                                         <strong>요청사항:</strong> {order.request}<br />
                                     </div>
-
+                                    <div className='order-wrapper'>
+                                    { fileList[idx] &&
+                                    <div style={{textAlign:'center'}}>
+                                        <img  onClick={()=>moveInfo(order.productId)} style={{width:'200px', height:'200px', borderRadius:'10px', cursor:'pointer'}} src={`${serverIP.ip}/uploads/product/${order.productId}/${fileList[idx]}`}/>
+                                    </div>
+                                    }
+                                    <div>
                                     {order.orderItems.map((oi) => {
                                         const itemTotal = (oi.price * (100 - oi.discountRate) / 100 + oi.additionalFee) * oi.quantity;
                                         orderSum += itemTotal;
                                         return (
-                                            <div className="order-item" key={oi.id}>
+                                            <div className="order-item" key={oi.id} onClick={()=>moveInfo(order.productId)} style={{cursor:'pointer'}}>
                                                 <div className="product-details">
                                                     <strong>{oi.productName} - {oi.optionName}</strong>
                                                     <div style={{ marginTop: '5px' }}>
@@ -86,7 +121,8 @@ function MySell() {
                                             </div>
                                         );
                                     })}
-
+                                    </div>
+                                    </div>
                                     <div className="order-total">
                                         <div><strong>소계:</strong> {formatNumberWithCommas(orderSum)}원</div>
                                         {order.shippingFee !== 0 && (
@@ -124,6 +160,9 @@ function MySell() {
                                     {order.shippingState==='BEFORE' && <button style={{marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'
                                         ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#8CC7A5'
                                     }} onClick={()=>setShipping(order.id)}>배송 등록</button>}
+                                     {order.shippingState==='ONGOING' && <button style={{marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'
+                                        ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#8CC7A5'
+                                    }} onClick={()=>endShipping(order.id)}>배송 완료</button>}
                                 </div>
                             );
                         })}

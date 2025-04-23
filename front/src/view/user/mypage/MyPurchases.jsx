@@ -19,6 +19,7 @@ function MyPurchases() {
     const [totalRecord, setTotalRecord] = useState(1);
 
     const [searchOption, setSearchOption] = useState('');
+    const [shippingOption, setShippingOption] = useState('');
 
     const moveInfo = (prodId) => {
         if(user)
@@ -37,11 +38,11 @@ function MyPurchases() {
 
     useEffect(() => {
         getBoardList();
-    }, [loc, searchOption]);
+    }, [loc, searchOption, shippingOption]);
 
     const getBoardList = () => {
         if (user)
-            axios.get(`${serverIP.ip}/order/orderList?nowPage=${nowPage}&state=${searchOption}`, {
+            axios.get(`${serverIP.ip}/order/orderList?nowPage=${nowPage}&state=${searchOption}&shippingState=${shippingOption}`, {
                 headers: { Authorization: `Bearer ${user.token}` }
             })
                 .then(res => {
@@ -86,7 +87,7 @@ function MyPurchases() {
 
     return (
         <div className="report-box">
-            <select onChange={(e) => setSearchOption(e.target.value)} style={{ width: '120px', borderRadius: '10px', padding: '5px 10px', border: '1px solid #ddd' }}>
+            <select onChange={(e) => setSearchOption(e.target.value)} style={{ width: '120px', borderRadius: '10px', padding: '5px 10px', border: '1px solid #ddd'}}>
                 <option value="">전체</option>
                 <option value="PAID">결제 완료</option>
                 <option value="CANCELED">결제 취소</option>
@@ -122,6 +123,9 @@ function MyPurchases() {
                                             <strong>주문번호:</strong> {order.orderNum}<br />
                                         </div>
                                         <div className='order-wrapper'>
+                                            <div style={{textAlign:'center'}}>
+                                                <img style={{width:`200px`, height:`200px`, borderRadius:'10px', cursor:'pointer'}} onClick={()=>moveInfo(order.productId)} src={`${serverIP.ip}/uploads/product/${order.productId}/${order.filename}`}/>
+                                            </div>
                                             <div>
                                             {order.orderItems.map((oi) => {
                                                 const itemTotal = (oi.price * (100 - oi.discountRate) / 100 + oi.additionalFee) * oi.quantity;
@@ -129,7 +133,7 @@ function MyPurchases() {
                                                 return (
                                                     <div className="order-item" key={oi.id} style={{cursor:'pointer'}} onClick={()=>moveInfo(order.productId)}>
                                                         <div className="product-details">
-                                                            <strong>{oi.productName} - {oi.optionName}</strong>
+                                                            <strong>{oi.productName}<br/>{oi.optionName}</strong>
                                                             <div style={{ marginTop: '5px' }}>
                                                                 {oi.optionCategoryName} : {formatNumberWithCommas(oi.price)}원 <strong style={{ color: '#e74c3c' }}>(-{formatNumberWithCommas(oi.discountRate * oi.price / 100)}원)</strong> <strong style={{ color: '#1976d2' }}>(+{formatNumberWithCommas(oi.additionalFee)}원)</strong> x {formatNumberWithCommas(oi.quantity)} = <strong>{formatNumberWithCommas(itemTotal)}</strong>원
                                                             </div>
@@ -137,9 +141,6 @@ function MyPurchases() {
                                                     </div>
                                                 );
                                             })}
-                                            </div>
-                                            <div style={{textAlign:'center'}}>
-                                                <img style={{width:'300px', height:'300px', cursor:'pointer'}} onClick={()=>moveInfo(order.productId)} src={`${serverIP.ip}/uploads/product/${order.productId}/${order.filename}`}/>
                                             </div>
                                         </div>
                                         <div className="order-total">

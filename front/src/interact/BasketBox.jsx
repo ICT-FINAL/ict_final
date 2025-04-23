@@ -195,7 +195,7 @@ function BasketBox() {
 
             {selectedItem && (
               <div style={{ padding: '10px' }}>
-                <img style={{ width: '20vw', height: '20vw', borderRadius: '10px' }}
+                <img style={{ width: '240px', height: '240px', borderRadius: '10px' }}
                   src={`${serverIP.ip}/uploads/product/${item.productNo}/${item.productImage}`}
                 />
                 <p><strong>상품명: </strong>{selectedItem.productName}</p>

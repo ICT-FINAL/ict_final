@@ -70,7 +70,8 @@ i {
 }
 
 #home {
-    background-image:url(../img/shoppingbag.png); 
+    border: 1px solid #999;
+    background-image:url(../img/sell.png); 
     background-position: center;
     background-size: cover;
     background-color:#8CC7A5;

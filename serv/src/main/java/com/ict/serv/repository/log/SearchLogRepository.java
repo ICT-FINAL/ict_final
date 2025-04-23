@@ -58,4 +58,6 @@ public interface SearchLogRepository extends JpaRepository<SearchLog, Long> {
     @Transactional
     @Query("UPDATE SearchLog s SET s.state = 'DELETED' WHERE s.user = :user")
     void softDeleteAllByUser(@Param("user") User user);
+
+    List<SearchLog> findAllByUser(User user);
 }

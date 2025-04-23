@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface OrderRepository extends JpaRepository<Orders, Long> {
     int countIdByUser(User user);
@@ -34,4 +35,43 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
             "ORDER BY count DESC " +
             "LIMIT 6", nativeQuery = true)
     List<Object[]> countProductCategoryFromPaidOrdersWithinTwoWeeks();
+
+    @Query(value = """
+    SELECT p.product_category AS category,
+           SUM(oi.quantity) AS total_quantity,
+           SUM(oi.quantity * p.price) AS total_revenue
+    FROM order_item oi
+    JOIN option_category oc ON oi.option_category_id = oc.option_category_id
+    JOIN product_option o ON oc.option_id = o.option_id
+    JOIN product p ON o.product_id = p.product_id
+    GROUP BY p.product_category
+""", nativeQuery = true)
+    List<Object[]> getSalesDataByCategory();
+
+    @Query(value = """
+    SELECT p.event_category AS category,
+           SUM(oi.quantity) AS total_quantity,
+           SUM(oi.quantity * p.price) AS total_revenue
+    FROM order_item oi
+    JOIN option_category oc ON oi.option_category_id = oc.option_category_id
+    JOIN product_option o ON oc.option_id = o.option_id
+    JOIN product p ON o.product_id = p.product_id
+    GROUP BY p.event_category
+""", nativeQuery = true)
+    List<Object[]> getSalesByEventCategory();
+
+    @Query(value = """
+    SELECT p.target_category AS category,
+           SUM(oi.quantity) AS total_quantity,
+           SUM(oi.quantity * p.price) AS total_revenue
+    FROM order_item oi
+    JOIN option_category oc ON oi.option_category_id = oc.option_category_id
+    JOIN product_option o ON oc.option_id = o.option_id
+    JOIN product p ON o.product_id = p.product_id
+    GROUP BY p.target_category
+""", nativeQuery = true)
+    List<Object[]> getSalesByTargetCategory();
+
+    @Query("SELECT oi.product.id, COUNT(oi) FROM OrderItem oi GROUP BY oi.product.id")
+    List<Object[]> countAllGroupedByProduct();
 }

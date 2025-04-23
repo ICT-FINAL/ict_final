@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface WishRepository extends JpaRepository<Wishlist, Long> {
     Wishlist findByUser_IdAndProduct_Id(Long userId, Long productId);
@@ -24,4 +25,9 @@ public interface WishRepository extends JpaRepository<Wishlist, Long> {
     int countWishBySeller(@Param("sellerId") Long sellerId);
 
     int countIdByProduct(Product product);
+
+    List<Wishlist> findByUser(User user);
+
+    @Query("SELECT w.product.id, COUNT(w) FROM Wishlist w GROUP BY w.product.id")
+    List<Object[]> countAllGroupedByProduct();
 }

@@ -167,7 +167,7 @@ function MyReviewList(){
                                             height: '100%',
                                             }}
                                         >
-                                            <FaStar style={{ color: backstarStyle.background, fontSize: '15px' }} />
+                                            <FaStar style={{verticalAlign: 'top', color: backstarStyle.background, fontSize: '15px' }} />
                                         </div>
                                         </span>
                                     );

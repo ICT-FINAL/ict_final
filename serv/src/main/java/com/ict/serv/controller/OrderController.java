@@ -145,8 +145,6 @@ public class OrderController {
         return orderService.saveOrderGroup(orderGroup);
     }
 
-
-
     @GetMapping("/orderList")
     public Map orderList(@AuthenticationPrincipal UserDetails userDetails, OrderPagingVO pvo) {
         pvo.setOnePageRecord(5);
@@ -192,17 +190,37 @@ public class OrderController {
     }
 
     @GetMapping("/sellList")
-    public List<Orders> sellList(@AuthenticationPrincipal UserDetails userDetails) {
+    public Map sellList(@AuthenticationPrincipal UserDetails userDetails, ShippingState shippingState) {
         User user = interactService.selectUserByName(userDetails.getUsername());
         List<Product> products = productService.selectProductByUser(user);
+        List<String> filenameList = new ArrayList<>();
         List<Orders> orders = new ArrayList<>();
-        for(Product product:products) {
-            List<Orders> order = orderService.getOrderByProduct(product.getId());
-            for(Orders mini:order) {
-                if(mini.getOrderGroup().getState()==OrderState.PAID) orders.add(mini);
+        if(shippingState == null)
+            for(Product product:products) {
+                List<Orders> order = orderService.getOrderByProduct(product.getId());
+                for(Orders mini:order) {
+                    if(mini.getOrderGroup().getState()==OrderState.PAID) {
+                        orders.add(mini);
+                        if(product.getImages().isEmpty()) filenameList.add("");
+                        else filenameList.add(product.getImages().get(0).getFilename());
+                    }
+                }
             }
-        }
-        return orders;
+        else
+            for(Product product:products) {
+                List<Orders> order = orderService.getOrderByProduct(product.getId());
+                for(Orders mini:order) {
+                    if(mini.getOrderGroup().getState()==OrderState.PAID && shippingState == mini.getShippingState()) {
+                        orders.add(mini);
+                        if(product.getImages().isEmpty()) filenameList.add("");
+                        else filenameList.add(product.getImages().get(0).getFilename());
+                    }
+                }
+            }
+        Map map = new HashMap();
+        map.put("orderList", orders);
+        map.put("filenameList", filenameList);
+        return map;
     }
 
 }

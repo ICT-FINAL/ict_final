@@ -1,6 +1,7 @@
 package com.ict.serv.entity.order;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.ict.serv.entity.product.Product;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -42,4 +43,8 @@ public class OrderItem {
     @Column(name="refund_state")
     @Enumerated(EnumType.STRING)
     RefundState refundState=RefundState.NONE;
+
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
 }

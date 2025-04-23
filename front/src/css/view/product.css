@@ -658,7 +658,8 @@
 
 .wishlist-icon,
 .cart-icon,
-.inquiry-icon {
+.inquiry-icon,
+.bell-icon {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -666,7 +667,8 @@
 
 .wishlist-icon span,
 .cart-icon span,
-.inquiry-icon span {
+.inquiry-icon span,
+.bell-icon span {
     font-size: 12px;
     margin-top: 5px;
     white-space: nowrap;
@@ -830,9 +832,10 @@
   .order-item {
     background: #f9f9f9;
     padding: 20px;
-    border: 2px solid #ddd;
+    border: 1px solid #ddd;
     border-radius: 12px;
-    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
   }
 
@@ -1003,3 +1006,12 @@
     background-color: #edfcf3;
     cursor: pointer;
 }
+
+
+/* 배송 모달 */
+#shipping-modal{
+    border-radius: 10px;
+    text-align: center;
+}
+
+/* 배송모달 끝 */

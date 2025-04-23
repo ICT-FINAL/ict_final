@@ -2,6 +2,8 @@ package com.ict.serv.service;
 
 import com.ict.serv.entity.order.*;
 import com.ict.serv.entity.product.HotCategoryDTO;
+import com.ict.serv.entity.sales.CategorySalesDTO;
+import com.ict.serv.entity.sales.SalesStatsDTO;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.order.AuctionOrderRepository;
 import com.ict.serv.repository.order.OrderGroupRepository;
@@ -11,9 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ public class OrderService {
     private final OrderItemRepository order_item_repo;
     private final OrderGroupRepository order_group_repo;
     private final AuctionOrderRepository auctionOrderRepository;
+    private final OrderRepository orderRepository;
 
     public Orders insertOrder(Orders orders) {
         return order_repo.save(orders);
@@ -92,4 +94,94 @@ public class OrderService {
 
     public AuctionOrder saveAuctionOrder(AuctionOrder auctionOrder) { return auctionOrderRepository.save(auctionOrder); }
     public Optional<AuctionOrder> selectAuctionOrder(Long id) { return auctionOrderRepository.findById(id);}
+
+    public List<OrderGroup> selectAllOrderGroup() {
+        return order_group_repo.findAllByState(OrderState.PAID);
+    }
+    public List<SalesStatsDTO> getDailySalesStats() {
+        List<OrderGroup> orderGroups = order_group_repo.findAllByState(OrderState.PAID);
+        List<AuctionOrder> auctionOrders = auctionOrderRepository.findAllByState(OrderState.PAID);
+
+        Map<String, SalesStatsDTO> statsMap = new HashMap<>();
+
+        for (OrderGroup group : orderGroups) {
+            String date = group.getOrderDate().substring(0, 10);
+
+            statsMap.compute(date, (key, existing) -> {
+                if (existing == null) {
+                    return new SalesStatsDTO(
+                            date,
+                            1,
+                            group.getTotalPrice(),
+                            group.getTotalShippingFee(),
+                            group.getCouponDiscount(),
+                            group.getTotalPrice() + group.getTotalShippingFee() - group.getCouponDiscount()
+                    );
+                } else {
+                    existing.setOrders(existing.getOrders() + 1);
+                    existing.setTotalPrice(existing.getTotalPrice() + group.getTotalPrice());
+                    existing.setShippingCost(existing.getShippingCost() + group.getTotalShippingFee());
+                    existing.setCouponDiscount(existing.getCouponDiscount() + group.getCouponDiscount());
+                    existing.setTotalSales(existing.getTotalPrice() + existing.getShippingCost() - existing.getCouponDiscount());
+                    return existing;
+                }
+            });
+        }
+
+        for (AuctionOrder order : auctionOrders) {
+            String date = order.getOrderDate().substring(0, 10);
+
+            statsMap.compute(date, (key, existing) -> {
+                if (existing == null) {
+                    return new SalesStatsDTO(
+                            date,
+                            1,
+                            order.getTotalPrice(),
+                            order.getTotalShippingFee(),
+                            0,
+                            order.getTotalPrice() + order.getTotalShippingFee()
+                    );
+                } else {
+                    existing.setOrders(existing.getOrders() + 1);
+                    existing.setTotalPrice(existing.getTotalPrice() + order.getTotalPrice());
+                    existing.setShippingCost(existing.getShippingCost() + order.getTotalShippingFee());
+                    // 쿠폰 없음이므로 변화 없음
+                    existing.setTotalSales(existing.getTotalPrice() + existing.getShippingCost() - existing.getCouponDiscount());
+                    return existing;
+                }
+            });
+        }
+
+        return new ArrayList<>(statsMap.values()).stream()
+                .sorted(Comparator.comparing(SalesStatsDTO::getDate))
+                .collect(Collectors.toList());
+    }
+    public List<CategorySalesDTO> getSalesByCategory() {
+        List<Object[]> raw = orderRepository.getSalesDataByCategory();
+        return raw.stream()
+                .map(row -> new CategorySalesDTO(
+                        (String) row[0],
+                        ((Number) row[1]).longValue(),
+                        ((Number) row[2]).longValue()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<CategorySalesDTO> getSalesByEventCategory() {
+        return toDTO(orderRepository.getSalesByEventCategory());
+    }
+
+    public List<CategorySalesDTO> getSalesByTargetCategory() {
+        return toDTO(orderRepository.getSalesByTargetCategory());
+    }
+
+    private List<CategorySalesDTO> toDTO(List<Object[]> raw) {
+        return raw.stream()
+                .map(row -> new CategorySalesDTO(
+                        (String) row[0],
+                        ((Number) row[1]).longValue(),
+                        ((Number) row[2]).longValue()
+                ))
+                .collect(Collectors.toList());
+    }
 }

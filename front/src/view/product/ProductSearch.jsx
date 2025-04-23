@@ -172,7 +172,7 @@ function ProductSearch() {
                     </div>
                 </div>
                 <ul className='search-sort'>
-                    {["최신순", "찜 많은순", "후기 많은 순", "판매수 많은 순", "할인율 높은 순", "높은 가격 순", "낮은 가격 순"].map((item, index) => (
+                    {["최신순", "찜 많은순", "후기 많은 순", "주문 많은 순", "할인율 높은 순", "높은 가격 순", "낮은 가격 순"].map((item, index) => (
                         <li key={index}>
                             <span
                                 onClick={() => setSort(item)}
