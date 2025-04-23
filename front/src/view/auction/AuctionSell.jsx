@@ -297,8 +297,8 @@ function AuctionSell() {
             }
         })
         .then(res => {
-            alert("상품 등록 성공");
-            navigate('/auction');
+            // alert("상품 등록 성공");
+            // navigate('/auction');
         })
         .catch(err => console.error("상품 등록 실패:", err));
     };

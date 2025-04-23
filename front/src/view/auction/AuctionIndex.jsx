@@ -268,7 +268,7 @@ function AuctionIndex() {
 
                                 <div style={{display: 'flex', justifyContent: 'center'}}>
                                     <button
-                                        id="auction-topten-btn"
+                                        id="auction-top-btn"
                                         onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#4a7b63'}
                                         onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#8CC7A5'}
                                         onClick={()=>moveScroll(800)}
@@ -277,7 +277,7 @@ function AuctionIndex() {
                                     </button>
 
                                     <button
-                                        id="auction-topten-btn"
+                                        id="auction-top-btn"
                                         onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#4a7b63'}
                                         onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#8CC7A5'}
                                         onClick={()=>moveScroll(1400)}
@@ -306,7 +306,7 @@ function AuctionIndex() {
                     slideIndex: 2,
                 },
             ].map(({ title, list, visible, slideIndex }, sectionIndex) => (
-                <div key={sectionIndex} className={`topten-auction ${visible ? 'fade-in' : 'fade-out'}`}>
+                <div key={sectionIndex} className={`top-auction ${visible ? 'fade-in' : 'fade-out'}`}>
                     <h2 style={{ textAlign: 'center' }}>{title}</h2>
                     <div className="hot-slider-container"
                         style={{
@@ -318,7 +318,11 @@ function AuctionIndex() {
                             borderRadius: '10px',
                         }}
                     >
-                        <div className="hot-product-cards-wrapper" style={{width: `${itemsPerPage * 200 + 100}px`, height: '600px', paddingRight: '50px', position: 'relative'}}>
+                        <div className="hot-product-cards-wrapper" style={{width: `${itemsPerPage * 200 + 100}px`, height: list.length === 0 ? '30px' : '600px', paddingRight: '50px', position: 'relative'}}>
+                            {
+                                list.length === 0 &&
+                                <div>진행 중인 경매가 없습니다.</div>    
+                            }
                             <div className="hot-product-cards" style={{ transform: `translateY(${getTransformY(slideIndex)}px)`, display: 'grid', gridTemplateColumns: `repeat(${itemsPerPage}, 1fr)` }}>
                                 {list.map((auction, index) => (
                                     <div className="hot-product-card" key={index} style={{ position: 'relative', width: '190px', height: '280px', margin: '10px auto' }}>
