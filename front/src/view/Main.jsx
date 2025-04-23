@@ -349,7 +349,9 @@ function Main() {
                 marginTop: '80px',
                 marginBottom: '60px',
                 padding: '40px 20px',
-                fontFamily:'Pretendard, san-serif'
+                fontFamily:'Pretendard, san-serif',
+                minWidth: '1200px',
+                maxWidth: '1600px'
             }}>
             <h2 style={{
                 fontSize: '32px',

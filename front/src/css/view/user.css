@@ -457,6 +457,7 @@ input.tel {
     resize: none;
     box-shadow: 0 3px 5px rgba(31, 131, 81, 0.15);
     transition: all 0.5s;
+    font-family: inherit;
 }
 #guestbook-write-btn {
     width: 80px;

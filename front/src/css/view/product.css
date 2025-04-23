@@ -1,3 +1,11 @@
+@font-face {
+    font-family: 'EliceDigitalBaeum';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_elice@1.0/EliceDigitalBaeum.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
 /* 메인페이지 */
 .product-main-container{
     position:fixed;
@@ -266,11 +274,14 @@
 .product-input, 
 .product-select, 
 .product-textarea {
-    width: 90%;
+    width: calc(100% - 16px);
     padding: 8px;
     font-size: 14px;
     border: 1px solid #ccc;
     border-radius: 5px;
+}
+.product-select {
+    width: 100%;
 }
 
 .product-textarea {
@@ -812,7 +823,7 @@
 
 /* 상품구매 */
 .product-buy-container {
-    padding: 30px;
+    padding: 10px;
     background-color: #f9f9f9;
     display: flex;
     flex-direction: column;
@@ -839,16 +850,31 @@
     box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
   }
 
+  .buy-order-item {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 1fr;
+    font-family: 'EliceDigitalBaeum';
+    font-size: 10pt;
+    border-bottom: 1px dashed #555;
+  }
+  .buy-order-item li {
+    float: left;
+    text-align: right;
+    padding: 3px 10px;
+  }
+  .buy-order-item li:first-child {
+    text-align: left;
+  }
+
   .product-buy-info {
-    background: #ffffff;
-    padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    margin-bottom: 20px;
+    width: 90%;
   }
   
-  .product-buy-name {
+  /* .product-buy-name {
     font-size: 23px;
     font-weight: bold;
     margin-bottom: 10px;
@@ -877,7 +903,7 @@
   .selected-options strong {
     font-weight: bold;
     color: #000000;
-}
+} */
 .payment-button {
     background-color: #8CC7A5;
     color: white;

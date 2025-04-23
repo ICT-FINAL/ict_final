@@ -212,7 +212,7 @@ function AddressForm({ setSelAddrId, onAddAddress, isGet, setSelectedAddresses, 
             )}
             <h3>요청사항</h3>
             <textarea value={request}
-                style={{ whiteSpace: 'pre-wrap', width: '100%', height: '150px', resize: 'none' }}
+                style={{ whiteSpace: 'pre-wrap', width: '97%', height: '150px', resize: 'none', padding: '10px', fontFamily: 'inherit'}}
                 onChange={(e) => setRequest(e.target.value)} />
         </div>
     );

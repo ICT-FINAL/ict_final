@@ -248,9 +248,9 @@ function ProductBuy() {
   };
 
   return (
-    <div style={{ paddingTop: '150px' }}>
+    <div style={{ paddingTop: '150px', background: '#222' }}>
       <div className="product-buy-container">
-        <h2 className="product-buy-header">상품 결제</h2>
+        <h2 className="product-buy-header">MIMYO</h2>
         {isAuction && 
           <div className="product-buy-info">
             <div className="order-item">
@@ -265,28 +265,47 @@ function ProductBuy() {
           </div>}
         {orderItems.length > 0 && (
           <div className="product-buy-info">
+            <ul className="buy-order-item" style={{fontWeight: 'bold', fontSize: '13pt', borderBottom: 'none', margin: '20px 0'}}>
+              <li>상품</li>
+              <li>단가</li>
+              <li>수량</li>
+              <li>금액</li>
+            </ul>
             {Object.values(groupedItems).map((group, index) => (
-              <div key={index} className="order-item">
-                <h3 className="product-buy-name">{group.productName}</h3>
-                <p style={{ fontSize: '20px' }}>가격: <strong style={{ textDecoration: 'line-through' }}>{formatNumberWithCommas(group.productPrice)}</strong> 원</p>
-                <p className="buy-price">할인: <span style={{ color: '#d9534f', fontWeight: 'bold', fontSize: '19px' }}>{group.productDiscountRate}%</span></p>
-                {group.productDiscountRate !== 0 && <p style={{ borderBottom: '1px solid #ddd', paddingBottom: '10px' }}>할인가: <span style={{ fontSize: '20px', fontWeight: 'bold' }}>{formatNumberWithCommas(group.productPrice * ((100 - group.productDiscountRate) / 100))}</span> 원</p>}
+              <>
+                <ul key={index} className="buy-order-item">
+                  <li style={{fontSize: '11pt', fontWeight: 'bold'}}>{group.productName}</li><li></li><li></li><li></li>
+                </ul>
                 {group.options.map((opt, idx) => (
-                  <div key={idx} className="option-detail" style={{ marginLeft: '10px', padding: '5px 0' }}>
-                    <p><span style={{ fontWeight: 'bold' }}>옵션</span>: {opt.categoryName} x {opt.quantity} (+{formatNumberWithCommas(opt.additionalPrice)} 원) = <span style={{ fontSize: '20px', fontWeight: 'bold', color: '#4a7b63' }}>{formatNumberWithCommas((group.productPrice * ((100 - group.productDiscountRate) / 100) + opt.additionalPrice) * opt.quantity)}</span> 원</p>
-                  </div>
+                  <>
+                    <ul key={index} className="buy-order-item" style={group.productDiscountRate !== 0 ? {border: 'none'} : {}}>
+                      <li key={idx}>{opt.categoryName} (+{formatNumberWithCommas(opt.additionalPrice)})</li>
+                      <li>₩{formatNumberWithCommas(group.productPrice + opt.additionalPrice)}</li>
+                      <li>{opt.quantity}</li>
+                      <li style={{fontWeight: 'bold'}}>₩{formatNumberWithCommas((group.productPrice + opt.additionalPrice) * opt.quantity)}</li>
+                    </ul>
+                    {
+                      group.productDiscountRate !== 0 &&
+                      <ul className="buy-order-item">
+                        <li></li>
+                        <li>-₩{formatNumberWithCommas(group.productPrice * (group.productDiscountRate / 100))}</li>
+                        <li></li>
+                        <li>-₩{formatNumberWithCommas(group.productPrice * (group.productDiscountRate / 100) * opt.quantity)}</li>
+                      </ul>
+                    }
+                  </>
                 ))}
 
-                <p>배송비: <strong style={{ color: '#1976d2' }}>{formatNumberWithCommas(group.productShippingFee)}</strong>원</p>
-                <span>
-                  합계: <strong style={{ fontWeight: 'bold', fontSize: '20px' }}>{formatNumberWithCommas(
-                    group.options.reduce((sum, opt) => {
-                      const discountedPrice = group.productPrice * (1 - group.productDiscountRate / 100);
-                      return sum + (discountedPrice + opt.additionalPrice) * opt.quantity;
-                    }, 0) + group.productShippingFee
-                  )}</strong> 원
-                </span>
-              </div>
+                  <div style={{textAlign: 'right', padding: '0 10px', fontSize: '10pt', marginTop: '5px'}}>배송비: <span>₩{formatNumberWithCommas(group.productShippingFee)}</span></div>
+                  <div style={{textAlign: 'right', padding: '0 10px', fontSize: '10pt'}}>
+                    합계: <strong style={{ color: '#1976d2' }}>₩{formatNumberWithCommas(
+                      group.options.reduce((sum, opt) => {
+                        const discountedPrice = group.productPrice * (1 - group.productDiscountRate / 100);
+                        return sum + (discountedPrice + opt.additionalPrice) * opt.quantity;
+                      }, 0) + group.productShippingFee
+                    )}</strong>
+                  </div>
+              </>
             ))}
 
             <div className="shipping-discount-info">
