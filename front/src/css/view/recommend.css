@@ -57,18 +57,96 @@
 }
 
 .recommend-list {
-    width: 900px;
-    height: 500px;
-    margin: 20px auto;
-    padding: 20px;
-    border: 1px solid #ddd;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    position: relative;
+    margin: 20px 0;
 }
 
 .recommend-product {
-    border: 1px solid #ddd;
-    margin: 10px;
+    position: relative;
+    width: calc(100% - 10px);
+    height: calc(100% - 10px);
+    margin: 5px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: box-shadow 0.3s ease;
+}
+
+.recommend-product:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.recommend-product-img { 
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.recommend-grid {
+    display: grid;
+    margin: 0 auto;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(4, 150px);
+    grid-template-areas: 
+        "b0 b0 b0 b0 b1 b1 b2 b2"
+        "b0 b0 b0 b0 b1 b1 b2 b2"
+        "b3 b3 b4 b4 b5 b5 b5 b5"
+        "b3 b3 b4 b4 b5 b5 b5 b5"
+    ;
+}
+
+.box-0 { grid-area: b0; }
+.box-1 { grid-area: b1; }
+.box-2 { grid-area: b2; }
+.box-3 { grid-area: b3; }
+.box-4 { grid-area: b4; }
+.box-5 { grid-area: b5; }
+.box-6 { grid-area: b6; }
+
+@keyframes slide-in-left {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slide-in-right {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+  
+.box-0,
+.box-1,
+.box-2 {
+    animation: slide-in-left 1s ease-out forwards;
+}
+  
+.box-3,
+.box-4,
+.box-5 {
+    animation: slide-in-right 1s ease-out forwards;
+}
+
+.recommend-product-info {
+    position:absolute;
+    bottom: 0px;
+    width: 100%;
     padding: 10px;
-    max-height: 240px;
+    background-color: rgba(255, 255, 255, 0.82);
+    font-size: 10pt;
+}
+.info-0, .info-5 {
+    text-align: center;
+}
+.info-0 div, .info-5 div {
+    justify-content: center;
 }

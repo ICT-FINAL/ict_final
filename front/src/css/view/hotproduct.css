@@ -1,11 +1,11 @@
-.topten-auction {
+.top-auction {
     position: fixed;
     left: 50%;
     top: 50%;
     width: 90%;
     transform: translate(-50%, -50%);
 }
-#auction-topten-btn {
+#auction-top-btn {
     background-color: #8CC7A5;
     color: white;
     border: none;

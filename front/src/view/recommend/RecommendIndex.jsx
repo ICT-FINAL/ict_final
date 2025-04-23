@@ -3,6 +3,8 @@ import './../../css/view/recommend.css';
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import RecommendSpinner from '../../effect/RecommendSpinner';
+import { FaStar } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 function RecommendIndex() {
     const user = useSelector((state) => state.auth.user);
@@ -10,16 +12,14 @@ function RecommendIndex() {
 
     const youEnd = false;
 
-    const [wishProduct, setWishProduct] = useState(null);
-    const [basketProduct, setBasketProduct] = useState(null);
-    const [hitProduct, setHitProduct] = useState(null);
-    const [searchProduct, setSearchProduct] = useState(null);
-    const [reviewProduct, setReviewProduct] = useState(null);
-    const [defaultProduct, setDefaultProduct] = useState(null);
     const [loading, setLoading] = useState(true);
     const [priceRange, setPriceRange] = useState('');
 
+    const [recommendList, setRecommendList] = useState([]);
+    const [check, setCheck] = useState(false);
+
     const alreadyProducts = useRef([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         getRecommendList();
@@ -35,6 +35,8 @@ function RecommendIndex() {
 
         try {
             setLoading(true);
+            const recommendProducts = [];
+            setCheck(false);
 
             const basePayload = { productIds: alreadyProducts.current, priceRange };
 
@@ -45,7 +47,8 @@ function RecommendIndex() {
             if (!alreadyProducts.current.includes(wishId)) {
                 alreadyProducts.current.push(wishId);
             }
-            setWishProduct(wishRes.data);
+            recommendProducts.push(wishRes.data);
+            if (wishRes.data === "" || wishRes.data === null) setCheck(true);
 
             const basketRes = await axios.post(`${serverIP.ip}/recommend/getRecommend?type=BASKET`,
                 { productIds: [...alreadyProducts.current, wishId], priceRange },
@@ -54,7 +57,7 @@ function RecommendIndex() {
             if (!alreadyProducts.current.includes(basketId)) {
                 alreadyProducts.current.push(basketId);
             }
-            setBasketProduct(basketRes.data);
+            recommendProducts.push(basketRes.data);
 
             const hitRes = await axios.post(`${serverIP.ip}/recommend/getRecommend?type=HIT`,
                 { productIds: [...alreadyProducts.current, wishId, basketId], priceRange },
@@ -63,7 +66,7 @@ function RecommendIndex() {
             if (!alreadyProducts.current.includes(hitId)) {
                 alreadyProducts.current.push(hitId);
             }
-            setHitProduct(hitRes.data);
+            recommendProducts.push(hitRes.data);
 
             const searchRes = await axios.post(`${serverIP.ip}/recommend/getRecommend?type=SEARCH`,
                 { productIds: [...alreadyProducts.current, wishId, basketId, hitId], priceRange },
@@ -72,7 +75,7 @@ function RecommendIndex() {
             if (!alreadyProducts.current.includes(searchId)) {
                 alreadyProducts.current.push(searchId);
             }
-            setSearchProduct(searchRes.data);
+            recommendProducts.push(searchRes.data);
 
             const reviewRes = await axios.post(`${serverIP.ip}/recommend/getRecommend?type=REVIEW`,
                 { productIds: [...alreadyProducts.current, wishId, basketId, hitId], priceRange },
@@ -81,7 +84,7 @@ function RecommendIndex() {
             if (!alreadyProducts.current.includes(reviewId)) {
                 alreadyProducts.current.push(reviewId);
             }
-            setReviewProduct(reviewRes.data);
+            recommendProducts.push(reviewRes.data);
 
             const defaultRes = await axios.post(`${serverIP.ip}/recommend/getDefaultRecommend`,
                 { productIds: [...alreadyProducts.current, wishId, basketId, hitId, searchId], priceRange },
@@ -90,8 +93,14 @@ function RecommendIndex() {
             if (!alreadyProducts.current.includes(defaultId)) {
                 alreadyProducts.current.push(defaultId);
             }
-            setDefaultProduct(defaultRes.data);
-            console.log(defaultRes.data);
+            recommendProducts.push(defaultRes.data);
+
+            // console.log(defaultRes.data);
+
+            console.log(recommendProducts);
+            setRecommendList(recommendProducts);
+            getRating(recommendProducts);
+            
             setLoading(false);
         } catch (err) {
             console.log(err);
@@ -99,13 +108,29 @@ function RecommendIndex() {
         }
     };
 
-    const allProductsEmpty =
-        !wishProduct &&
-        !basketProduct &&
-        !hitProduct &&
-        !searchProduct &&
-        !reviewProduct &&
-        !defaultProduct;
+    const moveInfo = (prod) => {
+        navigate('/product/info', { state: { product: prod } });
+    }
+
+    const getRating = (list) => {
+        Promise.all(
+          list.map(product =>
+            product &&
+            axios.get(`${serverIP.ip}/review/averageStar?productId=${product.id}`)
+            .then(res => ({
+                ...product,
+                average: res.data.average,
+                reviewCount: res.data.reviewCount,
+                reviewContent: res.data.reviewContent
+            }))
+            .catch(err => {
+                console.error(err);
+                return { ...product, average: 0, reviewCount: 0 };
+            }))
+        ).then(updatedList => {
+          setRecommendList(updatedList);
+        });
+      };
 
     return (
         <div className='recommend-container'>
@@ -121,64 +146,74 @@ function RecommendIndex() {
                 <li className={priceRange === '50000to60000' ? 'active' : ''} onClick={loading ? null :() => handlePriceRangeChange('50000to60000')}>5만원대</li>
                 <li className={priceRange === 'over60000' ? 'active' : ''} onClick={loading ? null :() => handlePriceRangeChange('over60000')}>6만원 이상</li>
             </ul>
-            <button id="refresh-btn" onClick={getRecommendList} disabled={loading || allProductsEmpty}>
+            <button id="refresh-btn" onClick={getRecommendList} disabled={loading || check}>
                 ⟳
             </button>
 
-            <div className="recommend-list" style={{ position: 'relative' }}>
+            {!check && <div style={{marginTop: '20px', fontSize: '12px', color: 'rgb(140, 199, 165)'}}>* MIMYO만의 알고리즘으로 회원님께 딱 맞는 상품을 추천해드려요.</div>}
+            <div className="recommend-list">
                 {loading ? (
                     <RecommendSpinner />
                 ) : (
-                    allProductsEmpty ? (
+                    check ? (
                         <div
                             style={{
                                 textAlign: 'center',
                                 position: 'absolute',
-                                top: '50%',
+                                top: '50px',
                                 left: '50%',
                                 transform: 'translate(-50%,-50%)',
                                 fontSize: '20px'
                             }}
                         >
-                            { !youEnd? '현의님 힘내고 🤣':'추천 상품이 더이상 없어요 😢'}
+                            {
+                                !youEnd &&
+                                <div>
+                                    <div>등록된 상품을 모두 보여드렸어요 😢</div>
+                                    <div style={{marginTop: '10px', fontSize: '11pt', cursor: 'pointer'}} onClick={()=>window.location.reload()}>다시 보기⟳</div>
+                                </div>
+                            }
                         </div>
                     ) : (
-                        <> { wishProduct &&
-                            <div className='recommend-product'>
-                                <img width='100%' height='150px' src={`${serverIP.ip}/uploads/product/${wishProduct.id}/${wishProduct.images[0].filename}`}/>
-                                찜: {wishProduct && wishProduct.productName}
-                            </div>
+                        <> 
+                            <div className="recommend-grid">
+                            {
+                                recommendList.map((item, index)=>{
+                                    return (
+                                        item !== "" &&
+                                        <div key={index} className={`recommend-product box-${index}`} onClick={() => moveInfo(item)}>
+                                            <img className='recommend-product-img' src={`${serverIP.ip}/uploads/product/${item.id}/${item.images[0].filename}`}/>
+                                            <div className={`recommend-product-info info-${index}`}>
+                                                <span style={{ fontSize: "14px", color: "#333" }}>{item.productName}</span> {/* 상품명 */} <br />
+
+                                                {item.discountRate === '' || item.discountRate === 0 ? (
+                                                    <span style={{ fontWeight: "700" }}>{item.price.toLocaleString()}원</span> // 할인율이 0%일 때는 기존 가격만 표시
+                                                    ) : (
+                                                    <>
+                                                        <span style={{ color: 'red', fontWeight: "700", marginRight: "3px" }}>{item.discountRate}%</span>
+                                                        <span style={{ textDecoration: "line-through", textDecorationColor: "red", textDecorationThickness: "2px", fontWeight: "700", marginRight: '3px' }}>
+                                                            {item.price.toLocaleString()}원
+                                                        </span>
+                                                        <span style={{ color: 'red', fontWeight: "700" }}>
+                                                            {Math.round(item.price * (1 - item.discountRate / 100)).toLocaleString()}원
+                                                        </span> 
+                                                    </>
+                                                )}
+                                                <div style={{ display: 'flex', alignItems: 'center', marginTop: '3px' }}>
+                                                    <FaStar style={{ color: '#FFD700', fontSize: '15px' }} />
+                                                    <div style={{ marginLeft: '8px', fontSize: '12px', color: '#555' }}>
+                                                        <b>{item.average ? item.average.toFixed(1) : '0.0'}</b>
+                                                        <span style={{ marginLeft: '4px', color: '#999' }}>
+                                                            ({item.reviewCount})
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )
+                                })
                             }
-                            { basketProduct &&
-                            <div className='recommend-product'>
-                            <img width='100%' height='150px' src={`${serverIP.ip}/uploads/product/${basketProduct.id}/${basketProduct.images[0].filename}`}/>
-                                장바구니: {basketProduct && basketProduct.productName}
                             </div>
-                            }
-                            { hitProduct &&
-                            <div className='recommend-product'>
-                            <img width='100%' height='150px' src={`${serverIP.ip}/uploads/product/${hitProduct.id}/${hitProduct.images[0].filename}`}/>
-                                방문: {hitProduct && hitProduct.productName}
-                            </div>
-                            }
-                            { searchProduct &&
-                            <div className='recommend-product'>
-                            <img width='100%' height='150px' src={`${serverIP.ip}/uploads/product/${searchProduct.id}/${searchProduct.images[0].filename}`}/>
-                                검색: {searchProduct && searchProduct.productName}
-                            </div>
-                            }
-                            { reviewProduct &&
-                            <div className='recommend-product'>
-                            <img width='100%' height='150px' src={`${serverIP.ip}/uploads/product/${reviewProduct.id}/${reviewProduct.images[0].filename}`}/>
-                                리뷰: {reviewProduct && reviewProduct.productName}
-                            </div>
-                            }
-                            {defaultProduct &&
-                            <div className='recommend-product'>
-                            <img width='100%' height='150px' src={`${serverIP.ip}/uploads/product/${defaultProduct.id}/${defaultProduct.images[0].filename}`}/>
-                                디폴트: {defaultProduct && defaultProduct.productName}
-                            </div>
-                            }
                         </>
                     )
                 )}

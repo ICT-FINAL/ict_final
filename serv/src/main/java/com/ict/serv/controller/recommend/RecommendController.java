@@ -2,14 +2,10 @@ package com.ict.serv.controller.recommend;
 
 import com.ict.serv.controller.product.ProductPagingVO;
 import com.ict.serv.dto.recommend.WishRecommendRequest;
-import com.ict.serv.entity.basket.Basket;
 import com.ict.serv.entity.log.search.SearchLog;
-import com.ict.serv.entity.log.user.UserHitLog;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.product.ProductState;
-import com.ict.serv.entity.review.Review;
 import com.ict.serv.entity.user.User;
-import com.ict.serv.entity.wish.Wishlist;
 import com.ict.serv.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -62,8 +58,8 @@ public class RecommendController {
                                 @RequestParam RecommendType type,
                                 @RequestBody WishRecommendRequest productIdList) {
         User user = interactService.selectUserByName(userDetails.getUsername());
-        List<Long> excludeIds = productIdList.getProductIds();
         String priceRange = productIdList.getPriceRange();
+        List<Long> excludeIds = productIdList.getProductIds();
 
         List<Product> candidates = switch (type) {
             case WISH -> getProductListFromWish(user);
