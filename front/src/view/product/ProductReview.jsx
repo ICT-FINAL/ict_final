@@ -403,13 +403,12 @@ function ProductReview(){
 
 
     // 마이페이지에서 나의 리뷰를 찾게할때
-    const [getReviewId, setGetReviewId] = useState(null);
-
     useEffect(() => {
         const id = localStorage.getItem("currentReviewId");
 
         if (id) {
-            if(id!=null && localStorage.getItem("changeMenu")!="review"){
+            const changeMenu = localStorage.getItem("changeMenu");
+            if (changeMenu !== "review") {
                 localStorage.setItem("changeMenu", "review");
             }
 
@@ -418,13 +417,16 @@ function ProductReview(){
                 if (targetElement) {
                     targetElement.scrollIntoView({ behavior: "smooth", block: "center" });
             
-                    targetElement.style.border = "2px solid #8CC7A5";
+                    targetElement.style.boxSizing = "border-box";
+
+                    targetElement.style.boxShadow = "0 0 10px 2px rgba(140, 199, 165, 0.7)";
                     targetElement.style.borderRadius = "12px";
-            
+                    
                     // 3초 후 강조 제거
                     setTimeout(() => {
-                        targetElement.style.border = "none";
+                        targetElement.style.boxShadow = "none";
                         targetElement.style.borderRadius = "0";
+
                     }, 3000);
                 }
             }, 100);
@@ -517,7 +519,7 @@ function ProductReview(){
                 )}
             </div>
 
-            <hr style={{ border: '0', height: '10px', backgroundColor: 'rgb(241, 241, 241)' }} />
+            <hr style={{ border: '0', height: '5px', backgroundColor: 'rgb(241, 241, 241)' }} />
 
             {isPurchased && !isReview && (
                 <div style={{ textAlign: 'right' }}>
@@ -629,7 +631,7 @@ function ProductReview(){
                 <div className="review-grid">
                     {reviewList.length > 0 ? (
                         reviewList.map((review, index) => (
-                            <div key={index} className="review-card" id={`myReviewSearch-${review.id}`}>
+                            <div key={index} className="review-card" id={`myReviewSearch-${review.id}`} style={{padding:'0 20px'}}>
                                 <div className="review-header">
                                     {review.user.profileImageUrl && 
                                         <img src={review.user.profileImageUrl.indexOf('http') !== -1 ? `${review.user.profileImageUrl}` : `${serverIP.ip}${review.user.profileImageUrl}`} 

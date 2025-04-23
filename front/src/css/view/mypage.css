@@ -133,12 +133,16 @@
 .follow-container {
     min-width: 500px;
     max-width: 1400px;
+    margin: 0 auto;
 }
-.follow-menu, .follow-menu>li {
+
+.follow-menu,
+.follow-menu > li {
     margin: 0;
     padding: 0;
     list-style-type: none;
 }
+
 .follow-menu {
     height: 55px;
     display: flex;
@@ -146,30 +150,75 @@
     gap: 10%;
     font-size: 14pt;
 }
-.follow-menu>li {
+
+.follow-menu > li {
     margin-bottom: 20px;
     padding: 10px 0;
     border-bottom: 1px solid #999;
     text-align: center;
     cursor: pointer;
 }
+
 .follow-list {
+    width: 80%;
+    margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: 1fr;
     gap: 20px;
-    text-align: center;
 }
 
-@media (max-width: 1000px) {
-    .follow-list {
-        grid-template-columns: repeat(4, 1fr);
-    }
-}
-.follow-user-img {
+.follow-user-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
     width: 100%;
-    aspect-ratio: 1 / 1;
+}
+
+.follow-user-img {
+    width: 10%;
+    min-width: 60px;
+    max-width: 80px;
+    height: 80px;
     object-fit: cover;
-    border-radius: 100%;
+    border-radius: 50%;
+}
+
+.follow-user-info {
+    width: 75%;
+    text-align: left;
+    padding: 0 15px;
+    word-break: break-word;
+}
+
+.follow-user-message {
+    font-size: 0.95rem;
+    margin-top: 6px;
+    color: #555;
+}
+
+.follow-cancel-btn {
+    width: 15%;
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 10px;
+    text-align: right;
+    transition: transform 0.2s;
+}
+
+.follow-cancel-btn:hover {
+    transform: scale(1.2);
+}
+
+
+.message-who {
+    font-weight: bold;
+}
+
+.message-who span {
+    font-size: 0.8rem;
+    color: #888;
 }
 
 .basket-body {
