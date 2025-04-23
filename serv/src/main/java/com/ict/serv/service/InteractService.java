@@ -113,4 +113,22 @@ public class InteractService {
                 .map(Follow::getUserTo)
                 .collect(Collectors.toList());
     }
+
+    public void checkUserPoint() {
+        List<User> userList = user_repo.findAll();
+        for(User user: userList) {
+            if(user.getGradePoint() >= 1000 && user.getGradePoint() <2000 && user.getGrade()==0) {
+                user.setGrade(1);
+                user_repo.save(user);
+            }
+            else if(user.getGradePoint() >= 2000 && user.getGradePoint()<3000 && user.getGrade()==0) {
+                user.setGrade(2);
+                user_repo.save(user);
+            }
+            else if(user.getGradePoint() >= 3000 && user.getGradePoint()<4000 && user.getGrade()==0){
+                user.setGrade(3);
+                user_repo.save(user);
+            }
+        }
+    }
 }

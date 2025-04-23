@@ -65,8 +65,15 @@ public class MypageService {
 
     public Address insertAddress(Address address) { return address_repo.save(address);}
 
-
     public Optional<User> selectUserInfo(User user) {
         return user_repo.findById(user.getId());
+    }
+
+    public Optional<Address> selectUserAddress(Long addressId) {
+        return address_repo.findById(addressId);
+    }
+
+    public Address updateAddressState(Address address) {
+        return address_repo.save(address);
     }
 }

@@ -303,7 +303,7 @@ function ProductSell() {
         })
         .then(res => {
             alert("상품 등록 성공");
-            navigate('/product');
+            navigate('/product/search');
         })
         .catch(err => console.error("상품 등록 실패:", err));
     };

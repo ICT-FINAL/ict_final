@@ -91,6 +91,17 @@ function AddressForm({ setSelAddrId, onAddAddress, isGet, setSelectedAddresses, 
         dispatch(setModal({ isOpen: !modal.isOpen, selected: "DaumPost" }));
     };
 
+    const resetAddressForm = () => {
+        setRecipientName("");
+        setAddress("");
+        setAddressDetail("");
+        setZipcode("");
+        setTel("");
+        setType("HOME");
+        dispatch(setModal({ isOpen: false, selected: "", info: {} }));
+        setIsAddressFormVisible(false);
+    };
+
     return (
         <div className="address-form">
             <h3>배송지 선택</h3>
@@ -98,7 +109,9 @@ function AddressForm({ setSelAddrId, onAddAddress, isGet, setSelectedAddresses, 
                 <div>
                     <select className="address-select" onChange={handleSelectChange}>
                         <option value="">배송지 선택</option>
-                        {addressList.map((addressItem) => (
+                        {addressList
+                            .filter((addressItem)=>addressItem.addressState !== "DELETED") // 삭제된 상태의 주소는 제외하기위해 
+                            .map((addressItem) => (
                             <option key={addressItem.id} value={addressItem.id}>
                                 {addressItem.recipientName} - {addressItem.address}
                             </option>
@@ -192,7 +205,7 @@ function AddressForm({ setSelAddrId, onAddAddress, isGet, setSelectedAddresses, 
                         </div>
                         <div className="address-button-container">
                             <button type="submit" className="button">등록</button>
-                            <button type="button" className="cancel-button" onClick={() => setIsAddressFormVisible(false)}>취소</button>
+                            <button type="button" className="cancel-button" onClick={resetAddressForm}>취소</button>
                         </div>
                     </form>
                 </div>

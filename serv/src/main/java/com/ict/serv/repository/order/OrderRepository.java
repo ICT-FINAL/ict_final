@@ -23,8 +23,6 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
 
     List<Orders> findAllByOrderGroup(OrderGroup orderGroup);
 
-    List<Orders> findAllByProductIdOrderByStartDateDesc(Long id);
-
     @Query(value = "SELECT p.product_category, COUNT(*) AS count " +
             "FROM orders o " +
             "JOIN order_group og ON o.order_group_id = og.order_group_id " +
@@ -74,4 +72,6 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
 
     @Query("SELECT oi.product.id, COUNT(oi) FROM OrderItem oi GROUP BY oi.product.id")
     List<Object[]> countAllGroupedByProduct();
+
+    List<Orders> findAllByProductIdOrderByIdDesc(Long id);
 }

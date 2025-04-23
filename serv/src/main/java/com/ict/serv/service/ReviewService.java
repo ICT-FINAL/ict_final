@@ -75,9 +75,9 @@ public class ReviewService {
         return repository.findByUser(user);
     }
 
-    public List<Review> findByProduct() {
+    public List<Review> findByProduct(Product product) {
 
-        List<Review> reviews = repository.findByOrderByReviewWritedateDesc(); // DB에서 리뷰 조회
+        List<Review> reviews = repository.findAllByProductOrderByReviewWritedateDesc(product); // DB에서 리뷰 조회
 
 
         return reviews; // 최종적으로 각 상품 ID에 대한 리뷰 리스트를 반환

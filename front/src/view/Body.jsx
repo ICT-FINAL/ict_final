@@ -79,6 +79,7 @@ import Menu from './Menu';
 import Item from './Item';
 import { setLoginView } from '../store/loginSlice';
 import AuctionPaymentSuccess from './product/AuctionPaymentSuccess';
+import NaverSignupHandler from './user/NaverSignupHandler';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -204,6 +205,7 @@ function Body() {
       <Route path="/signup/info" element={<SignupInfo />} />
       <Route exact path="/login/oauth2/code/kakao" element={<SignupHandler />} />
       <Route exact path="/login/oauth2/code/google" element={<GoogleSignupHandler />} />
+      <Route exact path="/login/oauth2/code/naver" element={<NaverSignupHandler />} />
 
       <Route path='/userinfo' element={<UserInfo key={location.state} />}></Route>
       <Route path='/mypage/*' element={<MyIndex />}></Route>

@@ -1,6 +1,7 @@
 package com.ict.serv.schdule;
 
 import com.ict.serv.service.AuctionService;
+import com.ict.serv.service.InteractService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -12,11 +13,12 @@ import java.time.LocalDateTime;
 @Component
 public class InitScheduler {
     private final AuctionService auctionService;
-
+    private final InteractService interactService;
     @PostConstruct
     public void init() {
         System.out.println("[PostConstruct] 서버 시작됨! 현재 시간: " + LocalDateTime.now());
         auctionScheduler();
+        userGradeScheduler();
     }
     /*
     @Scheduled(fixedRate = 3000)
@@ -27,5 +29,10 @@ public class InitScheduler {
     @Scheduled(fixedRate = 30000)
     public void auctionScheduler() { //30초마다 옥션 감지
         auctionService.closeAllAuctionIfClosed();
+    }
+
+    @Scheduled(fixedRate = 60000)
+    public void userGradeScheduler() { //30초마다 옥션 감지
+        interactService.checkUserPoint();
     }
 }

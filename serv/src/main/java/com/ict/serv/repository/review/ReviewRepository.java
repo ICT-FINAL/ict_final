@@ -19,8 +19,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     List<Review> findByUser(User user);
 
-    List<Review> findByOrderByReviewWritedateDesc();
-
     @Query("SELECT r.product.id, AVG(CAST(r.rate AS double)), COUNT(r) FROM Review r GROUP BY r.product.id")
     List<Object[]> getAvgAndCountByProduct();
+
+    List<Review> findAllByProductOrderByReviewWritedateDesc(Product product);
 }
