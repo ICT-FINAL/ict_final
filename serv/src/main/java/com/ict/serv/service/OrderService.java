@@ -72,7 +72,7 @@ public class OrderService {
     }
 
     public List<Orders> getOrderByProduct(Long id) {
-        return order_repo.findAllByProductIdOrderByStartDateDesc(id);
+        return order_repo.findAllByProductIdOrderByIdDesc(id);
     }
     public List<HotCategoryDTO> getHotCategory() {
         List<Object[]> result = order_repo.countProductCategoryFromPaidOrdersWithinTwoWeeks();

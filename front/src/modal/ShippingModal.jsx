@@ -16,14 +16,18 @@ function ShippingModal() {
     const [invoice, setInvoice] = useState('');
 
     const doShipping = () => {
-      if(user)
+      if(user) {
+        const isConfirmed = window.confirm("정말로 이 주문을 배송 처리하시겠습니까?");
+        if (!isConfirmed) return;
         axios.post(`${serverIP.ip}/shipping/setShipping`,{ invoiceNumber:invoice, orderId:modalSel.info.id},{
           headers:{Authorization: `Bearer ${user.token}`}
         })
         .then(res => {
           modalClose();
+          alert("배송 처리가 완료되었습니다.");
         })
         .catch(err => console.log(err));
+      }
     }
 
     const modalClose = () => {
