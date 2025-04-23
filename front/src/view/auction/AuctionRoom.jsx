@@ -74,14 +74,20 @@ function AuctionRoom() {
                 const res = await axios.get(`${serverIP.ip}/auction/bids/${roomId}`, {
                     headers: { Authorization: `Bearer ${user.token}` }
                 });
-    
+                console.log(res.data);
                 const formattedBids = res.data.map(bid => ({
-                    username: bid.user.username,
+                    state:bid.state,
+                    user: bid.user,
                     price: bid.price,
-                    bidTime: new Date().toISOString(), // 정렬 용도
+                    bidTime: new Date(bid.bidTime).toISOString(), // 정렬 용도
+                    room:bid.room,
+                    id:bid.id
                 }));
-    
-                setBidHistory(formattedBids);
+                const sortedBids = formattedBids.sort(
+                    (a, b) => new Date(b.bidTime) - new Date(a.bidTime)
+                );
+
+                setBidHistory(sortedBids);
             } catch (err) {
                 console.error('입찰 내역 불러오기 실패', err);
             }
@@ -265,7 +271,7 @@ function AuctionRoom() {
                                             배송비: {roomInfo.auctionProduct.shippingFee} 원
                                         </span>
                                     </li>
-                                    
+                                   { user && user.user.id != roomInfo.auctionProduct.sellerNo.id &&
                                     <li style={{marginTop:'50px',display:'flex', justifyContent:'center', gap:'20px'}}>
                                     { roomInfo.state === 'OPEN' && user &&<>
                                     { roomInfo.highestBidderId !== user.user.id ?
@@ -315,14 +321,47 @@ function AuctionRoom() {
                                     </>
                                     }
                                     </li>
+                                }
                                     </ul>
                                 </li>
                             </ul>
                         </div>
                     </div>
-                    <div style={{margin:'auto', textAlign:'center',marginTop:'200px'}}>
-                        나중에 채팅 만들 곳
+                    <div>
+                        <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px', marginTop:'40px' }} />
+                        <div style={{
+                            display: 'flex',
+                            fontSize: '16px',
+                            fontWeight: '600',
+                        }}>
+                            <div style={{width:'50%', textAlign:'center', padding:'10px'}}>상세정보</div>
+                            <div style={{width:'50%', textAlign:'center', padding:'10px'}}>입찰내역</div>
+                        </div>
+                        <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
                     </div>
+                    <div className='auction-bottom'>
+                        <div style={{overflow:'hidden', width:'50%'}}><div dangerouslySetInnerHTML={{ __html: roomInfo.auctionProduct.detail }} style={{ width:'100%', marginTop: '30px'}} /></div>
+                        <div className='auction-bottom-right'>
+                            <ul>
+                                {
+                                    bidHistory.map((item, idx) => {
+                                        return(<li>
+                                            <div className='product-profile-box'>
+                                                <img id={`mgx-${item.user.id}`} className='message-who' src={item.user.uploadedProfileUrl ? `${serverIP.ip}${item.user.uploadedProfileUrl}` : `${item.user.profileImageUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
+                                                <div id={`mgx-${item.user.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{item.user.username} &gt;</div>
+                                            </div>
+                                            <div>
+                                                { item.state=='SUCCESS' && <div className='auc-stat' style={{backgroundColor:'#FFD700'}}>최종 입찰자</div>}
+                                                { item.state=='LIVE' && item.state!='SUCCESS' ? <div className='auc-stat' style={{backgroundColor:'#FFD700'}}>최고 입찰자</div>:<div style={{backgroundColor:'#9E9E9E', color:'white'}} className='auc-stat'>유찰됨</div> } 
+                                                { formatDateTime(item.bidTime)} &nbsp;&nbsp;&nbsp; <span style={{fontWeight:'bold', fontSize:'19px'}}>{formatNumberWithCommas(item.price)}₩</span>
+                                            </div>
+                                        </li>)
+                                    })
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                    <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
                     </>
                     }
                 </div>
