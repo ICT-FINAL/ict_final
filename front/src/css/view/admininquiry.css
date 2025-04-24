@@ -30,13 +30,14 @@
     font-size: 14px;
     color: #333;
 }
-
+.admin-list ul{
+    border-bottom: none;
+}
 .admin-list {
     list-style: none;
     padding: 0;
     margin: 0;
     display: flex;
-    border-bottom: 1px solid #eee;
     font-size: 14px;
 }
 

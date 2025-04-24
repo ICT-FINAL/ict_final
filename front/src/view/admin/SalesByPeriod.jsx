@@ -25,9 +25,6 @@ function SalesByPeriod() {
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 16;
-
   const serverIP = useSelector((state) => state.serverIP);
   const user = useSelector((state) => state.auth.user);
 
@@ -36,67 +33,67 @@ function SalesByPeriod() {
       axios.get(`${serverIP.ip}/stats/sales`, {
         headers: { Authorization: `Bearer ${user.token}` }
       })
-      .then(res => {
-        setData(res.data);
-        setSelected(res.data[res.data.length - 1]);
-      })
-      .catch(err => {
-        console.log(err);
-      });
+        .then(res => {
+          setData(res.data);
+          setSelected(res.data[res.data.length - 1]);
+        })
+        .catch(err => {
+          console.log(err);
+        });
   }, []);
 
   useEffect(() => {
-    const filteredData = data.filter((item) => {
-      const date = new Date(item.date);
-      const month = date.getMonth() + 1;
-      const year = date.getFullYear();
+    if (!selectedYear || !selectedMonth) return;
 
-      if (selectedMonth && selectedYear) {
-        return month === selectedMonth && year === selectedYear;
-      } else if (selectedMonth) {
-        return month === selectedMonth;
-      } else if (selectedYear) {
-        return year === selectedYear;
-      }
-      return true;
+    const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
+    const baseData = Array.from({ length: daysInMonth }, (_, i) => {
+      const day = i + 1;
+      const dateStr = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      return {
+        date: dateStr,
+        orders: 0,
+        totalSales: 0, // 매출총액은 이미 백엔드에서 제공된 값이므로 사용하지 않음
+        shippingCost: 0,
+        couponDiscount: 0,
+        cancelAmount: 0,
+      };
     });
 
-    setFiltered(filteredData);
-  }, [selectedMonth, selectedYear, data]);
+    const matched = baseData.map((base) => {
+      const existing = data.find((item) => item.date === base.date);
+      return existing ? existing : base;
+    });
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedMonth, selectedYear]);
+    setFiltered(matched);
+  }, [selectedMonth, selectedYear, data]);
 
   const summary = filtered.reduce(
     (acc, curr) => {
       const coupon = curr.couponDiscount || 0;
-      const productTotal = curr.totalSales + coupon - curr.shippingCost;
-      const profit = productTotal * 0.2 - coupon;
+      const cancel = curr.cancelAmount || 0;
+      const adjustedTotalSales = curr.totalSales - cancel; // 매출총액은 그대로 백엔드에서 제공된 값 사용
+      const netSales = adjustedTotalSales - curr.shippingCost;
+      const profit = ((adjustedTotalSales - curr.shippingCost + coupon) * 0.2) - coupon;
 
       acc.orders += curr.orders;
-      acc.totalSales += curr.totalSales;
+      acc.totalSales += curr.totalSales; // 매출총액 누적 (변경하지 않음)
       acc.shippingCost += curr.shippingCost;
       acc.couponDiscount += coupon;
+      acc.cancelAmount += cancel;
       acc.profit += profit;
+      acc.netSales += netSales;
+
       return acc;
     },
-    { orders: 0, totalSales: 0, shippingCost: 0, couponDiscount: 0, profit: 0 }
+    { orders: 0, totalSales: 0, shippingCost: 0, couponDiscount: 0, cancelAmount: 0, profit: 0, netSales: 0 }
   );
-
-  const netSales = summary.totalSales - summary.shippingCost;
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filtered.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
 
   const chartData = {
     labels: filtered.map((item) => item.date),
     datasets: [
       {
         label: "일자별 매출총액",
-        data: filtered.map((item) => item.totalSales),
+        data: filtered.map((item) => item.totalSales - (item.cancelAmount || 0)),
         borderColor: "#8CC7A5",
         backgroundColor: "rgba(54, 162, 235, 0.2)",
         fill: true,
@@ -109,12 +106,12 @@ function SalesByPeriod() {
       const date = new Date(item.date);
       const month = date.getMonth(); // 0 ~ 11
       const year = date.getFullYear();
-  
       return month === i && year === selectedYear;
     });
-  
+
     return monthData.reduce((sum, item) => sum + item.totalSales, 0);
   });
+
   const monthlyChartData = {
     labels: Array.from({ length: 12 }, (_, i) => `${i + 1}월`),
     datasets: [
@@ -137,17 +134,18 @@ function SalesByPeriod() {
           <button onClick={() => setSelectedYear(selectedYear + 1)}>&gt;</button>
         </div>
         <div className="month-buttons">
-          {[1,2,3,4,5,6,7,8,9,10,11,12].map((m) => (
+          {[...Array(12).keys()].map(m => (
             <button
-              key={m}
-              onClick={() => setSelectedMonth(m)}
-              className={selectedMonth === m ? 'selected' : ''}
+              key={m + 1}
+              onClick={() => setSelectedMonth(m + 1)}
+              className={selectedMonth === m + 1 ? 'selected' : ''}
             >
-              {m}월
+              {m + 1}월
             </button>
           ))}
         </div>
       </div>
+
       <div className="chart-and-table">
         <div className="left-panel">
           <div className="chartSection">
@@ -161,62 +159,55 @@ function SalesByPeriod() {
         </div>
 
         <div className="right-panel">
-          <div className="table-wrapper">
-          <table className="sales-table">
-            <thead>
-              <tr>
-                <th>일자</th>
-                <th>주문수</th>
-                <th>매출총액</th>
-                <th>배송총액</th>
-                <th>쿠폰총액</th>
-                <th>순매출</th>
-                <th>순이익</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentItems.map((item) => {
-                const coupon = item.couponDiscount || 0;
-                const productTotal = item.totalSales + coupon - item.shippingCost;
-                const profit = productTotal * 0.2 - coupon;
-
-                return (
-                  <tr key={item.date} onClick={() => setSelected(item)}>
-                    <td>{item.date}</td>
-                    <td>{item.orders}</td>
-                    <td>{item.totalSales.toLocaleString()}원</td>
-                    <td>{item.shippingCost.toLocaleString()}원</td>
-                    <td>{coupon.toLocaleString()}원</td>
-                    <td>{(item.totalSales - item.shippingCost).toLocaleString()}원</td>
-                    <td>{Math.round(profit).toLocaleString()}원</td>
-                  </tr>
-                );
-              })}
-              {currentPage === totalPages && filtered.length > 0 && (
-                <tr className="summary-row">
-                  <td><strong>합계</strong></td>
-                  <td><strong>{summary.orders}</strong></td>
-                  <td><strong>{summary.totalSales.toLocaleString()}원</strong></td>
-                  <td><strong>{summary.shippingCost.toLocaleString()}원</strong></td>
-                  <td><strong>{summary.couponDiscount.toLocaleString()}원</strong></td>
-                  <td><strong>{netSales.toLocaleString()}원</strong></td>
-                  <td><strong>{Math.round(summary.profit).toLocaleString()}원</strong></td>
+          <div className="table-wrapper" style={{ overflowY: 'auto', maxHeight: '600px' }}>
+            <table className="sales-table">
+              <thead>
+                <tr>
+                  <th>일자</th>
+                  <th>주문수</th>
+                  <th>매출총액</th>
+                  <th>배송총액</th>
+                  <th>쿠폰총액</th>
+                  <th>환불금액</th>
+                  <th>순매출</th>
+                  <th>순이익</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map((item) => {
+                  const coupon = item.couponDiscount || 0;
+                  const cancel = item.cancelAmount || 0;
+                  const adjustedTotalSales = item.totalSales;
+                  const netSales = adjustedTotalSales - item.shippingCost;
+                  const profit = ((adjustedTotalSales - item.shippingCost + coupon) * 0.2) - coupon;
 
-          <div className="pagination">
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i + 1}
-                onClick={() => setCurrentPage(i + 1)}
-                className={currentPage === i + 1 ? "active" : ""}
-              >
-                {i + 1}
-              </button>
-            ))}
-            </div>
+                  return (
+                    <tr key={item.date} onClick={() => setSelected(item)}>
+                      <td>{item.date}</td>
+                      <td>{item.orders}</td>
+                      <td>{item.totalSales.toLocaleString()}원</td>
+                      <td>{item.shippingCost.toLocaleString()}원</td>
+                      <td>{coupon.toLocaleString()}원</td>
+                      <td>{cancel.toLocaleString()}원</td>
+                      <td>{netSales.toLocaleString()}원</td>
+                      <td>{Math.round(profit).toLocaleString()}원</td>
+                    </tr>
+                  );
+                })}
+                {filtered.length > 0 && (
+                  <tr className="summary-row">
+                    <td><strong>합계</strong></td>
+                    <td><strong>{summary.orders}</strong></td>
+                    <td><strong>{summary.totalSales.toLocaleString()}원</strong></td>
+                    <td><strong>{summary.shippingCost.toLocaleString()}원</strong></td>
+                    <td><strong>{summary.couponDiscount.toLocaleString()}원</strong></td>
+                    <td><strong>{summary.cancelAmount.toLocaleString()}원</strong></td>
+                    <td><strong>{summary.netSales.toLocaleString()}원</strong></td>
+                    <td><strong>{Math.round(summary.profit).toLocaleString()}원</strong></td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>

@@ -69,6 +69,9 @@ function AdminNav({ path }) {
                 <li onClick={() => navigate("/admin/adminmember")} style={path.l_name === "회원 통계" ? clickedStyle : {}}>
                     <span style={path.l_name === "회원 통계" ? clickedStyle2 : {}}>회원 통계</span>
                 </li>
+                <li onClick={() => navigate("/admin/adminuseract")} style={path.l_name === "회원 활동 통계" ? clickedStyle : {}}>
+                    <span style={path.l_name === "회원 활동 통계" ? clickedStyle2 : {}}>회원 활동 통계</span>
+                </li>
             </ul>
             <ul>
                 <li className='admin-nav-title'>회원 탈퇴</li>

@@ -59,7 +59,7 @@
 
 .chart-and-table {
   display: grid;
-  grid-template-columns: 55% 45%;
+  grid-template-columns: 50% 50%;
   gap: 16px;
 }
 
@@ -76,8 +76,8 @@
   background-color: #ffffff;
   padding: 16px;
   border: 1px solid #ccc;
-  max-height: 1000px;
-  overflow-y: auto;
+  height: 580px !important;
+  overflow-x: hidden;
 }
 
 .chartSection {
@@ -87,7 +87,7 @@
 }
 
 .sales-table {
-  width: 100%;
+  width: 100% !important;
   border-collapse: collapse;
 }
 
@@ -101,6 +101,9 @@
   border: 1px solid #ccc;
   font-size: 14px;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sales-table tr:hover {
@@ -108,31 +111,24 @@
   cursor: pointer;
 }
 
-.pagination {
-  display: flex;
-  justify-content: center;
-  margin-top: 12px;
-}
-
-.pagination button {
-  padding: 5px 10px;
-  margin: 0 3px;
-  background-color: #eee;
-  border: none;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.pagination button.active {
-  background-color: #8CC7A5;
-  color: white;
-}
 .table-wrapper {
-  display: flex;
-  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+  padding: 0 !important;
 }
+
 @media (max-width: 768px) {
   .chart-and-table {
     grid-template-columns: 1fr;
+  }
+
+  .right-panel {
+    height: auto !important;
+    overflow-x: auto; 
+  }
+
+  .table-wrapper {
+    max-height: 600px;
   }
 }
