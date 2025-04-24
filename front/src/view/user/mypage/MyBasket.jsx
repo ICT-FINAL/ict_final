@@ -169,9 +169,9 @@ function MyBasket() {
         if (sellersArray.length === 0) {
             return "주문하기";
         } else if (sellersArray.length === 1) {
-            return `${sellersArray[0]}님의 상품 주문하기`;
+            return `${sellersArray[0]}님의 상품\n주문하기`;
         } else {
-            return `${sellersArray[0]}님의 상품 외 ${sellersArray.length - 1}건 주문하기`;
+            return `${sellersArray[0]}님의 상품 외\n${sellersArray.length - 1}건 주문하기`;
         }
     };
 

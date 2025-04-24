@@ -166,13 +166,8 @@ function RecommendIndex() {
                                 fontSize: '20px'
                             }}
                         >
-                            {
-                                !youEnd &&
-                                <div>
-                                    <div>등록된 상품을 모두 보여드렸어요 😢</div>
-                                    <div style={{marginTop: '10px', fontSize: '11pt', cursor: 'pointer'}} onClick={()=>window.location.reload()}>다시 보기⟳</div>
-                                </div>
-                            }
+                            <div>등록된 상품을 모두 보여드렸어요 😢</div>
+                            <div style={{marginTop: '10px', fontSize: '11pt', cursor: 'pointer'}} onClick={()=>window.location.reload()}>다시 보기⟳</div>
                         </div>
                     ) : (
                         <> 

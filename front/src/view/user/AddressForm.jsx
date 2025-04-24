@@ -127,7 +127,7 @@ function AddressForm({ setSelAddrId, onAddAddress, isGet, setSelectedAddresses, 
             )}
 
             {selectedAddress && (
-                <div style={{ border: '1px solid #ddd', marginTop: '10px', paddingLeft: '10px' }}>
+                <div style={{ border: '1px solid #ddd', marginTop: '10px', paddingLeft: '10px', lineHeight: '1', borderRadius: '5px' }}>
                     <p>이름: {selectedAddress.recipientName}</p>
                     <p>주소: {selectedAddress.address}</p>
                     <p>상세 주소: {selectedAddress.addressDetail}</p>
@@ -212,7 +212,7 @@ function AddressForm({ setSelAddrId, onAddAddress, isGet, setSelectedAddresses, 
             )}
             <h3>요청사항</h3>
             <textarea value={request}
-                style={{ whiteSpace: 'pre-wrap', width: '100%', height: '150px', resize: 'none' }}
+                style={{ whiteSpace: 'pre-wrap', width: '96%', height: '150px', resize: 'none', padding: '10px', fontFamily: 'inherit'}}
                 onChange={(e) => setRequest(e.target.value)} />
         </div>
     );
