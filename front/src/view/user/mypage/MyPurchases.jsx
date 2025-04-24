@@ -223,17 +223,17 @@ function MyPurchases() {
                             </div>
                             <div className="group-summary">
                                 {group.couponDiscount !== 0 && (
-                                    <div className="discount">
+                                    <div className="discount" style={{color:'#e74c3c'}}>
                                         <strong>쿠폰 할인:</strong> -{formatNumberWithCommas(group.couponDiscount)}원
                                     </div>
                                 )}
                                 {(group.state == 'RETURNED' || group.state == 'PARTRETURNED') && (
-                                    <div className="discount">
+                                    <div className="discount" style={{color:'#e74c3c'}}>
                                         <strong>총 환불액:</strong> -{formatNumberWithCommas(group.cancelAmount)}원
                                     </div>
                                 )}
                                 {group.totalShippingFee !== 0 && (
-                                   <><div className="shipping-fee">
+                                   <><div className="shipping-fee" style={{color:'#1976d2'}}>
                                         <strong>총 배송비:</strong> +{formatNumberWithCommas(group.totalShippingFee)}원
                                     </div>
                                     {(group.state == 'RETURNED' || group.state == 'PARTRETURNED') && <><br/><span style={{color:'#e74c3c'}}>※배송비와 쿠폰은 환불이 불가능합니다.※</span></>}</>

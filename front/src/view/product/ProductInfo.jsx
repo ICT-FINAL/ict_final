@@ -468,7 +468,7 @@ function ProductInfo() {
                                         </li>
                                     }
                                     <li>
-                                        <select className='product-info-selectbox' onChange={handleOptionChange} value={selectedOptionId}>
+                                        <select className='info-product-info-selectbox' onChange={handleOptionChange} value={selectedOptionId}>
                                             <option value="" disabled selected>대분류를 선택해주세요</option>
                                             {options.map((option) => (
                                                 <option key={option.id} value={option.id}>{option.optionName}</option>
@@ -478,7 +478,7 @@ function ProductInfo() {
                                             <>
                                                 <select
                                                     style={{ marginLeft: '15px' }}
-                                                    className="product-info-selectbox"
+                                                    className="info-product-info-selectbox"
                                                     onChange={handleSubOptionChange}
                                                     value={selectedSubOptionId}
                                                 >
