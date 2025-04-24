@@ -239,12 +239,6 @@ function ProductSell() {
                 }
             }
         }
-    
-        // 상세 설명 검사
-        if (!formData.detail) {
-            alert("상세 설명을 입력해주세요.");
-            return;
-        }
 
         // 가격 검사 
         if (!formData.price) {
@@ -254,6 +248,12 @@ function ProductSell() {
 
         if (!formData.shippingFee) {
             alert("배송비를 입력해주세요.");
+            return;
+        }
+
+        // 상세 설명 검사
+        if (!formData.detail) {
+            alert("상세 설명을 입력해주세요.");
             return;
         }
 
@@ -316,7 +316,15 @@ function ProductSell() {
             <fieldset className="product-fieldset">
                 <legend className="product-legend">기본 정보</legend>
                 <label className="product-label">상품명</label>
-                <input type="text" placeholder="등록할 상품의 이름을 입력해주세요" id="productName" name="productName" className="product-input" value={formData.productName} onChange={handleChange} />
+                <input type="text" placeholder="등록할 상품의 이름을 입력해주세요" id="productName" name="productName" className="product-input" value={formData.productName} 
+                       onChange={(e) => {
+                           if (e.target.value.length > 100) {
+                               alert("100글자까지만 입력 가능합니다.");
+                           } else {
+                               handleChange(e);
+                           }
+                       }} maxLength="100"
+                />
             </fieldset>
 
             <fieldset className="product-fieldset">
@@ -422,7 +430,7 @@ function ProductSell() {
                         </>
                     )}
                 <label className="product-label">가격</label>
-                <input type="text" id="price" name="price" className="product-input" value={formData.price} onChange={handleChange} />
+                <input type="text" id="price" name="price" className="product-input" value={formData.price} onChange={handleChange} maxLength="50"/>
 
                 <label className="product-label">수량</label>
                 <input
