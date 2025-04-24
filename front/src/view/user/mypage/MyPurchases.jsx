@@ -2,6 +2,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { setModal } from "../../../store/modalSlice";
 
 function MyPurchases() {
     const loc = useLocation();
@@ -16,10 +17,14 @@ function MyPurchases() {
 
     const [nowPage, setNowPage] = useState(1);
 
+    const modal = useSelector((state)=> state.modal);
+
     const [totalRecord, setTotalRecord] = useState(1);
 
     const [searchOption, setSearchOption] = useState('');
     const [shippingOption, setShippingOption] = useState('');
+
+    const dispatch = useDispatch();
 
     const moveInfo = (prodId) => {
         if(user)
@@ -34,10 +39,16 @@ function MyPurchases() {
 
     useEffect(() => {
         getBoardList();
+        window.scrollTo({ top: 0, behavior: "smooth" });
     }, [nowPage]);
 
     useEffect(() => {
         getBoardList();
+    }, [modal]);
+
+    useEffect(() => {
+        getBoardList();
+        window.scrollTo({ top: 0, behavior: "smooth" });
     }, [loc, searchOption, shippingOption]);
 
     const getBoardList = () => {
@@ -58,7 +69,6 @@ function MyPurchases() {
                     setOrder(res.data.orderList);
                     setNowPage(res.data.pvo.nowPage);
                     setTotalRecord(res.data.pvo.totalRecord);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
                 })
                 .catch(err => console.log(err));
     };
@@ -67,7 +77,6 @@ function MyPurchases() {
         return num.toLocaleString();
     }
 
-    // 상태에 맞는 텍스트와 색상을 반환하는 함수
     const getStateLabel = (state) => {
         switch (state) {
             case 'BEFORE':
@@ -79,9 +88,32 @@ function MyPurchases() {
             case 'FAILED':
                 return { label: '결제 실패', color: '#e74c3c' };
             case 'RETURNED':
-                return { label: '환불 됨', color: '#f39c12' };
+                return { label: '전체 환불', color: '#e74c3c' };
+            case 'PARTRETURNED':
+                return { label: '부분 환불', color: '#f39c12' };
             default:
                 return { label: '알 수 없음', color: '#7f8c8d' };
+        }
+    };
+
+    const endShipping = (id) => {
+        if(user){
+            const isConfirmed = window.confirm("정말로 배송 완료 처리 하시겠습니까?\n배송 완료 후에는 환불이 불가능합니다.");
+            if (!isConfirmed) return;
+            axios.get(`${serverIP.ip}/shipping/finishShipping?orderId=${id}`,{
+                headers:{Authorization:`Bearer ${user.token}`}
+            })
+            .then(res =>{
+                window.alert("정상 처리되었습니다.");
+                getBoardList();
+            })
+            .catch(err => console.log(err))
+        }
+    }
+
+    const refundOrder = (orderId) => {
+        if (user) {
+            dispatch(setModal({...modal, isOpen:true, selected:'refund',selectedItem:orderId}));
         }
     };
 
@@ -91,6 +123,8 @@ function MyPurchases() {
                 <option value="">전체</option>
                 <option value="PAID">결제 완료</option>
                 <option value="CANCELED">결제 취소</option>
+                <option value="RETURNED">전체 환불</option>
+                <option value="PARTRETURNED">부분 환불</option>
             </select>
             {order.length === 0 ? (
                 <div className="no-list">검색 결과가 없습니다.</div>
@@ -174,6 +208,13 @@ function MyPurchases() {
                                             )}
                                             </div>
                                         </div>
+                                        {order.shippingState==='ONGOING' && <><button style={{marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'
+                                        ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#8CC7A5'
+                                        }} onClick={()=>endShipping(order.id)}>배송 완료</button><button style={{marginLeft:'10px',marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'
+                                            ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#e74c3c', color:'white'
+                                            }} onClick={()=>refundOrder(order.id)}>환불 신청</button></>}
+                                        <br/>
+                                        {order.shippingState==='ONGOING' && <><br/><span style={{color:'#e74c3c'}}>※배송 완료시 환불이 불가능 합니다. 배송 완료는 2주 내 자동으로 배송 완료상태로 변경됩니다.※</span></>}
                                     </div>
                                 );
                             })}
@@ -186,13 +227,19 @@ function MyPurchases() {
                                         <strong>쿠폰 할인:</strong> -{formatNumberWithCommas(group.couponDiscount)}원
                                     </div>
                                 )}
-                                {group.totalShippingFee !== 0 && (
-                                    <div className="shipping-fee">
-                                        <strong>총 배송비:</strong> +{formatNumberWithCommas(group.totalShippingFee)}원
+                                {(group.state == 'RETURNED' || group.state == 'PARTRETURNED') && (
+                                    <div className="discount">
+                                        <strong>총 환불액:</strong> -{formatNumberWithCommas(group.cancelAmount)}원
                                     </div>
                                 )}
+                                {group.totalShippingFee !== 0 && (
+                                   <><div className="shipping-fee">
+                                        <strong>총 배송비:</strong> +{formatNumberWithCommas(group.totalShippingFee)}원
+                                    </div>
+                                    {(group.state == 'RETURNED' || group.state == 'PARTRETURNED') && <><br/><span style={{color:'#e74c3c'}}>※배송비와 쿠폰은 환불이 불가능합니다.※</span></>}</>
+                                )}
                                 <div className="final-total">
-                                    <strong>최종 결제 금액:</strong> {formatNumberWithCommas(group.totalPrice + group.totalShippingFee - group.couponDiscount)}원
+                                    <strong>최종 결제 금액:</strong> {formatNumberWithCommas(group.totalPrice + group.totalShippingFee - group.couponDiscount - group.cancelAmount)}원
                                 </div>
                             </div>
                         </div>

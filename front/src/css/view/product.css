@@ -561,7 +561,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
 }
 
 #product-big-img {
@@ -1014,4 +1014,41 @@
     text-align: center;
 }
 
+.auction-bottom{
+    display: flex;
+}
+
+.auction-bottom-right{
+    width:50%;
+    border-left: 1px solid #ddd;
+}
+.auction-bottom-right>ul{
+    list-style-type: none;
+    display: flex;
+    flex-direction: column;
+}
+.auction-bottom-right>ul>li{
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ddd;
+    padding:10px;
+    padding-left:50px;
+    padding-bottom:25px;
+    margin:auto;
+    margin-bottom: 20px;
+    min-width: 400px;
+    max-width: 400px;
+    border-radius: 5px;
+}
+.auction-bottom-right>ul>li>div{
+    margin-top:20px;
+}
+.auc-stat{
+    display: inline-block;
+    text-align: center;
+    width:100px;
+    padding:3px 0;
+    border-radius: 5px;
+    margin-right: 10px;
+}
 /* 배송모달 끝 */

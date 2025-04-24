@@ -3,6 +3,7 @@ package com.ict.serv.controller;
 import com.ict.serv.controller.admin.PagingVO;
 import com.ict.serv.dto.OrderRequest;
 import com.ict.serv.dto.OrderRequestDto;
+import com.ict.serv.entity.message.Message;
 import com.ict.serv.entity.order.*;
 import com.ict.serv.entity.product.Option;
 import com.ict.serv.entity.product.OptionCategory;
@@ -14,14 +15,18 @@ import com.ict.serv.service.OrderService;
 import com.ict.serv.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.units.qual.A;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -31,7 +36,7 @@ public class OrderController {
     private final InteractService interactService;
     private final OrderService orderService;
     private final ProductService productService;
-
+    private final RestTemplate restTemplate = new RestTemplate();
     @GetMapping("/cancel")
     public void cancelOrder(@RequestParam Long orderGroupId) {
         OrderGroup orderGroup = orderService.selectOrderGroup(orderGroupId)
@@ -69,6 +74,9 @@ public class OrderController {
         Address address = new Address();
         address.setId(Long.valueOf(or.getAddrId()));
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String now = LocalDateTime.now().format(formatter);
+
         OrderGroup orderGroup = new OrderGroup();
         orderGroup.setUser(user);
         orderGroup.setState(OrderState.BEFORE);
@@ -103,6 +111,7 @@ public class OrderController {
             order.setShippingFee(orderDtos.stream().mapToInt(OrderRequestDto::getShippingFee).sum());
             order.setProductId(productId);
             order.setOrderGroup(orderGroup);
+            order.setStartDate(now);
             order.setOrderItems(new ArrayList<>());
             order.setShippingState(ShippingState.BEFORE);
             int orderTotal = 0;
@@ -141,6 +150,8 @@ public class OrderController {
 
         orderGroup.setTotalPrice(totalPrice);
         orderGroup.setTotalShippingFee(totalShipping);
+        orderGroup.setTotalPrice(totalPrice);
+        orderGroup.setTotalShippingFee(totalShipping);
 
         return orderService.saveOrderGroup(orderGroup);
     }
@@ -161,6 +172,7 @@ public class OrderController {
             ogd.setCouponDiscount(group.getCouponDiscount());
             ogd.setId(group.getId());
             ogd.setUser(group.getUser());
+            ogd.setCancelAmount(group.getCancelAmount());
             List<OrdersDTO> ordersDTO = new ArrayList<>();
             for(Orders order : group.getOrders()) {
                 OrdersDTO odd = new OrdersDTO();
@@ -199,7 +211,7 @@ public class OrderController {
             for(Product product:products) {
                 List<Orders> order = orderService.getOrderByProduct(product.getId());
                 for(Orders mini:order) {
-                    if(mini.getOrderGroup().getState()==OrderState.PAID) {
+                    if(mini.getOrderGroup().getState()==OrderState.PAID|| mini.getOrderGroup().getState()==OrderState.PARTRETURNED) {
                         orders.add(mini);
                         if(product.getImages().isEmpty()) filenameList.add("");
                         else filenameList.add(product.getImages().get(0).getFilename());
@@ -210,17 +222,98 @@ public class OrderController {
             for(Product product:products) {
                 List<Orders> order = orderService.getOrderByProduct(product.getId());
                 for(Orders mini:order) {
-                    if(mini.getOrderGroup().getState()==OrderState.PAID && shippingState == mini.getShippingState()) {
+                    if((mini.getOrderGroup().getState()==OrderState.PAID || mini.getOrderGroup().getState()==OrderState.PARTRETURNED) && shippingState == mini.getShippingState()) {
                         orders.add(mini);
                         if(product.getImages().isEmpty()) filenameList.add("");
                         else filenameList.add(product.getImages().get(0).getFilename());
                     }
                 }
             }
+        List<Pair<Orders, String>> combinedList = new ArrayList<>();
+        for (int i = 0; i < orders.size(); i++) {
+            combinedList.add(new Pair<>(orders.get(i), filenameList.get(i)));
+        }
+
+        combinedList.sort((a, b) -> b.getKey().getId().compareTo(a.getKey().getId())); // id 내림차순
+
+        orders = new ArrayList<>();
+        filenameList = new ArrayList<>();
+        for (Pair<Orders, String> pair : combinedList) {
+            orders.add(pair.getKey());
+            filenameList.add(pair.getValue());
+        }
+
         Map map = new HashMap();
         map.put("orderList", orders);
         map.put("filenameList", filenameList);
         return map;
     }
+    @GetMapping("/refundOrder")
+    public String refundOrder(Long orderId, @AuthenticationPrincipal UserDetails userDetails) {
+        User userFrom = interactService.selectUserByName(userDetails.getUsername());
+        Orders order = orderService.selectOrders(orderId).get();
+        OrderGroup orderGroup = order.getOrderGroup();
+        int refundAmount = 0;
+        for(OrderItem orderItem:order.getOrderItems()){
+            double itemPrice = orderItem.getPrice();
+            double discountPrice = 0;
+            System.out.println(orderItem.getPrice());
+            System.out.println(orderItem.getDiscountRate());
+            discountPrice = itemPrice - (itemPrice*orderItem.getDiscountRate())/100;
+            refundAmount+= ((int) discountPrice + orderItem.getAdditionalFee()) * orderItem.getQuantity();
+        }
 
+        String secretKey = "test_sk_P9BRQmyarYBwyWl7ykZN8J07KzLN"; // 테스트 키
+        String paymentKey = orderGroup.getPaymentKey(); // 실제 결제에서 받은 paymentKey
+
+        String cancelUrl = "https://api.tosspayments.com/v1/payments/" + paymentKey + "/cancel";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBasicAuth(secretKey, ""); // Toss는 Basic Auth로 시크릿키만 넘김
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("cancelReason", "고객 요청 환불");
+        payload.put("cancelAmount", refundAmount);
+
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+
+        try{
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                    cancelUrl, request, String.class);
+            if (response.getStatusCode().is2xxSuccessful()) {
+                orderGroup.setCancelAmount(orderGroup.getCancelAmount() + refundAmount);
+                orderGroup.setIsCancelled(true);
+                orderGroup.setState(OrderState.RETURNED);
+                order.setShippingState(ShippingState.CANCELED);
+                orderService.insertOrder(order);
+                OrderGroup og2 = orderService.saveOrderGroup(orderGroup);
+                boolean isAll = true;
+                for(Orders od: og2.getOrders()) {
+                    if(od.getShippingState() != ShippingState.CANCELED ) {
+                        isAll = false;
+                        break;
+                    }
+                }
+                if(!isAll) {
+                    og2.setState(OrderState.PARTRETURNED);
+                    orderService.saveOrderGroup(og2);
+                }
+                Product product = productService.selectProduct(orderGroup.getOrders().get(0).getProductId()).get();
+                Message msg = new Message();
+                msg.setUserFrom(userFrom);
+                msg.setUserTo(product.getSellerNo());
+                msg.setSubject("판매중인 물품 '" + product.getProductName() + "'이 환불되었습니다.");
+                msg.setComment("판매중인 물품 '" + product.getProductName() + "'이 환불되었습니다.\n<a href='/mypage/sales'>마이페이지 > 판매 내역</a>에서\n확인 가능합니다.");
+                interactService.sendMessage(msg);
+                return "ok";
+            } else {
+                return "err2";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "err";
+        }
+    }
 }

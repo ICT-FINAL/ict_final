@@ -8,13 +8,18 @@ import com.ict.serv.entity.order.*;
 import com.ict.serv.entity.product.OptionCategory;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.product.ProductState;
+import com.ict.serv.entity.user.User;
 import com.ict.serv.service.*;
 import lombok.RequiredArgsConstructor;
+import org.json.JSONObject;
 import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -33,8 +38,9 @@ public class PaymentController {
     private final InteractService interactService;
 
     @PostMapping("/confirm")
-    public ResponseEntity<?> confirmPayment(@RequestBody Map<String, String> requestMap) {
-        String secretKey = "test_sk_d46qopOB8972zE2BNblgVZmM75y0"; // 시크릿 키
+    public ResponseEntity<?> confirmPayment(@RequestBody Map<String, String> requestMap, @AuthenticationPrincipal UserDetails userDetails) {
+        User userFrom = interactService.selectUserByName(userDetails.getUsername());
+        String secretKey = "test_sk_P9BRQmyarYBwyWl7ykZN8J07KzLN"; // 시크릿 키
         String paymentKey = requestMap.get("paymentKey");
         String orderId = requestMap.get("orderId");
         String iid = requestMap.get("iid");
@@ -59,9 +65,26 @@ public class PaymentController {
                     request,
                     String.class
             );
+            if(!orderGroup.getOrders().isEmpty()) {
+                Product product = productService.selectProduct(orderGroup.getOrders().get(0).getProductId()).get();
+                Message msg = new Message();
+                msg.setUserFrom(userFrom);
+                msg.setUserTo(product.getSellerNo());
+                msg.setSubject("판매중인 물품 '" + product.getProductName() + "'이 판매되었습니다.");
+                msg.setComment("판매중인 물품 '" + product.getProductName() + "'이 판매되었습니다.\n<a href='/mypage/sales'>마이페이지 > 판매 내역</a>에서\n배송 처리를 완료해주세요.");
+                interactService.sendMessage(msg);
+            }
 
             // 주문 상태는 OrderGroup 단위로 변경
             orderGroup.setState(OrderState.PAID);
+            orderGroup.setPaymentKey(paymentKey);
+            orderGroup.setOrderIdPg(orderId);
+            orderGroup.setPayDone(true);
+            orderGroup.setPaidAt(LocalDateTime.now());
+
+            JSONObject json = new JSONObject(response.getBody());
+            String method = json.getString("method");
+            orderGroup.setPaymentMethod(new String(method.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8));
 
             // 재고 차감
             List<Orders> ordersList = orderService.selectOrdersByOrderGroup(orderGroup);
@@ -93,7 +116,7 @@ public class PaymentController {
 
     @PostMapping("/auction/confirm")
     public ResponseEntity<?> auctionConfirmPayment(@RequestBody Map<String, String> requestMap) {
-        String secretKey = "test_sk_d46qopOB8972zE2BNblgVZmM75y0"; // 시크릿 키
+        String secretKey = "test_sk_P9BRQmyarYBwyWl7ykZN8J07KzLN"; // 시크릿 키
         String paymentKey = requestMap.get("paymentKey");
         String orderId = requestMap.get("orderId");
         String iid = requestMap.get("iid");

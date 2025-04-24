@@ -24,7 +24,7 @@ function MySell() {
     
     useEffect(() => {
         getBoardList();
-    }, []);
+    }, [modal]);
 
     useEffect(() => {
         getBoardList();
@@ -43,7 +43,6 @@ function MySell() {
                     setOrderList(res.data.orderList);
                     setTotalRecord(res.data.orderList.length);
                     setFileList(res.data.filenameList);
-                    console.log(res.data);
                 })
                 .catch(err => console.log(err));
     };
@@ -54,14 +53,6 @@ function MySell() {
 
     const setShipping = (id) => {
         dispatch(setModal({...modal, selected:'shipping', isOpen:true, info:{id:id}}));
-    }
-    const endShipping = (id) => {
-        if(user)
-            axios.get(`${serverIP.ip}/shipping/finishShipping?orderId=${id}`,{
-                headers:{Authorization:`Bearer ${user.token}`}
-            })
-            .then(getBoardList())
-            .catch(err => console.log(err))
     }
 
     const moveInfo = (prodId) => {
@@ -94,6 +85,7 @@ function MySell() {
                                 <div className="order-section" key={order.id} style={{ border: '1px solid #ddd' }}>
                                     <div className="order-info">
                                         <strong>주문번호:</strong> {order.orderNum}<br />
+                                        <strong>주문일자:</strong> {order.startDate}<br/>
                                         <strong>배송지:</strong> {order.address.address} / {order.address.addressDetail}<br />
                                         <strong>구매자:</strong> <span style={{ cursor: 'pointer' }} className="message-who" id={`mgx-${order.user.id}`}>{order.user.username}</span><br />
                                         <strong>수령인:</strong> {order.address.recipientName}<br />
@@ -160,9 +152,7 @@ function MySell() {
                                     {order.shippingState==='BEFORE' && <button style={{marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'
                                         ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#8CC7A5'
                                     }} onClick={()=>setShipping(order.id)}>배송 등록</button>}
-                                     {order.shippingState==='ONGOING' && <button style={{marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'
-                                        ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#8CC7A5'
-                                    }} onClick={()=>endShipping(order.id)}>배송 완료</button>}
+                                     {order.shippingState==='ONGOING' && <><br/><span style={{color:'#e74c3c'}}>※구매자가 배송 완료 처리시 배송 완료 됩니다.※</span></>}
                                 </div>
                             );
                         })}

@@ -36,6 +36,15 @@ public class AuthService {
     String GOOGLE_CLIENT_SECRET;
     private final MailService mailService;
 
+    @Value("${naver.redirect-uri}")
+    String NAVER_REDIRECT_URI;
+
+    @Value("${naver.client-id}")
+    String NAVER_CLIENT_ID;
+
+    @Value("${naver.client-secret}")
+    String NAVER_CLIENT_SECRET;
+
     private final Map<String, String> verificationCodes = new HashMap<>();
 
 
@@ -101,6 +110,41 @@ public class AuthService {
             throw new RuntimeException("Failed to get Google access token");
         }
     }
+
+    public NaverTokenDto getNaverAccessToken(String code) {
+        RestTemplate rt = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", "authorization_code");
+        params.add("client_id", NAVER_CLIENT_ID);
+        params.add("client_secret", NAVER_CLIENT_SECRET);
+        params.add("redirect_uri", NAVER_REDIRECT_URI);
+        params.add("code", code);
+
+        HttpEntity<MultiValueMap<String, String>> naverTokenRequest = new HttpEntity<>(params, headers);
+
+        ResponseEntity<String> accessTokenResponse = rt.exchange(
+                "https://nid.naver.com/oauth2.0/token",
+                HttpMethod.POST,
+                naverTokenRequest,
+                String.class
+        );
+
+        System.out.println("네이버 응답 본문: " + accessTokenResponse.getBody());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        NaverTokenDto naverTokenDto = null;
+        try {
+            naverTokenDto = objectMapper.readValue(accessTokenResponse.getBody(), NaverTokenDto.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        return naverTokenDto;
+    }
+
 
     public KakaoTokenDto getKakaoAccessToken(String code) {
 
@@ -174,6 +218,44 @@ public class AuthService {
         return kakaoAccountDto;
     }
 
+    public NaverAccountDto getNaverInfo(String naverAccessToken) {
+        RestTemplate rt = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + naverAccessToken);
+        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+
+        HttpEntity<MultiValueMap<String, String>> accountInfoRequest = new HttpEntity<>(headers);
+
+        ResponseEntity<String> accountInfoResponse = rt.exchange(
+                "https://openapi.naver.com/v1/nid/me",
+                HttpMethod.POST,
+                accountInfoRequest,
+                String.class
+        );
+
+        // 응답 상태 코드 로그 출력
+        System.out.println("네이버 응답 상태 코드: " + accountInfoResponse.getStatusCode());
+        System.out.println("네이버 응답 본문: " + accountInfoResponse.getBody());
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        NaverAccountDto naverAccountDto = null;
+        try {
+            naverAccountDto = objectMapper.readValue(accountInfoResponse.getBody(), NaverAccountDto.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        // kakaoAccountDto가 제대로 파싱되었는지 확인
+        if (naverAccountDto == null) {
+            System.out.println("카카오 계정 정보 파싱 실패");
+        } else {
+            System.out.println(naverAccountDto+"!!!!!!!!!!");
+            System.out.println("카카오 계정 정보 파싱 성공");
+        }
+
+        return naverAccountDto;
+    }
+
     public Account mapKakaoInfo(KakaoAccountDto accountDto) {
         Long kakaoId = accountDto.getId();
         String email = accountDto.getKakao_account().getEmail();
@@ -182,6 +264,21 @@ public class AuthService {
         System.out.println("매핑한 정보 : " + email + ", " + nickname);
         return Account.builder()
                 .id(kakaoId)
+                .email(email)
+                .nickname(nickname)
+                .loginType("USER")
+                .picture(picture)
+                .build();
+    }
+
+    public Account mapNaverInfo(NaverAccountDto accountDto) {
+        String email = accountDto.getResponse().getEmail();
+        String nickname = accountDto.getResponse().getNickname();
+        String picture = accountDto.getResponse().getProfile_image();
+
+        System.out.println("매핑한 정보 : " + email + ", " + nickname);
+
+        return Account.builder()
                 .email(email)
                 .nickname(nickname)
                 .loginType("USER")
@@ -207,6 +304,27 @@ public class AuthService {
         System.out.println("수신된 account 정보 : " + selectedAccount);
         SignupResponseDto loginResponseDto = new SignupResponseDto();
         loginResponseDto.setKakaoAccessToken(kakaoAccessToken);
+
+        return selectedAccount;
+    }
+
+    public Account naverSignup(String naverAccessToken) {
+        NaverAccountDto naverAccountDto = getNaverInfo(naverAccessToken);
+        if (naverAccountDto.getResponse() == null) {
+            System.out.println("네이버 계정 정보가 없습니다.");
+            throw new IllegalArgumentException("네이버 계정 정보가 없습니다.");
+        }
+
+        String naverEmail = naverAccountDto.getResponse().getEmail();
+
+        if (naverEmail == null || naverEmail.isEmpty()) {
+            System.out.println("네이버 이메일이 존재하지 않습니다.");
+            throw new IllegalArgumentException("네이버 이메일이 존재하지 않습니다.");
+        }
+        Account selectedAccount = mapNaverInfo(naverAccountDto);
+        System.out.println("수신된 account 정보 : " + selectedAccount);
+        SignupResponseDto loginResponseDto = new SignupResponseDto();
+        loginResponseDto.setKakaoAccessToken(naverAccessToken);
 
         return selectedAccount;
     }

@@ -397,14 +397,13 @@ public class ReviewController {
     }
 
     // 각각의 상품에 대한 구매 후기 리스트
-    @PostMapping("/cusReviewList")
-    public ResponseEntity<List<Review>> cusReviewList() {
-
-        List<Review> result = service.findByProduct();
-
-        // 각 리뷰의 등록일을 출력
-        for (Review review : result) {
-            System.out.println("리뷰 등록일: " + review.getReviewWritedate());
+    @GetMapping("/cusReviewList")
+    public ResponseEntity<List<Review>> cusReviewList(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = interactService.selectUserByName(userDetails.getUsername());
+        List<Product> productList = productService.selectProductByUser(user);
+        List<Review> result = new ArrayList<>();
+        for(Product product:productList) {
+            result.addAll(service.findByProduct(product));
         }
 
         return ResponseEntity.ok(result);

@@ -154,7 +154,7 @@ function ProductBuy() {
       return;
     }
     const orderId = new Date().getTime();
-    const tossPayments = window.TossPayments("test_ck_ORzdMaqN3w2RZ1XBgmxM85AkYXQG");
+    const tossPayments = window.TossPayments("test_ck_BX7zk2yd8ynK1JyQvDgL3x9POLqK");
     if(isAuction) {
       axios.post(`${serverIP.ip}/order/setAuctionOrder`, {
         productId: location.state.product.id,

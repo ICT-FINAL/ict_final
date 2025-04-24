@@ -113,6 +113,17 @@ public class AuthController {
         Account account = authService.kakaoSignup(kakaoAccessToken);
         return authService.isAlreadySignUp(account);
     }
+
+    @GetMapping("/signup/naver")
+    public User naverSignup(HttpServletRequest request) {
+        String code = request.getParameter("code");
+        NaverTokenDto token = authService.getNaverAccessToken(code);
+        String accessToken = token.getAccess_token();
+
+        Account account = authService.naverSignup(accessToken);
+        return authService.isAlreadySignUp(account);
+    }
+
     @GetMapping("/signup/google")
     public User googleSignup(HttpServletRequest request) {
         String code = request.getParameter("code");

@@ -168,12 +168,12 @@ function Chatting() {
                         <div className='chat-container'>
                             {
                                 roomInfo.state !== 'CLOSED' &&
-                                <div style={{padding: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                                    <b style={{fontSize: '14pt'}}>{roomInfo.product.productName}</b>
+                                <div style={{padding: '10px', display: 'flex', alignItems: 'center'}}>
+                                    <div style={{width: 'calc(100% - 60px)'}}><b style={{fontSize: '14pt'}}>{roomInfo.product.productName}</b></div>
                                     {
                                         ((roomInfo.state === 'ACTIVE' && roomInfo.buyer.id === user.user.id) || roomInfo.state === 'LEFT') &&
-                                        <span style={{padding: '5px', background: '#e54d4b', color: '#fff', borderRadius: '10px', fontSize: '10pt', cursor: 'pointer'}}
-                                            onClick={leaveChatRoom}>나가기</span>
+                                        <div style={{width: '60px'}}><span style={{width: '50px', float: 'right', textAlign: 'center', padding: '5px', background: '#e54d4b', color: '#fff', borderRadius: '10px', fontSize: '10pt', cursor: 'pointer'}}
+                                            onClick={leaveChatRoom}>나가기</span></div>
                                     }
                                 </div>
                             }

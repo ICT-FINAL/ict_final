@@ -128,7 +128,7 @@ body{
 
 
 .slider-container {
-    width:100%;
+    width:1200px;
     overflow: hidden;
     margin: 0 auto;
     margin-top: 20px;
@@ -136,9 +136,8 @@ body{
 }
 
 .slider-image-banner {
-    width: 60%;
-    height: 30vw;
-    max-height: 500px;
+    width: 1200px;
+    height: 330px;
     overflow: hidden;
     transition: transform 0.5s ease;
 }

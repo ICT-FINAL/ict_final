@@ -34,7 +34,6 @@ function Header() {
     const [messageList, setMessageList] = useState([]);
 
     const [grade, setGrade] = useState(['✊', '☝️', '✌️', '🖐️']);
-    const [grades, setGrades] = useState(0);
     const [hamburgerOpen, setHamburgerOpen] = useState(false);
 
     const [basketCount, setBasketCount] = useState(0);
@@ -62,11 +61,6 @@ function Header() {
     useEffect(()=>{
         if (user) {
             getRecentSearch();
-            const gp = user.user.gradePoint;
-            if(gp<1000) setGrades(0);
-            else if(gp<2000) setGrades(1);
-            else if(gp<3000) setGrades(2);
-            else setGrades(3);
         }
 
         const fetchKeywords = async () => {
@@ -201,7 +195,7 @@ function Header() {
                         <>
                             <div ref={menuButtonRef} className="menu-icon" onClick={() => dispatch(setMenuModal(!menuModal))}>
                                 <img src={user.user.imgUrl.indexOf('http') !== -1 ? `${user.user.imgUrl}` : `${serverIP.ip}${user.user.imgUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white' }} />
-                                <div style={{ color: 'white', textAlign: 'center', width: '120px', fontSize: '15px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{user.user.username} {grade[grades]}</div>
+                                <div style={{ color: 'white', textAlign: 'center', width: '120px', fontSize: '15px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{user.user.username} {grade[user.user.grade]}</div>
                             </div>
                         </>
                     ) : (
