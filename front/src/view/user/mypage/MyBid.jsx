@@ -107,6 +107,7 @@ function MyBid() {
                 totalPrice: item.price,
                 shippingFee: item.room.auctionProduct.shippingFee || 0,
                 selectedCoupon: item.room.deposit,
+                bid: item
             }
         });
     }

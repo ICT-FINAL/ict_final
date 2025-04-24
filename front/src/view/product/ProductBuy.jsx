@@ -59,6 +59,7 @@ function ProductBuy() {
 
   useEffect(()=>{
     applyRandomBackground();
+    console.log(location);
   },[]);
   
   useEffect(() => {
@@ -272,33 +273,54 @@ function ProductBuy() {
       `.product-buy-container::before { background-image: ${url}; }`, 0);
   }
 
+  const formatDateTime = (datetimeStr) => {
+      const date = new Date(datetimeStr);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${year}-${month}-${day} ｜ (${hours}:${minutes})`;
+  };
+
   return (
-    <div style={{ paddingTop: '150px', background: '#222' }}>
+    <div style={{ paddingTop: '150px', background: '#222', paddingBottom: '100px'}}>
       <div className="product-buy-container" style={{paddingTop: '30px'}}>
         <h2 className="product-buy-header">MIMYO</h2>
         {isAuction && 
           <div className="product-buy-info">
-            <ul className="buy-order-item" style={{fontWeight: 'bold', fontSize: '13pt', borderBottom: '3px double #555', margin: '20px 0 30px'}}>
-              <li>상품</li>
-              <li>단가</li>
-              <li>보증금</li>
-              <li>합계</li>
+            <div style={{padding: '10px', marginBottom: '30px', fontSize: '14pt'}}>
+              <b>{location.state.product.productName}</b>
+            </div>
+            
+            <ul className="buy-order-item"
+              style={{fontWeight: 'bold', fontSize: '13pt', borderBottom: '3px double #555',
+              gridTemplateColumns: '2fr 2fr 1fr'}}>
+              <li>입찰일시</li>
+              <li style={{textAlign: 'left'}}>낙찰일시</li>
+              <li>낙찰가</li>
             </ul>
-            <ul className="buy-order-item">
-              <li>{location.state.product.productName}</li>
-              <li>₩{formatNumberWithCommas(location.state.totalPrice)}</li>
-              <li>-₩{formatNumberWithCommas(location.state.selectedCoupon)}</li>
+            <ul className="buy-order-item" style={{gridTemplateColumns: '2fr 2fr 1fr'}}>
+              <li>{formatDateTime(location.state.bid.bidTime)}</li>
+              <li style={{textAlign: 'left'}}>{formatDateTime(location.state.bid.room.endTime)}</li>
               <li style={{fontWeight: 'bold'}}>₩{formatNumberWithCommas(location.state.totalPrice)}</li>
             </ul>
-            <div className="order-item">
-              <h3>{location.state.product.productName}</h3>
-              <p style={{fontSize:'20px'}}>가격: <strong>{formatNumberWithCommas(location.state.totalPrice)}</strong> 원</p>
-              <p>배송비: <strong style={{ color: '#1976d2' }}>+{formatNumberWithCommas(location.state.shippingFee)}</strong>원</p>
-              { location.state.selectedCoupon!==0 && <p>보증금: <strong style={{color:'#e74c3c'}}>-{formatNumberWithCommas(location.state.selectedCoupon)}</strong>원</p>}
-              <span className="final-price" style={{borderTop:'1px solid #ddd'}}>
-                  합계: <strong style={{ fontWeight: 'bold', fontSize: '20px' }}>{formatNumberWithCommas(totalPaymentAmount)}</strong> 원
-                </span>
-            </div>
+
+            <ul className="buy-order-item"
+              style={{fontWeight: 'bold', fontSize: '13pt', borderBottom: '3px double #555',
+              gridTemplateColumns: '1fr 1fr', marginTop: '50px'}}>
+              <li style={{textAlign: 'left'}}>판매자</li>
+              <li>구매자</li>
+            </ul>
+            <ul className="buy-order-item" style={{gridTemplateColumns: '1fr 1fr'}}>
+              <li>{location.state.product.sellerNo.username}</li>
+              <li style={{fontWeight: 'bold'}}>{user.user.username}</li>
+            </ul>
+
+            <div style={{fontSize: '14pt', textAlign: 'center', margin: '30px 0'}}>🥳낙찰을 축하드립니다🎉</div>
+            <div style={{color: '#333'}}><b>배송비</b><b style={{float:'right'}}>₩{formatNumberWithCommas(location.state.shippingFee)}</b></div>
+            <div style={{ color: '#d97c7a' }}><b>보증금</b><b style={{float:'right'}}>-₩{formatNumberWithCommas(location.state.selectedCoupon)}</b></div>
+            <div className="final-price">총 결제 금액<b style={{float:'right'}}>₩{formatNumberWithCommas(totalPaymentAmount)}</b></div> 
           </div>}
         {orderItems.length > 0 && (
           <div className="product-buy-info">
