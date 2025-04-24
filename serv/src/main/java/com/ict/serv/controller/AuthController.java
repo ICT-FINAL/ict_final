@@ -6,6 +6,7 @@ import com.ict.serv.entity.Authority;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.AuthService;
 import com.ict.serv.service.InteractService;
+import com.ict.serv.service.LogService;
 import com.ict.serv.util.JwtProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,6 +37,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final InteractService interactService;
+    private final LogService logService;
 
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
@@ -62,7 +64,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("정지된 사용자입니다.");
         }
         String token = jwtProvider.createToken(user.getUserid());
-
+        logService.userJoinSave(user);
         HttpSession session = request.getSession();
         session.setAttribute("JWT", token);
 
@@ -111,6 +113,17 @@ public class AuthController {
         Account account = authService.kakaoSignup(kakaoAccessToken);
         return authService.isAlreadySignUp(account);
     }
+
+    @GetMapping("/signup/naver")
+    public User naverSignup(HttpServletRequest request) {
+        String code = request.getParameter("code");
+        NaverTokenDto token = authService.getNaverAccessToken(code);
+        String accessToken = token.getAccess_token();
+
+        Account account = authService.naverSignup(accessToken);
+        return authService.isAlreadySignUp(account);
+    }
+
     @GetMapping("/signup/google")
     public User googleSignup(HttpServletRequest request) {
         String code = request.getParameter("code");
@@ -174,7 +187,8 @@ public class AuthController {
                                            @RequestParam("tel") String tel, @RequestParam("address") String address,
                                            @RequestParam("addressDetail") String addressDetail, @RequestParam("zipcode") String zipcode,
                                            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
-                                           @RequestParam(value = "kakaoProfileUrl", required = false) String kakaoProfileUrl)
+                                           @RequestParam(value = "kakaoProfileUrl", required = false) String kakaoProfileUrl,
+                                           @RequestParam("infoText") String infoText)
     {
         System.out.println(username);
         try {
@@ -209,6 +223,7 @@ public class AuthController {
                     .zipcode(zipcode)
                     .kakaoProfileUrl(kakaoProfileUrl)
                     .uploadedProfileUrl(finalProfileUrl)
+                    .infoText(infoText)
                     .authority(Authority.ROLE_USER)
                     .build();
 

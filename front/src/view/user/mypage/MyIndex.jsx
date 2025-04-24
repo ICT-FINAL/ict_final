@@ -15,10 +15,12 @@ import MyFollow from "./MyFollow";
 import MySell from "./MySell";
 import MyChatting from "./MyChatting";
 import MyInfoEdit from "./MyInfoEdit";
+import MyDeliveries from "./MyDeliveries";
 import MyReviewList from "./MyReviewList";
 import MyBid from "./MyBid";
 import MyActivity from "./MyActivity";
 import MyOrder from "./MyOrder";
+import MyCoupon from "./MyCoupon";
 
 function MyIndex(){
     const location = useLocation();
@@ -41,6 +43,7 @@ useEffect(() => {
         const pathMap = {
             profile: { f_name: "내 정보", l_name: "프로필" },
             edit: { f_name: "내 정보", l_name: "개인 정보 수정" },
+            deliveries: { f_name: "내 정보", l_name: "배송지 관리" },
             posts: { f_name: "나의 활동", l_name: "작성한 글" },
             reviews: { f_name: "나의 활동", l_name: "리뷰 관리" },
             comments: { f_name: "나의 활동", l_name: "댓글 관리" },
@@ -98,6 +101,7 @@ useEffect(() => {
                 <div className='mypage-title'>{path.l_name}</div>
                     { path.l_name == '프로필' && <UserInfo/> }
                     { path.l_name == '개인 정보 수정' && <MyInfoEdit/> }
+                    { path.l_name == '배송지 관리' && <MyDeliveries/> }
                     { path.l_name == '장바구니' && <MyBasket/> }
                     { path.l_name == '신고 내역' && <MyReport/> }
                     { path.l_name == '문의 내역' && <MyInquiryList/> }
@@ -110,6 +114,7 @@ useEffect(() => {
                     { path.l_name == '구매 입찰 내역' && <MyBid/> }
                     { path.l_name == '활동 통계' && <MyActivity/> }
                     { path.l_name == '구매 통계' && <MyOrder/> }
+                    { path.l_name == '쿠폰함' && <MyCoupon/> }
                 </div>
             </div>
         </>

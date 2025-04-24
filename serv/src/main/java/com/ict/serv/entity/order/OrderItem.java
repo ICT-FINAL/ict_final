@@ -47,4 +47,13 @@ public class OrderItem {
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
+
+    public void applyRefund(int refundQuantity) {
+        // 부분 환불 처리 로직: 환불 수량에 맞는 금액 계산
+        int refundAmount = (this.price * (100 - this.discountRate) / 100 + this.additionalFee) * refundQuantity;
+        if (refundAmount > 0) {
+            this.refundState = RefundState.COMPLETED; // 환불 상태 업데이트
+            this.order.getOrderGroup().setCancelAmount(this.order.getOrderGroup().getCancelAmount() + refundAmount); // OrderGroup의 환불 금액 누적
+        }
+    }
 }

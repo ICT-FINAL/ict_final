@@ -30,6 +30,10 @@ function MyFollow(){
         .catch(err=>console.log(err));
     }
 
+    function handleCancel(){
+        alert("아직 취소안됨");
+    }
+
     return (
         <div className='follow-container'>
             <ul className='follow-menu'>
@@ -37,12 +41,18 @@ function MyFollow(){
                 <li className={selectedTab === 'following' ? 'selected-menu' : {}} onClick={() => navigate('?tab=following')}>팔로잉</li>
             </ul>
 
-            <div className='follow-list'>
+            <div className='follow-list' >
             {
                 (selectedTab === "follower" ? followerList : followingList).map(user => (
-                    <div key={user.id}>
+                    <div key={user.id} className="follow-user-item">
                         <img className="follow-user-img" src = {user.profileImageUrl.indexOf('http') !==-1 ? `${user.profileImageUrl}`:`${serverIP.ip}${user.profileImageUrl}`} alt=''/>
-                        <div id={`mgx-${user.id}`} className='message-who' style={{cursor: 'pointer'}}>{user.username}<span>{grade[user.grade]}</span></div>
+                        <div className="follow-user-info">
+                            <div id={`mgx-${user.id}`} className='message-who' style={{cursor: 'pointer'}}>{user.username}<span>{grade[user.grade]}</span></div>
+                            <div>{user.infoText}</div>
+                        </div>
+                        <button className="follow-cancel-btn" onClick={() => handleCancel(user.id)}>
+                            ❌
+                        </button>
                     </div>
                 ))
             }

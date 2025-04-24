@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface OrderRepository extends JpaRepository<Orders, Long> {
     int countIdByUser(User user);
@@ -22,13 +23,12 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
 
     List<Orders> findAllByOrderGroup(OrderGroup orderGroup);
 
-    List<Orders> findAllByProductIdOrderByStartDateDesc(Long id);
-
     @Query(value = "SELECT p.product_category, COUNT(*) AS count " +
             "FROM orders o " +
             "JOIN order_group og ON o.order_group_id = og.order_group_id " +
             "JOIN product p ON o.product_id = p.product_id " +
             "WHERE og.state = 'PAID' " +
+            "OR og.state = 'PARTRETURNED' " +
             "AND o.start_date >= NOW() - INTERVAL 14 DAY " +
             "GROUP BY p.product_category " +
             "ORDER BY count DESC " +
@@ -80,5 +80,8 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
 """, nativeQuery = true)
     List<Object[]> getSalesByTargetCategory();
 
+    @Query("SELECT oi.product.id, COUNT(oi) FROM OrderItem oi GROUP BY oi.product.id")
+    List<Object[]> countAllGroupedByProduct();
 
+    List<Orders> findAllByProductIdOrderByIdDesc(Long id);
 }

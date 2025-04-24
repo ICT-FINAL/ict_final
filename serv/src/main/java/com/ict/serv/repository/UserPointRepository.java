@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserPointRepository extends JpaRepository<UserPoint, Long> {
-    Optional<UserPoint> findByUserId(Long userId);
+    List<UserPoint> findByUserId(Long userId);
 
     List<UserPoint> findByTypeAndUserIdAndLastSpinDate(PointType type, Long userId, LocalDate now);
 }

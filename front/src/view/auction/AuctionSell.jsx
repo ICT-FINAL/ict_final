@@ -2,11 +2,12 @@ import { useState,useRef, useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import ProductEditor from '../product/ProductEditor';
+import { useNavigate } from "react-router-dom";
 
 function AuctionSell() {
     const serverIP = useSelector((state) => state.serverIP);
     const user = useSelector((state) => state.auth.user);
-
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         subject:"",
         productName: "",
@@ -46,29 +47,6 @@ function AuctionSell() {
     const oneDayLaterString = oneDayLater.toISOString().slice(0, 16);  // 1일 후의 시간
     const twoDaysLaterString = twoDaysLater.toISOString().slice(0, 16); 
 
-    const addMainOption = () => {
-        if(formData.options.length === 1) {
-            alert("경매시 옵션은 1개만 가능합니다.");
-            return;
-        }
-        setFormData(prev => ({
-            ...prev,
-            options: [...prev.options, { mainOptionName: "", quantity: 0, subOptions: [] }]
-        }));
-    };
-
-    const removeMainOption = (index) => {
-        setFormData(prev => ({
-            ...prev,
-            options: prev.options.filter((_, i) => i !== index)
-        }));
-    };
-
-    const handleMainOptionChange = (index, value) => {
-        const updatedOptions = [...formData.options];
-        updatedOptions[index].mainOptionName = value;
-        setFormData({ ...formData, options: updatedOptions });
-    };
 
     const calculateTotalQuantity = () => {
         let totalQuantity = 0;
@@ -79,45 +57,6 @@ function AuctionSell() {
             });
         });
         return totalQuantity;
-    };
-
-    const addSubOption = (index) => {
-        if(formData.options[index].subOptions && formData.options[index].subOptions.length===1) {
-            alert("경매시 소분류는 1개만 입력 가능합니다.");
-            return;
-        }
-        const updatedOptions = [...formData.options];
-        updatedOptions[index].subOptions.push({ subOptionName: "", quantity: 1, additionalPrice: "" });
-        setFormData({ ...formData, options: updatedOptions });
-    };
-
-    const removeSubOption = (mainIndex, subIndex) => {
-        const updatedOptions = [...formData.options];
-        updatedOptions[mainIndex].subOptions = updatedOptions[mainIndex].subOptions.filter((_, i) => i !== subIndex);
-        setFormData({ ...formData, options: updatedOptions });
-    };
-
-    const handleSubOptionChange = (mainIndex, subIndex, value) => {
-        const updatedOptions = [...formData.options];
-        updatedOptions[mainIndex].subOptions[subIndex].subOptionName = value;
-        setFormData({ ...formData, options: updatedOptions });
-    };
-
-    const handleSubOptionQuantityChange = (mainIndex, subIndex, value) => {
-        const updatedOptions = [...formData.options];
-        updatedOptions[mainIndex].subOptions[subIndex].quantity = parseInt(value, 10) || 0;
-        setFormData({ ...formData, options: updatedOptions });
-    };
-
-    const handleSubOptionAdditionalPriceChange = (mainIndex, subIndex, value) => {
-        // 숫자가 아닌 문자가 포함되었는지 검사
-        if (!/^\d*$/.test(value)) {
-            alert("금액은 숫자만 입력할 수 있습니다.");
-            return;
-        }
-        const updatedOptions = [...formData.options];
-        updatedOptions[mainIndex].subOptions[subIndex].additionalPrice = value;
-        setFormData({ ...formData, options: updatedOptions });
     };
 
     const eventOptions = ["생일", "결혼", "졸업", "시험", "출산", "기타"];
@@ -296,7 +235,8 @@ function AuctionSell() {
             }
         })
         .then(res => {
-            console.log("상품 등록 성공:", res.data);
+            alert("상품 등록 성공");
+            navigate('/auction');
         })
         .catch(err => console.error("상품 등록 실패:", err));
     };
@@ -380,6 +320,7 @@ function AuctionSell() {
                 <label className="product-label">상세 설명</label>
                 <ProductEditor id='content' formData={formData} setFormData={setFormData}/>
                 </fieldset>
+            <div style={{fontWeight:'bold', marginBottom:'10px',fontSize:'18px'}}>썸네일 등록</div>
             <div 
                 onDragOver={(e) => e.preventDefault()} 
                 onDrop={handleDrop}

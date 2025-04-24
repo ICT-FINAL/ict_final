@@ -303,7 +303,7 @@ function ProductSell() {
         })
         .then(res => {
             alert("상품 등록 성공");
-            navigate('/product');
+            navigate('/product/search');
         })
         .catch(err => console.error("상품 등록 실패:", err));
     };
@@ -457,6 +457,7 @@ function ProductSell() {
                 <label className="product-label">상세 설명</label>
                 <ProductEditor id='content' formData={formData} setFormData={setFormData}/>
                 </fieldset>
+            <div style={{fontWeight:'bold', marginBottom:'10px',fontSize:'18px'}}>썸네일 등록</div>
             <div 
                 onDragOver={(e) => e.preventDefault()} 
                 onDrop={handleDrop}

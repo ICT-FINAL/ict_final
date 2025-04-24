@@ -127,16 +127,21 @@ public class AuctionService {
                 auctionRepository.save(room);
                 auctionProductRepository.save(product);
                 messagingTemplate.convertAndSend("/topic/auction/" + roomId + "/end", "경매 종료");
-                User user = userRepository.findUserById(room.getHighestBidderId());
-                AuctionBid bid = bidRepository.findByStateAndUserAndRoom(BidState.LIVE, user, room).get(0);
-                bid.setState(BidState.SUCCESS);
-                bidRepository.save(bid);
-                Message msg = new Message();
-                msg.setUserFrom(room.getAuctionProduct().getSellerNo());
-                msg.setUserTo(user);
-                msg.setSubject("입찰 하신 물품 '"+ product.getProductName() +"'이 낙찰되었습니다.");
-                msg.setComment("마이페이지 > 구매 입찰 내역에서 결제를 완료해주세요.");
-                messageRepository.save(msg);
+                if(room.getHighestBidderId() != null) {
+                    User user = userRepository.findUserById(room.getHighestBidderId());
+                    List<AuctionBid> bids = bidRepository.findByStateAndUserAndRoom(BidState.LIVE, user, room);
+                    if (!bids.isEmpty()) {
+                        AuctionBid bid = bids.get(0);
+                        bid.setState(BidState.SUCCESS);
+                        bidRepository.save(bid);
+                    }
+                    Message msg = new Message();
+                    msg.setUserFrom(room.getAuctionProduct().getSellerNo());
+                    msg.setUserTo(user);
+                    msg.setSubject("입찰 하신 물품 '" + product.getProductName() + "'이 낙찰되었습니다.");
+                    msg.setComment("<a href='/mypage/buybid'>마이페이지 > 구매 입찰 내역</a>에서 결제를 완료해주세요.");
+                    messageRepository.save(msg);
+                }
             } else {
                 scheduleAuctionEnd(roomId);
             }
@@ -226,5 +231,23 @@ public class AuctionService {
 
     public AuctionBid updateBid(AuctionBid bid) {
         return bidRepository.save(bid);
+    }
+
+    public List<AuctionRoom> getHotAuctionRooms() {
+        return auctionRepository.findTop50ByStateOrderByHitDesc(AuctionState.OPEN);
+    }
+
+    public List<AuctionRoom> getClosingAuctionRooms() {
+        return auctionRepository.findTop50ByStateOrderByEndTime(AuctionState.OPEN);
+    }
+
+    @Transactional
+    public void closeAllAuctionIfClosed() {
+        List<AuctionRoom> auctionRoomList = auctionRepository.findByState(AuctionState.OPEN);
+        for(AuctionRoom auctionRoom: auctionRoomList) {
+            if(auctionRoom.getEndTime().isBefore(LocalDateTime.now())) {
+                closeAuctionRoom(auctionRoom.getRoomId());
+            }
+        }
     }
 }

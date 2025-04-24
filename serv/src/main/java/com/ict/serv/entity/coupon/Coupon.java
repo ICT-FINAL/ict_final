@@ -21,6 +21,9 @@ public class Coupon {
     @Column(name="start_date")
     private LocalDateTime startDate;
 
+    @Column(name="use_date")
+    private LocalDateTime useDate;
+
     @Column(name="end_date")
     private LocalDateTime endDate;
 

@@ -228,6 +228,7 @@ function SignupForm() {
         if (modal.info && modal.info.address) formData.append("address", modal.info.address);
         formData.append("addressDetail", user.addressDetail);
         if (modal.info && modal.info.zonecode) formData.append("zipcode", modal.info.zonecode);
+        formData.append("infoText", user.infoText);
     
         if (user.uploadedProfile) {
             formData.append("profileImage", user.uploadedProfile);
@@ -337,6 +338,23 @@ function SignupForm() {
         }
       };
 
+      
+    /* 소개 */
+    const [intro, setIntro] = useState("");
+
+    useEffect(() => {
+        setIntro(user.infoText || "");
+      }, [user.infoText]);  // user.infoText 값이 변경될 때마다 상태 업데이트
+
+    const handleChange = (e) => {
+        const newIntro = e.target.value;
+        setIntro(newIntro);
+        setUser(prev => ({
+            ...prev,
+            infoText: newIntro
+        }));
+    };
+
     return (
         <>
         <div id="modal-background" style={modalBackStyle}></div>
@@ -411,6 +429,15 @@ function SignupForm() {
                 )}
                 <input type="file" id="profile-image-file" style={{display: "none"}} accept="image/*" onChange={handleImageChange} /><br/>
                 <label htmlFor="profile-image-file" id="profile-image-btn">사진첨부</label>
+
+                {/* 소개 */}
+                <div style={{ display: "flex", alignItems: "center", marginTop: "50px" }}>
+                    <label style={{ textAlign: "left" }}>소개</label>
+                    <textarea name="infoText" maxLength={200} value={intro} onChange={handleChange} style={{height: "18vh", padding: "10px", fontFamily:'inherit'}} />
+                </div>
+                <div style={{ textAlign: "right", marginTop: "5px", fontSize: "0.9em", color: "#222", width: "97%", marginRight:"10px"}}>
+                    <font style={{ color: "#666" }}>{intro.length}</font> / 200
+                </div>
             </div>
 
             <button id="signup-btn" onClick={()=>doSignUp()}>회원가입</button>

@@ -11,6 +11,7 @@ public class OrderPagingVO {
     private String searchWord;
 
     private OrderState state;
+    private ShippingState shippingState;
 
     private String sort;
 

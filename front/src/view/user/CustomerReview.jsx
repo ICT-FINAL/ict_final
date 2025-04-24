@@ -9,64 +9,27 @@ function CustomerReview(){
     let serverIP = useSelector((state) => state.serverIP);
     const loc = useLocation();
 
-    const [userNo, setUserNo] = useState(0);
-    const [loginNo, setLoginNo] = useState(0);
     let [cusReviewList, setCusReviewList] = useState([]);
 
-    useEffect(() => {
-        if (user) {
-            setUserNo(loc.state === null ? user.user.id : loc.state);
-            setLoginNo(user.user.id);
-        }
-    }, []);
+
 
     useEffect(() => {
-        if (loginNo !== 0) {
-            getProductList();
-        }
-    }, [loginNo])
-
-    const getProductList = () => {
-        axios.get(`${serverIP.ip}/mypage/productList/${userNo}`, {
-            headers: {
-                Authorization: `Bearer ${user.token}`
-            }
-        })
-        .then(res => {
-            console.log("판매작품1:", res.data[0].id);
-            console.log("판매작품2:", res.data[1].id);
-
-            const productIds = res.data.map(product => product.id);
-            console.log("상품 ID 리스트", productIds);
-
-            getCusReviewList(productIds);
-        })
-        .catch(err => console.log(err));
-    }
+        getCusReviewList();
+    }, [])
 
 
-    const getCusReviewList = (productIds) => {
-        const params = { productIds: productIds };
-
-        axios.post(`${serverIP.ip}/review/cusReviewList`, params, {
-            headers: {
-                Authorization: `Bearer ${user.token}`,
-                "Content-Type": "application/json"
-            }
-        })
-        .then(res => {
-            console.log("후기 리스트 응답:", res.data);
-            setCusReviewList(res.data);
-
-            // 각 productId별로 후기 작성일만 찍어보기
-            Object.entries(res.data).forEach(( [reviews]) => {
-                
-                reviews.forEach((review, idx) => {
-                    console.log(`  ${idx + 1}위 - ${review.reviewWritedate} - by ${review.user.username}`);
-                });
-            });
-        })
-        .catch(err => console.log(err));
+    const getCusReviewList = () => {
+        if(user)
+            axios.get(`${serverIP.ip}/review/cusReviewList`, {
+                headers: {
+                    Authorization: `Bearer ${user.token}`,
+                }
+            })
+            .then(res => {
+                console.log("후기 리스트 응답:", res.data);
+                setCusReviewList(res.data);
+            })
+            .catch(err => console.log(err));
     }
 
     // 리뷰 이미지 슬라이드 기능
@@ -145,7 +108,7 @@ function CustomerReview(){
                                                                 width: backstarStyle.width,
                                                                 height: '100%',
                                                             }}>
-                                                                <FaStar style={{ color: backstarStyle.background, fontSize: '15px' }} />
+                                                                <FaStar style={{ verticalAlign:'top',color: backstarStyle.background, fontSize: '15px' }} />
                                                             </div>
                                                         </span>
                                                     );

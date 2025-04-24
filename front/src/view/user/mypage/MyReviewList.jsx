@@ -52,70 +52,19 @@ function MyReviewList(){
         });
     }, [myReviewList]);
 
-    const handlePrev = (reviewIndex, imagesLength) => {
-        setImageIndexes((prev) => {
-        const updated = [...prev];
-        updated[reviewIndex] = updated[reviewIndex] === 0 ? imagesLength - 1 : updated[reviewIndex] - 1;
-        return updated;
-        });
-    };
 
-    const handleNext = (reviewIndex, imagesLength) => {
-        setImageIndexes((prev) => {
-        const updated = [...prev];
-        updated[reviewIndex] = updated[reviewIndex] === imagesLength - 1 ? 0 : updated[reviewIndex] + 1;
-        return updated;
-        });
-    };
-
-    const [enlargedImage, setEnlargedImage] = useState(null);
-
-    // 리뷰 수정 
-    const [reviewFiles, setReviewFiles] = useState([]);
-    const [rate, setRate] = useState(0);
-    let [reviewContent, setReviewContent] = useState('');
-    const [isMod, setIsMod] = useState(false); // 수정 모드인지 여부
-    const [modReview, setModReview] = useState(null); // 수정할 리뷰 데이터
-
-    const urlToFile = async (url, filename, mimeType) => {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        return new File([blob], filename, { type: mimeType });
-    };
-
-    const handleModClick = (review) => {
-        console.log(review);
-    
-        Promise.all(
-            review.images.map(file =>
-                urlToFile(
-                    `${serverIP.ip}/uploads/review/${review.id}/${file.filename}`,
-                    file.filename,
-                    "image/jpeg"
-                )
-            )
-        )
-        .then(fileList => {
-            setReviewFiles(fileList);
-            setIsMod(true);
-            setModReview(review);
-            setRate(review.rate || 0);
-            setReviewContent(review.reviewContent || '');
-        })
-        .catch(err => console.log(err));
-    };
-    
     // 리뷰 클릭 시 다른 페이지로 이동
     const navigate = useNavigate();
     const handleReviewClick = (product, reviewId) => {
         localStorage.setItem("currentReviewId", reviewId);
+        localStorage.setItem("changeMenu", "review"); // 여기서 미리 세팅!
         navigate('/product/info', { state: { product: product } });
     };
 
     return(
         <>
             <div className="myReview-box">
-                <div style={{fontSize:'12px', color:'#8CC7A5'}}>* 내용을 클릭하면 관련 상품의 리뷰로 이동하여 수정 및 삭제가 가능합니다.</div>
+                <div style={{fontSize:'15px', color:'#8CC7A5'}}>* 내용을 클릭하면 관련 상품의 리뷰로 이동하여 수정 및 삭제가 가능합니다.</div>
 
                 <ul className="mypage-myReview-list" style={{ fontWeight: "bold", borderBottom: "1px solid #ddd" }}>
                     <li>번호</li>
@@ -167,7 +116,7 @@ function MyReviewList(){
                                             height: '100%',
                                             }}
                                         >
-                                            <FaStar style={{ color: backstarStyle.background, fontSize: '15px' }} />
+                                            <FaStar style={{verticalAlign: 'top', color: backstarStyle.background, fontSize: '15px' }} />
                                         </div>
                                         </span>
                                     );

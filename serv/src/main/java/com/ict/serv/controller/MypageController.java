@@ -1,24 +1,36 @@
 package com.ict.serv.controller;
 
 import com.ict.serv.controller.admin.PagingVO;
+import com.ict.serv.dto.UserPwdModDto;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.report.ReportState;
 import com.ict.serv.entity.user.Address;
+import com.ict.serv.entity.user.AddressState;
 import com.ict.serv.entity.user.Guestbook;
 import com.ict.serv.entity.user.User;
+import com.ict.serv.service.AuthService;
 import com.ict.serv.service.InteractService;
 import com.ict.serv.service.MypageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.sql.SQLOutput;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -27,6 +39,10 @@ import java.util.Optional;
 public class MypageController {
     private final MypageService service;
     private final InteractService interactService;
+    private final AuthService authService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @GetMapping("/reportList")
     public Map reportList(@AuthenticationPrincipal UserDetails userDetails, PagingVO pvo) {
@@ -115,5 +131,170 @@ public class MypageController {
         Optional<User> getUserInfo = service.selectUserInfo(user);
 
         return getUserInfo;
+    }
+
+    @PostMapping("/editInfo")
+    public ResponseEntity<String> editInfo(@AuthenticationPrincipal UserDetails userDetails,
+                                           @RequestPart(value = "user") User user,
+                                           @RequestPart(value = "profileImage", required = false) MultipartFile profileImage){
+        // 임시 백업용 파일 참조 선언
+        File backupFile = null;
+
+        try {
+            // 로그인된 사용자 정보 가져오기
+            User userInfo = interactService.selectUserByName(userDetails.getUsername());
+
+            String kakaoProFileUrl = userInfo.getKakaoProfileUrl(); // 카카오 URL 인지 아닌지 확인
+            if (kakaoProFileUrl != null && !kakaoProFileUrl.isEmpty()) { // 카카오 로그인이고, 프로필 사진 변경하고 싶을때
+                System.out.println("==================카카오로그인일때=========================");
+
+                if(kakaoProFileUrl.contains("/profile/")){
+                    // 카카오 프로필 링크에 /profile/ 링크가 있으면 덮어씌우기
+                    if (profileImage != null && !profileImage.isEmpty() && kakaoProFileUrl != null) {
+                        // 전체 시스템 절대 경로 만들기
+                        Path savePath = Paths.get(System.getProperty("user.dir"), kakaoProFileUrl).normalize();
+                        File targetFile = savePath.toFile();
+
+                        // 백업 파일 경로 (원본 경로 + ".bak")
+                        backupFile = new File(targetFile.getAbsolutePath() + ".bak");
+
+                        // 기존 파일이 있으면 백업
+                        if (targetFile.exists()) {
+                            Files.copy(targetFile.toPath(), backupFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        }
+
+                        // 디렉토리 없으면 생성
+                        File parentDir = targetFile.getParentFile();
+                        if (!parentDir.exists()) {
+                            parentDir.mkdirs();
+                        }
+
+                        // 덮어쓰기 저장
+                        profileImage.transferTo(targetFile);
+                        System.out.println("카카오 프로필 이미지 덮어쓰기 완료: " + savePath.toString());
+                    }
+
+                }else{
+                    // 카카오 프로필 링크에 /profile/가 없으면 덮어씌우는게 아니라 새로 이미지 파일 추가하기
+                    String uploadDir = System.getProperty("user.dir") + "/uploads/user/profile";    //path는 무조건 이 경로
+                    File dir = new File(uploadDir);
+                    if (!dir.exists()) {
+                        dir.mkdirs();
+                    }
+
+                    String uploadedProfileUrl = null;
+
+                    if (profileImage != null && !profileImage.isEmpty()) {
+                        String fileName = UUID.randomUUID().toString() + "_" + profileImage.getOriginalFilename();
+                        File dest = new File(uploadDir, fileName);
+                        profileImage.transferTo(dest);
+                        uploadedProfileUrl = "/uploads/user/profile/" + fileName;
+                    }
+
+                    userInfo.setKakaoProfileUrl(uploadedProfileUrl);
+                }
+            }else { // 카카오 로그인이 아니고, 프로필 사진 변경하고 싶을때
+                System.out.println("==================카카오로그인이 아닐때=========================");
+                // 현재 프로필 이미지 링크
+                String currentImageUrl = userInfo.getUploadedProfileUrl();
+                if(currentImageUrl != null) {
+                    // 이미지 덮어쓰기 처리
+                    if (profileImage != null && !profileImage.isEmpty() && currentImageUrl != null) {
+                        // 전체 시스템 절대 경로 만들기
+                        Path savePath = Paths.get(System.getProperty("user.dir"), currentImageUrl).normalize();
+                        File targetFile = savePath.toFile();
+
+                        // 백업 파일 경로 (원본 경로 + ".bak")
+                        backupFile = new File(targetFile.getAbsolutePath() + ".bak");
+
+                        // 기존 파일이 있으면 백업
+                        if (targetFile.exists()) {
+                            Files.copy(targetFile.toPath(), backupFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        }
+
+                        // 디렉토리 없으면 생성
+                        File parentDir = targetFile.getParentFile();
+                        if (!parentDir.exists()) {
+                            parentDir.mkdirs();
+                        }
+
+                        // 덮어쓰기 저장
+                        profileImage.transferTo(targetFile);
+                        System.out.println("프로필 이미지 덮어쓰기 완료: " + savePath.toString());
+                    }
+                }
+            }
+
+            userInfo.setAddress(user.getAddress());
+            userInfo.setZipcode(user.getZipcode());
+            userInfo.setAddressDetail(user.getAddressDetail());
+            userInfo.setUsername(user.getUsername());
+            userInfo.setInfoText(user.getInfoText());
+
+            authService.saveUser(userInfo);
+
+            // 성공하면 백업 파일 삭제
+            if(backupFile != null && backupFile.exists()){
+                backupFile.delete();
+            }
+
+            return ResponseEntity.ok("editInfoOk");
+        } catch (Exception e) {
+            // 실패 시 백업이미지 복구
+            try{
+                if(backupFile != null && backupFile.exists()) {
+                    String restorePath = backupFile.getAbsolutePath().replace(".bak", "");
+                    Files.move(backupFile.toPath(), Paths.get(restorePath), StandardCopyOption.REPLACE_EXISTING);
+                }
+            } catch (IOException ioException){
+                ioException.printStackTrace();
+            }
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("회원정보 수정 실패: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/pwdCheck")
+    public ResponseEntity<String> pwdCheck(@AuthenticationPrincipal UserDetails userDetails, @RequestBody UserPwdModDto userPwdModDto){
+        System.out.println(userPwdModDto.toString()); // 현재 아이디, 확인할 현재 비밀번호, 수정할 비밀번호
+
+        User user = new User();
+        user.setId(userPwdModDto.getUserId());
+        Optional<User> selectUser = service.selectUserInfo(user); // 현재 아이디값으로 사용자 정보 불러오기
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        if(encoder.matches(userPwdModDto.getCurrentUserPw(), selectUser.get().getUserpw())){ // 비밀번호가 같을때
+            return  ResponseEntity.ok("pwdCheckOk");
+        }else{ // 비밀번호가 다를때
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("pwdCheckFail");
+        }
+
+    }
+
+    @PostMapping("/pwdEdit")
+    public ResponseEntity<String> pwdEdit(@AuthenticationPrincipal UserDetails userDetails, @RequestBody UserPwdModDto userPwdModDto){
+        System.out.println(userPwdModDto.toString());
+
+        User updated_user = interactService.selectUserByName(userDetails.getUsername());
+
+        // 비밀번호 암호화
+        String encryptedPw = passwordEncoder.encode(userPwdModDto.getModUserPw());
+        updated_user.setUserpw(encryptedPw);
+
+        authService.saveUser(updated_user); // 비밀번호 수정
+
+        return  ResponseEntity.ok("pwdEditOk");
+    }
+
+    @GetMapping("/deleteAddr")
+    public ResponseEntity<String> deleteAddr(@RequestParam("id") Long addressId){
+
+        Optional<Address> address = service.selectUserAddress(addressId);
+        address.get().setAddressState(AddressState.DELETED); // active에서 deleted 상태 변경
+
+        service.updateAddressState(address.get());
+
+        return ResponseEntity.ok("deleteAddrOk");
     }
 }

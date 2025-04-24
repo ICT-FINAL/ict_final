@@ -1,8 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { FaHeart, FaShoppingCart, FaTimes, FaRocketchat, FaStar } from "react-icons/fa";
+import { FaHeart, FaShoppingCart, FaBell, FaTimes, FaRocketchat, FaStar } from "react-icons/fa";
 import { setLoginView } from "../../store/loginSlice";
+import { setModal } from "../../store/modalSlice";
 
 import axios from "axios";
 import ProductReview from './ProductReview';
@@ -29,13 +30,17 @@ function ProductInfo() {
     const dispatch = useDispatch();
 
     useEffect(() => {
+        const headers = user?.token
+        ? { Authorization: `Bearer ${user.token}` }
+        : {};
         axios.get(`${serverIP.ip}/product/getOption?id=${loc.state.product.id}`, {
+            headers
         })
-            .then(res => {
-                setTotalQuantity(res.data[0].product.quantity);
-                setOptions(res.data);
-            })
-            .catch(err => console.log(err));
+        .then(res => {
+            setTotalQuantity(res.data[0].product.quantity);
+            setOptions(res.data);
+        })
+        .catch(err => console.log(err));
         getWish();
     }, []);
 
@@ -43,20 +48,20 @@ function ProductInfo() {
     const [averageStar, setAverageStar] = useState(null);
     useEffect(() => {
         axios.get(`${serverIP.ip}/review/averageStar?productId=${loc.state.product.id}`)
-        .then(res => {
-            console.log(res.data); 
-            setAverageStar(res.data.average);
-        })
-        .catch(err => console.log(err));
+            .then(res => {
+                console.log(res.data);
+                setAverageStar(res.data.average);
+            })
+            .catch(err => console.log(err));
     }, []);
 
     // 별점 UI 렌더링 함수
     const renderStars = (average) => {
         return (
-            <div style={{ display: 'flex', gap: '1px'}}>
+            <div style={{ display: 'flex', gap: '1px' }}>
                 {[1, 2, 3, 4, 5].map((star) => {
                     let fillPercent = 0;
-    
+
                     const diff = average - (star - 1);
                     if (diff >= 1) {
                         fillPercent = 100;
@@ -65,11 +70,11 @@ function ProductInfo() {
                     } else {
                         fillPercent = 0;
                     }
-    
+
                     return (
-                        <span key={star} style={{ position: 'relative', width: '20px', height: '20px', fontSize: '20px', display: 'inline-block'}}>
-                            <FaStar style={{ color: '#C0C0C0', position: 'absolute', top: 0, left: 0, fontSize: '20px',}}
-/>
+                        <span key={star} style={{ position: 'relative', width: '20px', height: '20px', fontSize: '20px', display: 'inline-block' }}>
+                            <FaStar style={{ color: '#C0C0C0', position: 'absolute', top: 0, left: 0, fontSize: '20px', }}
+                            />
                             <div
                                 style={{
                                     position: 'absolute',
@@ -80,7 +85,7 @@ function ProductInfo() {
                                     height: '100%',
                                 }}
                             >
-                                <FaStar style={{ color: '#FFD700', fontSize: '20px' }} />
+                                <FaStar style={{verticalAlign: 'top', color: '#FFD700', fontSize: '20px' }} />
                             </div>
                         </span>
                     );
@@ -88,7 +93,7 @@ function ProductInfo() {
             </div>
         );
     };
-    
+
     useEffect(() => {
         let newTotalPrice = 0;
         selectedItems.forEach(item => {
@@ -227,40 +232,45 @@ function ProductInfo() {
     const handleSubOptionChange = (e) => {
         setSelectedSubOptionId(e.target.value);
         setQuantity(1);
+        setTimeout(() => {
+            handleAddItem(e.target.value);
+        }, 0);
     };
 
-    const handleAddItem = () => {
+    const handleAddItem = (overrideSubOptionId = null) => {
         if (!selectedOptionId) {
             alert("대분류를 선택해주세요.");
             return;
         }
+    
         const selectedOption = options.find(opt => opt.id == selectedOptionId);
+        const actualSubOptionId = overrideSubOptionId ?? selectedSubOptionId;
         let selectedSubOption = null;
-        if (selectedSubOptionId) {
-            selectedSubOption = subOptions.find(subOpt => subOpt.id == selectedSubOptionId);
+    
+        if (actualSubOptionId) {
+            selectedSubOption = subOptions.find(subOpt => subOpt.id == actualSubOptionId);
         }
-
+    
         if (selectedSubOption && Number(quantity) > selectedSubOption.quantity) {
             alert(`선택한 소분류의 재고가 부족합니다. (현재 재고: ${selectedSubOption.quantity})`);
             return;
         }
-
+    
         const existingItemIndex = selectedItems.findIndex(item => {
-            const subOptionMatch = (selectedSubOptionId === "" && item.subOption === null) ||
-                (item.subOption && String(item.subOption.id) === String(selectedSubOptionId));
+            const subOptionMatch = (actualSubOptionId === "" && item.subOption === null) ||
+                (item.subOption && String(item.subOption.id) === String(actualSubOptionId));
             return String(item.option.id) === String(selectedOptionId) && subOptionMatch;
         });
-
+    
         if (existingItemIndex > -1) {
-            //동일 옵션 있으면 수량 +
             const existingItem = selectedItems[existingItemIndex];
             const newQuantity = Number(existingItem.quantity) + Number(quantity);
-
+    
             if (selectedSubOption && newQuantity > selectedSubOption.quantity) {
                 alert(`선택한 소분류의 최대 수량을 초과할 수 없습니다. (최대 재고: ${selectedSubOption.quantity})`);
                 return;
             }
-
+    
             const updatedItems = selectedItems.map((item, index) =>
                 index === existingItemIndex
                     ? { ...item, quantity: newQuantity }
@@ -268,20 +278,21 @@ function ProductInfo() {
             );
             setSelectedItems(updatedItems);
         } else {
-            const newItem = {   //동일 옵션 아닐때
+            const newItem = {
                 option: selectedOption,
                 subOption: selectedSubOption,
                 quantity: Number(quantity)
             };
             setSelectedItems([...selectedItems, newItem]);
         }
-
+    
         setSelectedOptionId("");
         setSelectedSubOptionId("");
         setSubOptions([]);
         setQuantity(1);
         setIsSubOptionRegistered(true);
     };
+    
 
     const removeItem = (index) => {
         const newItems = [...selectedItems];
@@ -306,22 +317,26 @@ function ProductInfo() {
         setSelectedItems(updatedItems);
     };
 
-
-    const inquiry = ()=>{
+    const inquiry = () => {
         axios.get(`${serverIP.ip}/chat/createChatRoom?productId=${loc.state.product.id}`, {
             headers: { Authorization: `Bearer ${user.token}` }
         })
-        .then(res=>{
-            console.log("roomId", res.data);
-            navigate(`/product/chat/${res.data}`)
-        })
+            .then(res => {
+                console.log("roomId", res.data);
+                navigate(`/product/chat/${res.data}`)
+            })
     }
+
+    const openMessage = (wh, name) => {
+        dispatch(setModal({ selected: wh, isOpen: true, selectedItem: name }));
+
+    };
 
     // changMenu 상태 추가 (상세정보, 리뷰 등등 탭에 들어갈 메뉴들)
     const [changeMenu, setChangeMenu] = useState("detail");
-    useEffect(()=>{
+    useEffect(() => {
         const savedMenu = localStorage.getItem("changeMenu");
-        if(savedMenu){
+        if (savedMenu) {
             setChangeMenu(savedMenu);
             localStorage.removeItem("changeMenu");
         }
@@ -331,12 +346,12 @@ function ProductInfo() {
         setChangeMenu(menuName);
         localStorage.setItem("changeMenu", menuName); // 현재 메뉴 저장
     };
-    
+
     return (
         <>
             <div style={{ paddingTop: "140px" }}>
 
-                <div className="product-info-container">
+                <div className="product-info-container" style={{minWidth:'1000px'}}>
                     <div className="product-info-left">
                         <img
                             id="product-big-img"
@@ -384,7 +399,7 @@ function ProductInfo() {
                         <ul>
                             <li style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div className='product-profile-box'>
-                                    <img id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' src={loc.state.product.sellerNo.uploadedProfileUrl ? `${serverIP.ip}${loc.state.product.sellerNo.uploadedProfileUrl}` : `${loc.state.product.sellerNo.profileImageUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
+                                    <img id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' src={loc.state.product.sellerNo.uploadedProfileUrl ? `${serverIP.ip}${loc.state.product.sellerNo.uploadedProfileUrl}` : `${serverIP.ip}${loc.state.product.sellerNo.profileImageUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
                                     <div id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{loc.state.product.sellerNo.username} &gt;</div>
                                 </div>
                                 {/* 평균 별점 */}
@@ -412,24 +427,25 @@ function ProductInfo() {
                                 <div className='product-info-name'>
                                     {loc.state.product.productName}
                                 </div>
-                                {user && user.user.id !== loc.state.product.sellerNo.id &&
-                                <div className='product-wish'>
-                                    {!isWish ? (
-                                        <div className="wishlist-icon" onClick={() => { addWish() }}>
-                                            <FaHeart />
-                                            <span>좋아요</span>
+                                {user.user.id !== loc.state.product.sellerNo.id &&
+                                    <div className='product-wish'>
+                                        {!isWish ? (
+                                            <div className="wishlist-icon" onClick={() => { addWish() }}>
+                                                <FaHeart />
+                                                <span>좋아요</span>
+                                            </div>
+                                        ) : (
+                                            <div className="wishlist-icon" onClick={() => { delWish() }} style={{ color: 'rgb(255, 70, 70)' }}>
+                                                <FaHeart />
+                                                <span>좋아요</span>
+                                            </div>
+                                        )}
+                                        <div className="inquiry-icon" onClick={() => { inquiry() }}>
+                                            <FaRocketchat />
+                                            <span>문의하기</span>
                                         </div>
-                                    ) : (
-                                        <div className="wishlist-icon" onClick={() => { delWish() }} style={{ color: 'rgb(255, 70, 70)' }}>
-                                            <FaHeart />
-                                            <span>좋아요</span>
-                                        </div>
-                                    )}
-                                    <div className="inquiry-icon" onClick={() => { inquiry() }}>
-                                        <FaRocketchat />
-                                        <span>문의하기</span>
-                                    </div>
-                                </div>}
+
+                                    </div>}
                             </li>
                             <li>
                                 <ul className='product-info-main-box'>
@@ -475,11 +491,6 @@ function ProductInfo() {
                                                             </option>
                                                         ))}
                                                 </select>
-                                                {selectedSubOptionId.length > 0 && (
-                                                    <button type="button" className="product-select-button" onClick={handleAddItem}>
-                                                        선택
-                                                    </button>
-                                                )}
                                             </>
                                         )}
                                     </li>
@@ -595,7 +606,7 @@ function ProductInfo() {
                                     <strong>총 금액:</strong> {formatNumberWithCommas(totalPrice)}원
                                 </div>
                             </li>
-                            <li style={{display:'flex', justifyContent: 'space-between'}}>
+                            <li style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <button className='product-basket-button' onClick={() => addBasket()}>
                                     장바구니
                                 </button>
@@ -626,10 +637,28 @@ function ProductInfo() {
                         {changeMenu === "detail" &&
                             <>
                                 {loc.state.product.detail ? (
-                                    <div dangerouslySetInnerHTML={{ __html: loc.state.product.detail }} style={{marginTop:'30px'}}/>
+                                    <div dangerouslySetInnerHTML={{ __html: loc.state.product.detail }} style={{ marginTop: '30px' }} />
                                 ) : (
                                     <p>등록된 상세 정보가 없습니다.</p>
                                 )}
+                                <div className="bell-icon" onClick={() => { openMessage('report', loc.state.product) }}
+                                    style={{
+                                        position: 'fixed',
+                                        right: '20px',
+                                        bottom: '20px',
+                                        zIndex: 100,
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        backgroundColor: 'white',
+                                        padding: '8px',
+                                        borderRadius: '5px',
+                                        border: '1px solid #ccc',
+                                    }}
+                                >
+                                    <FaBell />
+                                    <span>상품신고</span>
+                                </div>
                             </>
                         }
 

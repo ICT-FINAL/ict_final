@@ -37,7 +37,7 @@ function AdminEdit() {
                 params: { page, keyword, authority },
                 headers: { Authorization: `Bearer ${user.token}` },
             });
-            console.log("보내는 데이터!!!", searchWord, category);
+            //console.log("보내는 데이터!!!", searchWord, category);
             setUsers(res.data.users);
             setTotalCount(res.data.totalCount);
             setSelectedCount(res.data.selectedCount);
@@ -77,6 +77,48 @@ function AdminEdit() {
         });
     };
 
+    const handleBanToggle = async (userId, currentAuthority) => {
+        let confirmationMessage;
+        let newAuthority;
+        if (currentAuthority === 'ROLE_ADMIN') {
+            newAuthority = 'ROLE_ADMIN';
+            alert('관리자입니다.');
+            return;
+        } else if (currentAuthority === 'ROLE_USER') {
+            newAuthority = 'ROLE_BANNED';
+            confirmationMessage = `정말로 사용자 '${userId}' 를 차단하시겠습니까?`;
+        } else {
+            newAuthority = 'ROLE_USER';
+            confirmationMessage = `정말로 사용자 '${userId}' 의 차단을 해제하시겠습니까?`;
+        }
+
+        if (window.confirm(confirmationMessage)) {
+            try {
+                await axios.post(`${serverIP.ip}/admin/banUser`,
+                    { userid: userId, authority: newAuthority },
+                    { headers: { Authorization: `Bearer ${user.token}` } }
+                );
+                fetchUsers({ page: nowPage.readable, keyword: searchWord, authority: category });
+            } catch (error) {
+                console.error("사용자 상태 변경 실패", error);
+                alert("사용자 상태 변경에 실패했습니다.");
+            }
+        }
+    };
+
+    function getSortText(sortValue) {
+        switch (sortValue) {
+            case 'ROLE_ADMIN':
+                return '관리자';
+            case 'ROLE_USER':
+                return '사용자';
+            case 'ROLE_BANNED':
+                return '정지중';
+            default:
+                return sortValue;
+        }
+    }
+
     return (
         <div style={{ paddingLeft: "10px" }}>
             <div className="report-box">
@@ -93,7 +135,7 @@ function AdminEdit() {
                             <option value="전체">전체</option>
                             <option value="관리자">관리자</option>
                             <option value="사용자">사용자</option>
-                            <option value="사용 정지">사용 정지(아직안됨)</option>
+                            <option value="정지중">정지중</option>
                             <option value="탈퇴">탈퇴(아직안됨)</option>
                             <option value="강퇴">강퇴(아직안됨)</option>
                         </select>
@@ -115,17 +157,21 @@ function AdminEdit() {
                     <li>아이디</li>
                     <li>이름</li>
                     <li>주소</li>
-                    <li>전화 번호</li>
+                    <li>전화번호</li>
+                    <li></li>
                 </ul>
 
                 {users.map((user, idx) => (
                     <ul key={user.id} className="admin-user-list">
                         <li>{idx + 1}</li>
-                        <li>{user.authority}</li>
+                        <li>{getSortText(user.authority)}</li>
                         <li>{user.userid}</li>
-                        <li>{user.username}</li>
-                        <li>{user.address}</li>
-                        <li>{user.tel}</li>
+                        <li className='message-who' id={`mgx-${user.id}`} style={{ cursor: 'pointer' }}>{user.username}</li>
+                        <li>{(user.address) ? (user.address) : "-"}</li>
+                        <li>{(user.tel) ? (user.tel) : "-"}</li>
+                        <li><button style={{ height: '30px', width: '65px' }}
+                            onClick={() => handleBanToggle(user.userid, user.authority)}>
+                            {(user.authority == "ROLE_ADMIN") ? "관리자" : (user.authority == "ROLE_USER") ? "사용정지" : "정지해제"}</button></li>
                     </ul>
                 ))}
 

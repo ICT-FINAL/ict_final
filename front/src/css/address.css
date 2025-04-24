@@ -1,20 +1,16 @@
-.address-form {
-    padding: 20px;
-    border-radius: 8px;
-}
-
 .address-form h3 {
     font-size: 1.5rem;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     color: #333;
 }
 
 .address-form .input-field {
     width: 100%;
-    padding: 8px;
+    padding: 4px 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 1rem;
+    font-family: 'EliceDigitalBaeum';
 }
 
 .address-form .form-grid {
@@ -22,6 +18,7 @@
     grid-template-columns: 1fr 2fr;
     gap: 15px;
     margin-bottom: 15px;
+    font-family: 'EliceDigitalBaeum';
 }
 
 .address-form label {
@@ -32,7 +29,7 @@
 }
 
 .address-button-container button {
-    background-color: #8CC7A5;
+    background-color: #222;
     color: #fff;
     border: none;
     padding: 10px 15px;
@@ -43,28 +40,30 @@
 }
 
 .address-form .button:hover {
-    background-color: #4a7b63;
+    background-color: #444;
     transition: background-color 0.3s ease;
 }
 
 .address-form .cancel-button {
-    background-color: #f44336;
+    background-color: #c94946;
 }
 
 .address-form .cancel-button:hover {
-    background-color: #c1351d;
+    background-color: #d36b69;
+    transition: background-color 0.3s ease;
 }
 
 .address-form .address-select {
     width: 100%;
-    padding: 8px;
-    margin: 8px 0;
+    padding: 4px 8px;
+    margin: 10px 0;
     border-radius: 4px;
     font-size: 1rem;
+    font-family: 'EliceDigitalBaeum';
 }
 
 .address-form .add-address-button {
-    background-color: #8CC7A5;
+    background-color: #222;
     color: #fff;
     padding: 8px 12px;
     border-radius: 4px;
@@ -73,7 +72,7 @@
 }
 
 .address-form .add-address-button:hover {
-    background-color: #4a7b63;
+    background-color: #444;
     transition: background-color 0.3s ease;
 }
 
@@ -83,7 +82,7 @@
 }
 
 .address-form .zipcode-search-button {
-    background-color: #8CC7A5;
+    background-color: #222;
     color: white;
     padding: 8px 12px;
     border-radius: 4px;
@@ -92,7 +91,7 @@
 }
 
 .address-form .zipcode-search-button:hover {
-    background-color: #4a7b63;
+    background-color: #444;
     transition: background-color 0.3s ease;
 }
 
@@ -106,9 +105,10 @@
 }
 
 .address-form .zipcode-wrapper {
+    width: 95%;
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 10px;
 }
 
 .address-form .zipcode-input {
@@ -120,12 +120,12 @@
     border-radius: 4px;
     cursor: pointer;
     border: none;
-    background-color: #8CC7A5;
+    background-color: #222;
     color: white;
 }
 
 .address-form .zipcode-search-button:hover {
-    background-color: #4a7b63;
+    background-color: #444;
     transition: background-color 0.3s ease;
 }
 
@@ -181,3 +181,45 @@
   }
 
 /* 결제성공끝 */
+
+/* 배송지 관리 */
+.address-box{
+    padding:0 10px;
+    margin:0;
+}
+
+.mypage-address-list{
+    list-style-type: none;
+    display: flex;
+    margin:0;
+    padding:10px;
+    margin-top:10px;
+}
+
+.mypage-address-list > li{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.mypage-address-list > li:nth-child(1) {
+    width: 5%;
+}
+.mypage-address-list > li:nth-child(2) {
+    width: 10%;
+}
+.mypage-address-list > li:nth-child(3) {
+    width: 30%;
+}
+.mypage-address-list > li:nth-child(4) {
+    width: 20%;
+}
+.mypage-address-list > li:nth-child(5) {
+    width: 20%;
+}
+.mypage-address-list > li:nth-child(6) {
+    width: 10%;
+}
+.mypage-address-list > li:nth-child(7) {
+    width: 5%;
+}
