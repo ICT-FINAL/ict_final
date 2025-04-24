@@ -163,16 +163,41 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
     public List<CategorySalesDTO> getSalesByCategory() {
+        // Step 1: 수량 기반 집계는 그대로 사용
         List<Object[]> raw = orderRepository.getSalesDataByCategory();
-        return raw.stream()
-                .map(row -> new CategorySalesDTO(
+        Map<String, CategorySalesDTO> categoryMap = raw.stream().collect(Collectors.toMap(
+                row -> (String) row[0],
+                row -> new CategorySalesDTO(
                         (String) row[0],
                         ((Number) row[1]).longValue(),
-                        ((Number) row[2]).longValue()
-                ))
-                .collect(Collectors.toList());
-    }
+                        0L // totalRevenue는 아래에서 채움
+                )
+        ));
 
+        // Step 2: 환불 반영된 매출을 카테고리별로 집계
+        List<OrderGroup> paidGroups = order_group_repo.findAllByStateIn(
+                List.of(OrderState.PAID, OrderState.PARTRETURNED)
+        );
+
+        for (OrderGroup group : paidGroups) {
+            int validPrice = group.getTotalPrice() - group.getCancelAmount();
+
+            // 이 그룹의 상품이 어떤 카테고리인지 추출
+            List<Orders> orders = group.getOrders();
+            if (orders.isEmpty()) continue;
+
+            // 하나의 카테고리만 존재한다고 가정
+            String category = orders.get(0).getProduct().getProductCategory();
+
+            // 해당 카테고리에 validPrice를 더함
+            categoryMap.computeIfPresent(category, (k, dto) -> {
+                dto.setTotalRevenue(dto.getTotalRevenue() + validPrice);
+                return dto;
+            });
+        }
+
+        return new ArrayList<>(categoryMap.values());
+    }
     public List<CategorySalesDTO> getSalesByEventCategory() {
         return toDTO(orderRepository.getSalesByEventCategory());
     }
