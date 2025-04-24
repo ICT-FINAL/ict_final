@@ -12,6 +12,7 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import HotProduct from "./product/HotProduct";
 import RAWProduct from "./product/RAWProduct";
+import PopProduct from "./product/PopProduct";
 
 function Main() {
     const [activeTab, setActiveTab] = useState("ongoing");
@@ -27,20 +28,6 @@ function Main() {
     const user = useSelector((state) => state.auth.user);
     const navigate = useNavigate();
     const [event_list, setEvent_list] = useState([]);
-
-    function testfunc() {
-        if (user)
-            axios.get(`${serverIP.ip}/test`, {
-                headers: { Authorization: `Bearer ${user.token}` }, //유저 정보 백에서 쓰고싶으면 이거 넘기기
-            })
-                .then((res) => console.log(res.data))
-                .catch((err) => console.log(err));
-    }
-
-    function handleLogout() {
-        localStorage.removeItem("token");
-        dispatch(clearUser());
-    }
 
     const moveToEvent = (tar) => {
         if (tar.state === 'NOCOUPON') {
@@ -129,23 +116,6 @@ function Main() {
 
     const allSubMenus = activeTab === "ongoing" ? ongoingSubMenus : endedSubMenus;
 
-    const handlePrevMonth = () => {
-        if (currentMonth === 1) {
-            setCurrentMonth(12);
-            setCurrentYear(prev => prev - 1);
-        } else {
-            setCurrentMonth(prev => prev - 1);
-        }
-    };
-
-    const handleNextMonth = () => {
-        if (currentMonth === 12) {
-            setCurrentMonth(1);
-            setCurrentYear(prev => prev + 1);
-        } else {
-            setCurrentMonth(prev => prev + 1);
-        }
-    };
 
     const filteredSubMenus = allSubMenus.filter((submenu) => {
         const subMenuStart = new Date(submenu.startDate);
@@ -175,15 +145,6 @@ function Main() {
 
     const moveSubMenu = (tar) => {
         console.log(tar.subMenuCategory);
-        /*
-        axios.get(`${serverIP.ip}/submenu/move`)
-        .then(res => {
-            console.log(res.data)
-        })
-        .catch(err => {
-            console.log(err);
-        })
-            */
         const str = tar.subMenuCategory;
 
         const result = [];
@@ -213,8 +174,8 @@ function Main() {
 
     const { ref: hotRef, inView: isHotInView } = useInView({
         triggerOnce: true,
-        threshold: 0.2,
-        rootMargin: "0px 0px -200px 0px"
+        threshold: 0.15,
+        rootMargin: "0px 0px -350px 0px"
     });
 
     const [hasAnimated, setHasAnimated] = useState(false);
@@ -249,6 +210,19 @@ function Main() {
             setRawAnimated(true);
         }
     }, [rawInView, rawAnimated]);
+
+    const { ref: popRef, inView: popInView } = useInView({
+        triggerOnce: true,
+        threshold: 0.2,
+        rootMargin: "0px 0px -200px 0px"
+    });
+    const [popAnimated, setPopAnimated] = useState(false);
+    
+    useEffect(() => {
+        if (popInView && !popAnimated) {
+            setPopAnimated(true);
+        }
+    }, [popInView, popAnimated]);
 
 
     return (
@@ -311,7 +285,7 @@ function Main() {
             </p>
             </div>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', textAlign: 'center', justifyContent: 'center', margin: 'auto', width:'800px' }} >
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', textAlign: 'center', justifyContent: 'center', margin: 'auto', width:'800px',marginBottom:'150px' }} >
                 {visibleList.length > 0 ? (
                     visibleList.map((submenu) => (
                         <div onClick={() => moveSubMenu(submenu)} key={submenu.id}
@@ -330,6 +304,7 @@ function Main() {
                 initial="hidden"
                 animate={hasAnimated ? 'visible' : 'hidden'}
                 variants={fadeUp}
+                style={{marginBottom:'150px'}}
             >
                 <HotProduct/>
             </motion.div>
@@ -339,35 +314,20 @@ function Main() {
                 initial="hidden"
                 animate={rawAnimated ? 'visible' : 'hidden'}
                 variants={fadeUp}
+                style={{marginBottom:'150px'}}
             >
                 <RAWProduct/>
             </motion.div>
-            <div style={{
-                width:'70%',
-                margin:'auto',
-                textAlign: 'center',
-                marginTop: '80px',
-                marginBottom: '60px',
-                padding: '40px 20px',
-                fontFamily:'Pretendard, san-serif',
-                minWidth: '1200px',
-                maxWidth: '1600px'
-            }}>
-            <h2 style={{
-                fontSize: '32px',
-                color: '#222',
-                fontWeight: '700',
-                marginBottom: '15px',
-                letterSpacing: '-0.5px'
-            }}>
-                이 달의 MIMYO 인기 작가💕💕 
-            </h2>
-            <p style={{ fontSize: '18px', color: '#666', marginTop: '10px' }}>
-                손끝에서 피어나는 감성,
-                <span style={{ fontWeight: '600', color: '#8CC7A5' }}>
-                이번 달 가장 주목받는 MIMYO 작가</span>들을 소개합니다 🌿
-            </p>
-            </div>
+            <motion.div
+                className='hot-product-container'
+                ref={popRef}
+                initial="hidden"
+                animate={popAnimated ? 'visible' : 'hidden'}
+                variants={fadeUp}
+                style={{marginBottom:'150px'}}
+            >
+                <PopProduct/>
+            </motion.div>
         </div>
     );
 }

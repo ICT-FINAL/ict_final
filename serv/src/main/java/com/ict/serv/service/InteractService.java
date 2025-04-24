@@ -121,11 +121,11 @@ public class InteractService {
                 user.setGrade(1);
                 user_repo.save(user);
             }
-            else if(user.getGradePoint() >= 2000 && user.getGradePoint()<3000 && user.getGrade()==0) {
+            else if(user.getGradePoint() >= 2000 && user.getGradePoint()<3000 && user.getGrade()==1) {
                 user.setGrade(2);
                 user_repo.save(user);
             }
-            else if(user.getGradePoint() >= 3000 && user.getGradePoint()<4000 && user.getGrade()==0){
+            else if(user.getGradePoint() >= 3000 && user.getGradePoint()<4000 && user.getGrade()==2){
                 user.setGrade(3);
                 user_repo.save(user);
             }
