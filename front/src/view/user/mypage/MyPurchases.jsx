@@ -2,6 +2,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { setModal } from "../../../store/modalSlice";
 
 function MyPurchases() {
     const loc = useLocation();
@@ -16,10 +17,14 @@ function MyPurchases() {
 
     const [nowPage, setNowPage] = useState(1);
 
+    const modal = useSelector((state)=> state.modal);
+
     const [totalRecord, setTotalRecord] = useState(1);
 
     const [searchOption, setSearchOption] = useState('');
     const [shippingOption, setShippingOption] = useState('');
+
+    const dispatch = useDispatch();
 
     const moveInfo = (prodId) => {
         if(user)
@@ -34,10 +39,16 @@ function MyPurchases() {
 
     useEffect(() => {
         getBoardList();
+        window.scrollTo({ top: 0, behavior: "smooth" });
     }, [nowPage]);
 
     useEffect(() => {
         getBoardList();
+    }, [modal]);
+
+    useEffect(() => {
+        getBoardList();
+        window.scrollTo({ top: 0, behavior: "smooth" });
     }, [loc, searchOption, shippingOption]);
 
     const getBoardList = () => {
@@ -58,7 +69,6 @@ function MyPurchases() {
                     setOrder(res.data.orderList);
                     setNowPage(res.data.pvo.nowPage);
                     setTotalRecord(res.data.pvo.totalRecord);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
                 })
                 .catch(err => console.log(err));
     };
@@ -67,7 +77,6 @@ function MyPurchases() {
         return num.toLocaleString();
     }
 
-    // 상태에 맞는 텍스트와 색상을 반환하는 함수
     const getStateLabel = (state) => {
         switch (state) {
             case 'BEFORE':
@@ -104,21 +113,7 @@ function MyPurchases() {
 
     const refundOrder = (orderId) => {
         if (user) {
-            const isConfirmed = window.confirm("정말로 환불 하시겠습니까?");
-            if (!isConfirmed) return;
-            axios.get(`${serverIP.ip}/order/refundOrder?orderId=${orderId}`, {
-                headers: { Authorization: `Bearer ${user.token}` }
-            })
-            .then(res => {
-                if(res.data === "ok"){
-                    window.alert("정상 환불 처리되었습니다.");
-                    getBoardList();
-                }
-            })
-            .catch(err => {
-                console.log(err);
-                alert('오류가 발생했습니다.');
-            });
+            dispatch(setModal({...modal, isOpen:true, selected:'refund',selectedItem:orderId}));
         }
     };
 

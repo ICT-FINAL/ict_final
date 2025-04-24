@@ -173,7 +173,6 @@ public class ProductController {
 
     @GetMapping("/getList/byCategory")
     public List<Product> byCategory(String category) {
-        System.out.println(category);
         List<String> categories = new ArrayList<>();
         categories.add(category);
 

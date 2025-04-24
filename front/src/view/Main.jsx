@@ -282,7 +282,7 @@ function Main() {
                 maxWidth:'1600px',
                 margin:'auto',
                 textAlign: 'center',
-                marginTop: '80px',
+                marginTop: '0px',
                 marginBottom: '60px',
                 padding: '40px 20px',
                 borderBottom:'1px solid #e0dcd5',
@@ -321,7 +321,7 @@ function Main() {
                         </div>
                     ))
                 ) : (
-                    <div className="no-events">📌 해당 월에는 서브메뉴가 없습니다.</div>
+                    <></>
                 )}
             </div>
             <motion.div

@@ -80,6 +80,7 @@ import Item from './Item';
 import { setLoginView } from '../store/loginSlice';
 import AuctionPaymentSuccess from './product/AuctionPaymentSuccess';
 import NaverSignupHandler from './user/NaverSignupHandler';
+import RefundModal from '../modal/RefundModal';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -197,6 +198,7 @@ function Body() {
     {modal.isOpen && modal.selected == 'categorymodal' && <CategoryModal />}
     {modal.isOpen && modal.selected == 'inquiry-box' && <InquiryModal />}
     {modal.isOpen && modal.selected == 'shipping' && <ShippingModal />}
+    {modal.isOpen && modal.selected == 'refund' && <RefundModal />}
     {interact.isOpen && <Interact />}
     {modal.isOpen && modal.selected.indexOf('delll') !== -1 && <DeleteModal />}
     <Routes>
