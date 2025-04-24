@@ -352,7 +352,8 @@ function AuctionRoom() {
                                             </div>
                                             <div>
                                                 { item.state=='SUCCESS' && <div className='auc-stat' style={{backgroundColor:'#FFD700'}}>최종 입찰자</div>}
-                                                { item.state=='LIVE' && item.state!='SUCCESS' ? <div className='auc-stat' style={{backgroundColor:'#FFD700'}}>최고 입찰자</div>:<div style={{backgroundColor:'#9E9E9E', color:'white'}} className='auc-stat'>유찰됨</div> } 
+                                                { item.state=='LIVE' && <div className='auc-stat' style={{backgroundColor:'#FFD700'}}>최고 입찰자</div> } 
+                                                { item.state=='DEAD' && <div style={{backgroundColor:'#9E9E9E', color:'white'}} className='auc-stat'>유찰됨</div>}
                                                 { formatDateTime(item.bidTime)} &nbsp;&nbsp;&nbsp; <span style={{fontWeight:'bold', fontSize:'19px'}}>{formatNumberWithCommas(item.price)}₩</span>
                                             </div>
                                         </li>)
