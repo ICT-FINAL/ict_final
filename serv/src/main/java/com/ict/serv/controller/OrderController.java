@@ -113,7 +113,7 @@ public class OrderController {
             order.setOrderGroup(orderGroup);
             order.setStartDate(now);
             order.setOrderItems(new ArrayList<>());
-            order.setShippingState(ShippingState.BEFORE);
+            order.setShippingState(ShippingState.PAID);
             int orderTotal = 0;
 
             for (OrderRequestDto ord : orderDtos) {

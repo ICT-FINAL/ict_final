@@ -24,10 +24,15 @@ public class ChatMessage {
     @JoinColumn(name="sender")
     private User sender;
 
+    @ManyToOne
+    @JoinColumn(name="receiver")
+    private User receiver;
+
     private String message;
 
     private LocalDateTime sendTime;
 
+    @Column(name = "is_read")
     private boolean isRead = false;
 
     @ManyToOne
