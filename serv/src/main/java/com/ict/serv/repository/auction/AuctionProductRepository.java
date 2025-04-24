@@ -2,6 +2,7 @@ package com.ict.serv.repository.auction;
 
 
 import com.ict.serv.entity.auction.AuctionProduct;
+import com.ict.serv.entity.user.User;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -63,4 +64,6 @@ public interface AuctionProductRepository extends JpaRepository<AuctionProduct, 
     List<AuctionProduct> findAuctionProductsNoCategory(@Param("keyword") String keyword,
                                                        @Param("eventCategory") String eventCategory,
                                                        @Param("targetCategory") String targetCategory, PageRequest of);
+
+    List<AuctionProduct> findAllBySellerNo(User user);
 }

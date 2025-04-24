@@ -21,6 +21,7 @@ import MyBid from "./MyBid";
 import MyActivity from "./MyActivity";
 import MyOrder from "./MyOrder";
 import MyCoupon from "./MyCoupon";
+import MyPoint from "./MyPoint";
 
 function MyIndex(){
     const location = useLocation();
@@ -115,6 +116,7 @@ useEffect(() => {
                     { path.l_name == '활동 통계' && <MyActivity/> }
                     { path.l_name == '구매 통계' && <MyOrder/> }
                     { path.l_name == '쿠폰함' && <MyCoupon/> }
+                    { path.l_name == '적립 내역' && <MyPoint/> }
                 </div>
             </div>
         </>

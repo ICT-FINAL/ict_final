@@ -161,6 +161,7 @@ function ProductBuy() {
     const orderId = new Date().getTime();
     const tossPayments = window.TossPayments("test_ck_BX7zk2yd8ynK1JyQvDgL3x9POLqK");
     if(isAuction) {
+      console.log(location.state.product.id);
       axios.post(`${serverIP.ip}/order/setAuctionOrder`, {
         productId: location.state.product.id,
         addrId: selAddrId,
@@ -185,7 +186,7 @@ function ProductBuy() {
             })
             .catch(error => {
               console.error("결제 실패:", error);
-              axios.get(`${serverIP.ip}/order/auctionCancel?orderId=${res.data.id}`, {
+              axios.get(`${serverIP.ip}/order/cancel?orderGroupId=${res.data.id}`, {
                 headers: { Authorization: `Bearer ${user.token}` },
               }).catch(cancelErr => console.error("결제 취소 실패:", cancelErr));
               alert(`결제 실패: ${error.message}`);
@@ -211,6 +212,7 @@ function ProductBuy() {
       usedProductNos.add(item.productNo);
     });
 
+    
     axios.post(`${serverIP.ip}/order/setOrder`, {
       options: orderDetails,
       addrId: selAddrId,
@@ -235,7 +237,6 @@ function ProductBuy() {
               failUrl: `${window.location.origin}/payment/fail`,
             })
             .catch(error => {
-              console.error("결제 실패:", error);
               axios.get(`${serverIP.ip}/order/cancel?orderGroupId=${res.data.id}`, {
                 headers: { Authorization: `Bearer ${user.token}` },
               }).catch(cancelErr => console.error("결제 취소 실패:", cancelErr));
@@ -301,8 +302,8 @@ function ProductBuy() {
               <li>낙찰가</li>
             </ul>
             <ul className="buy-order-item" style={{gridTemplateColumns: '2fr 2fr 1fr'}}>
-              <li>{formatDateTime(location.state.bid.bidTime)}</li>
-              <li style={{textAlign: 'left'}}>{formatDateTime(location.state.bid.room.endTime)}</li>
+              <li></li>
+              <li style={{textAlign: 'left'}}></li>
               <li style={{fontWeight: 'bold'}}>₩{formatNumberWithCommas(location.state.totalPrice)}</li>
             </ul>
 
@@ -319,7 +320,6 @@ function ProductBuy() {
 
             <div style={{fontSize: '14pt', textAlign: 'center', margin: '30px 0'}}>🥳낙찰을 축하드립니다🎉</div>
             <div style={{color: '#333'}}><b>배송비</b><b style={{float:'right'}}>₩{formatNumberWithCommas(location.state.shippingFee)}</b></div>
-            <div style={{ color: '#d97c7a' }}><b>보증금</b><b style={{float:'right'}}>-₩{formatNumberWithCommas(location.state.selectedCoupon)}</b></div>
             <div className="final-price">총 결제 금액<b style={{float:'right'}}>₩{formatNumberWithCommas(totalPaymentAmount)}</b></div> 
           </div>}
         {orderItems.length > 0 && (

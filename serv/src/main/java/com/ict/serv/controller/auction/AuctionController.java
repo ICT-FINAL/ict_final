@@ -193,4 +193,8 @@ public class AuctionController {
         map.put("bidList", service.searchAuctionBid(user,pvo));
         return map;
     }
+    @GetMapping("/getRoomId")
+    public String getRoomId(Long productId) {
+        return service.getAuctionRoomByProduct(service.getAuctionProduct(productId));
+    }
 }

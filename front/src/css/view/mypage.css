@@ -634,4 +634,33 @@
     width:12%;
     text-align: center;
 }
+
+.mypage-point-list{
+    list-style-type: none;
+    display: flex;
+    margin:0 auto;
+    padding:10px;
+    margin-top:10px;
+    width:60%;
+    text-align: center;
+}
+
+.mypage-point-list > li{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.mypage-point-list > li:nth-child(1) {
+    width:33%;
+}
+
+.mypage-point-list > li:nth-child(2) {
+    width:33%
+}
+
+.mypage-point-list > li:nth-child(3) {
+    width:33%;
+    text-align: center;
+}
 /* 쿠폰 끝 */

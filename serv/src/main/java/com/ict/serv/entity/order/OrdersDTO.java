@@ -2,6 +2,7 @@ package com.ict.serv.entity.order;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.ict.serv.entity.auction.AuctionProduct;
 import com.ict.serv.entity.user.Address;
 import com.ict.serv.entity.user.User;
 import jakarta.persistence.*;
@@ -34,6 +35,10 @@ public class OrdersDTO {
     private List<OrderItem> orderItems = new ArrayList<>();
 
     private Long productId;
+
+    private AuctionProduct auctionProduct;
+
+    private int deposit;
 
     private String filename;
 

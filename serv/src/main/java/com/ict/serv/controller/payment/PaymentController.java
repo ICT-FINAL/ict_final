@@ -71,7 +71,7 @@ public class PaymentController {
                 msg.setUserFrom(userFrom);
                 msg.setUserTo(product.getSellerNo());
                 msg.setSubject("판매중인 물품 '" + product.getProductName() + "'이 판매되었습니다.");
-                msg.setComment("판매중인 물품 '" + product.getProductName() + "'이 판매되었습니다.\n<a href='/mypage/sales'>마이페이지 > 판매 내역</a>에서\n배송 처리를 완료해주세요.");
+                msg.setComment("판매중인 물품 '" + product.getProductName() + "'이 판매되었습니다.\n<a href='/mypage/sales'>마이페이지 > 판매 내역</a>에서 주문확인 및 배송 등록을 완료해주세요.");
                 interactService.sendMessage(msg);
             }
 
@@ -100,7 +100,9 @@ public class PaymentController {
                 }
                 productService.saveProduct(product);
             }
-            Long couponId = Long.valueOf(requestMap.get("couponId"));
+            Long couponId = 0L;
+            if(requestMap.get("couponId") != null)
+                couponId = Long.valueOf(requestMap.get("couponId"));
             if(couponId!=0) {
                 Coupon coupon = couponService.selectCoupon(couponId).get();
                 coupon.setState(CouponState.EXPIRED);
@@ -120,7 +122,8 @@ public class PaymentController {
         String paymentKey = requestMap.get("paymentKey");
         String orderId = requestMap.get("orderId");
         String iid = requestMap.get("iid");
-        AuctionOrder auctionOrder = orderService.selectAuctionOrder(Long.valueOf(iid)).get();
+        OrderGroup orderGroup = orderService.selectOrderGroup(Long.valueOf(iid)).get();
+        Orders auctionOrder = orderGroup.getOrders().get(0);
         int amount = Integer.parseInt(requestMap.get("amount"));
 
         HttpHeaders headers = new HttpHeaders();
@@ -140,9 +143,13 @@ public class PaymentController {
                     request,
                     String.class
             );
+            orderGroup.setState(OrderState.PAID);
+            orderGroup.setPaymentKey(paymentKey);
+            orderGroup.setOrderIdPg(orderId);
+            orderGroup.setPayDone(true);
+            orderGroup.setPaidAt(LocalDateTime.now());
 
-            auctionOrder.setState(OrderState.PAID);
-            AuctionProduct auctionProduct = auctionService.getAuctionProduct(auctionOrder.getAuctionProductId()).get();
+            AuctionProduct auctionProduct = auctionOrder.getAuctionProduct();
             AuctionRoom auctionRoom = auctionService.findAuctionRoomByAuctionProduct(auctionProduct).get(0);
             auctionProduct.setState(ProductState.SOLDOUT);
             auctionRoom.setState(AuctionState.CLOSED);

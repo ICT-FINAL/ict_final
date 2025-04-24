@@ -1,17 +1,16 @@
 package com.ict.serv.service;
 
+import com.ict.serv.entity.auction.AuctionProduct;
 import com.ict.serv.entity.order.*;
 import com.ict.serv.entity.product.HotCategoryDTO;
 import com.ict.serv.entity.sales.CategorySalesDTO;
 import com.ict.serv.entity.sales.SalesStatsDTO;
 import com.ict.serv.entity.user.User;
-import com.ict.serv.repository.order.AuctionOrderRepository;
-import com.ict.serv.repository.order.OrderGroupRepository;
-import com.ict.serv.repository.order.OrderItemRepository;
-import com.ict.serv.repository.order.OrderRepository;
+import com.ict.serv.repository.order.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,6 +23,7 @@ public class OrderService {
     private final OrderGroupRepository order_group_repo;
     private final AuctionOrderRepository auctionOrderRepository;
     private final OrderRepository orderRepository;
+    private final ShippingRepository shippingRepository;
 
     public Orders insertOrder(Orders orders) {
         return order_repo.save(orders);
@@ -73,6 +73,9 @@ public class OrderService {
 
     public List<Orders> getOrderByProduct(Long id) {
         return order_repo.findAllByProductIdOrderByIdDesc(id);
+    }
+    public List<Orders> getOrderByProductAndState(Long id, ShippingState state) {
+        return order_repo.findAllByProductIdAndShippingStateOrderByIdDesc(id,state);
     }
     public List<HotCategoryDTO> getHotCategory() {
         List<Object[]> result = order_repo.countProductCategoryFromPaidOrdersWithinTwoWeeks();
@@ -214,5 +217,28 @@ public class OrderService {
                         ((Number) row[2]).longValue()
                 ))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deleteOrderItem(OrderItem orderItem) {
+        order_item_repo.delete(orderItem);
+    }
+    @Transactional
+    public void deleteOrders(Orders orders) {
+        List<Shipping> shippingList = shippingRepository.findAllByOrders(orders);
+        for(Shipping shipping: shippingList) shippingRepository.delete(shipping);
+        order_repo.delete(orders);
+    }
+    @Transactional
+    public void deleteOrderGroup(OrderGroup orderGroup) {
+        order_group_repo.delete(orderGroup);
+    }
+
+    public List<Orders> getOrderByAuctionProduct(AuctionProduct auctionProduct) {
+        return order_repo.findAllByAuctionProductOrderByIdDesc(auctionProduct);
+    }
+
+    public List<Orders> getOrderByAuctionProductAndState(AuctionProduct auctionProduct, ShippingState shippingState) {
+        return order_repo.findAllByAuctionProductAndShippingStateOrderByIdDesc(auctionProduct, shippingState);
     }
 }
