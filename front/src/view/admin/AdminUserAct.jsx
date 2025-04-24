@@ -22,26 +22,25 @@ ChartJS.register(
   Legend
 );
 
-function AdminMember() {
-  const [visitData, setVisitData] = useState([]);
-  const [registerData, setRegisterData] = useState([]);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
-
+function AdminUserAct() {
   const serverIP = useSelector((state) => state.serverIP);
   const user = useSelector((state) => state.auth.user);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [productData, setProductData] = useState([]);
+  const [reviewData, setReviewData] = useState([]);
 
   useEffect(() => {
     if (user && serverIP?.ip) {
       const headers = { Authorization: `Bearer ${user.token}` };
 
-      axios.get(`${serverIP.ip}/stats/joins`, { headers })
-        .then(res => setVisitData(res.data))
-        .catch(err => console.error("방문자 오류:", err));
+      axios.get(`${serverIP.ip}/stats/products`, { headers })
+        .then(res => setProductData(res.data))
+        .catch(err => console.error("상품 등록 오류:", err));
 
-      axios.get(`${serverIP.ip}/stats/registers`, { headers })
-        .then(res => setRegisterData(res.data))
-        .catch(err => console.error("가입자 오류:", err));
+      axios.get(`${serverIP.ip}/stats/reviews`, { headers })
+        .then(res => setReviewData(res.data))
+        .catch(err => console.error("리뷰 등록 오류:", err));
     }
   }, [user, serverIP]);
 
@@ -51,39 +50,35 @@ function AdminMember() {
       return year === Number(selectedYear) && month === Number(selectedMonth);
     });
 
-  const filteredVisit = filterByYearMonth(visitData);
-  const filteredRegister = filterByYearMonth(registerData);
+  const filteredProduct = filterByYearMonth(productData);
+  const filteredReview = filterByYearMonth(reviewData);
 
   const allDates = Array.from(new Set([
-    ...filteredVisit.map(d => d.date),
-    ...filteredRegister.map(d => d.date),
+    ...filteredProduct.map(d => d.date),
+    ...filteredReview.map(d => d.date)
   ])).sort();
 
   const chartData = {
     labels: allDates,
     datasets: [
       {
-        label: "방문자 수",
-        data: allDates.map(date =>
-          filteredVisit.find(d => d.date === date)?.count || 0
-        ),
-        borderColor: "#3b82f6",
-        backgroundColor: "#3b82f680",
+        label: "상품 등록 수",
+        data: allDates.map(date => productData.find(d => d.date === date)?.count || 0),
+        borderColor: "#10b981",
+        backgroundColor: "#10b98180",
         tension: 0.4,
         pointRadius: 4,
         fill: false,
       },
       {
-        label: "가입자 수",
-        data: allDates.map(date =>
-          filteredRegister.find(d => d.date === date)?.count || 0
-        ),
-        borderColor: "#ef4444",
-        backgroundColor: "#ef444480",
+        label: "리뷰 등록 수",
+        data: allDates.map(date => reviewData.find(d => d.date === date)?.count || 0),
+        borderColor: "#3b82f6",
+        backgroundColor: "#3b82f680",
         tension: 0.4,
         pointRadius: 4,
         fill: false,
-      },
+      }
     ],
   };
 
@@ -112,7 +107,6 @@ function AdminMember() {
   return (
     <div className="adminmember-page">
       <div className="adminmember-container">
-
         <div className="adminmember-filter">
           <select value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
             {years.map((y) => (
@@ -131,6 +125,7 @@ function AdminMember() {
         <div className="adminmember-card">
           <Line data={chartData} options={chartOptions} />
         </div>
+
         <div className="adminmember-card">
           <h2 className="adminmember-section-title">일자별 수치</h2>
           <div className="table-wrapper">
@@ -138,21 +133,19 @@ function AdminMember() {
               <thead>
                 <tr>
                   <th>날짜</th>
-                  <th>방문자 수</th>
-                  <th>가입자 수</th>
-                  <th>탈퇴자 수</th>
+                  <th>상품 등록 수</th>
+                  <th>리뷰 등록 수</th>
                 </tr>
               </thead>
               <tbody>
                 {allDates.map(date => {
-                  const visit = filteredVisit.find(d => d.date === date)?.count || 0;
-                  const register = filteredRegister.find(d => d.date === date)?.count || 0;
+                  const productCount = filteredProduct.find(d => d.date === date)?.count || 0;
+                  const reviewCount = filteredReview.find(d => d.date === date)?.count || 0;
                   return (
                     <tr key={date}>
                       <td>{date}</td>
-                      <td>{visit}</td>
-                      <td>{register}</td>
-                      <td></td>
+                      <td>{productCount}</td>
+                      <td>{reviewCount}</td>
                     </tr>
                   );
                 })}
@@ -160,12 +153,8 @@ function AdminMember() {
               <tfoot>
                 <tr>
                   <td><strong>합계</strong></td>
-                  <td>
-                    {filteredVisit.reduce((acc, cur) => acc + cur.count, 0)}
-                  </td>
-                  <td>
-                    {filteredRegister.reduce((acc, cur) => acc + cur.count, 0)}
-                  </td>
+                  <td>{filteredProduct.reduce((acc, cur) => acc + cur.count, 0)}</td>
+                  <td>{filteredReview.reduce((acc, cur) => acc + cur.count, 0)}</td>
                 </tr>
               </tfoot>
             </table>
@@ -176,4 +165,4 @@ function AdminMember() {
   );
 }
 
-export default AdminMember;
+export default AdminUserAct;

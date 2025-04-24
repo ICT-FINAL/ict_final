@@ -31,5 +31,7 @@ public class OrderGroupDTO {
     private String filename;
 
     private Long productId;
+
+    private int cancelAmount;
 }
 

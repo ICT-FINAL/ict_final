@@ -99,11 +99,12 @@ public class OrderService {
         return order_group_repo.findAllByState(OrderState.PAID);
     }
     public List<SalesStatsDTO> getDailySalesStats() {
-        List<OrderGroup> orderGroups = order_group_repo.findAllByState(OrderState.PAID);
-        List<AuctionOrder> auctionOrders = auctionOrderRepository.findAllByState(OrderState.PAID);
+        List<OrderState> targetOrderGroupStates = Arrays.asList(OrderState.PAID, OrderState.PARTRETURNED);
+
+        List<OrderGroup> orderGroups = order_group_repo.findAllByStateIn(targetOrderGroupStates);
+        List<AuctionOrder> auctionOrders = auctionOrderRepository.findAllByState(OrderState.PAID); //
 
         Map<String, SalesStatsDTO> statsMap = new HashMap<>();
-
         for (OrderGroup group : orderGroups) {
             String date = group.getOrderDate().substring(0, 10);
 
@@ -115,14 +116,18 @@ public class OrderService {
                             group.getTotalPrice(),
                             group.getTotalShippingFee(),
                             group.getCouponDiscount(),
-                            group.getTotalPrice() + group.getTotalShippingFee() - group.getCouponDiscount()
+                            group.getCancelAmount(),
+                            group.getTotalPrice() + group.getTotalShippingFee()
+                                    - group.getCouponDiscount() - group.getCancelAmount()
                     );
                 } else {
                     existing.setOrders(existing.getOrders() + 1);
                     existing.setTotalPrice(existing.getTotalPrice() + group.getTotalPrice());
                     existing.setShippingCost(existing.getShippingCost() + group.getTotalShippingFee());
                     existing.setCouponDiscount(existing.getCouponDiscount() + group.getCouponDiscount());
-                    existing.setTotalSales(existing.getTotalPrice() + existing.getShippingCost() - existing.getCouponDiscount());
+                    existing.setCancelAmount(existing.getCancelAmount() + group.getCancelAmount());
+                    existing.setTotalSales(existing.getTotalPrice() + existing.getShippingCost()
+                            - existing.getCouponDiscount() - existing.getCancelAmount());
                     return existing;
                 }
             });
@@ -138,6 +143,7 @@ public class OrderService {
                             1,
                             order.getTotalPrice(),
                             order.getTotalShippingFee(),
+                            0,
                             0,
                             order.getTotalPrice() + order.getTotalShippingFee()
                     );

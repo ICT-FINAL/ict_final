@@ -1,6 +1,5 @@
 package com.ict.serv.controller.product;
 
-import com.ict.serv.entity.log.search.SearchLog;
 import com.ict.serv.entity.product.*;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.*;

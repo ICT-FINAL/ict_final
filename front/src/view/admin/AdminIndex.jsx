@@ -9,6 +9,7 @@ import '../../css/view/admin.css';
 import SalesByPeriod from "./SalesByPeriod";
 import SalesByCategory from "./SalesByCategory";
 import AdminMember from "./AdminMember";
+import AdminUserAct from "./AdminUserAct";
 
 function AdminIndex() {
     const location = useLocation();
@@ -33,6 +34,7 @@ function AdminIndex() {
             coupons: { f_name: "보관함", l_name: "쿠폰함" },
             points: { f_name: "보관함", l_name: "적립 내역" },
             adminmember: { f_name: "통계", l_name: "회원 통계" },
+            adminuseract: { f_name: "통계", l_name: "회원 활동 통계" },
             salesbycategory: { f_name: "통계", l_name: "상품별 판매 통계" },
             salesbyperiod: { f_name: "통계", l_name: "기간별 판매 통계" },
             "delete-account": { f_name: "회원 탈퇴", l_name: "회원 탈퇴" },
@@ -62,6 +64,7 @@ function AdminIndex() {
                 {path.l_name == '기간별 판매 통계' && <SalesByPeriod />}
                 {path.l_name == '상품별 판매 통계' && <SalesByCategory />}
                 {path.l_name == '회원 통계' && <AdminMember />}
+                {path.l_name == '회원 활동 통계' && <AdminUserAct />}
             </div>
         </div>
     </>)
