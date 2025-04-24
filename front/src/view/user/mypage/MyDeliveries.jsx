@@ -153,7 +153,6 @@ function MyDeliveries() {
                     ) : (
                         <div>
                             <p>등록된 배송지가 없습니다.</p>
-                            <button onClick={() => setIsAddressFormVisible(true)}>+ 배송지 등록</button>
                         </div>
                     )}
 
