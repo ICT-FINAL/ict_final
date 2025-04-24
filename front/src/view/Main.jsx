@@ -321,7 +321,7 @@ function Main() {
                         </div>
                     ))
                 ) : (
-                    <div className="no-events">📌 해당 월에는 서브메뉴가 없습니다.</div>
+                    <></>
                 )}
             </div>
             <motion.div

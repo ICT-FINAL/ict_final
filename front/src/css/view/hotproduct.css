@@ -137,6 +137,13 @@
     justify-content: center;
     flex-shrink: 0;
     font-size: 14px;
+    transition: all 0.3s;
+}
+
+.hot-product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
 }
 
 .hot-card-content {
@@ -271,4 +278,17 @@
 .polaroid-discount-percentage {
     font-size: 12px;
     color: #e74c3c;
+}
+
+@keyframes wiggle {
+    0% { transform: rotate(-1deg); }
+    25% { transform: rotate(1.5deg); }
+    50% { transform: rotate(-1.5deg); }
+    75% { transform: rotate(1deg); }
+    100% { transform: rotate(0deg); }
+}
+
+.polaroid:hover {
+    animation: wiggle 0.4s ease-in-out;
+    cursor: pointer;
 }
