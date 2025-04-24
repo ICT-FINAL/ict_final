@@ -470,16 +470,25 @@
     padding:10px 0px 10px 20px;
 }
 
-.product-info-selectbox {
-    text-align: center;
-    min-width: 150px;
+.coupon-payment-select {
+    display: flex;
+    margin: 20px 0;
+    line-height: 35px;
+    justify-content: space-between;
+    align-content: center;
+}
+
+.product-info-selectbox, .payment-select {
+    float: right;
+    text-align: left;
     width:40%;
-    padding: 10px 15px;
+    padding: 7px 10px;
     font-size: 15px;
     color: #333;
+    font-family: 'EliceDigitalBaeum';
     background-color: #FFFFFF;
     border: 1px solid #D9D9D9;
-    border-radius: 20px;
+    border-radius: 10px;
     appearance: none;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
@@ -554,7 +563,6 @@
 
 /* 검색 끝 */
 
-  
 
 .product-info-container {
     width: 80%;
@@ -823,6 +831,7 @@
 
 /* 상품구매 */
 .product-buy-container {
+    position: relative;
     padding: 10px;
     background-color: #f9f9f9;
     display: flex;
@@ -830,6 +839,7 @@
     align-items: center;
     max-width: 600px;
     margin: 0 auto;
+    font-family: 'EliceDigitalBaeum';
   }
   
   .product-buy-header {
@@ -838,6 +848,7 @@
     margin-bottom: 30px;
     color: #333;
     text-align: center;
+    font-family: 'pretendard';
   }
 
   .order-item {
@@ -856,7 +867,6 @@
     list-style-type: none;
     display: grid;
     grid-template-columns: 3fr 1fr 1fr 1fr;
-    font-family: 'EliceDigitalBaeum';
     font-size: 10pt;
     border-bottom: 1px dashed #555;
   }
@@ -874,100 +884,54 @@
     width: 90%;
   }
   
-  /* .product-buy-name {
-    font-size: 23px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    color: #4a7b63;
-  }
-  
-  .buy-price {
-    font-size: 16px;
-    color: black;
-    margin: 10px 0;
-    padding-bottom:5px;
-  }
-  
-  .selected-options {
-    margin-top: 20px;
-    font-size: 16px;
-    color: #666;
-  }
-  
-  .selected-option-item {
-    margin-bottom: 12px;
-    line-height: 1.6;
-    font-weight: 400;
-  }
-  
-  .selected-options strong {
-    font-weight: bold;
-    color: #000000;
-} */
+.product-buy-container::before,
+.product-buy-container::after {
+    position: absolute;
+    content: '';
+    width: 100%;
+    display: block;
+    height: 20px;
+    background-repeat: repeat-x;
+    background-size: 600px 20px;
+    z-index: 1;
+}
+
+.product-buy-container::before {
+    top: -19px;
+    left: 0;
+}
+
 .payment-button {
-    background-color: #8CC7A5;
+    background-color: #222;
     color: white;
     border: none;
-    padding: 15px 30px;
+    margin: 30px auto 50px;
+    padding: 15px;
     font-size: 18px;
     border-radius: 10px;
     cursor: pointer;
-    width: 100%;
-    max-width: 200px;
+    width: 160px;
     transition: background-color 0.3s ease;
 }
 
 .payment-button:hover {
-    background-color: #4a7b63;
+    background-color: #444;
 }
-
-.discount-amount {
-    font-weight: bold;
-}
-  
 
 .shipping-discount-info {
-    margin-top: 20px;
-    font-size: 16px;
+    margin-top: 50px;
     color: #666;
-}
-  
-.shipping-fee {
-    color: #1976d2;
-    font-weight: 700;
-}
-
-.discount {
-    margin: 5px 0;
-    font-weight: 700;
-    color: #d9534f;
+    border-top: 3px double #333;
 }
 
 .final-price {
     margin-top: 20px;
     font-size: 20px;
-    color: #333;
+    color: #4FA37F;
     font-weight: bold;
 }
-  
-.payment-method {
-    margin-top: 20px;
-    font-size: 16px;
-}
-  
-.payment-select {
-    padding: 10px;
-    margin-top: 5px;
-    font-size: 16px;
-    width: 100%;
-    max-width: 200px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-}
-  
+
 .security-notice {
-    margin-top: 30px;
     font-size: 14px;
     color: #777;
     text-align: center;
