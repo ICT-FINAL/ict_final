@@ -74,4 +74,10 @@ public class ChatController {
         chatService.leaveChatRoom(roomId, user.getId());
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/unreadChatCount")
+    public int unreadChatCount(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = interactService.selectUserByName(userDetails.getUsername());
+        return chatService.getUnreadChatCount(user);
+    }
 }
