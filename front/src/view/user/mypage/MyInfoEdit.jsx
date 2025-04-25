@@ -14,10 +14,8 @@ function MyInfoEdit() {
     const [currentPage, setCurrentPage] = useState('infoEditPage');
     // end : 개인정보 수정
 
-    const loc = useLocation();
     const serverIP = useSelector((state) => {return state.serverIP});
     const modal = useSelector((state)=>{return state.modal});
-    const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const uuser = useSelector((state) => state.auth.user);
@@ -36,8 +34,6 @@ function MyInfoEdit() {
     const [alert, setAlert] = useState({
         userid: {content: "", state: false},
         username: {content: "", state: false},
-        userpw: {content: "", state: false},
-        userpwCheck: {content: "", state: false},
         tel: {content: "", state: false},
         address: {content: "", state: false}
     });
@@ -136,6 +132,7 @@ function MyInfoEdit() {
             (user.username || '') === (userInfo.username || '') && 
             (user.address || '') === (userInfo.address || '') && 
             (user.addressDetail || '') === (userInfo.addressDetail || '') &&
+            (user.infoText || '') === (userInfo.infoText || '') &&
             currentProfileImage === originalProfileImage
         ) {
             window.alert("변경사항이 없습니다.");
@@ -169,7 +166,7 @@ function MyInfoEdit() {
         return isValid;
     };
 
-    const doSignUp = (event) => {
+    const myInfoEdit = (event) => {
         event.preventDefault(); // 폼이 제출될 때 페이지 리로드를 막음
 
         if (!validateForm()) {
@@ -213,21 +210,6 @@ function MyInfoEdit() {
         display: modal.isOpen ? 'block' : 'none',
         transition: 'opacity 0.3s ease'
     }
-    
-    const [telNumCheck, setTelNumCheck] = useState(false);
-
-    const telCheck = ()=>{
-        axios.get(`${serverIP.ip}/signup/telCheck?tel=${user.tel}`)
-        .then(res=>{
-            if (res.data === 0) {
-                setTelNumCheck(true);
-            }
-            else {
-                setTelNumCheck(false);
-            }
-        })
-        .catch(err=>console.log(err));
-    }
 
     /* 개인정보수정 */
     useEffect(() => {
@@ -236,6 +218,7 @@ function MyInfoEdit() {
                 headers: { Authorization: `Bearer ${getUser.token}` }
             })
             .then((res) => {
+                console.log(res.data);
                 const tel = res.data.tel || '';
                 const [tel1, tel2, tel3] = tel.split('-');
                 setUser({ 
@@ -257,13 +240,29 @@ function MyInfoEdit() {
         }
     }, [getUser, serverIP.ip]);
 
+    /* 소개 */
+    const [intro, setIntro] = useState(user.infoText || "");
+
+    useEffect(() => {
+        setIntro(user.infoText || "");
+      }, [user.infoText]);  // user.infoText 값이 변경될 때마다 상태 업데이트
+
+    const handleChange = (e) => {
+        const newIntro = e.target.value;
+        setIntro(newIntro);
+        setUser(prev => ({
+            ...prev,
+            infoText: newIntro
+        }));
+    };
+
     return (
         
         <>
         { currentPage === "infoEditPage" &&
             <>
                 <div id="modal-background" style={modalBackStyle}></div>
-                <form className="sign-up-form" onSubmit={doSignUp}>
+                <form className="sign-up-form" onSubmit={myInfoEdit}>
                     <label>아이디</label>
                     <input type="text" name="userid" value={user.userid || ''} style={{width:'calc(65%)', backgroundColor:'#ddd'}} disabled/>
 
@@ -297,10 +296,32 @@ function MyInfoEdit() {
 
                     {/* uploadedProfilePreview 미리보기 이미지 */}
                     <label>프로필 사진</label>
-                    <img id="profile-img" src={user.uploadedProfilePreview || (user.kakaoProfileUrl && `${serverIP.ip}${user.kakaoProfileUrl}`) || (user.uploadedProfileUrl && `${serverIP.ip}${user.uploadedProfileUrl}`)} alt="프로필 이미지" referrerPolicy="no-referrer" onClick={() => document.getElementById('profile-image-file').click()} />
-                
+                    <img id="profile-img" src={
+                                                user.uploadedProfilePreview
+                                                ? user.uploadedProfilePreview
+                                                : user.kakaoProfileUrl
+                                                ? user.kakaoProfileUrl.startsWith("http")
+                                                    ? user.kakaoProfileUrl
+                                                    : `${serverIP.ip}${user.kakaoProfileUrl}`
+                                                : user.uploadedProfileUrl
+                                                ? `${serverIP.ip}${user.uploadedProfileUrl}`
+                                                : ''
+                                            } 
+                                            alt="프로필 이미지" 
+                                            referrerPolicy="no-referrer" 
+                                            onClick={() => document.getElementById('profile-image-file').click()} 
+                    />
                     <input type="file" id="profile-image-file" style={{display: "none"}} accept="image/*" onChange={handleImageChange} /><br/>
-                    <label htmlFor="profile-image-file" id="profile-image-btn">사진첨부</label>
+                    <label htmlFor="profile-image-file" id="profile-image-btn">사진첨부</label><br/>
+
+                    {/* 소개 */}
+                    <div style={{ display: "flex", alignItems: "center", marginTop: "50px" }}>
+                        <label style={{ textAlign: "left" }}>소개</label>
+                        <textarea name="infoText" maxLength={200} value={intro} onChange={handleChange} style={{height: "18vh", padding: "10px", fontFamily:'inherit'}} />
+                    </div>
+                    <div style={{ textAlign: "right", marginTop: "5px", fontSize: "0.9em", color: "#222", width: "97%", marginRight:"10px"}}>
+                        <font style={{ color: "#666" }}>{intro.length}</font> / 200
+                    </div>
 
                     <button type="submit" id="signup-btn">수정</button>
                 </form>

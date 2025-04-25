@@ -232,40 +232,45 @@ function ProductInfo() {
     const handleSubOptionChange = (e) => {
         setSelectedSubOptionId(e.target.value);
         setQuantity(1);
+        setTimeout(() => {
+            handleAddItem(e.target.value);
+        }, 0);
     };
 
-    const handleAddItem = () => {
+    const handleAddItem = (overrideSubOptionId = null) => {
         if (!selectedOptionId) {
             alert("대분류를 선택해주세요.");
             return;
         }
+    
         const selectedOption = options.find(opt => opt.id == selectedOptionId);
+        const actualSubOptionId = overrideSubOptionId ?? selectedSubOptionId;
         let selectedSubOption = null;
-        if (selectedSubOptionId) {
-            selectedSubOption = subOptions.find(subOpt => subOpt.id == selectedSubOptionId);
+    
+        if (actualSubOptionId) {
+            selectedSubOption = subOptions.find(subOpt => subOpt.id == actualSubOptionId);
         }
-
+    
         if (selectedSubOption && Number(quantity) > selectedSubOption.quantity) {
             alert(`선택한 소분류의 재고가 부족합니다. (현재 재고: ${selectedSubOption.quantity})`);
             return;
         }
-
+    
         const existingItemIndex = selectedItems.findIndex(item => {
-            const subOptionMatch = (selectedSubOptionId === "" && item.subOption === null) ||
-                (item.subOption && String(item.subOption.id) === String(selectedSubOptionId));
+            const subOptionMatch = (actualSubOptionId === "" && item.subOption === null) ||
+                (item.subOption && String(item.subOption.id) === String(actualSubOptionId));
             return String(item.option.id) === String(selectedOptionId) && subOptionMatch;
         });
-
+    
         if (existingItemIndex > -1) {
-            //동일 옵션 있으면 수량 +
             const existingItem = selectedItems[existingItemIndex];
             const newQuantity = Number(existingItem.quantity) + Number(quantity);
-
+    
             if (selectedSubOption && newQuantity > selectedSubOption.quantity) {
                 alert(`선택한 소분류의 최대 수량을 초과할 수 없습니다. (최대 재고: ${selectedSubOption.quantity})`);
                 return;
             }
-
+    
             const updatedItems = selectedItems.map((item, index) =>
                 index === existingItemIndex
                     ? { ...item, quantity: newQuantity }
@@ -273,19 +278,21 @@ function ProductInfo() {
             );
             setSelectedItems(updatedItems);
         } else {
-            const newItem = {   //동일 옵션 아닐때
+            const newItem = {
                 option: selectedOption,
                 subOption: selectedSubOption,
                 quantity: Number(quantity)
             };
             setSelectedItems([...selectedItems, newItem]);
         }
+    
         setSelectedOptionId("");
         setSelectedSubOptionId("");
         setSubOptions([]);
         setQuantity(1);
         setIsSubOptionRegistered(true);
     };
+    
 
     const removeItem = (index) => {
         const newItems = [...selectedItems];
@@ -392,7 +399,7 @@ function ProductInfo() {
                         <ul>
                             <li style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div className='product-profile-box'>
-                                    <img id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' src={loc.state.product.sellerNo.uploadedProfileUrl ? `${serverIP.ip}${loc.state.product.sellerNo.uploadedProfileUrl}` : `${loc.state.product.sellerNo.profileImageUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
+                                    <img id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' src={loc.state.product.sellerNo.uploadedProfileUrl ? `${serverIP.ip}${loc.state.product.sellerNo.uploadedProfileUrl}` : `${serverIP.ip}${loc.state.product.sellerNo.profileImageUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
                                     <div id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{loc.state.product.sellerNo.username} &gt;</div>
                                 </div>
                                 {/* 평균 별점 */}
@@ -461,7 +468,7 @@ function ProductInfo() {
                                         </li>
                                     }
                                     <li>
-                                        <select className='product-info-selectbox' onChange={handleOptionChange} value={selectedOptionId}>
+                                        <select className='info-product-info-selectbox' onChange={handleOptionChange} value={selectedOptionId}>
                                             <option value="" disabled selected>대분류를 선택해주세요</option>
                                             {options.map((option) => (
                                                 <option key={option.id} value={option.id}>{option.optionName}</option>
@@ -471,7 +478,7 @@ function ProductInfo() {
                                             <>
                                                 <select
                                                     style={{ marginLeft: '15px' }}
-                                                    className="product-info-selectbox"
+                                                    className="info-product-info-selectbox"
                                                     onChange={handleSubOptionChange}
                                                     value={selectedSubOptionId}
                                                 >
@@ -484,11 +491,6 @@ function ProductInfo() {
                                                             </option>
                                                         ))}
                                                 </select>
-                                                {selectedSubOptionId.length > 0 && (
-                                                    <button type="button" className="product-select-button" onClick={handleAddItem}>
-                                                        선택
-                                                    </button>
-                                                )}
                                             </>
                                         )}
                                     </li>

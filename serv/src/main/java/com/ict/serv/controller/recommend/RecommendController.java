@@ -1,21 +1,19 @@
 package com.ict.serv.controller.recommend;
 
+import com.ict.serv.controller.product.ProductPagingVO;
 import com.ict.serv.dto.recommend.WishRecommendRequest;
+import com.ict.serv.entity.log.search.SearchLog;
 import com.ict.serv.entity.product.Product;
+import com.ict.serv.entity.product.ProductState;
 import com.ict.serv.entity.user.User;
-import com.ict.serv.entity.wish.Wishlist;
-import com.ict.serv.service.InteractService;
-import com.ict.serv.service.ProductService;
-import com.ict.serv.service.RecommendService;
+import com.ict.serv.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,67 +23,110 @@ public class RecommendController {
     private final RecommendService recommendService;
     private final InteractService interactService;
     private final ProductService productService;
+    private final LogService logService;
+    private final ReviewService reviewService;
 
     @PostMapping("/getDefaultRecommend")
     public Product getDefaultRecommend(@AuthenticationPrincipal UserDetails userDetails,
                                        @RequestBody WishRecommendRequest productIdList) {
         User user = interactService.selectUserByName(userDetails.getUsername());
 
-        List<Product> all_product_list = productService.selectAllProduct();
-
-        Collections.shuffle(all_product_list);
-
-        for (Product p : all_product_list) {
-            boolean isDuplicate = false;
-            for (Long id : productIdList.getProductIds()) {
-                if (p.getId().equals(id)) {
-                    isDuplicate = true;
-                    break;
-                }
-            }
-
-            if (!isDuplicate) {
-                return p;
-            }
-        }
-
-        throw new RuntimeException("추천 가능한 상품이 없습니다.");
+        return recommendService.defaultRecommend(user, productIdList);
     }
 
-    @PostMapping("/getWishRecommend")
-    public Product getWishRecommend(@AuthenticationPrincipal UserDetails userDetails, @RequestBody WishRecommendRequest productIdList) {
+    private List<Product> applyPriceRangeFilter(List<Product> candidates, String priceRange) {
+        switch (priceRange) {
+            case "under10000":
+                return candidates.stream().filter(p -> p.getPrice() < 10000).collect(Collectors.toList());
+            case "10000to20000":
+                return candidates.stream().filter(p -> p.getPrice() >= 10000 && p.getPrice() < 20000).collect(Collectors.toList());
+            case "20000to30000":
+                return candidates.stream().filter(p -> p.getPrice() >= 20000 && p.getPrice() < 30000).collect(Collectors.toList());
+            case "30000to50000":
+                return candidates.stream().filter(p -> p.getPrice() >= 30000 && p.getPrice() < 50000).collect(Collectors.toList());
+            case "50000to60000":
+                return candidates.stream().filter(p -> p.getPrice() >= 50000 && p.getPrice() < 60000).collect(Collectors.toList());
+            case "over60000":
+                return candidates.stream().filter(p -> p.getPrice() >= 60000).collect(Collectors.toList());
+            default:
+                return candidates;
+        }
+    }
+
+    @PostMapping("/getRecommend")
+    public Product getRecommend(@AuthenticationPrincipal UserDetails userDetails,
+                                @RequestParam RecommendType type,
+                                @RequestBody WishRecommendRequest productIdList) {
         User user = interactService.selectUserByName(userDetails.getUsername());
+        String priceRange = productIdList.getPriceRange();
+        List<Long> excludeIds = productIdList.getProductIds();
 
-        List<Wishlist> wish_list = recommendService.getWishListByUser(user);
+        List<Product> candidates = switch (type) {
+            case WISH -> getProductListFromWish(user);
+            case BASKET -> getProductListFromBasket(user);
+            case HIT -> getProductListFromHit(user);
+            case SEARCH -> getProductListFromSearch(user);
+            case REVIEW -> getProductListFromReview(user);
+        };
 
-        int count = 0;
-        boolean isDuplicate = false;
-        Product product = null;
+        //판매중이고 수량0개이상
+        candidates = candidates.stream()
+                .filter(p -> p.getQuantity() > 0 && p.getState() == ProductState.SELL)
+                .collect(Collectors.toList());
 
-        List<Integer> indices = new ArrayList<>();
-        for (int i = 0; i < wish_list.size(); i++) {
-            indices.add(i);
+        if (priceRange != null && !priceRange.isEmpty()) {  //가격필터
+            candidates = applyPriceRangeFilter(candidates, priceRange);
         }
-        Collections.shuffle(indices);
 
-        for (int index : indices) {
-            Wishlist wish = wish_list.get(index);
+        Collections.shuffle(candidates);
 
-            isDuplicate = false;
-            for (Long productId : productIdList.getProductIds()) {
-                if (productId.equals(wish.getProduct().getId())) {
-                    isDuplicate = true;
-                    break;
-                }
-            }
-
-            if (!isDuplicate) {
-                product = productService.selectProduct(wish.getProduct().getId()).get();
-                break;
+        for (Product product : candidates) {
+            if (!excludeIds.contains(product.getId())) {
+                return product;
             }
         }
 
-        System.out.println(productIdList);
-        return product;
+        return recommendService.defaultRecommend(user, productIdList);
+    }
+
+
+    private List<Product> getProductListFromWish(User user) {
+        return recommendService.getWishListByUser(user).stream()
+                .map(w -> w.getProduct())
+                .collect(Collectors.toList());
+    }
+
+    private List<Product> getProductListFromBasket(User user) {
+        return recommendService.getBasketsByUser(user).stream()
+                .map(b -> b.getOptionNo().getOption().getProduct())
+                .collect(Collectors.toList());
+    }
+
+    private List<Product> getProductListFromHit(User user) {
+        return logService.getHitList(user).stream()
+                .map(h -> h.getProduct())
+                .collect(Collectors.toList());
+    }
+
+    private List<Product> getProductListFromReview(User user) {
+        return reviewService.selectMyReviewList(user).stream()
+                .map(r -> r.getProduct())
+                .collect(Collectors.toList());
+    }
+
+    private List<Product> getProductListFromSearch(User user) {
+        List<SearchLog> searchList = logService.getSearchList(user);
+        List<Product> result = new ArrayList<>();
+        for (SearchLog log : searchList) {
+            ProductPagingVO pvo = new ProductPagingVO();
+            pvo.setSearchWord(log.getSearchWord());
+            pvo.setEventCategory(log.getEventCategory());
+            pvo.setTargetCategory(log.getTargetCategory());
+            pvo.setSort("주문 많은 순");
+
+            List<String> categoryList = new ArrayList<>(List.of(log.getProductCategory().split(",")));
+            result.addAll(productService.searchAll(pvo, categoryList));
+        }
+        return result;
     }
 }

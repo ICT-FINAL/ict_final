@@ -28,14 +28,8 @@ function MyPageNav({ path, isOpen, closeNav }) {
                 </ul>
                 <ul>
                     <li>나의 활동</li>
-                    <li onClick={() => handleClick("/mypage/posts")} style={path.l_name === "작성한 글" ? clickedStyle : {}}>
-                        <span style={path.l_name === "작성한 글" ? clickedStyle2 : {}}>작성한 글</span>
-                    </li>
                     <li onClick={() => handleClick("/mypage/reviews")} style={path.l_name === "리뷰 관리" ? clickedStyle : {}}>
                         <span style={path.l_name === "리뷰 관리" ? clickedStyle2 : {}}>리뷰 관리</span>
-                    </li>
-                    <li onClick={() => handleClick("/mypage/comments")} style={path.l_name === "댓글 관리" ? clickedStyle : {}}>
-                        <span style={path.l_name === "댓글 관리" ? clickedStyle2 : {}}>댓글 관리</span>
                     </li>
                     <li onClick={() => handleClick("/mypage/reports")} style={path.l_name === "신고 내역" ? clickedStyle : {}}>
                         <span style={path.l_name === "신고 내역" ? clickedStyle2 : {}}>신고 내역</span>
@@ -82,10 +76,10 @@ function MyPageNav({ path, isOpen, closeNav }) {
 
                 <ul>
                     <li>통계</li>
-                    <li onClick={() => handleClick("/mypage/stats-activity")} style={path.l_name === "활동 통계" ? clickedStyle : {}}>
+                    <li onClick={() => handleClick("/mypage/activity")} style={path.l_name === "활동 통계" ? clickedStyle : {}}>
                         <span style={path.l_name === "활동 통계" ? clickedStyle2 : {}}>활동 통계</span>
                     </li>
-                    <li onClick={() => handleClick("/mypage/stats-purchases")} style={path.l_name === "구매 통계" ? clickedStyle : {}}>
+                    <li onClick={() => handleClick("/mypage/order")} style={path.l_name === "구매 통계" ? clickedStyle : {}}>
                         <span style={path.l_name === "구매 통계" ? clickedStyle2 : {}}>구매 통계</span>
                     </li>
                     <li onClick={() => handleClick("/mypage/stats-sales")} style={path.l_name === "판매 통계" ? clickedStyle : {}}>

@@ -16,14 +16,18 @@ function ShippingModal() {
     const [invoice, setInvoice] = useState('');
 
     const doShipping = () => {
-      if(user)
+      if(user) {
+        const isConfirmed = window.confirm("정말로 이 주문을 배송 처리하시겠습니까?");
+        if (!isConfirmed) return;
         axios.post(`${serverIP.ip}/shipping/setShipping`,{ invoiceNumber:invoice, orderId:modalSel.info.id},{
           headers:{Authorization: `Bearer ${user.token}`}
         })
         .then(res => {
           modalClose();
+          alert("배송 처리가 완료되었습니다.");
         })
         .catch(err => console.log(err));
+      }
     }
 
     const modalClose = () => {
@@ -138,8 +142,8 @@ function ShippingModal() {
 
     const modalStyle = {    //모달 스타일은 이런 양식으로 plz 마음대로 커스텀
         position: 'fixed',
-        width: '600px',
-        height: '600px',
+        width: '400px',
+        height: '320px',
         backgroundColor: 'white',
         zIndex: 3001,
         opacity: modalOpen ? 1 : 0,
@@ -161,7 +165,7 @@ function ShippingModal() {
   
         <div id={`${modal_name.current}`} style={modalStyle}>
           <div style={exitStyle} onClick={modalClose}>X</div>
-          <div style={{ marginTop:'190px' }}>
+          <div style={{ marginTop:'50px' }}>
             <h1>배송 등록</h1>
           송장번호: <input style={{height:'30px'}} type='text' onChange={(e)=> setInvoice(e.target.value)} value={invoice}/><br/>
           <button style={{marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'

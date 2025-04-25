@@ -270,9 +270,13 @@ function Report() {
   };
 
   const profileContainerStyle = {
-    display: 'flex',
+    display: 'inline-block',
     flexDirection: 'column',
     justifyContent: 'center',
+    whiteSpace:'nowrap',
+    overflow:'hidden',
+    width:'350px',
+    textOverflow:'ellipsis'
   };
 
   return (

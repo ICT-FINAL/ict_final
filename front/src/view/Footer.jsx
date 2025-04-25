@@ -1,16 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import '../css/view/footer.css';
 import facebookIcon from '../img/footer_facebook.png';
 import instagramIcon from '../img/footer_insta.png';
 import kakaoIcon from '../img/footer_kakao.png';
+import { useLocation } from 'react-router-dom';
 
 function Footer({ loginStatus, contextPath }) {
-    if (loginStatus === 'A') {
-        return null;
-    }
+    const loc = useLocation();
+    const [isMargin, setIsMargin] = useState(true);
+
+    useEffect(()=>{
+        console.log(loc.pathname);
+        if (loc.pathname === "/product/buying") {
+            setIsMargin(false)
+        } else {
+            setIsMargin(true);
+        }
+    },[loc.pathname]);
 
     return (
-        <ul className="footer">
+        <ul className="footer" style={isMargin ? {marginTop: '200px'} : {}}>
             <li className="footer-info">
                 <h3 className="footer-title">(주)MIMYO</h3>
                 <ul className="footer-list">

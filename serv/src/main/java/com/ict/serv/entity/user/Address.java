@@ -56,4 +56,9 @@ public class Address {
     @Enumerated(EnumType.STRING)
     @Builder.Default
     AddressType addressType = AddressType.HOME;
+
+    @Column(name="address_state")
+    @Enumerated(EnumType.STRING)
+    AddressState addressState = AddressState.ACTIVE;
+
 }

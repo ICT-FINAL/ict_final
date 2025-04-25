@@ -29,10 +29,11 @@ function Header() {
     const menuRef = useRef(null);
     let serverIP = useSelector((state) => state.serverIP);
     const [messageCount, setMessageCount] = useState(0);
+    const [couponCount, setCouponCount] = useState(0);
+
     const [messageList, setMessageList] = useState([]);
 
     const [grade, setGrade] = useState(['✊', '☝️', '✌️', '🖐️']);
-    const [grades, setGrades] = useState(0);
     const [hamburgerOpen, setHamburgerOpen] = useState(false);
 
     const [basketCount, setBasketCount] = useState(0);
@@ -60,11 +61,6 @@ function Header() {
     useEffect(()=>{
         if (user) {
             getRecentSearch();
-            const gp = user.user.gradePoint;
-            if(gp<1000) setGrades(0);
-            else if(gp<2000) setGrades(1);
-            else if(gp<3000) setGrades(2);
-            else setGrades(3);
         }
 
         const fetchKeywords = async () => {
@@ -99,6 +95,15 @@ function Header() {
             })
                 .then(res => {
                     setBasketCount(res.data.length);
+                })
+                .catch(err => console.log(err));
+
+        if (user)
+            axios.get(`${serverIP.ip}/interact/getCouponList`, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            })
+                .then(res => {
+                    setCouponCount(res.data.length);
                 })
                 .catch(err => console.log(err));
 
@@ -190,7 +195,7 @@ function Header() {
                         <>
                             <div ref={menuButtonRef} className="menu-icon" onClick={() => dispatch(setMenuModal(!menuModal))}>
                                 <img src={user.user.imgUrl.indexOf('http') !== -1 ? `${user.user.imgUrl}` : `${serverIP.ip}${user.user.imgUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white' }} />
-                                <div style={{ color: 'white', textAlign: 'center', width: '120px', fontSize: '15px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{user.user.username} {grade[grades]}</div>
+                                <div style={{ color: 'white', textAlign: 'center', width: '120px', fontSize: '15px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{user.user.username} {grade[user.user.grade]}</div>
                             </div>
                         </>
                     ) : (
@@ -317,7 +322,7 @@ function Header() {
                                 <circle cx="9" cy="20" r="1.5" fill="white" />
                                 <circle cx="17" cy="20" r="1.5" fill="white" />
                             </svg>
-                            {basketCount > 0 && <span className="badge">{basketCount}</span>}
+                            {basketCount > 0 && <div className="badge"><span>{basketCount}</span></div>}
                         </div>
                         <span>장바구니</span>
                     </div>
@@ -328,15 +333,18 @@ function Header() {
                                 <path d="M4 4h16v14H4z" stroke="white" strokeWidth="2" />
                                 <path d="M4 4l8 7 8-7" stroke="white" strokeWidth="2" />
                             </svg>
-                            {messageCount > 0 && <span className="badge">{messageCount}</span>}
+                            {messageCount > 0 && <div className="badge"><span>{messageCount}</span></div>}
                         </div>
                         <span>쪽지</span>
                     </div>
-                    <div className="menu-item">
-                        <svg transform="translate(0,-5)" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 9V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v3a2 2 0 1 0 0 6v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a2 2 0 1 0 0-6Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            <path d="M12 6v12" stroke="white" strokeWidth="2" strokeLinecap="round" />
-                        </svg>
+                    <div className="menu-item" onClick={() => movePage('/mypage/coupons')}>
+                        <div className="icon-container">
+                            <svg transform="translate(0,-1)" width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 9V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v3a2 2 0 1 0 0 6v3a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-3a2 2 0 1 0 0-6Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M12 6v12" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                            </svg>
+                            {couponCount > 0 && <div className="badge"><span>{couponCount}</span></div>}
+                        </div>
                         <span>쿠폰함</span>
                     </div>
                     <div className="menu-item" onClick={() => movePage('/customerservice/faq')}>

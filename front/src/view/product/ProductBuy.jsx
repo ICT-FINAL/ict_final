@@ -57,6 +57,11 @@ function ProductBuy() {
     return acc;
   }, {});
 
+  useEffect(()=>{
+    applyRandomBackground();
+    console.log(location);
+  },[]);
+  
   useEffect(() => {
     if(user)
       axios.get(`${serverIP.ip}/interact/getCouponList`, {
@@ -154,8 +159,9 @@ function ProductBuy() {
       return;
     }
     const orderId = new Date().getTime();
-    const tossPayments = window.TossPayments("test_ck_ORzdMaqN3w2RZ1XBgmxM85AkYXQG");
+    const tossPayments = window.TossPayments("test_ck_BX7zk2yd8ynK1JyQvDgL3x9POLqK");
     if(isAuction) {
+      console.log(location.state.product.id);
       axios.post(`${serverIP.ip}/order/setAuctionOrder`, {
         productId: location.state.product.id,
         addrId: selAddrId,
@@ -180,7 +186,7 @@ function ProductBuy() {
             })
             .catch(error => {
               console.error("결제 실패:", error);
-              axios.get(`${serverIP.ip}/order/auctionCancel?orderId=${res.data.id}`, {
+              axios.get(`${serverIP.ip}/order/cancel?orderGroupId=${res.data.id}`, {
                 headers: { Authorization: `Bearer ${user.token}` },
               }).catch(cancelErr => console.error("결제 취소 실패:", cancelErr));
               alert(`결제 실패: ${error.message}`);
@@ -206,6 +212,7 @@ function ProductBuy() {
       usedProductNos.add(item.productNo);
     });
 
+    
     axios.post(`${serverIP.ip}/order/setOrder`, {
       options: orderDetails,
       addrId: selAddrId,
@@ -230,7 +237,6 @@ function ProductBuy() {
               failUrl: `${window.location.origin}/payment/fail`,
             })
             .catch(error => {
-              console.error("결제 실패:", error);
               axios.get(`${serverIP.ip}/order/cancel?orderGroupId=${res.data.id}`, {
                 headers: { Authorization: `Bearer ${user.token}` },
               }).catch(cancelErr => console.error("결제 취소 실패:", cancelErr));
@@ -247,68 +253,141 @@ function ProductBuy() {
     return (num === undefined || num === null) ? '0' : num.toLocaleString();
   };
 
+  const generateRandomPath = ()=>{
+    let path = "M0 20";  // 시작 Y 값을 20으로 설정
+    for (let i = 10; i <= 600; i += 15) {
+      const y = Math.random() * 20;  // Y 값을 0~20 사이로 랜덤하게 설정
+      path += ` L${i} ${y}`;
+    }
+    path += " L600 20";  // 마지막 점을 아래쪽으로 연결
+
+    return path;
+  }
+
+  const applyRandomBackground = ()=>{
+    const randomPath = generateRandomPath();
+    const svg = `<svg width="600" height="20" xmlns="http://www.w3.org/2000/svg"><path d="${randomPath}" fill="#f9f9f9"/></svg>`;
+    const url = `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}')`;
+
+    const style = document.styleSheets[0];
+    style.insertRule(
+      `.product-buy-container::before { background-image: ${url}; }`, 0);
+  }
+
+  const formatDateTime = (datetimeStr) => {
+      const date = new Date(datetimeStr);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${year}-${month}-${day} ｜ (${hours}:${minutes})`;
+  };
+
   return (
-    <div style={{ paddingTop: '150px' }}>
-      <div className="product-buy-container">
-        <h2 className="product-buy-header">상품 결제</h2>
+    <div style={{ paddingTop: '150px', background: '#222', paddingBottom: '100px'}}>
+      <div className="product-buy-container" style={{paddingTop: '30px'}}>
+        <h2 className="product-buy-header">MIMYO</h2>
         {isAuction && 
           <div className="product-buy-info">
-            <div className="order-item">
-              <h3>{location.state.product.productName}</h3>
-              <p style={{fontSize:'20px'}}>가격: <strong>{formatNumberWithCommas(location.state.totalPrice)}</strong> 원</p>
-              <p>배송비: <strong style={{ color: '#1976d2' }}>+{formatNumberWithCommas(location.state.shippingFee)}</strong>원</p>
-              { location.state.selectedCoupon!==0 && <p>보증금: <strong style={{color:'#e74c3c'}}>-{formatNumberWithCommas(location.state.selectedCoupon)}</strong>원</p>}
-              <span className="final-price" style={{borderTop:'1px solid #ddd'}}>
-                  합계: <strong style={{ fontWeight: 'bold', fontSize: '20px' }}>{formatNumberWithCommas(totalPaymentAmount)}</strong> 원
-                </span>
+            <div style={{padding: '10px', marginBottom: '30px', fontSize: '14pt'}}>
+              <b>{location.state.product.productName}</b>
             </div>
+            
+            <ul className="buy-order-item"
+              style={{fontWeight: 'bold', fontSize: '13pt', borderBottom: '3px double #555',
+              gridTemplateColumns: '2fr 2fr 1fr'}}>
+              <li>입찰일시</li>
+              <li style={{textAlign: 'left'}}>낙찰일시</li>
+              <li>낙찰가</li>
+            </ul>
+            <ul className="buy-order-item" style={{gridTemplateColumns: '2fr 2fr 1fr'}}>
+              <li></li>
+              <li style={{textAlign: 'left'}}></li>
+              <li style={{fontWeight: 'bold'}}>₩{formatNumberWithCommas(location.state.totalPrice)}</li>
+            </ul>
+
+            <ul className="buy-order-item"
+              style={{fontWeight: 'bold', fontSize: '13pt', borderBottom: '3px double #555',
+              gridTemplateColumns: '1fr 1fr', marginTop: '50px'}}>
+              <li style={{textAlign: 'left'}}>판매자</li>
+              <li>구매자</li>
+            </ul>
+            <ul className="buy-order-item" style={{gridTemplateColumns: '1fr 1fr'}}>
+              <li>{location.state.product.sellerNo.username}</li>
+              <li style={{fontWeight: 'bold'}}>{user.user.username}</li>
+            </ul>
+
+            <div style={{fontSize: '14pt', textAlign: 'center', margin: '30px 0'}}>🥳낙찰을 축하드립니다🎉</div>
+            <div style={{color: '#333'}}><b>배송비</b><b style={{float:'right'}}>₩{formatNumberWithCommas(location.state.shippingFee)}</b></div>
+            <div className="final-price">총 결제 금액<b style={{float:'right'}}>₩{formatNumberWithCommas(totalPaymentAmount)}</b></div> 
           </div>}
         {orderItems.length > 0 && (
           <div className="product-buy-info">
+            <ul className="buy-order-item" style={{fontWeight: 'bold', fontSize: '13pt', borderBottom: '3px double #555', margin: '20px 0 30px'}}>
+              <li>상품</li>
+              <li>단가</li>
+              <li>수량</li>
+              <li>금액</li>
+            </ul>
             {Object.values(groupedItems).map((group, index) => (
-              <div key={index} className="order-item">
-                <h3 className="product-buy-name">{group.productName}</h3>
-                <p style={{ fontSize: '20px' }}>가격: <strong style={{ textDecoration: 'line-through' }}>{formatNumberWithCommas(group.productPrice)}</strong> 원</p>
-                <p className="buy-price">할인: <span style={{ color: '#d9534f', fontWeight: 'bold', fontSize: '19px' }}>{group.productDiscountRate}%</span></p>
-                {group.productDiscountRate !== 0 && <p style={{ borderBottom: '1px solid #ddd', paddingBottom: '10px' }}>할인가: <span style={{ fontSize: '20px', fontWeight: 'bold' }}>{formatNumberWithCommas(group.productPrice * ((100 - group.productDiscountRate) / 100))}</span> 원</p>}
+              <>
+                <ul key={index} className="buy-order-item" style={{marginTop: '10px'}}>
+                  <li style={{fontSize: '11pt', fontWeight: 'bold'}}>{group.productName}</li><li></li><li></li><li></li>
+                </ul>
                 {group.options.map((opt, idx) => (
-                  <div key={idx} className="option-detail" style={{ marginLeft: '10px', padding: '5px 0' }}>
-                    <p><span style={{ fontWeight: 'bold' }}>옵션</span>: {opt.categoryName} x {opt.quantity} (+{formatNumberWithCommas(opt.additionalPrice)} 원) = <span style={{ fontSize: '20px', fontWeight: 'bold', color: '#4a7b63' }}>{formatNumberWithCommas((group.productPrice * ((100 - group.productDiscountRate) / 100) + opt.additionalPrice) * opt.quantity)}</span> 원</p>
-                  </div>
+                  <>
+                    <ul key={index} className="buy-order-item" style={group.productDiscountRate !== 0 ? {border: 'none'} : {}}>
+                      <li key={idx}>{opt.categoryName} (+{formatNumberWithCommas(opt.additionalPrice)})</li>
+                      <li>₩{formatNumberWithCommas(group.productPrice + opt.additionalPrice)}</li>
+                      <li>{opt.quantity}</li>
+                      <li style={{fontWeight: 'bold'}}>₩{formatNumberWithCommas((group.productPrice + opt.additionalPrice) * opt.quantity)}</li>
+                    </ul>
+                    {
+                      group.productDiscountRate !== 0 &&
+                      <ul className="buy-order-item">
+                        <li></li>
+                        <li>-₩{formatNumberWithCommas(group.productPrice * (group.productDiscountRate / 100))}</li>
+                        <li></li>
+                        <li>-₩{formatNumberWithCommas(group.productPrice * (group.productDiscountRate / 100) * opt.quantity)}</li>
+                      </ul>
+                    }
+                  </>
                 ))}
 
-                <p>배송비: <strong style={{ color: '#1976d2' }}>{formatNumberWithCommas(group.productShippingFee)}</strong>원</p>
-                <span>
-                  합계: <strong style={{ fontWeight: 'bold', fontSize: '20px' }}>{formatNumberWithCommas(
-                    group.options.reduce((sum, opt) => {
-                      const discountedPrice = group.productPrice * (1 - group.productDiscountRate / 100);
-                      return sum + (discountedPrice + opt.additionalPrice) * opt.quantity;
-                    }, 0) + group.productShippingFee
-                  )}</strong> 원
-                </span>
-              </div>
+                  <div style={{padding: '0 10px', fontSize: '10pt', marginTop: '5px'}}>배송비<span style={{float: 'right'}}>₩{formatNumberWithCommas(group.productShippingFee)}</span></div>
+                  <div style={{padding: '0 10px', fontSize: '10pt'}}>
+                    합계<strong style={{ float: 'right', color: '#4FA37F' }}>₩{formatNumberWithCommas(
+                      group.options.reduce((sum, opt) => {
+                        const discountedPrice = group.productPrice * (1 - group.productDiscountRate / 100);
+                        return sum + (discountedPrice + opt.additionalPrice) * opt.quantity;
+                      }, 0) + group.productShippingFee
+                    )}</strong>
+                  </div>
+              </>
             ))}
 
             <div className="shipping-discount-info">
-            <strong>쿠폰 선택:</strong> <select style={{marginBottom:'20px'}} className='product-info-selectbox' onChange={handleCouponChange} value={`${selectedCoupon}-${selectedCouponId}`}>
-                <option value="0-0">쿠폰을 선택해주세요</option>
-                {
-                  couponList.map(item => {
-                    return(<option key={item.id} value={`${item.discount}-${item.id}`}>
-                      {item.couponName} : {item.discount}원
-                    </option>);
-                  })
-                }
-            </select>
-              {totalShippingFee > 0 && <p className="shipping-fee">총 배송비: +{formatNumberWithCommas(totalShippingFee)}원</p>}
-              {selectedCoupon > 0 && <p style={{ color: '#d9534f' }} className="discount-amount">쿠폰 할인: -{formatNumberWithCommas(selectedCoupon)}원</p>}
-              {totalDiscountAmount > 0 && <p className="discount-amount" style={{ color: '#d9534f' }}>총 할인 금액: -{formatNumberWithCommas(totalDiscountAmount)}원</p>}
+              <div className="coupon-payment-select">
+                <strong>쿠폰 선택</strong>
+                <select className='product-info-selectbox' onChange={handleCouponChange} value={`${selectedCoupon}-${selectedCouponId}`}>
+                  <option value="0-0">쿠폰을 선택해주세요</option>
+                  {
+                    couponList.map(item => {
+                      return(<option key={item.id} value={`${item.discount}-${item.id}`}>
+                        {item.couponName} : {item.discount}원
+                      </option>);
+                    })
+                  }
+                </select>
+              </div>
+              {totalShippingFee > 0 && <div style={{color: '#333'}}><b>총 배송비</b><b style={{float:'right'}}>₩{formatNumberWithCommas(totalShippingFee)}</b></div>}
+              {selectedCoupon > 0 && <div style={{ color: '#d97c7a' }}><b>쿠폰 할인</b><b style={{float:'right'}}>-₩{formatNumberWithCommas(selectedCoupon)}</b></div>}
+              {totalDiscountAmount > 0 && <div style={{ color: '#d97c7a' }}><b>총 할인 금액</b><b style={{float:'right'}}>-₩{formatNumberWithCommas(totalDiscountAmount)}</b></div>}
+              <div className="final-price">총 결제 금액<b style={{float:'right'}}>₩{formatNumberWithCommas(totalPaymentAmount)}</b></div>
             </div>
-            <div className="final-price">
-              <strong>총 결제 금액: {formatNumberWithCommas(totalPaymentAmount)}원</strong>
-            </div>
-            <div className="payment-method">
-              <strong>결제 수단 선택: </strong>
+            <div className="coupon-payment-select">
+              <strong>결제 수단 선택</strong>
               <select className="payment-select">
                 <option value="card">카드 결제</option>
                 {/* 다른 결제 수단 추가 가능 */}

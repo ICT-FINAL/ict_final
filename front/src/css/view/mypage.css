@@ -133,12 +133,49 @@
 .follow-container {
     min-width: 500px;
     max-width: 1400px;
+    margin: 0 auto;
 }
-.follow-menu, .follow-menu>li {
+
+.menu-divider {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(to right, #e0e0e0, #d1d1d1, #e0e0e0);
+    width: 80%;
+    margin: 20px auto;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    opacity: 0.9;
+}
+
+.follow-menu,
+.follow-menu > li {
     margin: 0;
     padding: 0;
     list-style-type: none;
 }
+
+.search-input-box {
+    width: 80%;
+    margin: 0 auto;
+}
+
+.myfollow-search {
+    width: 80%;
+    padding: 10px 40px 10px 16px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    font-size: 1rem;
+    background-image: url("data:image/svg+xml,%3Csvg fill='%23888' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM10 14.5A4.5 4.5 0 1114.5 10 4.5 4.5 0 0110 14.5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 20px;
+    outline: none;
+    box-sizing: border-box;
+    margin: 0 auto;
+    display: block;
+}
+
 .follow-menu {
     height: 55px;
     display: flex;
@@ -146,30 +183,92 @@
     gap: 10%;
     font-size: 14pt;
 }
-.follow-menu>li {
+
+.follow-menu > li {
     margin-bottom: 20px;
     padding: 10px 0;
     border-bottom: 1px solid #999;
     text-align: center;
     cursor: pointer;
 }
+
 .follow-list {
+    width: 80%;
+    margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: 1fr;
     gap: 20px;
-    text-align: center;
 }
 
-@media (max-width: 1000px) {
-    .follow-list {
-        grid-template-columns: repeat(4, 1fr);
-    }
+.follow-user-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    width: 100%;
 }
+
+.follow-user-item:hover {
+    background-color: #f5f5f5; /* 아주 연한 회색 */
+    transition: background-color 0.2s ease-in-out;
+}
+
+.follow-user-img-wrapper {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    padding: 3px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #3aa86d, #52a575, #6be3b4, #a3f7bf, #d1ffe2);
+    background-size: 300% 300%;
+    animation: gradientMove 4s ease infinite;
+}
+
 .follow-user-img {
     width: 100%;
-    aspect-ratio: 1 / 1;
+    height: 100%;
     object-fit: cover;
-    border-radius: 100%;
+    border-radius: 50%;
+    background-color: white;
+    padding: 4px;
+    box-sizing: border-box;
+    image-rendering: auto;
+}
+
+@keyframes gradientMove {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.follow-user-info {
+    width: 75%;
+    text-align: left;
+    padding: 0 15px;
+    word-break: break-word;
+}
+
+.follow-user-message {
+    font-size: 0.95rem;
+    margin-top: 6px;
+    color: #555;
+}
+
+.message-who {
+    font-weight: bold;
+}
+
+.message-who span {
+    font-size: 0.8rem;
+    color: #888;
 }
 
 .basket-body {
@@ -250,13 +349,20 @@
 #order-btn {
     width: 20%;
     height: 50px;
-    border: 1px solid #999;
     border-radius: 10px;
     margin: 0 auto;
     padding: 5px;
     cursor: pointer;
-    background-color: #f5f5f5;
+    background-color: #8CC7A5;
+    font-size:15px;
+    white-space: pre-line;
+    border:none;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s;
+}
+#order-btn:hover{
+    background-color: #4a7b63;
+    color:white;
 }
 
 -wish-state {
@@ -375,7 +481,7 @@
     padding: 15px;
     background-color: #fafafa;
     border-radius: 10px;
-    border:1px solid #ddd;
+    border:1px solid #bbb;
   }
   
   .order-info {
@@ -389,7 +495,7 @@
     border-bottom: 1px dashed #bbb;
     padding: 20px;
     display: grid;
-    grid-template-columns: 1.5fr 1fr;
+    grid-template-columns: 0.8fr 2fr;
     align-items: center;
 }
 
@@ -526,6 +632,35 @@
 }
 .mypage-coupon-list > li:nth-child(6) {
     width:12%;
+    text-align: center;
+}
+
+.mypage-point-list{
+    list-style-type: none;
+    display: flex;
+    margin:0 auto;
+    padding:10px;
+    margin-top:10px;
+    width:60%;
+    text-align: center;
+}
+
+.mypage-point-list > li{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.mypage-point-list > li:nth-child(1) {
+    width:33%;
+}
+
+.mypage-point-list > li:nth-child(2) {
+    width:33%
+}
+
+.mypage-point-list > li:nth-child(3) {
+    width:33%;
     text-align: center;
 }
 /* 쿠폰 끝 */

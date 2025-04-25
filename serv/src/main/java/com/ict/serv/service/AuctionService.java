@@ -234,11 +234,11 @@ public class AuctionService {
     }
 
     public List<AuctionRoom> getHotAuctionRooms() {
-        return auctionRepository.findTop50ByOrderByHitDesc();
+        return auctionRepository.findTop50ByStateOrderByHitDesc(AuctionState.OPEN);
     }
 
     public List<AuctionRoom> getClosingAuctionRooms() {
-        return auctionRepository.findTop50ByOrderByEndTime();
+        return auctionRepository.findTop50ByStateOrderByEndTime(AuctionState.OPEN);
     }
 
     @Transactional
@@ -249,5 +249,17 @@ public class AuctionService {
                 closeAuctionRoom(auctionRoom.getRoomId());
             }
         }
+    }
+
+    public List<AuctionProduct> selecteAuctionProductByUser(User user) {
+        return auctionProductRepository.findAllBySellerNo(user);
+    }
+
+    public String getAuctionRoomByProduct(Optional<AuctionProduct> auctionProduct) {
+        return auctionRepository.findByAuctionProduct(auctionProduct.get()).get(0).getRoomId();
+    }
+
+    public int getAuctionDeposit(AuctionProduct auctionProduct) {
+        return auctionRepository.findByAuctionProduct(auctionProduct).get(0).getDeposit();
     }
 }

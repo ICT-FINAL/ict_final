@@ -5,6 +5,7 @@ import com.ict.serv.dto.UserPwdModDto;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.report.ReportState;
 import com.ict.serv.entity.user.Address;
+import com.ict.serv.entity.user.AddressState;
 import com.ict.serv.entity.user.Guestbook;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.AuthService;
@@ -136,7 +137,6 @@ public class MypageController {
     public ResponseEntity<String> editInfo(@AuthenticationPrincipal UserDetails userDetails,
                                            @RequestPart(value = "user") User user,
                                            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage){
-
         // 임시 백업용 파일 참조 선언
         File backupFile = null;
 
@@ -229,6 +229,7 @@ public class MypageController {
             userInfo.setZipcode(user.getZipcode());
             userInfo.setAddressDetail(user.getAddressDetail());
             userInfo.setUsername(user.getUsername());
+            userInfo.setInfoText(user.getInfoText());
 
             authService.saveUser(userInfo);
 
@@ -286,10 +287,14 @@ public class MypageController {
         return  ResponseEntity.ok("pwdEditOk");
     }
 
-    @GetMapping("/getMyDeliveries")
-    public String getMyDeliveries(){
-        System.out.println("=======================================>들어오나요????????");
+    @GetMapping("/deleteAddr")
+    public ResponseEntity<String> deleteAddr(@RequestParam("id") Long addressId){
 
-        return "나의 배송지 관리 연결 성공";
+        Optional<Address> address = service.selectUserAddress(addressId);
+        address.get().setAddressState(AddressState.DELETED); // active에서 deleted 상태 변경
+
+        service.updateAddressState(address.get());
+
+        return ResponseEntity.ok("deleteAddrOk");
     }
 }

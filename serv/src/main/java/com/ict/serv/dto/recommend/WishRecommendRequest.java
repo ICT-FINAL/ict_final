@@ -1,7 +1,6 @@
 package com.ict.serv.dto.recommend;
 
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
@@ -10,4 +9,5 @@ import java.util.List;
 @NoArgsConstructor
 public class WishRecommendRequest {
     private List<Long> productIds;
+    private String priceRange;
 }
