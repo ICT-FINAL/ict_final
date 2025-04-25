@@ -67,4 +67,3 @@ public class OrderGroup {
     @Column(name = "is_cancelled")
     private Boolean isCancelled = false;
 }
-

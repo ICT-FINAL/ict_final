@@ -39,12 +39,13 @@ function MySell() {
             axios.get(`${serverIP.ip}/order/sellList?shippingState=${shippingOption}`, {
                 headers: { Authorization: `Bearer ${user.token}` }
             })
-                .then(res => {
-                    setOrderList(res.data.orderList);
-                    setTotalRecord(res.data.orderList.length);
-                    setFileList(res.data.filenameList);
-                })
-                .catch(err => console.log(err));
+            .then(res => {
+                setOrderList(res.data.orderList);
+                setTotalRecord(res.data.orderList.length);
+                setFileList(res.data.filenameList);
+                console.log(res.data);
+            })
+            .catch(err => console.log(err));
     };
 
     function formatNumberWithCommas(num) {
@@ -55,6 +56,32 @@ function MySell() {
         dispatch(setModal({...modal, selected:'shipping', isOpen:true, info:{id:id}}));
     }
 
+    const setOrderConfirm = (id) => {
+        if(user) {
+            const isConfirmed = window.confirm("주문 확인을 하시겠습니까?");
+            if (!isConfirmed) return;
+            axios.get(`${serverIP.ip}/order/orderConfirm?orderId=${id}&state=BEFORE`, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            })
+            .then(()=>{
+                window.alert("주문 확인 처리 되었습니다.");
+                getBoardList();
+            })
+            .catch(err => console.log(err));
+        }
+    }
+
+    const moveAuctionInfo = (auctionProduct) => {
+        if(user)
+            axios.get(`${serverIP.ip}/auction/getRoomId?productId=${auctionProduct.id}`,{
+                headers:{Authorization:`Bearer ${user.token}`}
+            })
+            .then(res =>{
+                navigate(`/auction/room/${res.data}`);
+            })
+            .catch(err => console.log(err))
+    }
+    
     const moveInfo = (prodId) => {
         if(user)
             axios.get(`${serverIP.ip}/product/getInfo?productId=${prodId}`,{
@@ -66,14 +93,23 @@ function MySell() {
             .catch(err => console.log(err))
     }
 
+    const cancelOrder = (id) => {
+        if (user) {
+            dispatch(setModal({...modal, isOpen:true, selected:'seller-cancel-order',selectedItem:id}));
+        }
+    }
+
     return (
         <div className="report-box">
             <select onChange={(e) => setShippingOption(e.target.value)} style={{ width: '120px', borderRadius: '10px', padding: '5px 10px', border: '1px solid #ddd', marginBottom:'30px'}}>
                 <option value="">전체</option>
+                <option value="PAID">결제 완료</option>
+                <option value="FINISH">구매 확정</option>
                 <option value="BEFORE">배송 준비 중</option>
                 <option value="ONGOING">배송 중</option>
-                <option value="FINISH">배송 완료</option>
-                <option value="CANCELED">배송 취소</option>
+                <option value="CANCELED">주문 취소</option>
+                <option value="SELLERCANCELED">배송 취소</option>
+                <option value="RETURNED">환불됨</option>
             </select>
             {
                 orderList.length === 0 ?
@@ -92,6 +128,8 @@ function MySell() {
                                         <strong>전화번호:</strong> {order.address.tel}<br />
                                         <strong>요청사항:</strong> {order.request}<br />
                                     </div>
+                                    { order.auctionProduct == null ?
+                                    <>
                                     <div className='order-wrapper'>
                                     { fileList[idx] &&
                                     <div style={{textAlign:'center'}}>
@@ -115,15 +153,40 @@ function MySell() {
                                     })}
                                     </div>
                                     </div>
+                                    </>:<>
+                                    <div className='order-wrapper'>
+                                         { fileList[idx] &&
+                                        <div style={{textAlign:'center'}}>
+                                            <img style={{width:`200px`, height:`200px`, borderRadius:'10px', cursor:'pointer'}} onClick={()=>moveAuctionInfo(order.auctionProduct)} src={`${serverIP.ip}/uploads/auction/product/${order.auctionProduct.id}/${fileList[idx]}`}/>
+                                        </div>
+                                        }
+                                        <div>
+                                            <div className="order-item" style={{cursor:'pointer'}} onClick={()=>moveAuctionInfo(order.auctionProduct)} >
+                                                <div className="product-details">
+                                                    <span style={{fontSize:'18px', fontWeight:'bold'}}>{order.auctionProduct.productName}</span><br/><br/>
+                                                    경매상품입니다.<br/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </>
+                                    }
                                     <div className="order-total">
-                                        <div><strong>소계:</strong> {formatNumberWithCommas(orderSum)}원</div>
+                                        { order.auctionProduct == null ?
+                                        <div><strong>소계:</strong> {formatNumberWithCommas(orderSum)}원</div>:<div><strong>소계:</strong> {formatNumberWithCommas(order.auctionProduct.discountRate)}원</div>
+                                        }
                                         {order.shippingFee !== 0 && (
-                                            <div className="shipping-fee">
+                                            <div className="shipping-fee" style={{color:'#1976d2'}}>
                                                 <strong>배송비:</strong> +{formatNumberWithCommas(order.shippingFee)}원
                                             </div>
                                         )}
                                         <div style={{ marginTop: '10px' }}>
-                                                <strong>배송 상태:</strong>{' '}
+                                                <strong>배송 상태:</strong>
+                                                {order.shippingState === 'PAID' && (
+                                                    <span style={{ color: '#28a745', fontWeight: '600' }}>
+                                                    ✅ 결제 완료
+                                                    </span>
+                                                )}
                                                 {order.shippingState === 'BEFORE' && (
                                                     <span style={{ color: '#888', fontWeight: '600' }}>
                                                     ⏳ 배송 준비 중
@@ -136,22 +199,39 @@ function MySell() {
                                                 )}
                                                 {order.shippingState === 'FINISH' && (
                                                     <span style={{ color: '#28a745', fontWeight: '600' }}>
-                                                    ✅ 배송 완료
+                                                    ✅ 구매 확정
                                                     </span>
                                                 )}
                                                 {order.shippingState === 'CANCELED' && (
                                                     <span style={{ color: '#dc3545', fontWeight: '600' }}>
+                                                    ❌ 주문 취소
+                                                    </span>
+                                                )}
+                                                {order.shippingState === 'SELLERCANCELED' && (
+                                                    <span style={{ color: '#dc3545', fontWeight: '600' }}>
                                                     ❌ 배송 취소
+                                                    </span>
+                                                )}
+                                                {order.shippingState === 'RETURNED' && (
+                                                    <span style={{ color: '#dc3545', fontWeight: '600' }}>
+                                                    ❌ 환불됨
                                                     </span>
                                                 )}
                                                 </div>
                                     </div>
                                     <div className="final-total">
-                                        <strong>최종 결제 금액:</strong> {formatNumberWithCommas(orderSum + order.shippingFee)}원
+                                    { order.auctionProduct == null ?
+                                        <><strong>최종 결제 금액:</strong> {formatNumberWithCommas(orderSum + order.shippingFee)}원</>:<><strong>최종 결제 금액:</strong> {formatNumberWithCommas( order.auctionProduct.discountRate+ order.shippingFee)}원</>
+                                    }
                                     </div>
                                     {order.shippingState==='BEFORE' && <button style={{marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'
                                         ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#8CC7A5'
                                     }} onClick={()=>setShipping(order.id)}>배송 등록</button>}
+                                    {order.shippingState==='PAID' && <><button style={{marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'
+                                        ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#8CC7A5'
+                                    }} onClick={()=>setOrderConfirm(order.id)}>주문 확인</button><button style={{marginTop:'20px', marginLeft:'10px', cursor:'pointer', border:'none', padding:'10px 20px'
+                                        ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#e74c3c', color:'white'
+                                        }} onClick={()=>cancelOrder(order.id)}>배송 취소</button></>}
                                      {order.shippingState==='ONGOING' && <><br/><span style={{color:'#e74c3c'}}>※구매자가 배송 완료 처리시 배송 완료 됩니다.※</span></>}
                                 </div>
                             );

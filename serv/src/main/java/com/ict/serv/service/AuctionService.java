@@ -250,4 +250,16 @@ public class AuctionService {
             }
         }
     }
+
+    public List<AuctionProduct> selecteAuctionProductByUser(User user) {
+        return auctionProductRepository.findAllBySellerNo(user);
+    }
+
+    public String getAuctionRoomByProduct(Optional<AuctionProduct> auctionProduct) {
+        return auctionRepository.findByAuctionProduct(auctionProduct.get()).get(0).getRoomId();
+    }
+
+    public int getAuctionDeposit(AuctionProduct auctionProduct) {
+        return auctionRepository.findByAuctionProduct(auctionProduct).get(0).getDeposit();
+    }
 }

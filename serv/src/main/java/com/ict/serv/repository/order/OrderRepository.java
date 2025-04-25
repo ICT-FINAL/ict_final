@@ -1,8 +1,10 @@
 package com.ict.serv.repository.order;
 
+import com.ict.serv.entity.auction.AuctionProduct;
 import com.ict.serv.entity.order.OrderGroup;
 import com.ict.serv.entity.order.OrderState;
 import com.ict.serv.entity.order.Orders;
+import com.ict.serv.entity.order.ShippingState;
 import com.ict.serv.entity.product.HotCategoryDTO;
 import com.ict.serv.entity.user.User;
 import io.lettuce.core.dynamic.annotation.Param;
@@ -43,6 +45,9 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
     JOIN option_category oc ON oi.option_category_id = oc.option_category_id
     JOIN product_option o ON oc.option_id = o.option_id
     JOIN product p ON o.product_id = p.product_id
+    JOIN orders ord ON oi.order_id = ord.order_id
+    JOIN order_group og ON ord.order_group_id = og.order_group_id
+    WHERE og.state IN ('PAID', 'PARTRETURNED')
     GROUP BY p.product_category
 """, nativeQuery = true)
     List<Object[]> getSalesDataByCategory();
@@ -53,8 +58,11 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
            SUM(oi.quantity * p.price) AS total_revenue
     FROM order_item oi
     JOIN option_category oc ON oi.option_category_id = oc.option_category_id
-    JOIN product_option o ON oc.option_id = o.option_id
-    JOIN product p ON o.product_id = p.product_id
+    JOIN product_option po ON oc.option_id = po.option_id
+    JOIN product p ON po.product_id = p.product_id
+    JOIN orders o ON oi.order_id = o.order_id
+    JOIN order_group og ON o.order_group_id = og.order_group_id
+    WHERE og.state IN ('PAID', 'PARTRETURNED')
     GROUP BY p.event_category
 """, nativeQuery = true)
     List<Object[]> getSalesByEventCategory();
@@ -65,8 +73,11 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
            SUM(oi.quantity * p.price) AS total_revenue
     FROM order_item oi
     JOIN option_category oc ON oi.option_category_id = oc.option_category_id
-    JOIN product_option o ON oc.option_id = o.option_id
-    JOIN product p ON o.product_id = p.product_id
+    JOIN product_option po ON oc.option_id = po.option_id
+    JOIN product p ON po.product_id = p.product_id
+    JOIN orders o ON oi.order_id = o.order_id
+    JOIN order_group og ON o.order_group_id = og.order_group_id
+    WHERE og.state IN ('PAID', 'PARTRETURNED')
     GROUP BY p.target_category
 """, nativeQuery = true)
     List<Object[]> getSalesByTargetCategory();
@@ -75,4 +86,10 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
     List<Object[]> countAllGroupedByProduct();
 
     List<Orders> findAllByProductIdOrderByIdDesc(Long id);
+
+    List<Orders> findAllByProductIdAndShippingStateOrderByIdDesc(Long id, ShippingState state);
+
+    List<Orders> findAllByAuctionProductOrderByIdDesc(AuctionProduct auctionProduct);
+
+    List<Orders> findAllByAuctionProductAndShippingStateOrderByIdDesc(AuctionProduct auctionProduct, ShippingState shippingState);
 }

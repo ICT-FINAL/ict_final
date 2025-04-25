@@ -18,7 +18,10 @@ import MyInfoEdit from "./MyInfoEdit";
 import MyDeliveries from "./MyDeliveries";
 import MyReviewList from "./MyReviewList";
 import MyBid from "./MyBid";
+import MyActivity from "./MyActivity";
+import MyOrder from "./MyOrder";
 import MyCoupon from "./MyCoupon";
+import MyPoint from "./MyPoint";
 
 function MyIndex(){
     const location = useLocation();
@@ -56,8 +59,8 @@ useEffect(() => {
             points: { f_name: "보관함", l_name: "적립 내역" },
             wishlist: { f_name:"보관함", l_name:"찜 목록"},
             buybid: { f_name:"거래내역", l_name:"구매 입찰 내역"},
-            "stats-activity": { f_name: "통계", l_name: "활동 통계" },
-            "stats-purchases": { f_name: "통계", l_name: "구매 통계" },
+            activity: { f_name: "통계", l_name: "활동 통계" },
+            order: { f_name: "통계", l_name: "구매 통계" },
             "stats-sales": { f_name: "통계", l_name: "판매 통계" },
             "delete-account": { f_name: "회원 탈퇴", l_name: "회원 탈퇴" },
         };
@@ -110,7 +113,10 @@ useEffect(() => {
                     { path.l_name == '판매 내역' && <MySell/> }
                     { path.l_name == '리뷰 관리' && <MyReviewList/> }
                     { path.l_name == '구매 입찰 내역' && <MyBid/> }
+                    { path.l_name == '활동 통계' && <MyActivity/> }
+                    { path.l_name == '구매 통계' && <MyOrder/> }
                     { path.l_name == '쿠폰함' && <MyCoupon/> }
+                    { path.l_name == '적립 내역' && <MyPoint/> }
                 </div>
             </div>
         </>

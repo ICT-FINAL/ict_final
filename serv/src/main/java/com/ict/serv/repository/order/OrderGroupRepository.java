@@ -18,5 +18,8 @@ public interface OrderGroupRepository extends JpaRepository<OrderGroup, Long> {
     List<OrderGroup> findAllByUserOrderByOrderDateDesc(User user, PageRequest of);
 
     List<OrderGroup> findAllByState(OrderState orderState);
+
+    List<OrderGroup> findAllByStateIn(List<OrderState> states);
+
 }
 
