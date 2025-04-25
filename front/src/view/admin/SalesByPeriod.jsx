@@ -52,7 +52,7 @@ function SalesByPeriod() {
       return {
         date: dateStr,
         orders: 0,
-        totalSales: 0, // 매출총액은 이미 백엔드에서 제공된 값이므로 사용하지 않음
+        totalSales: 0,
         shippingCost: 0,
         couponDiscount: 0,
         cancelAmount: 0,
@@ -66,17 +66,19 @@ function SalesByPeriod() {
 
     setFiltered(matched);
   }, [selectedMonth, selectedYear, data]);
-
+  useEffect(() => {
+    setSelectedMonth(today.getMonth() + 1);
+  }, []);
   const summary = filtered.reduce(
     (acc, curr) => {
       const coupon = curr.couponDiscount || 0;
       const cancel = curr.cancelAmount || 0;
-      const adjustedTotalSales = curr.totalSales - cancel; // 매출총액은 그대로 백엔드에서 제공된 값 사용
+      const adjustedTotalSales = curr.totalSales;
       const netSales = adjustedTotalSales - curr.shippingCost;
       const profit = ((adjustedTotalSales - curr.shippingCost + coupon) * 0.2) - coupon;
 
       acc.orders += curr.orders;
-      acc.totalSales += curr.totalSales; // 매출총액 누적 (변경하지 않음)
+      acc.totalSales += curr.totalSales;
       acc.shippingCost += curr.shippingCost;
       acc.couponDiscount += coupon;
       acc.cancelAmount += cancel;
@@ -125,6 +127,34 @@ function SalesByPeriod() {
     ],
   };
 
+  const monthlySummary = Array.from({ length: 12 }, (_, i) => {
+    const monthData = data.filter((item) => {
+      const date = new Date(item.date);
+      return date.getMonth() === i && date.getFullYear() === selectedYear;
+    });
+
+    return monthData.reduce(
+      (acc, item) => {
+        const coupon = item.couponDiscount || 0;
+        const cancel = item.cancelAmount || 0;
+        const adjustedTotalSales = item.totalSales;
+        const netSales = adjustedTotalSales - item.shippingCost;
+        const profit = ((adjustedTotalSales - item.shippingCost + coupon) * 0.2) - coupon;
+
+        acc.orders += item.orders;
+        acc.totalSales += adjustedTotalSales;
+        acc.shippingCost += item.shippingCost;
+        acc.couponDiscount += coupon;
+        acc.cancelAmount += cancel;
+        acc.netSales += netSales;
+        acc.profit += profit;
+
+        return acc;
+      },
+      { month: i + 1, orders: 0, totalSales: 0, shippingCost: 0, couponDiscount: 0, cancelAmount: 0, netSales: 0, profit: 0 }
+    );
+  });
+
   return (
     <div className="sales-container">
       <div className="top-controls">
@@ -159,7 +189,9 @@ function SalesByPeriod() {
         </div>
 
         <div className="right-panel">
-          <div className="table-wrapper" style={{ overflowY: 'auto', maxHeight: '600px' }}>
+          {/* 👉 일별 매출 상세 먼저 출력 */}
+          <div className="table-wrapper" style={{ overflowY: 'auto', maxHeight: '600px', marginBottom: '2rem' }}>
+            <h3 style={{ margin: '1rem 0' }}>일별 매출 상세</h3>
             <table className="sales-table">
               <thead>
                 <tr>
@@ -207,6 +239,68 @@ function SalesByPeriod() {
                   </tr>
                 )}
               </tbody>
+            </table>
+          </div>
+          <div className="table-wrapper" style={{ overflowY: 'auto', maxHeight: '400px' }}>
+            <h3 style={{ margin: '1rem 0' }}>월별 매출 요약</h3>
+            <table className="sales-table">
+              <thead>
+                <tr>
+                  <th>월</th>
+                  <th>주문수</th>
+                  <th>매출총액</th>
+                  <th>배송총액</th>
+                  <th>쿠폰총액</th>
+                  <th>환불금액</th>
+                  <th>순매출</th>
+                  <th>순이익</th>
+                </tr>
+              </thead>
+              <tbody>
+                {monthlySummary.map((item) => (
+                  <tr key={item.month}>
+                    <td>{item.month}월</td>
+                    <td>{item.orders}</td>
+                    <td>{item.totalSales.toLocaleString()}원</td>
+                    <td>{item.shippingCost.toLocaleString()}원</td>
+                    <td>{item.couponDiscount.toLocaleString()}원</td>
+                    <td>{item.cancelAmount.toLocaleString()}원</td>
+                    <td>{item.netSales.toLocaleString()}원</td>
+                    <td>{Math.round(item.profit).toLocaleString()}원</td>
+                  </tr>
+                ))}
+              </tbody>
+               <tfoot>
+                {(() => {
+                  const total = monthlySummary.reduce((acc, curr) => {
+                    acc.orders += curr.orders;
+                    acc.totalSales += curr.totalSales;
+                    acc.shippingCost += curr.shippingCost;
+                    acc.couponDiscount += curr.couponDiscount;
+                    acc.cancelAmount += curr.cancelAmount;
+                    acc.netSales += curr.netSales;
+                    acc.profit += curr.profit;
+                    return acc;
+                  }, {
+                    orders: 0, totalSales: 0, shippingCost: 0,
+                    couponDiscount: 0, cancelAmount: 0,
+                    netSales: 0, profit: 0,
+                  });
+
+                  return (
+                    <tr className="summary-row">
+                      <td><strong>합계</strong></td>
+                      <td><strong>{total.orders}</strong></td>
+                      <td><strong>{total.totalSales.toLocaleString()}원</strong></td>
+                      <td><strong>{total.shippingCost.toLocaleString()}원</strong></td>
+                      <td><strong>{total.couponDiscount.toLocaleString()}원</strong></td>
+                      <td><strong>{total.cancelAmount.toLocaleString()}원</strong></td>
+                      <td><strong>{total.netSales.toLocaleString()}원</strong></td>
+                      <td><strong>{Math.round(total.profit).toLocaleString()}원</strong></td>
+                    </tr>
+                  );
+                })()}
+              </tfoot>
             </table>
           </div>
         </div>
