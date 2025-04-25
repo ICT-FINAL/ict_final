@@ -31,16 +31,20 @@ public class ChatService {
     private final ProductRepository productRepository;
     private final SimpMessagingTemplate messagingTemplate;
 
-    public String createRoom(User buyer, Long productId) {
+    public String createRoom(User user1, User user2, Long productId) {
         String roomId = UUID.randomUUID().toString();
 
         ChatRoom room = ChatRoom.builder()
                 .chatRoomId(roomId)
                 .state(ChatState.OPEN)
-                .product(productRepository.getReferenceById(productId))
-                .buyer(buyer)
+                .participantA(user1)
+                .participantB(user2)
                 .createdAt(LocalDateTime.now())
                 .build();
+
+        if (productId != null) {
+            room.setProduct(productRepository.getReferenceById(productId));
+        }
         chatRoomRepository.save(room);
 
         return roomId;
@@ -49,12 +53,27 @@ public class ChatService {
     public ChatMessage saveChat(String roomId, User user, String message) {
         ChatRoom room =  getChatRoom(roomId).get();
 
+        User user1 = room.getParticipantA();
+        User user2 = room.getParticipantB();
+
+        System.out.println(user1.getId());
+        System.out.println(user2.getId());
+
         ChatMessage chat = ChatMessage.builder()
                 .room(room)
-                .sender(user)
                 .message(message)
                 .sendTime(LocalDateTime.now())
                 .build();
+
+        if (user.getId().equals(user1.getId())) {
+            chat.setSender(user1);
+            chat.setReceiver(user2);
+        } else if (user.getId().equals(user2.getId())) {
+            chat.setSender(user2);
+            chat.setReceiver(user1);
+        } else {
+            System.out.println("채팅 사용자 불일치");
+        }
 
         chat = chatRepository.save(chat);
 
@@ -93,18 +112,16 @@ public class ChatService {
         }).collect(Collectors.toList());
     }
 
-    public ChatRoom findRoom(User user, Long productId) {
-        return chatRoomRepository.findByBuyerAndProductIdAndState(user, productId, ChatState.ACTIVE);
+    public ChatRoom findRoom(User user1, User user2, Long productId) {
+        return chatRoomRepository.findByParticipantAAndParticipantBAndProductIdAndState(user1, user2, productId, ChatState.ACTIVE);
     }
 
     public List<ChatRoom> getChatRoomList(User user) {
-        return chatRoomRepository.findByBuyerAndStateOrderByLastChat_SendTimeDesc(user, ChatState.ACTIVE);
+        return chatRoomRepository.findChatRoomsWithoutProduct(user, ChatState.ACTIVE);
     }
 
-    public List<ChatRoom> getSellerChatRoomList(User user) {
-        List<Product> products = productRepository.findAllBySellerNo_Id(user.getId());
-        List<ChatState> states = List.of(ChatState.ACTIVE, ChatState.LEFT);
-        return chatRoomRepository.findByProductInAndStateInOrderByLastChatSendTimeDesc(products, states);
+    public List<ChatRoom> getProductChatRoomList(User user) {
+        return chatRoomRepository.findChatRoomsWithProduct(user, ChatState.ACTIVE);
     }
 
     public void markChatAsRead(Long id, User user) {
@@ -134,14 +151,14 @@ public class ChatService {
 
     public void leaveChatRoom(String roomId, Long userId) {
         ChatRoom room = getChatRoom(roomId).get();
-        if (room.getBuyer().getId().equals(userId)) {
+        if (room.getState().equals(ChatState.ACTIVE)) {
             chatRoomRepository.updateChatRoomStateToLeft(roomId);
-        } else {
+        } else if (room.getState().equals(ChatState.LEFT)) {
             chatRoomRepository.updateChatRoomStateToClosed(roomId);
         }
     }
 
     public int getUnreadChatCount(User user) {
-        return chatRepository.countBySenderAndIsReadFalse(user);
+        return chatRepository.countByReceiverAndIsReadFalse(user);
     }
 }

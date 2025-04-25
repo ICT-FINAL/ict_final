@@ -159,15 +159,6 @@ function Body() {
   }, []);
 
   useEffect(()=>{
-    if (user) {
-      axios.get(`${serverIP.ip}/chat/unreadChatCount`, {
-        headers: { Authorization: `Bearer ${user.token}` }
-      })
-      .then(res=>{
-        console.log(res.data);
-      })
-      .catch(err=>console.log(err));
-    }
     var menu = new Menu("#myMenu");
     var item1 = new Item("list", "fas fa-bars", "");
     var item2 = new Item("up", "fas fa-id-card", "", "");
@@ -180,6 +171,21 @@ function Body() {
     let homeButton=document.getElementById("home");
     var upButton=document.getElementById("up");
     let chatButton=document.getElementById("chat");
+
+    if (user) {
+      axios.get(`${serverIP.ip}/chat/unreadChatCount`, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      })
+      .then(res=>{
+        if (res.data > 0) {
+          const countIcon = document.createElement("span");
+          countIcon.id = "count-icon";
+          countIcon.textContent = res.data;
+          chatButton.appendChild(countIcon);
+        }
+      })
+      .catch(err=>console.log(err));
+    }
     
     homeButton.addEventListener('click', () => {
       menu.close();

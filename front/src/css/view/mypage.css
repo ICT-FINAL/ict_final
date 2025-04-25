@@ -264,6 +264,7 @@
 
 .message-who {
     font-weight: bold;
+    cursor: pointer;
 }
 
 .message-who span {

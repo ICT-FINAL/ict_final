@@ -14,11 +14,21 @@ import java.util.List;
 
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, String> {
 
-    ChatRoom findByBuyerAndProductIdAndState(User user, Long productId, ChatState state);
+    @Query("SELECT r FROM ChatRoom r " +
+            "WHERE (r.participantA = :user OR r.participantB = :user) " +
+            "AND r.state = :state " +
+            "AND r.product.id IS NULL " +
+            "ORDER BY r.lastChat.sendTime DESC")
+    List<ChatRoom> findChatRoomsWithoutProduct(@Param("user") User user,
+                                               @Param("state") ChatState state);
 
-    List<ChatRoom> findByBuyerAndStateOrderByLastChat_SendTimeDesc(User user, ChatState state);
-
-    List<ChatRoom> findByProductInAndStateInOrderByLastChatSendTimeDesc(List<Product> productList, List<ChatState> states);
+    @Query("SELECT r FROM ChatRoom r " +
+            "WHERE (r.participantA = :user OR r.participantB = :user) " +
+            "AND r.state = :state " +
+            "AND r.product.id IS NOT NULL " +
+            "ORDER BY r.lastChat.sendTime DESC")
+    List<ChatRoom> findChatRoomsWithProduct(@Param("user") User user,
+                                            @Param("state") ChatState state);
 
     @Modifying
     @Transactional
@@ -29,4 +39,6 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, String> {
     @Transactional
     @Query("UPDATE ChatRoom c SET c.state = 'CLOSED' WHERE c.chatRoomId = :roomId")
     void updateChatRoomStateToClosed(@Param("roomId") String roomId);
+
+    ChatRoom findByParticipantAAndParticipantBAndProductIdAndState(User user1, User user2, Long productId, ChatState state);
 }

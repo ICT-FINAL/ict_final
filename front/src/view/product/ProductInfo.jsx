@@ -318,13 +318,13 @@ function ProductInfo() {
     };
 
     const inquiry = () => {
-        axios.get(`${serverIP.ip}/chat/createChatRoom?productId=${loc.state.product.id}`, {
+        axios.get(`${serverIP.ip}/chat/createChatRoom?userId=${loc.state.product.sellerNo.id}&productId=${loc.state.product.id}`, {
             headers: { Authorization: `Bearer ${user.token}` }
         })
-            .then(res => {
-                console.log("roomId", res.data);
-                navigate(`/product/chat/${res.data}`)
-            })
+        .then(res => {
+            console.log("roomId", res.data);
+            navigate(`/product/chat/${res.data}`)
+        })
     }
 
     const openMessage = (wh, name) => {
