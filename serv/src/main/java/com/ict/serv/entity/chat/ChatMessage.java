@@ -28,6 +28,8 @@ public class ChatMessage {
     @JoinColumn(name="receiver")
     private User receiver;
 
+    @Lob
+    @Column(columnDefinition = "LONGTEXT")
     private String message;
 
     private LocalDateTime sendTime;

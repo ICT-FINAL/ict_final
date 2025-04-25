@@ -370,8 +370,8 @@ function ProductSell() {
                         ))}
                         </div>
                     </div>
-                    <div style={{fontSize:'13px', color:'#888', marginBottom:'10px'}}>
-                        세부 카테고리를 고른후 1개 이상의 대분류 옵션과 1개 이상의 소분류 옵션을 설정하세요<br/><br/>
+                    <div style={{fontSize:'13px', color:'#888', marginBottom: '20px', padding: '0 20px'}}>
+                        세부 카테고리를 고른후 1개 이상의 대분류 옵션과 1개 이상의 소분류 옵션을 설정하세요<br/>
                         각 소분류 옵션에는 설정 가격 + 추가금액 으로 가격이 산정됩니다.
                     </div>
                     </>
