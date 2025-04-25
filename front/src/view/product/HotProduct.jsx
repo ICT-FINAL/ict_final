@@ -65,7 +65,7 @@ function HotProduct() {
         <>
             <div className="search-page-banner">
                 <h1>🏆 인기 카테고리 TOP 확인하기!</h1>
-                <p>🛍️ 지금 사람들이 많이 고른 핸드메이드 아이템은?</p>
+                <p>🛍️ 지금 사람들이 많이 고른 <span style={{ fontWeight: '600', color: '#8CC7A5' }}>핸드메이드 아이템</span>은?</p>
             </div>
             <ul className='hot-category-list'>
                 {categoryList.map((item, index) => (
@@ -91,8 +91,20 @@ function HotProduct() {
                                     <div className="hot-product-card" key={index}>
                                         <div className="hot-card-content" style={{cursor:'pointer'}} onClick={()=>moveInfo(product)}>
                                             <img style={{ width: '250px', height: '250px', objectFit: 'cover', borderRadius: '10px' }} src={`${serverIP.ip}/uploads/product/${product.id}/${product.images[0].filename}`}/>
-                                            <div style={{height:'60px'}}>{product.productName}<br />
-                                            {formatNumberWithCommas(product.price)}원
+                                            <div style={{height:'60px', textAlign:'left'}}>{product.productName}<br />
+                                            {product.discountRate === '' || product.discountRate === 0 ? (
+                                                    <span style={{ fontWeight: "700" }}>{product.price.toLocaleString()}원</span> // 할인율이 0%일 때는 기존 가격만 표시
+                                                    ) : (
+                                                    <div style={{textAlign:'center'}}>
+                                                        <span style={{ color: 'red', fontWeight: "700", marginRight: "3px" }}>{product.discountRate}%</span>
+                                                        <span style={{ textDecoration: "line-through", textDecorationColor: "red", textDecorationThickness: "2px", fontWeight: "700", marginRight: '3px' }}>
+                                                            {product.price.toLocaleString()}원
+                                                        </span>
+                                                        <span style={{ color: 'red', fontWeight: "700" }}>
+                                                            {Math.round(product.price * (1 - product.discountRate / 100)).toLocaleString()}원
+                                                        </span> 
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

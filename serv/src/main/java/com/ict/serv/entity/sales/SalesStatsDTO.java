@@ -11,5 +11,6 @@ public class SalesStatsDTO {
     private int totalPrice;
     private int shippingCost;
     private int couponDiscount;
+    private int cancelAmount;
     private int totalSales;
 }

@@ -354,7 +354,8 @@
     padding: 5px;
     cursor: pointer;
     background-color: #8CC7A5;
-    font-size:17px;
+    font-size:15px;
+    white-space: pre-line;
     border:none;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     transition: all 0.3s;
@@ -631,6 +632,35 @@
 }
 .mypage-coupon-list > li:nth-child(6) {
     width:12%;
+    text-align: center;
+}
+
+.mypage-point-list{
+    list-style-type: none;
+    display: flex;
+    margin:0 auto;
+    padding:10px;
+    margin-top:10px;
+    width:60%;
+    text-align: center;
+}
+
+.mypage-point-list > li{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.mypage-point-list > li:nth-child(1) {
+    width:33%;
+}
+
+.mypage-point-list > li:nth-child(2) {
+    width:33%
+}
+
+.mypage-point-list > li:nth-child(3) {
+    width:33%;
     text-align: center;
 }
 /* 쿠폰 끝 */

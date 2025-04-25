@@ -399,7 +399,7 @@ function ProductInfo() {
                         <ul>
                             <li style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div className='product-profile-box'>
-                                    <img id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' src={loc.state.product.sellerNo.uploadedProfileUrl ? `${serverIP.ip}${loc.state.product.sellerNo.uploadedProfileUrl}` : `${loc.state.product.sellerNo.profileImageUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
+                                    <img id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' src={loc.state.product.sellerNo.uploadedProfileUrl ? `${serverIP.ip}${loc.state.product.sellerNo.uploadedProfileUrl}` : `${serverIP.ip}${loc.state.product.sellerNo.profileImageUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
                                     <div id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{loc.state.product.sellerNo.username} &gt;</div>
                                 </div>
                                 {/* 평균 별점 */}
@@ -468,7 +468,7 @@ function ProductInfo() {
                                         </li>
                                     }
                                     <li>
-                                        <select className='product-info-selectbox' onChange={handleOptionChange} value={selectedOptionId}>
+                                        <select className='info-product-info-selectbox' onChange={handleOptionChange} value={selectedOptionId}>
                                             <option value="" disabled selected>대분류를 선택해주세요</option>
                                             {options.map((option) => (
                                                 <option key={option.id} value={option.id}>{option.optionName}</option>
@@ -478,7 +478,7 @@ function ProductInfo() {
                                             <>
                                                 <select
                                                     style={{ marginLeft: '15px' }}
-                                                    className="product-info-selectbox"
+                                                    className="info-product-info-selectbox"
                                                     onChange={handleSubOptionChange}
                                                     value={selectedSubOptionId}
                                                 >

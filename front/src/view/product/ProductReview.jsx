@@ -280,7 +280,7 @@ function ProductReview(){
                 setIsMod(false);
                 setModReview(null);
 
-                alert("성공하였습니다.");
+                alert("리뷰 작성이 완료되었습니다.");
 
                 setReviewWrite(false);
 

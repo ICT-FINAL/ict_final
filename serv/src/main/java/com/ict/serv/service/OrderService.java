@@ -1,17 +1,16 @@
 package com.ict.serv.service;
 
+import com.ict.serv.entity.auction.AuctionProduct;
 import com.ict.serv.entity.order.*;
 import com.ict.serv.entity.product.HotCategoryDTO;
 import com.ict.serv.entity.sales.CategorySalesDTO;
 import com.ict.serv.entity.sales.SalesStatsDTO;
 import com.ict.serv.entity.user.User;
-import com.ict.serv.repository.order.AuctionOrderRepository;
-import com.ict.serv.repository.order.OrderGroupRepository;
-import com.ict.serv.repository.order.OrderItemRepository;
-import com.ict.serv.repository.order.OrderRepository;
+import com.ict.serv.repository.order.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,6 +23,7 @@ public class OrderService {
     private final OrderGroupRepository order_group_repo;
     private final AuctionOrderRepository auctionOrderRepository;
     private final OrderRepository orderRepository;
+    private final ShippingRepository shippingRepository;
 
     public Orders insertOrder(Orders orders) {
         return order_repo.save(orders);
@@ -74,6 +74,9 @@ public class OrderService {
     public List<Orders> getOrderByProduct(Long id) {
         return order_repo.findAllByProductIdOrderByIdDesc(id);
     }
+    public List<Orders> getOrderByProductAndState(Long id, ShippingState state) {
+        return order_repo.findAllByProductIdAndShippingStateOrderByIdDesc(id,state);
+    }
     public List<HotCategoryDTO> getHotCategory() {
         List<Object[]> result = order_repo.countProductCategoryFromPaidOrdersWithinTwoWeeks();
 
@@ -99,11 +102,12 @@ public class OrderService {
         return order_group_repo.findAllByState(OrderState.PAID);
     }
     public List<SalesStatsDTO> getDailySalesStats() {
-        List<OrderGroup> orderGroups = order_group_repo.findAllByState(OrderState.PAID);
-        List<AuctionOrder> auctionOrders = auctionOrderRepository.findAllByState(OrderState.PAID);
+        List<OrderState> targetOrderGroupStates = Arrays.asList(OrderState.PAID, OrderState.PARTRETURNED);
+
+        List<OrderGroup> orderGroups = order_group_repo.findAllByStateIn(targetOrderGroupStates);
+        List<AuctionOrder> auctionOrders = auctionOrderRepository.findAllByState(OrderState.PAID); //
 
         Map<String, SalesStatsDTO> statsMap = new HashMap<>();
-
         for (OrderGroup group : orderGroups) {
             String date = group.getOrderDate().substring(0, 10);
 
@@ -115,14 +119,18 @@ public class OrderService {
                             group.getTotalPrice(),
                             group.getTotalShippingFee(),
                             group.getCouponDiscount(),
-                            group.getTotalPrice() + group.getTotalShippingFee() - group.getCouponDiscount()
+                            group.getCancelAmount(),
+                            group.getTotalPrice() + group.getTotalShippingFee()
+                                    - group.getCouponDiscount() - group.getCancelAmount()
                     );
                 } else {
                     existing.setOrders(existing.getOrders() + 1);
                     existing.setTotalPrice(existing.getTotalPrice() + group.getTotalPrice());
                     existing.setShippingCost(existing.getShippingCost() + group.getTotalShippingFee());
                     existing.setCouponDiscount(existing.getCouponDiscount() + group.getCouponDiscount());
-                    existing.setTotalSales(existing.getTotalPrice() + existing.getShippingCost() - existing.getCouponDiscount());
+                    existing.setCancelAmount(existing.getCancelAmount() + group.getCancelAmount());
+                    existing.setTotalSales(existing.getTotalPrice() + existing.getShippingCost()
+                            - existing.getCouponDiscount() - existing.getCancelAmount());
                     return existing;
                 }
             });
@@ -138,6 +146,7 @@ public class OrderService {
                             1,
                             order.getTotalPrice(),
                             order.getTotalShippingFee(),
+                            0,
                             0,
                             order.getTotalPrice() + order.getTotalShippingFee()
                     );
@@ -157,16 +166,41 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
     public List<CategorySalesDTO> getSalesByCategory() {
+        // Step 1: 수량 기반 집계는 그대로 사용
         List<Object[]> raw = orderRepository.getSalesDataByCategory();
-        return raw.stream()
-                .map(row -> new CategorySalesDTO(
+        Map<String, CategorySalesDTO> categoryMap = raw.stream().collect(Collectors.toMap(
+                row -> (String) row[0],
+                row -> new CategorySalesDTO(
                         (String) row[0],
                         ((Number) row[1]).longValue(),
-                        ((Number) row[2]).longValue()
-                ))
-                .collect(Collectors.toList());
-    }
+                        0L // totalRevenue는 아래에서 채움
+                )
+        ));
 
+        // Step 2: 환불 반영된 매출을 카테고리별로 집계
+        List<OrderGroup> paidGroups = order_group_repo.findAllByStateIn(
+                List.of(OrderState.PAID, OrderState.PARTRETURNED)
+        );
+
+        for (OrderGroup group : paidGroups) {
+            int validPrice = group.getTotalPrice() - group.getCancelAmount();
+
+            // 이 그룹의 상품이 어떤 카테고리인지 추출
+            List<Orders> orders = group.getOrders();
+            if (orders.isEmpty()) continue;
+
+            // 하나의 카테고리만 존재한다고 가정
+            String category = orders.get(0).getProduct().getProductCategory();
+
+            // 해당 카테고리에 validPrice를 더함
+            categoryMap.computeIfPresent(category, (k, dto) -> {
+                dto.setTotalRevenue(dto.getTotalRevenue() + validPrice);
+                return dto;
+            });
+        }
+
+        return new ArrayList<>(categoryMap.values());
+    }
     public List<CategorySalesDTO> getSalesByEventCategory() {
         return toDTO(orderRepository.getSalesByEventCategory());
     }
@@ -183,5 +217,28 @@ public class OrderService {
                         ((Number) row[2]).longValue()
                 ))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deleteOrderItem(OrderItem orderItem) {
+        order_item_repo.delete(orderItem);
+    }
+    @Transactional
+    public void deleteOrders(Orders orders) {
+        List<Shipping> shippingList = shippingRepository.findAllByOrders(orders);
+        for(Shipping shipping: shippingList) shippingRepository.delete(shipping);
+        order_repo.delete(orders);
+    }
+    @Transactional
+    public void deleteOrderGroup(OrderGroup orderGroup) {
+        order_group_repo.delete(orderGroup);
+    }
+
+    public List<Orders> getOrderByAuctionProduct(AuctionProduct auctionProduct) {
+        return order_repo.findAllByAuctionProductOrderByIdDesc(auctionProduct);
+    }
+
+    public List<Orders> getOrderByAuctionProductAndState(AuctionProduct auctionProduct, ShippingState shippingState) {
+        return order_repo.findAllByAuctionProductAndShippingStateOrderByIdDesc(auctionProduct, shippingState);
     }
 }

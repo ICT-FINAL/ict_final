@@ -1,8 +1,11 @@
 package com.ict.serv.controller.review;
 
 import com.ict.serv.dto.ReviewResponseDto;
+import com.ict.serv.entity.PointType;
+import com.ict.serv.entity.UserPoint;
 import com.ict.serv.entity.order.OrderState;
 import com.ict.serv.entity.order.Orders;
+import com.ict.serv.entity.order.ShippingState;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.review.*;
 import com.ict.serv.entity.user.User;
@@ -23,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 
 @RestController
@@ -95,6 +99,12 @@ public class ReviewController {
             user.setGradePoint(user.getGradePoint()+30);
             authService.saveUser(user);
 
+            UserPoint userPoint = new UserPoint();
+            userPoint.setType(PointType.REVIEW);
+            userPoint.setLastSpinDate(LocalDate.now());
+            userPoint.setPoint(30);
+            userPoint.setUserId(user.getId());
+            interactService.saveUserPoint(userPoint);
             return ResponseEntity.ok("reviewAddOk");
         } catch (Exception e) {
             e.printStackTrace();
@@ -116,7 +126,10 @@ public class ReviewController {
         List<Orders> orders = orderService.selectCheckPurchase(user, productId);
         boolean orderIsOk = false;
         for(Orders order:orders) {
-            orderIsOk= orderService.selectOrderGroup(order.getOrderGroup().getId()).get().getState() == OrderState.PAID;
+            if (order.getShippingState() == ShippingState.FINISH) {
+                orderIsOk = true;
+                break;
+            }
         }
 
         // 리뷰를 이미 쓴 사람인지 체크!
@@ -386,10 +399,6 @@ public class ReviewController {
     public List<Review> myReviewList(@PathVariable long id){
         User user = new User();
         user.setId(id);
-
-        System.out.println("==============================");
-        System.out.println(id);
-        System.out.println("==============================");
 
         List<Review> myReviewList = service.selectMyReviewList(user);
 

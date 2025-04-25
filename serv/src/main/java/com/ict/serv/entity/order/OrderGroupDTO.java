@@ -33,5 +33,7 @@ public class OrderGroupDTO {
     private Long productId;
 
     private int cancelAmount;
+
+    private int deposit;
 }
 

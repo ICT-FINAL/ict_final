@@ -2,6 +2,7 @@ package com.ict.serv.entity.order;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.ict.serv.entity.auction.AuctionProduct;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.user.Address;
 import com.ict.serv.entity.user.User;
@@ -62,4 +63,8 @@ public class Orders {
     @ManyToOne
     @JoinColumn(name = "product_id", insertable = false, updatable = false)
     private Product product;
+
+    @ManyToOne
+    @JoinColumn(name = "auction_product_id")
+    private AuctionProduct auctionProduct;
 }

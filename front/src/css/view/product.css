@@ -1,3 +1,11 @@
+@font-face {
+    font-family: 'EliceDigitalBaeum';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_elice@1.0/EliceDigitalBaeum.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
 /* 메인페이지 */
 .product-main-container{
     position:fixed;
@@ -266,11 +274,14 @@
 .product-input, 
 .product-select, 
 .product-textarea {
-    width: 90%;
+    width: calc(100% - 16px);
     padding: 8px;
     font-size: 14px;
     border: 1px solid #ccc;
     border-radius: 5px;
+}
+.product-select {
+    width: 100%;
 }
 
 .product-textarea {
@@ -354,7 +365,7 @@
 
 .search-page-banner {
     text-align: center;
-    padding: 80px 20px 0px;
+    padding: 0px 20px 0px;
     margin-bottom:20px;
     border-bottom: 1px solid #e0dcd5;
     font-family: 'Pretendard', sans-serif;
@@ -459,7 +470,15 @@
     padding:10px 0px 10px 20px;
 }
 
-.product-info-selectbox {
+.coupon-payment-select {
+    display: flex;
+    margin: 20px 0;
+    line-height: 35px;
+    justify-content: space-between;
+    align-content: center;
+}
+
+.info-product-info-selectbox {
     text-align: center;
     min-width: 150px;
     width:40%;
@@ -469,6 +488,27 @@
     background-color: #FFFFFF;
     border: 1px solid #D9D9D9;
     border-radius: 20px;
+    appearance: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    /* 드롭다운 화살표 */
+    background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23666"><path d="M7 10l5 5 5-5H7z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 14px;
+}
+
+.product-info-selectbox, .payment-select {
+    float: right;
+    text-align: left;
+    width:40%;
+    padding: 7px 10px;
+    font-size: 15px;
+    color: #333;
+    font-family: 'EliceDigitalBaeum';
+    background-color: #FFFFFF;
+    border: 1px solid #D9D9D9;
+    border-radius: 10px;
     appearance: none;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
@@ -543,7 +583,6 @@
 
 /* 검색 끝 */
 
-  
 
 .product-info-container {
     width: 80%;
@@ -812,13 +851,15 @@
 
 /* 상품구매 */
 .product-buy-container {
-    padding: 30px;
+    position: relative;
+    padding: 10px;
     background-color: #f9f9f9;
     display: flex;
     flex-direction: column;
     align-items: center;
     max-width: 600px;
     margin: 0 auto;
+    font-family: 'EliceDigitalBaeum';
   }
   
   .product-buy-header {
@@ -827,6 +868,7 @@
     margin-bottom: 30px;
     color: #333;
     text-align: center;
+    font-family: 'pretendard';
   }
 
   .order-item {
@@ -839,109 +881,77 @@
     box-shadow: 2px 2px 8px rgba(0,0,0,0.05);
   }
 
+  .buy-order-item {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 1fr;
+    font-size: 10pt;
+    border-bottom: 1px dashed #555;
+  }
+  .buy-order-item li {
+    float: left;
+    text-align: right;
+    padding: 3px 10px;
+  }
+  .buy-order-item li:first-child {
+    text-align: left;
+  }
+
   .product-buy-info {
-    background: #ffffff;
-    padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 90%;
+  }
+  
+.product-buy-container::before,
+.product-buy-container::after {
+    position: absolute;
+    content: '';
     width: 100%;
-    margin-bottom: 20px;
-  }
-  
-  .product-buy-name {
-    font-size: 23px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    color: #4a7b63;
-  }
-  
-  .buy-price {
-    font-size: 16px;
-    color: black;
-    margin: 10px 0;
-    padding-bottom:5px;
-  }
-  
-  .selected-options {
-    margin-top: 20px;
-    font-size: 16px;
-    color: #666;
-  }
-  
-  .selected-option-item {
-    margin-bottom: 12px;
-    line-height: 1.6;
-    font-weight: 400;
-  }
-  
-  .selected-options strong {
-    font-weight: bold;
-    color: #000000;
+    display: block;
+    height: 20px;
+    background-repeat: repeat-x;
+    background-size: 600px 20px;
+    z-index: 1;
 }
+
+.product-buy-container::before {
+    top: -19px;
+    left: 0;
+}
+
 .payment-button {
-    background-color: #8CC7A5;
+    background-color: #222;
     color: white;
     border: none;
-    padding: 15px 30px;
+    margin: 30px auto 50px;
+    padding: 15px;
     font-size: 18px;
     border-radius: 10px;
     cursor: pointer;
-    width: 100%;
-    max-width: 200px;
+    width: 160px;
     transition: background-color 0.3s ease;
 }
 
 .payment-button:hover {
-    background-color: #4a7b63;
+    background-color: #444;
 }
-
-.discount-amount {
-    font-weight: bold;
-}
-  
 
 .shipping-discount-info {
-    margin-top: 20px;
-    font-size: 16px;
+    margin-top: 50px;
     color: #666;
-}
-  
-.shipping-fee {
-    color: #1976d2;
-    font-weight: 700;
-}
-
-.discount {
-    margin: 5px 0;
-    font-weight: 700;
-    color: #d9534f;
+    border-top: 3px double #333;
 }
 
 .final-price {
     margin-top: 20px;
     font-size: 20px;
-    color: #333;
+    color: #4FA37F;
     font-weight: bold;
 }
-  
-.payment-method {
-    margin-top: 20px;
-    font-size: 16px;
-}
-  
-.payment-select {
-    padding: 10px;
-    margin-top: 5px;
-    font-size: 16px;
-    width: 100%;
-    max-width: 200px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-}
-  
+
 .security-notice {
-    margin-top: 30px;
     font-size: 14px;
     color: #777;
     text-align: center;
@@ -1051,4 +1061,5 @@
     border-radius: 5px;
     margin-right: 10px;
 }
+
 /* 배송모달 끝 */

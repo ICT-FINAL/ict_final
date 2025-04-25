@@ -304,7 +304,8 @@ const InquiryWrite = () => {
                         </span>
                     </div>
                 ))}
-                <div style={{ marginTop: '20px' }}>
+            </div>
+            <div style={{ marginTop: '20px' }}>
                     <label style={{ display: 'flex', alignItems: 'center', fontSize: '14px' }}>
                         <input
                             type="checkbox"
@@ -315,7 +316,6 @@ const InquiryWrite = () => {
                         개인정보 수집 및 이용에 동의합니다. (문의 처리 목적 외에는 사용되지 않습니다.)
                     </label>
                 </div>
-            </div>
                 <div className="button-group">
                     <button type="submit" className="btn btn-submit" onClick={handleSubmit}>
                         등록하기

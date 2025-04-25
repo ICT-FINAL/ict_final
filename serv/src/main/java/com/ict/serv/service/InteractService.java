@@ -1,5 +1,6 @@
 package com.ict.serv.service;
 
+import com.ict.serv.entity.UserPoint;
 import com.ict.serv.entity.coupon.Coupon;
 import com.ict.serv.entity.coupon.CouponPagingVO;
 import com.ict.serv.entity.coupon.CouponState;
@@ -29,6 +30,9 @@ public class InteractService {
     private final WishRepository wish_repo;
     private final FollowRepository follow_repo;
     private final CouponRepository coupon_repo;
+    private final UserPointRepository user_point_repo;
+
+    public void saveUserPoint(UserPoint userPoint) { user_point_repo.save(userPoint);}
 
     public User selectUser(Long id) {
         return user_repo.findUserById(id);
@@ -82,9 +86,16 @@ public class InteractService {
         return coupon_repo.countIdByUserAndState(user, pvo.getState());
     }
 
+    public int pointTotalRecord(User user){
+        return user_point_repo.countIdByUserId(user.getId());
+    }
+    public List<UserPoint> getAllPointList(CouponPagingVO pvo,User user){
+        return user_point_repo.findByUserId(user.getId(), PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+    }
+
     public List<Coupon> getAllCouponList(CouponPagingVO pvo, User user){
         if(pvo.getState() == null) return coupon_repo.findAllByUserOrderByIdDesc(user);
-        return coupon_repo.findAllByUserAndStateOrderByIdDesc(user, pvo.getState());
+        return coupon_repo.findAllByUserAndStateOrderByIdDesc(user, pvo.getState(), PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
     }
 
     public Follow selectFollow(Long from, Long to) {
@@ -121,11 +132,11 @@ public class InteractService {
                 user.setGrade(1);
                 user_repo.save(user);
             }
-            else if(user.getGradePoint() >= 2000 && user.getGradePoint()<3000 && user.getGrade()==0) {
+            else if(user.getGradePoint() >= 2000 && user.getGradePoint()<3000 && user.getGrade()==1) {
                 user.setGrade(2);
                 user_repo.save(user);
             }
-            else if(user.getGradePoint() >= 3000 && user.getGradePoint()<4000 && user.getGrade()==0){
+            else if(user.getGradePoint() >= 3000 && user.getGradePoint()<4000 && user.getGrade()==2){
                 user.setGrade(3);
                 user_repo.save(user);
             }

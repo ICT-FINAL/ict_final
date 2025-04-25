@@ -51,7 +51,7 @@ function RAWProduct() {
         <>
             <div className="search-page-banner">
                 <h1>✨리뷰와 찜이 증명한 인기 작품!💖</h1>
-                <p>사람들이 좋아하는 핸드메이드 아이템을 지금 확인해보세요</p>
+                <p>사람들이 좋아하는 <span style={{ fontWeight: '600', color: '#8CC7A5' }}>핸드메이드 아이템</span>을 지금 확인해보세요</p>
             </div>
             <div className="polaroid-wall">
             {RAWList.slice(0, 10).map((product, idx) => (
