@@ -140,4 +140,8 @@ public class ChatService {
             chatRoomRepository.updateChatRoomStateToClosed(roomId);
         }
     }
+
+    public int getUnreadChatCount(User user) {
+        return chatRepository.countBySenderAndIsReadFalse(user);
+    }
 }
