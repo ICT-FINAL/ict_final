@@ -2,9 +2,10 @@ import { useParams,useNavigate } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { FaHeart } from 'react-icons/fa';
+import { setLoginView } from '../../store/loginSlice';
 
 function AuctionRoom() {
     const { roomId } = useParams();
@@ -12,6 +13,8 @@ function AuctionRoom() {
     const user = useSelector(state => state.auth.user);
 
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
 
     const [roomInfo, setRoomInfo] = useState({});
     const [imageIndex, setImageIndex] = useState(0);
@@ -35,48 +38,56 @@ function AuctionRoom() {
         const socket = new SockJS(`${serverIP.ip}/ws`);
         const stompClient = Stomp.over(socket);
         stompClientRef.current = stompClient;
-    
-        stompClient.connect({ Authorization: `Bearer ${user.token}` }, () => {
-            stompClient.subscribe(`/topic/auction/${roomId}`, (message) => {
-                const body = JSON.parse(message.body);
-                console.log(body);
-                setMessages(prev => [...prev, body]);
-                setBidHistory(prev => [...prev, {
-                    username: body.urd.username,
-                    price: body.price,
-                    bidTime: new Date().toISOString() //추후 정렬용
-                }]);
-            });
+        if(user)
+            stompClient.connect({ Authorization: `Bearer ${user.token}` }, () => {
+                stompClient.subscribe(`/topic/auction/${roomId}`, (message) => {
+                    const body = JSON.parse(message.body);
+                    /*
+                    setMessages(prev => [...prev, body]);
+                    setBidHistory(prev => [...prev, {
+                        username: body.urd.username,
+                        price: body.price,
+                        bidTime: new Date().toISOString() //추후 정렬용
+                    }]);*/
+                    getRoomInfo();
+                });
 
-            stompClient.subscribe(`/topic/auction/${roomId}/end`, (message) => {
-                alert('경매가 종료되었습니다..');
-                navigate('/auction');
+                stompClient.subscribe(`/topic/auction/${roomId}/end`, (message) => {
+                    alert('경매가 종료되었습니다..');
+                    navigate('/auction');
+                });
+        
+                setIsConnected(true);
             });
-    
-            setIsConnected(true);
-        });
     
         return () => {
             stompClient.disconnect(() => {
                 console.log('Disconnected from auction room');
             });
         };
-    }, [roomId, serverIP, user.token]);
+    }, [roomId, serverIP, user]);
 
     useEffect(() => {
         const fetchPreviousBids = async () => {
+            if(user)
             try {
                 const res = await axios.get(`${serverIP.ip}/auction/bids/${roomId}`, {
                     headers: { Authorization: `Bearer ${user.token}` }
                 });
-    
+                console.log(res.data);
                 const formattedBids = res.data.map(bid => ({
-                    username: bid.user.username,
+                    state:bid.state,
+                    user: bid.user,
                     price: bid.price,
-                    bidTime: new Date().toISOString(), // 정렬 용도
+                    bidTime: new Date(bid.bidTime).toISOString(), // 정렬 용도
+                    room:bid.room,
+                    id:bid.id
                 }));
-    
-                setBidHistory(formattedBids);
+                const sortedBids = formattedBids.sort(
+                    (a, b) => new Date(b.bidTime) - new Date(a.bidTime)
+                );
+
+                setBidHistory(sortedBids);
             } catch (err) {
                 console.error('입찰 내역 불러오기 실패', err);
             }
@@ -84,15 +95,17 @@ function AuctionRoom() {
         fetchPreviousBids();
     }, [roomId]);
 
-    useEffect(()=> {
-        axios.get(`${serverIP.ip}/auction/getAuctionItem/${roomId}`,
-            { headers: {Authorization: `Bearer ${user.token}`}}
+    const getRoomInfo =()=>{
+        axios.get(`${serverIP.ip}/auction/getAuctionItem/${roomId}`
         )
         .then(res => {
-            console.log(res.data)
             setRoomInfo(res.data);
         })
         .catch(err => console.log(err));
+    }
+
+    useEffect(()=> {
+        getRoomInfo();
     },[]);
 
     const sendBid = () => {
@@ -121,6 +134,27 @@ function AuctionRoom() {
                 roomInfo:roomInfo
             }
         });
+    };
+
+    const moveOneBuy = () => {
+        if (!user) {
+            dispatch(setLoginView(true));
+        }
+        else {
+            if (user.user.id !== roomInfo.auctionProduct.sellerNo.id)
+                navigate('/product/buying', {
+                    state: {
+                        selectedItems: [],
+                        product: roomInfo.auctionProduct,
+                        totalPrice: roomInfo.buyNowPrice,
+                        shippingFee: roomInfo.auctionProduct.shippingFee || 0,
+                        selectedCoupon: 0,
+                    }
+                });
+            else {
+                alert('본인의 상품입니다');
+            }
+        }
     };
 
     useEffect(() => {
@@ -161,8 +195,9 @@ function AuctionRoom() {
         return `${year}-${month}-${day} ｜ ${hours}:${minutes}`;
     };
 
+    
     return (
-        <div style={{ paddingTop: "140px" }}>
+        <div style={{ paddingTop: "170px" }}>
              { roomInfo.auctionProduct && <>
                     <div className="product-info-container">
                         <div className="product-info-left">
@@ -198,7 +233,7 @@ function AuctionRoom() {
                             <ul>
                                 <li style={{ display: 'flex' }}>
                                 <div className='product-profile-box'>
-                                    <img id={`mgx-${roomInfo.auctionProduct.sellerNo.id}`} className='message-who' src={roomInfo.auctionProduct.sellerNo.uploadedProfileUrl && roomInfo.auctionProduct.sellerNo.uploadedProfileUrl.indexOf('http') !== -1 ? `${roomInfo.auctionProduct.sellerNo.uploadedProfileUrl}` : `${serverIP.ip}${roomInfo.auctionProduct.sellerNo.uploadedProfileUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
+                                <img id={`mgx-${roomInfo.auctionProduct.sellerNo.id}`} className='message-who' src={roomInfo.auctionProduct.sellerNo.uploadedProfileUrl ? `${serverIP.ip}${roomInfo.auctionProduct.sellerNo.uploadedProfileUrl}` : `${roomInfo.auctionProduct.sellerNo.kakaoProfileUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
                                     <div id={`mgx-${roomInfo.auctionProduct.sellerNo.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{roomInfo.auctionProduct.sellerNo.username} &gt;</div>
                                 </div>
                                 </li>
@@ -206,21 +241,8 @@ function AuctionRoom() {
                                     <div className='product-info-name'>
                                         {roomInfo.auctionProduct.productName}
                                     </div>
-                                    <div className='product-wish'>
-                                        {!isWish ? (
-                                            <div className="wishlist-icon">
-                                                <FaHeart />
-                                                <span>좋아요</span>
-                                            </div>
-                                        ) : (
-                                            <div className="wishlist-icon" style={{ color: 'rgb(255, 70, 70)' }}>
-                                                <FaHeart />
-                                                <span>좋아요</span>
-                                            </div>
-                                        )}
-                                    </div>
                                 </li>
-                                <li style={{ marginBottom:'20px', color:'#444'}}>
+                                <li style={{ marginTop:'10px',marginBottom:'20px', color:'#444'}}>
                                     {formatDateTime(roomInfo.createdAt)}
                                 </li>
                                 <li>
@@ -236,7 +258,7 @@ function AuctionRoom() {
                                         </span> 
                                     </li>
                                     <li>
-                                        <span>입찰 수: 0</span>
+                                        <span>입찰 인원: {roomInfo.hit} 명</span>
                                     </li>
                                     <li>
                                         <span>
@@ -249,7 +271,11 @@ function AuctionRoom() {
                                             배송비: {roomInfo.auctionProduct.shippingFee} 원
                                         </span>
                                     </li>
+                                   { user && user.user.id != roomInfo.auctionProduct.sellerNo.id &&
                                     <li style={{marginTop:'50px',display:'flex', justifyContent:'center', gap:'20px'}}>
+                                    { roomInfo.state === 'OPEN' && user &&<>
+                                    { roomInfo.highestBidderId !== user.user.id ?
+                                    <>
                                     <button onClick={()=> moveBuy()}
                                         style={{
                                             width: '120px',
@@ -286,19 +312,57 @@ function AuctionRoom() {
                                         }}
                                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#d33'}
                                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#FF5C5C'}
+                                        onClick={moveOneBuy}
                                     >
                                         즉시구매
                                     </button>
-
+                                    </> : <div style={{fontSize:'20px'}}>'{user.user.username}' 님은 현재 최고 입찰자 입니다.</div>
+                                    }
+                                    </>
+                                    }
                                     </li>
+                                }
                                     </ul>
                                 </li>
                             </ul>
                         </div>
                     </div>
-                    <div style={{margin:'auto', textAlign:'center',marginTop:'200px'}}>
-                        나중에 채팅 만들 곳
+                    <div>
+                        <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px', marginTop:'40px' }} />
+                        <div style={{
+                            display: 'flex',
+                            fontSize: '16px',
+                            fontWeight: '600',
+                        }}>
+                            <div style={{width:'50%', textAlign:'center', padding:'10px'}}>상세정보</div>
+                            <div style={{width:'50%', textAlign:'center', padding:'10px'}}>입찰내역</div>
+                        </div>
+                        <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
                     </div>
+                    <div className='auction-bottom'>
+                        <div style={{overflow:'hidden', width:'50%'}}><div dangerouslySetInnerHTML={{ __html: roomInfo.auctionProduct.detail }} style={{ width:'100%', marginTop: '30px'}} /></div>
+                        <div className='auction-bottom-right'>
+                            <ul>
+                                {
+                                    bidHistory.map((item, idx) => {
+                                        return(<li>
+                                            <div className='product-profile-box'>
+                                                <img id={`mgx-${item.user.id}`} className='message-who' src={item.user.uploadedProfileUrl ? `${serverIP.ip}${item.user.uploadedProfileUrl}` : `${item.user.kakaoProfileUrl.indexOf('http')===-1 ? `${serverIP.ip}${item.user.sellerNo.kakaoProfileUrl}`:item.user.sellerNo.kakaoProfileUrl }`} />
+                                               <div id={`mgx-${item.user.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{item.user.username} &gt;</div>
+                                            </div>
+                                            <div>
+                                                { item.state=='SUCCESS' && <div className='auc-stat' style={{backgroundColor:'#FFD700'}}>최종 입찰자</div>}
+                                                { item.state=='LIVE' && <div className='auc-stat' style={{backgroundColor:'#FFD700'}}>최고 입찰자</div> } 
+                                                { item.state=='DEAD' && <div style={{backgroundColor:'#9E9E9E', color:'white'}} className='auc-stat'>유찰됨</div>}
+                                                { formatDateTime(item.bidTime)} &nbsp;&nbsp;&nbsp; <span style={{fontWeight:'bold', fontSize:'19px'}}>{formatNumberWithCommas(item.price)}₩</span>
+                                            </div>
+                                        </li>)
+                                    })
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                    <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
                     </>
                     }
                 </div>

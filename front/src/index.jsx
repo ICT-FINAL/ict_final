@@ -8,7 +8,6 @@ import Faded from './effect/Faded';
 import { Provider } from 'react-redux';
 import Header from './view/Header';
 import Footer from './view/Footer';
-import UpButton from './effect/UpButton';
 
 import './css/view/header.css';
 import './css/view/public.css';
@@ -16,6 +15,7 @@ import './css/view/user.css';
 import './css/view/modal.css';
 import './css/view/product.css';
 import './css/view/event.css';
+import './css/view/review.css';
 
 
 const App = () => {
@@ -31,7 +31,6 @@ container.render(
   <Provider store={store}>
     <BrowserRouter>
       <Header />
-      <UpButton />
       <Faded>
         <App />
       </Faded>

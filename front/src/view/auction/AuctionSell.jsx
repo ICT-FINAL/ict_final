@@ -2,11 +2,12 @@ import { useState,useRef, useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import ProductEditor from '../product/ProductEditor';
+import { useNavigate } from "react-router-dom";
 
 function AuctionSell() {
     const serverIP = useSelector((state) => state.serverIP);
     const user = useSelector((state) => state.auth.user);
-
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         subject:"",
         productName: "",
@@ -46,29 +47,6 @@ function AuctionSell() {
     const oneDayLaterString = oneDayLater.toISOString().slice(0, 16);  // 1일 후의 시간
     const twoDaysLaterString = twoDaysLater.toISOString().slice(0, 16); 
 
-    const addMainOption = () => {
-        if(formData.options.length === 1) {
-            alert("경매시 옵션은 1개만 가능합니다.");
-            return;
-        }
-        setFormData(prev => ({
-            ...prev,
-            options: [...prev.options, { mainOptionName: "", quantity: 0, subOptions: [] }]
-        }));
-    };
-
-    const removeMainOption = (index) => {
-        setFormData(prev => ({
-            ...prev,
-            options: prev.options.filter((_, i) => i !== index)
-        }));
-    };
-
-    const handleMainOptionChange = (index, value) => {
-        const updatedOptions = [...formData.options];
-        updatedOptions[index].mainOptionName = value;
-        setFormData({ ...formData, options: updatedOptions });
-    };
 
     const calculateTotalQuantity = () => {
         let totalQuantity = 0;
@@ -79,45 +57,6 @@ function AuctionSell() {
             });
         });
         return totalQuantity;
-    };
-
-    const addSubOption = (index) => {
-        if(formData.options[index].subOptions && formData.options[index].subOptions.length===1) {
-            alert("경매시 소분류는 1개만 입력 가능합니다.");
-            return;
-        }
-        const updatedOptions = [...formData.options];
-        updatedOptions[index].subOptions.push({ subOptionName: "", quantity: 1, additionalPrice: "" });
-        setFormData({ ...formData, options: updatedOptions });
-    };
-
-    const removeSubOption = (mainIndex, subIndex) => {
-        const updatedOptions = [...formData.options];
-        updatedOptions[mainIndex].subOptions = updatedOptions[mainIndex].subOptions.filter((_, i) => i !== subIndex);
-        setFormData({ ...formData, options: updatedOptions });
-    };
-
-    const handleSubOptionChange = (mainIndex, subIndex, value) => {
-        const updatedOptions = [...formData.options];
-        updatedOptions[mainIndex].subOptions[subIndex].subOptionName = value;
-        setFormData({ ...formData, options: updatedOptions });
-    };
-
-    const handleSubOptionQuantityChange = (mainIndex, subIndex, value) => {
-        const updatedOptions = [...formData.options];
-        updatedOptions[mainIndex].subOptions[subIndex].quantity = parseInt(value, 10) || 0;
-        setFormData({ ...formData, options: updatedOptions });
-    };
-
-    const handleSubOptionAdditionalPriceChange = (mainIndex, subIndex, value) => {
-        // 숫자가 아닌 문자가 포함되었는지 검사
-        if (!/^\d*$/.test(value)) {
-            alert("금액은 숫자만 입력할 수 있습니다.");
-            return;
-        }
-        const updatedOptions = [...formData.options];
-        updatedOptions[mainIndex].subOptions[subIndex].additionalPrice = value;
-        setFormData({ ...formData, options: updatedOptions });
     };
 
     const eventOptions = ["생일", "결혼", "졸업", "시험", "출산", "기타"];
@@ -238,34 +177,6 @@ function AuctionSell() {
             return;
         }
 
-        // 세부 카테고리 검사 
-        if (formData.subCategories.length === 0) {
-            alert("세부 카테고리를 선택해주세요.");
-            return;
-        }
-        if(formData.options.length === 0) {
-            alert("옵션을 추가해주세요.");
-            return;
-        }
-        // 옵션 추가 버튼 클릭시 대분류 옵션 이름이 비어있으면 검사 
-        if (!validateMainOptions()) {
-            return;
-        }
-        console.log(formData.options);
-        // 소분류 옵션 추가시에 소분휴 이름이 비어있으면 검사
-        for (let i = 0; i < formData.options.length; i++) {
-            if(formData.options[i].subOptions.length === 0) {
-                alert("소분류를 추가해주세요.");
-                return;
-            }
-            for (let j = 0; j < formData.options[i].subOptions.length; j++) {
-                let subOption = formData.options[i].subOptions[j];
-                if (subOption.subOptionName.trim() === "") {
-                    alert("소분류 옵션 이름을 입력해주세요.");
-                    return;
-                }
-            }
-        }
     
         // 상세 설명 검사
         if (!formData.detail) {
@@ -294,7 +205,7 @@ function AuctionSell() {
             productName: formData.productName,
             eventCategory: formData.eventCategory,
             targetCategory: formData.targetCategory,
-            productCategory: formData.subCategories,
+            productCategory: formData.productCategory,
             detail: formData.detail,
             firstPrice: parseInt(formData.first_price, 10) || 0,
             buyNowPrice: parseInt(formData.buy_now_price, 10) || 0,
@@ -324,7 +235,8 @@ function AuctionSell() {
             }
         })
         .then(res => {
-            console.log("상품 등록 성공:", res.data);
+            alert("상품 등록 성공");
+            navigate('/auction');
         })
         .catch(err => console.error("상품 등록 실패:", err));
     };
@@ -365,70 +277,7 @@ function AuctionSell() {
                         <option key={category} value={category}>{category}</option>
                     ))}
                 </select>
-                {formData.productCategory && productOptions[formData.productCategory] && (
-                    <div className="product-checkbox-group">
-                        <div className="product-checkbox-title">세부 카테고리 선택</div>
-                        <div>
-                        {productOptions[formData.productCategory].map((sub) => (
-                            <label key={sub} className="product-checkbox-label">
-                                <input
-                                    type="checkbox"
-                                    name="subCategories"
-                                    value={sub}
-                                    checked={formData.subCategories === sub} // 체크박스 → 한개만 선택되도록 
-                                    onChange={() => handleSubCategoryChange(sub)}
-                                />
-                                {sub}
-                            </label>
-                        ))}
-                        </div>
-                    </div>
-                )}     
-                    {formData.subCategories && (
-                        <>
-                            <button type="button" onClick={addMainOption} className="option-button">옵션 추가</button>
-                            <div className="option-container">
-                                {formData.options.map((option, mainIndex) => (
-                                    <div key={mainIndex} style={{ marginBottom: "15px" }}>
-                                        <input
-                                            type="text"
-                                            id={`mainOption-${mainIndex}`} // 각 대분류 옵션에 고유 id 추가
-                                            value={option.optionName}
-                                            onChange={(e) => handleMainOptionChange(mainIndex, e.target.value)}
-                                            placeholder="EX) 빨강"
-                                            className="option-input-style"
-                                        />
-
-                                        <button type="button" onClick={() => addSubOption(mainIndex)} className="option-button">+ 소분류 옵션 추가</button>
-                                        <button type="button" onClick={() => removeMainOption(mainIndex)} className="option-delete-button">대분류 삭제</button>
-                                        <div style={{ marginLeft: "20px" }}>
-                                            {option.subOptions.map((subOption, subIndex) => (
-                                                <div key={subIndex}>
-                                                    <input
-                                                        type="text"
-                                                        value={subOption.subOptionName}
-                                                        onChange={(e) => handleSubOptionChange(mainIndex, subIndex, e.target.value)}
-                                                        placeholder="EX) XL"
-                                                        className="option-input-style"
-                                                    />
-                                                    <input
-                                                        type="text"
-                                                        value={subOption.quantity}
-                                                        onChange={(e) => handleSubOptionQuantityChange(mainIndex, subIndex, e.target.value)}
-                                                        placeholder="수량"
-                                                        min="1"
-                                                        className="option-input-style"
-                                                        disabled
-                                                    />
-                                                     <button type="button" onClick={() => removeSubOption(mainIndex, subIndex)} className="option-delete-button">소분류 삭제</button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </>
-                    )}
+                
                     
                 <label className="product-label">수량</label>
                 <input
@@ -443,12 +292,12 @@ function AuctionSell() {
                         onChange={handleChange}
                     /> 
                 <label className="product-label">시작 가격</label>
-                <input type="number" id="first_price" name="first_price" className="product-input" value={formData.first_price} onChange={handleChange} />
+                <input type="text" id="first_price" name="first_price" className="product-input" value={formData.first_price} onChange={handleChange} />
 
                 <label className="product-label">즉시 구매 가격</label>
-                <input type="number" id="buy_now_price" name="buy_now_price" className="product-input" value={formData.buy_now_price} onChange={handleChange} />
+                <input type="text" id="buy_now_price" name="buy_now_price" className="product-input" value={formData.buy_now_price} onChange={handleChange} />
                     <label className="product-label">배송비</label>
-                    <input type="number" id="shippingFee" name="shippingFee" className="product-input" value={formData.shippingFee} onChange={handleChange} />
+                    <input type="text" id="shippingFee" name="shippingFee" className="product-input" value={formData.shippingFee} onChange={handleChange} />
                     <label className="product-label">보증금</label>
                     <input type="number" id="deposit" name="deposit" className="product-input" readOnly value={parseInt(formData.buy_now_price*0.1)} onChange={handleChange} />
                     <label className="product-label">시작 시간</label>
@@ -471,6 +320,7 @@ function AuctionSell() {
                 <label className="product-label">상세 설명</label>
                 <ProductEditor id='content' formData={formData} setFormData={setFormData}/>
                 </fieldset>
+            <div style={{fontWeight:'bold', marginBottom:'10px',fontSize:'18px'}}>썸네일 등록</div>
             <div 
                 onDragOver={(e) => e.preventDefault()} 
                 onDrop={handleDrop}

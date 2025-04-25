@@ -50,4 +50,7 @@ public class AuctionRoom {
     private Long highestBidderId;
 
     private int deposit;
+
+    @Column(columnDefinition = "int default 0")
+    private int hit;
 }

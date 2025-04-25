@@ -285,9 +285,9 @@ function MessageBox() {
                       marginBottom: '15px',
                       color: '#555',
                       fontSize: '14px',
-                      lineHeight: '1.5'
-                    }}>
-                      {item.comment}
+                      lineHeight: '1.5',
+                      whiteSpace:'pre-wrap'
+                    }} dangerouslySetInnerHTML={{ __html: item.comment}}>
                     </div>
                     {item.userFrom.authority !== 'ROLE_ADMIN' &&
                       <button style={{

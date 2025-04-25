@@ -37,7 +37,7 @@ public class Inquiry {
 
     @Column(name="inquiry_status")
     @Enumerated(EnumType.STRING)
-    private InquiryState inquiryStatus;
+    private InquiryState inquiryStatus = InquiryState.NOANSWER;
 
     @Column(name="inquiry_enddate", columnDefinition = "DATETIME")
     private LocalDateTime inquiryEnddate; // 문의완료날짜
@@ -49,4 +49,8 @@ public class Inquiry {
     @OneToMany(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<InquiryImage> images = new ArrayList<>();
+
+    @OneToOne(mappedBy = "inquiry", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JsonManagedReference
+    private Response response;
 }

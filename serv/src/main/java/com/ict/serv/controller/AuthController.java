@@ -6,6 +6,7 @@ import com.ict.serv.entity.Authority;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.AuthService;
 import com.ict.serv.service.InteractService;
+import com.ict.serv.service.LogService;
 import com.ict.serv.util.JwtProvider;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,6 +37,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final InteractService interactService;
+    private final LogService logService;
 
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
@@ -62,7 +64,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("정지된 사용자입니다.");
         }
         String token = jwtProvider.createToken(user.getUserid());
-
+        logService.userJoinSave(user);
         HttpSession session = request.getSession();
         session.setAttribute("JWT", token);
 
@@ -103,16 +105,27 @@ public class AuthController {
     }
 
     @GetMapping("/signup/kakao")
-    public Account kakaoSignup(HttpServletRequest request) {
+    public User kakaoSignup(HttpServletRequest request) {
         String code = request.getParameter("code");
         KakaoTokenDto kakaoTokenDto = authService.getKakaoAccessToken(code);
         String kakaoAccessToken = kakaoTokenDto.getAccess_token();
 
         Account account = authService.kakaoSignup(kakaoAccessToken);
-        return account;
+        return authService.isAlreadySignUp(account);
     }
+
+    @GetMapping("/signup/naver")
+    public User naverSignup(HttpServletRequest request) {
+        String code = request.getParameter("code");
+        NaverTokenDto token = authService.getNaverAccessToken(code);
+        String accessToken = token.getAccess_token();
+
+        Account account = authService.naverSignup(accessToken);
+        return authService.isAlreadySignUp(account);
+    }
+
     @GetMapping("/signup/google")
-    public Account googleSignup(HttpServletRequest request) {
+    public User googleSignup(HttpServletRequest request) {
         String code = request.getParameter("code");
         String accessToken = authService.getGoogleAccessToken(code);
         Map<String, Object> googleUserInfo = authService.getGoogleUserInfo(accessToken);
@@ -121,17 +134,51 @@ public class AuthController {
         String email = googleUserInfo.get("email").toString();
         String name = googleUserInfo.get("name").toString();
         String profileImage = googleUserInfo.get("picture").toString();
-        if(authService.findUserByEmail(email) != null) return null;
         Account account = new Account();
         account.setNickname(name);
         account.setPicture(profileImage);
         account.setEmail(email);
-        return account;
+        System.out.println(account);
+        return authService.isAlreadySignUp(account);
+    }
+
+    @PostMapping("/auth/socialLogin")
+    public ResponseEntity<?> login(@RequestBody User user, HttpServletRequest request) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유저가 존재하지 않습니다.");
+        }
+        if(user.getAuthority() == Authority.ROLE_BANNED) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("정지된 사용자입니다.");
+        }
+        String token = jwtProvider.createToken(user.getUserid());
+
+        HttpSession session = request.getSession();
+        session.setAttribute("JWT", token);
+
+        UserResponseDto userResponse = new UserResponseDto(
+                user.getId(),
+                user.getUserid(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getProfileImageUrl(),
+                user.getAuthority(),
+                user.getZipcode(),
+                user.getAddress(),
+                user.getAddressDetail(),
+                user.getGrade(),
+                user.getGradePoint()
+        );
+        return ResponseEntity.ok(new LoginResponseDto(token, "로그인 성공", userResponse));
     }
 
     @GetMapping("/signup/duplicateCheck")
     public int duplicateCheck(String userid) {
         return authService.idDuplicateCheck(userid);
+    }
+
+    @GetMapping("/signup/telCheck")
+    public int telCheck(String tel) {
+        return authService.telCheck(tel);
     }
 
     @PostMapping("/signup/doSignUp")
@@ -140,7 +187,8 @@ public class AuthController {
                                            @RequestParam("tel") String tel, @RequestParam("address") String address,
                                            @RequestParam("addressDetail") String addressDetail, @RequestParam("zipcode") String zipcode,
                                            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
-                                           @RequestParam(value = "kakaoProfileUrl", required = false) String kakaoProfileUrl)
+                                           @RequestParam(value = "kakaoProfileUrl", required = false) String kakaoProfileUrl,
+                                           @RequestParam("infoText") String infoText)
     {
         System.out.println(username);
         try {
@@ -175,6 +223,7 @@ public class AuthController {
                     .zipcode(zipcode)
                     .kakaoProfileUrl(kakaoProfileUrl)
                     .uploadedProfileUrl(finalProfileUrl)
+                    .infoText(infoText)
                     .authority(Authority.ROLE_USER)
                     .build();
 
@@ -214,6 +263,33 @@ public class AuthController {
         signUpResponseDto.setResult("가입이 완료되었습니다.");
         return ResponseEntity.ok().headers(headers).body(signUpResponseDto);
     }*/
+
+    @PostMapping("/auth/signup-send-code")
+    public ResponseEntity<?> signupSendVerificationCode(@RequestBody EmailRequestDto request) {
+        User user = authService.findUserByEmail(request.getEmail());
+
+        System.out.println(user);
+        if(user == null) {
+            try {
+                authService.sendVerificationCode(request.getEmail());
+                return ResponseEntity.ok("인증번호가 전송되었습니다.");
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("이메일 전송 실패: " + Optional.ofNullable(e.getMessage()).orElse("알 수 없는 오류"));
+            }
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "이미 가입한 메일 주소입니다."));
+    }
+    @PostMapping("/auth/email-verify")
+    public ResponseEntity<Map<String, String>> verifyCodeForEmail(@RequestParam String email, @RequestParam String code) {
+        if (!authService.verifyCode(email, code)) {
+            return ResponseEntity.badRequest().body(Map.of("message", "인증번호가 올바르지 않습니다."));
+        }
+        return ResponseEntity.ok(Map.of(
+                "message", "이메일 인증이 완료되었습니다."
+        ));
+    }
+
     @PostMapping("/auth/send-code")
     public ResponseEntity<?> sendVerificationCode(@RequestBody EmailRequestDto request) {
         User user = authService.findUserByEmail(request.getEmail());

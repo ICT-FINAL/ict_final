@@ -1,26 +1,38 @@
 package com.ict.serv.controller.admin;
 
+import com.ict.serv.dto.UserResponseDto;
 import com.ict.serv.entity.Authority;
+import com.ict.serv.entity.Inquiries.Inquiry;
+import com.ict.serv.entity.Inquiries.InquiryPagingVO;
+import com.ict.serv.entity.Inquiries.InquiryState;
 import com.ict.serv.entity.message.Message;
+import com.ict.serv.entity.product.Option;
+import com.ict.serv.entity.product.Product;
+import com.ict.serv.entity.product.ProductState;
 import com.ict.serv.entity.report.Report;
+import com.ict.serv.entity.report.ReportSort;
 import com.ict.serv.entity.report.ReportState;
 import com.ict.serv.entity.user.User;
-import com.ict.serv.service.AdminService;
-import com.ict.serv.service.AuthService;
-import com.ict.serv.service.InteractService;
+import com.ict.serv.repository.UserRepository;
+import com.ict.serv.service.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,19 +40,24 @@ import java.util.Map;
 @RequestMapping("/admin")
 public class AdminController {
     private final AdminService service;
-    private final InteractService inter_service;
     private final AuthService auth_service;
+    private final InteractService inter_service;
+    private final InquiryService inquiryService;
+    private final UserRepository userRepository;
+    private final ProductService productService;
 
     @GetMapping("/reportList")
-    public Map reportList(String type, PagingVO pvo){
+    public Map reportList(PagingVO pvo){
+        //System.out.println("reportList"+pvo);
         pvo.setOnePageRecord(5);
-        pvo.setTotalRecord(service.totalRecord(pvo,ReportState.valueOf(type)));
+        pvo.setTotalRecord(service.totalRecord(pvo));
         Map map = new HashMap();
         map.put("pvo", pvo);
-        map.put("reportList", service.getAllReport(pvo, ReportState.valueOf(type)));
+        map.put("reportList", service.getAllReport(pvo, pvo.getState()));
 
         return map;
     }
+
     @GetMapping("/changeState")
     public String changeState(String state, Long id) {
         Report report = service.selectReport(id).get();
@@ -48,19 +65,83 @@ public class AdminController {
         inter_service.sendReport(report);
         return "ok";
     }
+
     @GetMapping("/delReport")
     public String delReport(Long id) {
         service.deleteReport(id);
         return "ok";
     }
+
+    @GetMapping("/inquiryList")
+    public Map<String, Object> getAllInquiries(
+            @RequestParam(value = "status") String statusStr,
+            @RequestParam(value = "inquiryType", required = false, defaultValue = "") String inquiryType,
+            @ModelAttribute InquiryPagingVO pvo) {
+        InquiryState status;
+        try {
+            status = InquiryState.valueOf(statusStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            Map<String, Object> errorMap = new HashMap<>();
+            errorMap.put("error", "Invalid status value: " + statusStr);
+            errorMap.put("inquiryList", List.of());
+            pvo.setNowPage(pvo.getNowPage());
+            pvo.setTotalRecord(0);
+            errorMap.put("pvo", pvo);
+            return errorMap;
+        }
+
+        pvo.setNowPage(pvo.getNowPage());
+
+        try {
+            long totalRecord = service.countAdminInquiries(status, inquiryType);
+            pvo.setTotalRecord((int) totalRecord);
+        } catch (Exception e) {
+            pvo.setTotalRecord(0);
+            Map<String, Object> errorMap = new HashMap<>();
+            errorMap.put("error", "Error counting inquiries.");
+            errorMap.put("inquiryList", List.of());
+            errorMap.put("pvo", pvo);
+            return errorMap;
+        }
+        List<Inquiry> inquiryList;
+        try {
+            inquiryList = service.getAdminInquiryList(pvo, status, inquiryType);
+        } catch (Exception e) {
+            inquiryList = List.of();
+        }
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("pvo", pvo);
+        map.put("inquiryList", inquiryList);
+        System.out.println(inquiryList.get(0).getInquiryStatus() + ":" +inquiryList.size());
+        return map;
+    }
+
     @GetMapping("/reportApprove")
-    public String reportApprove(@AuthenticationPrincipal UserDetails userDetails, Long toId, Long fromId, Long reportId, String approveType, String comment) {
-        System.out.println(toId);
-        System.out.println(reportId);
+    public String reportApprove(@AuthenticationPrincipal UserDetails userDetails, Long toId, Long fromId, Long reportId, ReportSort sort, Long sortId, String approveType, String comment) {
         User user = inter_service.selectUser(toId);
-        user.setAuthority(Authority.ROLE_BANNED);
+        Product product = productService.selectProduct(sortId).get();
         Report report = inter_service.selectReport(reportId).get();
         report.setReportText(comment);
+        report.setSort(sort);
+        report.setSortId(sortId);
+
+        if(sort != null && sort.toString().equals("USER")) {
+            if (approveType != null && approveType.equals("신고 취소")) {
+                System.out.println("유저 신고 취소");
+            } else
+                user.setAuthority(Authority.ROLE_BANNED);
+        } else if(sort != null && sort.toString().equals("PRODUCT")){
+            if (approveType != null && approveType.equals("신고 취소")) {
+                System.out.println("상품 신고 취소");
+            }else
+                product.setState(ProductState.PAUSE);
+        }else if(sort !=null && sort.toString().equals("REVIEW")){
+            if (approveType != null && approveType.equals("신고 취소")) {
+                System.out.println("리뷰 신고 취소");
+            }else
+                product.setState(ProductState.PAUSE);
+        }
 
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
@@ -81,4 +162,69 @@ public class AdminController {
 
         return "ok";
     }
-}
+
+    @GetMapping("/getUsers")
+    public ResponseEntity<Map<String, Object>> getUsersWithSearch(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int limit,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String authority
+    ) {
+        Map<String, Object> response = new HashMap<>();
+        long totalUserCount = userRepository.countByAuthority(Authority.ROLE_USER);
+        response.put("totalCount", totalUserCount);
+
+        if (keyword == null) keyword = "";
+        keyword = keyword.trim();
+
+        Pageable pageable = PageRequest.of(page - 1, limit, Sort.by(Sort.Direction.DESC, "id"));
+        Page<User> userPage;
+
+        if (authority == null || "전체".equals(authority)) {
+            userPage = userRepository.findByUseridContainingOrUsernameContaining(keyword, keyword, pageable);
+        } else {
+            Authority auth;
+            try {
+                if ("관리자".equals(authority)) auth = Authority.ROLE_ADMIN;
+                else if ("사용자".equals(authority)) auth = Authority.ROLE_USER;
+                else if ("정지중".equals(authority)) auth = Authority.ROLE_BANNED;
+                else throw new IllegalArgumentException();
+            } catch (Exception e) {
+                response.put("message", "잘못된 권한 필터입니다.");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+
+            userPage = userRepository.findByAuthorityAndUseridContainingOrAuthorityAndUsernameContaining(
+                    auth, keyword, auth, keyword, pageable);
+        }
+
+        response.put("users", userPage.getContent());
+        response.put("selectedCount", userPage.getTotalElements());
+        response.put("totalPage", userPage.getTotalPages());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/banUser")
+    public ResponseEntity<String> banUser(@RequestBody UserResponseDto request) {
+    String userid = request.getUserid();
+    Authority authority = request.getAuthority();
+    Authority newAuthority;
+        try {
+            newAuthority = authority;
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>("잘못된 권한 값입니다.", HttpStatus.BAD_REQUEST);
+        }
+
+         User user = userRepository.findUserByUserid(userid);
+            if (user.toString().isEmpty()) {
+                return new ResponseEntity<>("해당 사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+        }
+
+        user.setAuthority(newAuthority);
+        userRepository.save(user);
+        return new ResponseEntity<>("사용자 권한이 성공적으로 변경되었습니다.", HttpStatus.OK);
+        }
+    }
+
+

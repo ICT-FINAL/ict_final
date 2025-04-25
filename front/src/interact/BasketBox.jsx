@@ -6,7 +6,6 @@ import axios from "axios";
 function BasketBox() {
   let serverIP = useSelector((state) => state.serverIP);
 
-  const [modalOpen, setModalOpen] = useState(false);
   const [modalTransform, setModalTransform] = useState('scale(0.8)');
   const mount = useRef(true);
   const modal_name = useRef('basket-box-modal');
@@ -14,52 +13,56 @@ function BasketBox() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const [quantity, setQuantity] = useState(1);
+  const [quantityError, setQuantityError] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const selectedItem = modalSel.selectedItem;
   const item = selectedItem;
 
-  useEffect(() => {
-    console.log("모달에 전달된 아이템:", selectedItem);
-    if (modalSel.isOpen && selectedItem) {
-      setModalOpen(true);
-      setModalTransform('scale(1)');
-      setQuantity(selectedItem.quantity); // 선택된 아이템의 수량 설정
-    } else {
-      setModalOpen(false);
-      setModalTransform('scale(0.8)');
-    }
-  }, [modalSel.isOpen, selectedItem]);
-
   const modalClose = () => {
     dispatch(setModal({ ...modalSel, isOpen: false }));
-    setModalOpen(false);
+
     setModalTransform('scale(0.8)');
+    setQuantityError(false);
   }
 
   useEffect(() => {
-    if (user) {
-      axios
-        .get(`${serverIP.ip}/basket/list`, {
-          headers: { Authorization: `Bearer ${user.token}` },
-        })
-        .then((res) => {
-          console.log("장바구니리스트:", res.data);
-
-        })
-        .catch((err) => console.log(err));
+    if (modalSel.isOpen && modalSel.selected === 'basket-box') {
+      setModalTransform('scale(1)');
+      if (selectedItem) {
+        setQuantity(selectedItem.quantity);
+        setQuantityError(false);
+      }
     }
-  }, [user, serverIP]);
+  }, [modalSel.isOpen, modalSel.selected, selectedItem]);
+
+  useEffect(() => {
+    console.log("모달에 전달된 아이템:", selectedItem);
+  }, [modalSel.isOpen, selectedItem]);
 
   const handleQuantityChange = (e) => {
     const newQty = parseInt(e.target.value, 10);
     if (!isNaN(newQty) && newQty > 0) {
       setQuantity(newQty);
+      setQuantityError(false);
+    }
+    if (newQty > item.categoryQuantity) {
+      setQuantityError(true);
+    }
+    else {
+      setQuantity(newQty);
+      setQuantityError(false);
     }
   };
 
   const handleSave = () => {
-    if (!user || !selectedItem) return;
+    if (!user || !selectedItem || quantityError) {
+      if (quantityError) {
+        alert("수량 오류를 확인해주세요.");
+      }
+      return;
+    }
     setIsSaving(true);
+
     axios.patch(`${serverIP.ip}/basket/update`, {
       basketNo: selectedItem.basketNo,
       quantity: quantity
@@ -78,13 +81,6 @@ function BasketBox() {
         setIsSaving(false);
       });
   };
-
-  useEffect(() => {
-    if (modalSel.isOpen) {
-      setModalOpen(true);
-      setModalTransform('scale(1)');
-    }
-  }, [modalSel.isOpen]);
 
   useEffect(() => {
     if (!mount.current) mount.current = false;
@@ -145,12 +141,12 @@ function BasketBox() {
   const modalBackStyle = {
     position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
     backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
-    zIndex: 10000, opacity: modalOpen ? 1 : 0, transition: 'opacity 0.3s ease'
+    zIndex: 10000, opacity: modalSel.isOpen ? 1 : 0, transition: 'opacity 0.3s ease'
   };
 
   const modalStyle = {
     position: 'fixed', width: '600px', height: '550px', backgroundColor: '#fff',
-    zIndex: 10001, opacity: modalOpen ? 1 : 0, transform: modalTransform,
+    zIndex: 10001, opacity: modalSel.isOpen ? 1 : 0, transform: modalTransform,
     borderRadius: '12px', boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
     padding: '20px', transition: 'opacity 0.3s ease, transform 0.3s ease'
   };
@@ -179,38 +175,51 @@ function BasketBox() {
     cursor: 'pointer'
   };
 
+  const formatNumber = (number) => {
+    if (number === undefined || number === null) {
+      return "0";
+    }
+    return number.toLocaleString();
+  };
+
   return (
     <>
       <div id="modal-background" style={modalBackStyle}></div>
       <div id={`${modal_name.current}`} style={modalStyle}>
-        <div style={exitStyle} onClick={modalClose}>x</div>
-        <div style={headerStyle}>
-          <span style={{ fontSize: '24px', fontWeight: 'bold' }}>주문 수정</span>
-        </div>
+        {modalSel.isOpen && modalSel.selected === 'basket-box' && (
+          <>
+            <div style={exitStyle} onClick={modalClose}>x</div>
+            <div style={headerStyle}>
+              <span style={{ fontSize: '24px', fontWeight: 'bold' }}>주문 수정</span>
+            </div>
 
-        {selectedItem && (
-          <div style={{ padding: '10px' }}>
-            <img style={{ width: '20vw', height: '20vw', borderRadius: '10px' }}
-              src={`${serverIP.ip}/uploads/product/${item.sellerNo.id}/${item.sellerNo.images[0].filename}`}
-            />
-            <p><strong>상품명:</strong> {selectedItem.sellerNo?.productName}</p>
-            <p><strong>현재 수량:</strong></p>
-            <input
-              type="number"
-              value={quantity}
-              onChange={handleQuantityChange}
-              min="1"
-              style={{ padding: '6px', width: '100px' }}
-            />
-            <br /><br />
-            <button style={buttonStyle} onClick={handleSave} disabled={isSaving}>
-              {isSaving ? "저장 중..." : "저장"}
-            </button>
-          </div>
+            {selectedItem && (
+              <div style={{ padding: '10px' }}>
+                <img style={{ width: '240px', height: '240px', borderRadius: '10px' }}
+                  src={`${serverIP.ip}/uploads/product/${item.productNo}/${item.productImage}`}
+                />
+                <p><strong>상품명: </strong>{selectedItem.productName}</p>
+                <p><strong>주문한 수량: </strong>{selectedItem.quantity}개, (남은 수량 : {selectedItem.categoryQuantity}개)</p>
+                <p><strong>가격: </strong>{formatNumber((selectedItem.productPrice) + (selectedItem.additionalPrice))}원</p>
+                <p><strong>변경할 수량: </strong>
+                  <input
+                    type="number"
+                    value={quantity}
+                    onChange={handleQuantityChange}
+                    min="1"
+                    style={{ padding: '6px', width: '100px', borderColor: quantityError ? 'red' : '' }}
+                  />
+                  {quantityError && <p style={{ color: 'red' }}>변경할 수량이 남은 수량보다 많습니다.</p>}</p>
+
+                <button style={buttonStyle} onClick={handleSave} disabled={isSaving || quantityError}>
+                  {isSaving ? "저장 중..." : "저장"}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </>
   );
 }
-
 export default BasketBox;

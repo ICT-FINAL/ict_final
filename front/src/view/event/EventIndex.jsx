@@ -3,6 +3,11 @@ import { useInView } from "react-intersection-observer";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import first from '../../img/1.png';
+import second from '../../img/2.png';
+import third from '../../img/3.png';
+import fourth from '../../img/4.png';
+import fifth from '../../img/5.png';
 
 function EventIndex() {
     const [activeTab, setActiveTab] = useState("ongoing");
@@ -19,35 +24,27 @@ function EventIndex() {
 
     useEffect(() => {
         const now = new Date();
+        now.setHours(0, 0, 0, 0);
+    
         axios.get(`${serverIP.ip}/event/getEventList`)
             .then(res => {
-                console.log(res.data);
                 const ongoing = res.data.filter(event => {
-                    const start = new Date(event.startDate);
                     const end = new Date(event.endDate);
-
-                    const selectedMonthStart = new Date(currentYear, currentMonth - 1, 1);
-                    selectedMonthStart.setHours(0, 0, 0, 0);
-    
-                    const selectedMonthEnd = new Date(currentYear, currentMonth, 0);
-                    selectedMonthEnd.setHours(23, 59, 59, 999);
-    
-                    return (start <= selectedMonthEnd && end >= selectedMonthStart);
-                })
-                .map(event => ({
+                    return end >= now;
+                }).map(event => ({
                     ...event,
                     src: `${serverIP.ip}/uploads/event/${event.id}/${event.filename}`
                 }));
-                setOngoingEvents(ongoing);
-                console.log(ongoing);
+    
                 const ended = res.data.filter(event => {
                     const end = new Date(event.endDate);
                     return end < now;
-                })
-                .map(event => ({
+                }).map(event => ({
                     ...event,
                     src: `${serverIP.ip}/uploads/event/${event.id}/${event.filename}`
                 }));
+    
+                setOngoingEvents(ongoing);
                 setEndedEvents(ended);
             })
             .catch(err => console.log(err));
@@ -77,10 +74,9 @@ function EventIndex() {
         const eventStart = new Date(event.startDate);
         const eventEnd = new Date(event.endDate);
         const selectedMonthStart = new Date(currentYear, currentMonth - 1, 1);
-        selectedMonthStart.setHours(0, 0, 0, 0);
-    
         const selectedMonthEnd = new Date(currentYear, currentMonth, 0);
         selectedMonthEnd.setHours(23, 59, 59, 999);
+    
         return (eventStart <= selectedMonthEnd && eventEnd >= selectedMonthStart);
     });
 
@@ -108,19 +104,103 @@ function EventIndex() {
         }
     }
 
+    const [index, setIndex] = useState(0);
+    const colors = ['#FFCB46', '#E5C1C5', '#C3E2DD', '#6ECEDA'];
+
+    const shapePath = `
+        M67.875,0 
+        C67.875,16.97 54.09,30.75 37.125,30.75 
+        C-37.125,30.75 -37.125,30.75 -37.125,30.75 
+        C-54.09,30.75 -67.875,16.97 -67.875,0 
+        C-67.875,-16.97 -54.09,-30.75 -37.125,-30.75 
+        C37.125,-30.75 37.125,-30.75 37.125,-30.75 
+        C54.09,-30.75 67.875,-16.97 67.875,0z
+    `;
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setIndex(prev => (prev + 1) % colors.length);
+        }, 10); // 거의 바로 전환
+        
+        const interval = setInterval(() => {
+            setIndex(prev => (prev + 1) % colors.length);
+        }, 3000); // 3초마다 색상 전환
+    
+        return () => {
+            clearTimeout(timer);
+            clearInterval(interval);
+        };
+    }, []);
+
     return (
         <div className="event-container">
+
+            <div className="shape-text-wrapper">
+                <span className="shape-text">이벤트</span>
+
+                <svg
+                className="animated-shape"
+                viewBox="-80 -40 160 80"
+                style={{
+                    fill: colors[index],
+                    transition: 'fill 0.6s ease-in-out',
+                    position: 'relative',
+                    zIndex: 1
+                }}
+                >
+                <path d={shapePath} />
+
+                <foreignObject x="-50" y="-130" width="100" height="180">
+                    <div className="svg-image-container">
+                        {index % 4 === 0 && <img src={first} alt="first" className="pop" />}
+                        {index % 4 === 1 && <img src={second} alt="second" className="pop" />}
+                        {index % 4 === 2 && <img src={third} alt="third" className="pop" />}
+                        {index % 4 === 3 && <img src={fourth} alt="third" className="pop" />}
+                    </div>
+                </foreignObject>
+                </svg>
+                <span className="shape-text">모아보기</span>
+            </div>
+
+            <div className="info-benefit">
+                <div className="part">
+                    <span className="info">정보는</span>
+                    <span className="highlight" style={{ color: colors[index] }}>
+                        {"쏙쏙!".split("").map((char, index) => (
+                            <span key={index} style={{ '--i': index }}>
+                                {char}
+                            </span>
+                        ))}
+                    </span>
+                </div>
+                <div className="part">
+                    <span className="benefit">혜택은</span>
+                    <span className="highlight" style={{ color: colors[index] }}>
+                        {"쏠쏠!".split("").map((char, index) => (
+                            <span key={index} style={{ '--i': index }}>
+                                {char}
+                            </span>
+                        ))}
+                    </span>
+                </div>
+            </div>
+
             <div className="calendar-nav">
                 <button onClick={() => handlePrevMonth()} className="arrow-button">
-                    ‹ {currentMonth === 1 ? currentYear - 1 : currentYear}.{currentMonth === 1 ? 12 : currentMonth - 1}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 19l-7-7 7-7" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                 </button>
                 <span>
                     {currentYear}.{currentMonth.toString().padStart(2, "0")}
                 </span>
                 <button onClick={() => handleNextMonth()} className="arrow-button">
-                    {currentMonth === 12 ? currentYear + 1 : currentYear}.{currentMonth === 12 ? 1 : currentMonth + 1} ›
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 5l7 7-7 7" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
                 </button>
             </div>
+
 
             <div className="tab-menu">
                 <button onClick={() => setActiveTab("ongoing")} className={activeTab === "ongoing" ? "active" : ""}>
@@ -137,11 +217,17 @@ function EventIndex() {
             <div className="event-list">
                 {visibleList.length > 0 ? (
                     visibleList.map((event) => (
-                        <div onClick={() => moveEvent(event)} className={`event-banner ${activeTab === "ended" ? "ended" : ""}`} key={event.id}>
-                            <img src={event.src} alt={event.eventName} />
-                            <div className="event-date">📅 {event.startDate.substring(0, 10)} ~ 📅 {event.endDate.substring(0, 10)}</div>
-                            <div className="event-title">{event.eventName}</div>
-                            {event.state === "COUPON" && <div className="coupon-badge">쿠폰 지급!</div>}
+                        <div className="event-item" key={event.id}>
+                            <div onClick={() => moveEvent(event)} className={`event-banner ${activeTab === "ended" ? "ended" : ""}`}>
+                                <img src={event.src} alt={event.eventName} />
+                                {event.state === "COUPON" && <div className="coupon-badge">🎉 쿠폰 지급!</div>}
+                            </div>
+                            <div className="event-details">
+                                <div className="event-date">
+                                    📅 {event.startDate.substring(0, 10)} ~ {event.endDate.substring(0, 10)}
+                                </div>
+                                <div className="event-title">{event.eventName}</div>
+                            </div>
                         </div>
                     ))
                 ) : (

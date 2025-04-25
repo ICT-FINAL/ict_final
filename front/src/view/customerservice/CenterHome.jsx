@@ -5,9 +5,9 @@ return(
     <div className="CustomerServiceLayout-container"> 
     <div className="CenterHome-container">
         <ul className="center-menu">
-            <li><div className="center-menu2"><span><Link to="/customerservice/inquiryWrite">1:1문의하기</Link></span></div></li>
             <li><div className="center-menu3"><span><Link to="/customerservice/faq">자주묻는질문</Link></span></div></li>
-            <li><div className="center-menu4"><span>공지사항</span></div></li>
+            <li><div className="center-menu2"><span><Link to="/customerservice/inquiryWrite">1:1문의하기</Link></span></div></li>
+            <li><div className="center-menu4"><span><Link to="/customerservice/Notice">공지사항</Link></span></div></li>
         </ul>
     </div>
 

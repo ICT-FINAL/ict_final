@@ -1,5 +1,6 @@
 package com.ict.serv.repository;
 
+import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.entity.wish.Wishlist;
 import org.springframework.data.domain.PageRequest;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface WishRepository extends JpaRepository<Wishlist, Long> {
     Wishlist findByUser_IdAndProduct_Id(Long userId, Long productId);
@@ -21,4 +23,11 @@ public interface WishRepository extends JpaRepository<Wishlist, Long> {
             "JOIN wishlist w ON p.product_id = w.product_no " +
             "WHERE p.seller_no = :sellerId", nativeQuery = true)
     int countWishBySeller(@Param("sellerId") Long sellerId);
+
+    int countIdByProduct(Product product);
+
+    List<Wishlist> findByUser(User user);
+
+    @Query("SELECT w.product.id, COUNT(w) FROM Wishlist w GROUP BY w.product.id")
+    List<Object[]> countAllGroupedByProduct();
 }

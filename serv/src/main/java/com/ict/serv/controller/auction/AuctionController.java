@@ -1,6 +1,8 @@
 package com.ict.serv.controller.auction;
 
+import com.ict.serv.controller.product.ProductPagingVO;
 import com.ict.serv.entity.auction.*;
+import com.ict.serv.entity.order.OrderPagingVO;
 import com.ict.serv.entity.product.*;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.AuctionService;
@@ -144,5 +146,55 @@ public class AuctionController {
     @GetMapping("/getAuctionItem/{roomId}")
     public ResponseEntity<AuctionRoom> getAuctionItem(@PathVariable String roomId){
         return ResponseEntity.ok(service.getAuctionRoom(roomId).get());
+    }
+
+    @GetMapping("/getAuctionMap")
+    public Map<String, List<AuctionRoom>> getAuctionMap() {
+        List<AuctionRoom> hotRooms = service.getHotAuctionRooms();
+        List<AuctionRoom> closingRooms = service.getClosingAuctionRooms();
+
+        Map<String, List<AuctionRoom>> result = new HashMap<>();
+        result.put("hotRooms", hotRooms);
+        result.put("closingRooms", closingRooms);
+
+        return result;
+    }
+
+    @GetMapping("/search")
+    public Map<String, Object> searchProducts(ProductPagingVO pvo) {
+        pvo.setOnePageRecord(10);
+        String[] cats = pvo.getProductCategory().split(",");
+        List<String> categories = new ArrayList<>(Arrays.asList(cats));
+        pvo.setTotalRecord(service.searchCountAll(pvo,categories));
+        List<AuctionProduct> productList = service.searchAll(pvo,categories);
+        System.out.println(productList.size()+"!!!!");
+        List<AuctionResponseDTO> auctionList = new ArrayList<>();
+        for(AuctionProduct product : productList) {
+            List<AuctionRoom> rooms = service.findAuctionRoomByAuctionProduct(product);
+            if(!rooms.isEmpty()) {
+                AuctionResponseDTO dto = new AuctionResponseDTO();
+                dto.setRoom(rooms.get(0));
+                dto.setProduct(product);
+                auctionList.add(dto);
+            }
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("auction",auctionList);
+        result.put("pvo",pvo);
+        return result;
+    }
+    @GetMapping("/getBidList")
+    public Map getBidList(@AuthenticationPrincipal UserDetails userDetails, BidPagingVO pvo) {
+        pvo.setOnePageRecord(5);
+        User user = inter_service.selectUserByName(userDetails.getUsername());
+        pvo.setTotalRecord(service.totalAuctionBidCount(user, pvo));
+        Map map = new HashMap();
+        map.put("pvo", pvo);
+        map.put("bidList", service.searchAuctionBid(user,pvo));
+        return map;
+    }
+    @GetMapping("/getRoomId")
+    public String getRoomId(Long productId) {
+        return service.getAuctionRoomByProduct(service.getAuctionProduct(productId));
     }
 }

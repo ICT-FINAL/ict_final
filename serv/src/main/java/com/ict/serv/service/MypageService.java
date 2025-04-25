@@ -6,10 +6,7 @@ import com.ict.serv.entity.report.Report;
 import com.ict.serv.entity.user.Address;
 import com.ict.serv.entity.user.Guestbook;
 import com.ict.serv.entity.user.User;
-import com.ict.serv.repository.AddressRepository;
-import com.ict.serv.repository.GuestbookRepository;
-import com.ict.serv.repository.ReportRepository;
-import com.ict.serv.repository.WishRepository;
+import com.ict.serv.repository.*;
 import com.ict.serv.repository.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -26,6 +23,8 @@ public class MypageService {
     private final ProductRepository product_repo;
     private final WishRepository wish_repo;
     private final AddressRepository address_repo;
+    private final FollowRepository follow_repo;
+    private final UserRepository user_repo;
 
     public List<Report> getReportByUserFrom(User user, PagingVO pvo) {
         return report_repo.findAllByUserFromOrderByCreateDateDesc(user, PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
@@ -39,7 +38,7 @@ public class MypageService {
     }
 
     public List<Guestbook> selectGuestbookAll(User user) {
-        return guestbook_repo.findAllByReceiverAndOriginalId(user, 0);
+        return guestbook_repo.findAllByReceiverAndOriginalIdOrderByWritedateDesc(user, 0);
     }
 
     public Optional<Guestbook> selectGuestbookById(int id) {
@@ -65,4 +64,16 @@ public class MypageService {
     public List<Address> getAddrList(User user) { return address_repo.findAllByUser(user);}
 
     public Address insertAddress(Address address) { return address_repo.save(address);}
+
+    public Optional<User> selectUserInfo(User user) {
+        return user_repo.findById(user.getId());
+    }
+
+    public Optional<Address> selectUserAddress(Long addressId) {
+        return address_repo.findById(addressId);
+    }
+
+    public Address updateAddressState(Address address) {
+        return address_repo.save(address);
+    }
 }

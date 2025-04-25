@@ -1,8 +1,6 @@
 package com.ict.serv.entity.basket;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ict.serv.entity.product.Product;
-import com.ict.serv.entity.product.Option;
 import com.ict.serv.entity.product.OptionCategory;
 import com.ict.serv.entity.user.User;
 import jakarta.persistence.Column;
@@ -13,8 +11,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-
-import java.util.List;
 
 @Data
 @Entity
@@ -40,7 +36,7 @@ public class Basket {
 
     @ManyToOne
     @JoinColumn(name="option_category_no")
-    private OptionCategory option_no;
+    private OptionCategory optionNo;
 
     @CreationTimestamp
     @Column(name="create_date", columnDefinition = "DATETIME default now()")
@@ -49,5 +45,4 @@ public class Basket {
     @CreationTimestamp
     @Column(name = "update_date", columnDefinition = "DATETIME default now()")
     private String updateDate;
-
 }

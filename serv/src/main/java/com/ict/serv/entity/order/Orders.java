@@ -1,6 +1,9 @@
 package com.ict.serv.entity.order;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.ict.serv.entity.auction.AuctionProduct;
+import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.user.Address;
 import com.ict.serv.entity.user.User;
 import jakarta.persistence.*;
@@ -30,8 +33,10 @@ public class Orders {
     @UpdateTimestamp
     private String modifiedDate;
 
-    @Enumerated(EnumType.STRING)
-    OrderState state=OrderState.BEFORE;
+    @ManyToOne
+    @JoinColumn(name = "ORDER_GROUP_ID")
+    @JsonBackReference
+    private OrderGroup orderGroup;
 
     @ManyToOne
     @JoinColumn(name = "ADDRESS_ID")
@@ -41,16 +46,25 @@ public class Orders {
 
     private String orderNum;
 
-    @Column(name="coupon_discount", columnDefinition = "int default 0")
-    private int couponDiscount;
-
     @Column(name="shipping_fee", columnDefinition = "int default 0")
     private int shippingFee;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<OrderItem> orderItems = new ArrayList<>();;
+    private List<OrderItem> orderItems = new ArrayList<>();
 
     @Column(name="product_id")
     private Long productId;
+
+    @Column(name="shipping_state")
+    @Enumerated(EnumType.STRING)
+    ShippingState shippingState;
+
+    @ManyToOne
+    @JoinColumn(name = "product_id", insertable = false, updatable = false)
+    private Product product;
+
+    @ManyToOne
+    @JoinColumn(name = "auction_product_id")
+    private AuctionProduct auctionProduct;
 }

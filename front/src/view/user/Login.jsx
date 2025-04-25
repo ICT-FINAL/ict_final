@@ -9,6 +9,8 @@ import { SiKakaotalk } from "react-icons/si";
 import { Check, X } from "lucide-react"; 
 import Logo from '../../img/mimyo_logo-removebg.png';
 import Spinner from "../../effect/Spinner";
+import { setLoginView } from "../../store/loginSlice";
+import NaverLogo from '../../img/naver.png';
 
 function Login({ onClose }) {
     const dispatch = useDispatch();
@@ -34,6 +36,11 @@ function Login({ onClose }) {
     const [emailError, setEmailError] = useState("");
 
     const [newPasswordValid, setNewPasswordValid] = useState(null); // 비밀번호 재설정
+
+    const moveSignUp = () => {
+      navigate('signup/info');
+      dispatch(setLoginView(false));
+    }
 
     const handleNewPasswordChange = (e) => { // 비밀번호 찾기 -> 재설정
       const value = e.target.value;
@@ -173,6 +180,11 @@ function Login({ onClose }) {
         const kakaoLoginUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${process.env.REACT_APP_KAKAO_REST_API_KEY}&redirect_uri=${process.env.REACT_APP_KAKAO_REDIRECT_URL}&response_type=code&prompt=login`;
         window.location.href = kakaoLoginUrl;
     };
+    const handleNaverSignup = () => {
+      const naverLoginUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${process.env.REACT_APP_NAVER_CLIENT_ID}&redirect_uri=${process.env.REACT_APP_NAVER_REDIRECT_URL}&state=naver`;
+      window.location.href = naverLoginUrl;
+    };
+
     const handleGoogleSignup = () => {
         const params = new URLSearchParams({
             client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
@@ -182,7 +194,6 @@ function Login({ onClose }) {
             prompt: "select_account",
         });
     
-        console.log("Google Login URL:", `https://accounts.google.com/o/oauth2/auth?${params.toString()}`); // 디버깅용
         window.location.href = `https://accounts.google.com/o/oauth2/auth?${params.toString()}`;
     
     };
@@ -341,7 +352,7 @@ function Login({ onClose }) {
             <button onClick={handleLogin}>로그인</button>
 
             <div className="login-links">
-                <span onClick={() => setShowFindId(true)}>아이디 찾기</span>
+                <span onClick={() => moveSignUp()}>회원 가입</span>
                 <span onClick={() => setShowResetPw(true)}>비밀번호 찾기</span>
             </div>
             </>
@@ -350,11 +361,15 @@ function Login({ onClose }) {
             <div className="social-login">
                 <button className="kakao-login" onClick={handleSignup}>
                     <SiKakaotalk size={20} />
-                    카카오 회원가입
+                    카카오 로그인
                 </button>
                 <button className="google-login" onClick={handleGoogleSignup}>
                     <FcGoogle size={20} />
-                    구글 회원가입
+                    구글 로그인
+                </button>
+                <button style={{position:'relative'}} onClick={handleNaverSignup}>
+                  <img style={{position:'absolute',left:'83px',top:'12px'}}width='20px' src={NaverLogo}/>  
+                  <span style={{paddingLeft:'25px'}}>네이버 로그인</span>
                 </button>
             </div>
         </div>

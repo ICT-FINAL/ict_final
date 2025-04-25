@@ -2,12 +2,14 @@ package com.ict.serv.controller.product;
 
 import com.ict.serv.entity.product.*;
 import com.ict.serv.entity.user.User;
-import com.ict.serv.service.InteractService;
-import com.ict.serv.service.ProductService;
+import com.ict.serv.service.*;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -16,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @RestController
@@ -25,6 +28,9 @@ import java.util.*;
 public class ProductController {
     private final InteractService interactService;
     private final ProductService service;
+    private final OrderService orderService;
+    private final LogService logService;
+    private final ReviewService reviewService;
 
     @PostMapping("/write")
     @Transactional(rollbackFor = {RuntimeException.class, SQLException.class})
@@ -119,7 +125,22 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public Map<String, Object> searchProducts(ProductPagingVO pvo) {
+    public Map<String, Object> searchProducts(ProductPagingVO pvo, @AuthenticationPrincipal UserDetails userDetails, HttpServletRequest request) {
+        User user = null;
+        if (userDetails != null) {
+            user = interactService.selectUserByName(userDetails.getUsername());
+        }
+        String ip = request.getRemoteAddr();
+
+        String keyword = pvo.getSearchWord();
+        String ec = pvo.getEventCategory();
+        String tc = pvo.getTargetCategory();
+        String pc = pvo.getProductCategory();
+
+//        LocalDateTime limit = LocalDateTime.now().minusHours(3);
+        LocalDateTime limit = LocalDateTime.now().minusSeconds(1);
+        logService.saveSearch(user, ip, keyword, ec, tc, pc, limit);
+
         pvo.setOnePageRecord(10);
         String[] cats = pvo.getProductCategory().split(",");
         List<String> categories = new ArrayList<>(Arrays.asList(cats));
@@ -132,7 +153,54 @@ public class ProductController {
         return result;
     }
     @GetMapping("/getOption")
-    public List<Option> getOption(Long id) {
-        return service.selectOptions(service.selectProduct(id).get());
+    public List<Option> getOption(Long id, HttpServletRequest request) {
+        Product product = service.selectProduct(id).get();
+        User user = null;
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+            UserDetails userDetails = (UserDetails) auth.getPrincipal();
+            user = interactService.selectUserByName(userDetails.getUsername());
+        }
+        logService.logProductHit(user,product,request.getRemoteAddr());
+        return service.selectOptions(product);
+    }
+
+    @GetMapping("/getList/hotCategory")
+    public List<HotCategoryDTO> hotCategory() {
+        return orderService.getHotCategory();
+    }
+
+    @GetMapping("/getList/byCategory")
+    public List<Product> byCategory(String category) {
+        List<String> categories = new ArrayList<>();
+        categories.add(category);
+
+        List<Product> productList = service.searchAllNoPaging(categories);
+
+        if (productList.size() > 10) {
+            Collections.shuffle(productList);
+            return productList.subList(0, 10);
+        }
+
+        return productList;
+    }
+
+    @GetMapping("/getList/getRAW")
+    public List<RAWDTO> getRAW() {
+        List<Product> productList = service.getRAWList();
+        List<RAWDTO> rawList = new ArrayList<>();
+        for(Product product:productList){
+            int review_count = reviewService.productReviewList(product).size();
+            int wish_count = interactService.selectWishCountByProduct(product);
+            if(!product.getImages().isEmpty()) {
+                RAWDTO raw = new RAWDTO(product.getId(), product.getProductName(), product.getPrice(), product.getQuantity(), product.getShippingFee(), product.getDiscountRate(), product.getImages().get(0), product.getRating(), review_count, wish_count);
+                rawList.add(raw);
+            }
+        }
+        return rawList;
+    }
+    @GetMapping("/getInfo")
+    public Product getInfo(Long productId) {
+        return service.selectProduct(productId).get();
     }
 }

@@ -1,5 +1,7 @@
 package com.ict.serv.controller.admin;
 
+import com.ict.serv.entity.report.ReportSort;
+import com.ict.serv.entity.report.ReportState;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,7 +13,9 @@ public class PagingVO {
     private String searchWord;
     private String category;
 
-    private String sort;
+    private ReportSort sort;
+
+    private ReportState state;
 
     private int nowPage = 1;
     private int onePageRecord = 5;
