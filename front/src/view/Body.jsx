@@ -81,6 +81,8 @@ import { setLoginView } from '../store/loginSlice';
 import AuctionPaymentSuccess from './product/AuctionPaymentSuccess';
 import NaverSignupHandler from './user/NaverSignupHandler';
 import RefundModal from '../modal/RefundModal';
+import CancelModal from '../modal/CancelModal';
+import SellerCancelModal from '../modal/SellerCancelModal';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -157,15 +159,27 @@ function Body() {
   }, []);
 
   useEffect(()=>{
+    if (user) {
+      axios.get(`${serverIP.ip}/chat/unreadChatCount`, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      })
+      .then(res=>{
+        console.log(res.data);
+      })
+      .catch(err=>console.log(err));
+    }
     var menu = new Menu("#myMenu");
     var item1 = new Item("list", "fas fa-bars", "");
     var item2 = new Item("up", "fas fa-id-card", "", "");
     var item3 = new Item("home", "fas fa-sign-out-alt", "", "");
+    var item4 = new Item("chat", "fas fa-chat-alt", "", "");
     menu.add(item1);
     menu.add(item2);
     menu.add(item3);
+    menu.add(item4);
     let homeButton=document.getElementById("home");
     var upButton=document.getElementById("up");
+    let chatButton=document.getElementById("chat");
     
     homeButton.addEventListener('click', () => {
       menu.close();
@@ -178,6 +192,14 @@ function Body() {
         menu.close();
         window.scrollTo({top:0,left:0,behavior:'smooth'});
     });
+
+    chatButton.addEventListener('click', () => {
+      menu.close();
+      if(user)  
+        navigate('/mypage/chatting');
+      else dispatch(setLoginView(true));
+    });
+
     let clicked = false;
   },[]);
 
@@ -199,6 +221,8 @@ function Body() {
     {modal.isOpen && modal.selected == 'inquiry-box' && <InquiryModal />}
     {modal.isOpen && modal.selected == 'shipping' && <ShippingModal />}
     {modal.isOpen && modal.selected == 'refund' && <RefundModal />}
+    {modal.isOpen && modal.selected == 'cancel-order' && <CancelModal />}
+    {modal.isOpen && modal.selected == 'seller-cancel-order' && <SellerCancelModal />}
     {interact.isOpen && <Interact />}
     {modal.isOpen && modal.selected.indexOf('delll') !== -1 && <DeleteModal />}
     <Routes>

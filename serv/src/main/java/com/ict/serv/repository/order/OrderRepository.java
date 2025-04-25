@@ -1,8 +1,10 @@
 package com.ict.serv.repository.order;
 
+import com.ict.serv.entity.auction.AuctionProduct;
 import com.ict.serv.entity.order.OrderGroup;
 import com.ict.serv.entity.order.OrderState;
 import com.ict.serv.entity.order.Orders;
+import com.ict.serv.entity.order.ShippingState;
 import com.ict.serv.entity.product.HotCategoryDTO;
 import com.ict.serv.entity.user.User;
 import io.lettuce.core.dynamic.annotation.Param;
@@ -84,4 +86,10 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
     List<Object[]> countAllGroupedByProduct();
 
     List<Orders> findAllByProductIdOrderByIdDesc(Long id);
+
+    List<Orders> findAllByProductIdAndShippingStateOrderByIdDesc(Long id, ShippingState state);
+
+    List<Orders> findAllByAuctionProductOrderByIdDesc(AuctionProduct auctionProduct);
+
+    List<Orders> findAllByAuctionProductAndShippingStateOrderByIdDesc(AuctionProduct auctionProduct, ShippingState shippingState);
 }

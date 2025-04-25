@@ -168,6 +168,17 @@ public class InteractController {
         return map;
     }
 
+    @GetMapping("/getAllPointList")
+    public Map getAllPointList(@AuthenticationPrincipal UserDetails userDetails, CouponPagingVO pvo) {
+        User user = service.selectUserByName(userDetails.getUsername());
+        pvo.setOnePageRecord(10);
+        pvo.setTotalRecord(service.pointTotalRecord(user));
+        Map map = new HashMap();
+        map.put("pvo",pvo);
+        map.put("pointList", service.getAllPointList(pvo,user));
+        return map;
+    }
+
     @GetMapping("/getFollowState")
     public boolean getFollowState(Long from, Long to) {
         return service.selectFollow(from, to) != null; // 있으면 true, 없으면 false
