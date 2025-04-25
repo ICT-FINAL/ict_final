@@ -65,6 +65,7 @@ public class SecurityConfig {
                         .requestMatchers("/submenu/**").permitAll()
                         .requestMatchers("/review/**").permitAll()
                         .requestMatchers("/auction/getAuctionItem").permitAll()
+                        .requestMatchers("/interact/getPopUser").permitAll()
                         .requestMatchers("/api/roulette/check").authenticated()
                         .requestMatchers("/api/roulette/spin").authenticated()
                         .anyRequest().authenticated() // 나머지는 인증 필요

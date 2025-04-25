@@ -1,5 +1,6 @@
 package com.ict.serv.controller;
 
+import com.ict.serv.dto.PopUserDTO;
 import com.ict.serv.dto.UserResponseDto;
 import com.ict.serv.entity.coupon.Coupon;
 import com.ict.serv.entity.coupon.CouponPagingVO;
@@ -15,17 +16,17 @@ import com.ict.serv.entity.message.MessageState;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.report.Report;
 import com.ict.serv.entity.user.User;
-import com.ict.serv.service.CouponService;
-import com.ict.serv.service.InteractService;
-import com.ict.serv.service.ProductService;
+import com.ict.serv.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,8 @@ public class InteractController {
     private final InteractService service;
     private final ProductService productService;
     private final CouponService couponService;
+    private final OrderService orderService;
+    private final MypageService mypageService;
 
     @GetMapping("/getToUser")
     public MessageResponseDTO getToUser(Long toId) {
@@ -201,5 +204,34 @@ public class InteractController {
     @GetMapping("/getCouponList")
     public List<Coupon> getCouponList(@AuthenticationPrincipal UserDetails userDetails) {
         return couponService.findCouponByState(CouponState.AVAILABLE,service.selectUserByName(userDetails.getUsername()));
+    }
+
+    @GetMapping("/getPopUser")
+    public List<PopUserDTO> getPopUser(){
+        List<User> userList = service.getAllUserList();
+        List<PopUserDTO> result = new ArrayList<>();
+        for(User user: userList) {
+            int orderCount = orderService.getOrderCountBySeller(user);
+            int reviewCount = service.getReviewCountBySeller(user);
+            double reviewAverage = service.getReviewAverage(user);
+            int followerCount = service.getFollowerList(user.getId()).size();
+            int wishCount = mypageService.getWishCount(user.getId());
+            List<Product> productList = productService.selectProductByUser(user);
+            PopUserDTO popUserDTO = new PopUserDTO();
+            popUserDTO.setFollowerCount(followerCount);
+            popUserDTO.setProductList(productList);
+            popUserDTO.setUser(user);
+            popUserDTO.setOrderCount(orderCount);
+            popUserDTO.setReviewCount(reviewCount);
+            popUserDTO.setReviewAverage(reviewAverage);
+            popUserDTO.setWishCount(wishCount);
+            double score = followerCount + reviewCount*3 + orderCount*2 + wishCount*2 + productList.size()*0.5;
+            popUserDTO.setScore(score);
+            result.add(popUserDTO);
+        }
+
+        result.sort((a, b) -> Double.compare(b.getScore(), a.getScore()));
+
+        return result.size() > 5 ? result.subList(0, 5) : result;
     }
 }

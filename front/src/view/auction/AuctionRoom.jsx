@@ -233,7 +233,7 @@ function AuctionRoom() {
                             <ul>
                                 <li style={{ display: 'flex' }}>
                                 <div className='product-profile-box'>
-                                <img id={`mgx-${roomInfo.auctionProduct.sellerNo.id}`} className='message-who' src={roomInfo.auctionProduct.sellerNo.uploadedProfileUrl ? `${serverIP.ip}${roomInfo.auctionProduct.sellerNo.uploadedProfileUrl}` : `${serverIP.ip}${roomInfo.auctionProduct.sellerNo.profileImageUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
+                                <img id={`mgx-${roomInfo.auctionProduct.sellerNo.id}`} className='message-who' src={roomInfo.auctionProduct.sellerNo.uploadedProfileUrl ? `${serverIP.ip}${roomInfo.auctionProduct.sellerNo.uploadedProfileUrl}` : `${roomInfo.auctionProduct.sellerNo.kakaoProfileUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
                                     <div id={`mgx-${roomInfo.auctionProduct.sellerNo.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{roomInfo.auctionProduct.sellerNo.username} &gt;</div>
                                 </div>
                                 </li>
@@ -347,7 +347,7 @@ function AuctionRoom() {
                                     bidHistory.map((item, idx) => {
                                         return(<li>
                                             <div className='product-profile-box'>
-                                                <img id={`mgx-${item.user.id}`} className='message-who' src={item.user.uploadedProfileUrl ? `${serverIP.ip}${item.user.uploadedProfileUrl}` : `${serverIP.ip}${item.user.profileImageUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
+                                                <img id={`mgx-${item.user.id}`} className='message-who' src={item.user.uploadedProfileUrl ? `${serverIP.ip}${item.user.uploadedProfileUrl}` : `${item.user.kakaoProfileUrl.indexOf('http')===-1 ? `${serverIP.ip}${item.user.sellerNo.kakaoProfileUrl}`:item.user.sellerNo.kakaoProfileUrl }`} />
                                                <div id={`mgx-${item.user.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{item.user.username} &gt;</div>
                                             </div>
                                             <div>
