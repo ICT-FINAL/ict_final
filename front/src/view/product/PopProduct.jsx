@@ -113,7 +113,7 @@ function PopProduct() {
                                     <img
                                         src={item.user.uploadedProfileUrl
                                             ? `${serverIP.ip}${item.user.uploadedProfileUrl}`
-                                            : `${serverIP.ip}${item.user.profileImageUrl}`
+                                            : `${item.user.profileImageUrl}`
                                         }
                                         alt=''
                                         className='pop-profile-img'
