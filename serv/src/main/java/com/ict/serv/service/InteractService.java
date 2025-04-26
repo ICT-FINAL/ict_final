@@ -134,6 +134,9 @@ public class InteractService {
 
     public void checkUserPoint() {
         List<User> userList = user_repo.findAll();
+        if (userList.isEmpty()) {
+            return; // 유저 없으면 아무것도 하지 않음
+        }
         for(User user: userList) {
             if(user.getGradePoint() >= 1000 && user.getGradePoint() <2000 && user.getGrade()==0) {
                 user.setGrade(1);
