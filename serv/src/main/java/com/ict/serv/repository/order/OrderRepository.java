@@ -92,4 +92,6 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
     List<Orders> findAllByAuctionProductOrderByIdDesc(AuctionProduct auctionProduct);
 
     List<Orders> findAllByAuctionProductAndShippingStateOrderByIdDesc(AuctionProduct auctionProduct, ShippingState shippingState);
+
+    List<Orders> findByShippingState(ShippingState shippingState);
 }

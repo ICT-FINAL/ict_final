@@ -47,14 +47,16 @@ function ProductInfo() {
     // 평균 별점 구하기 
     const [averageStar, setAverageStar] = useState(null);
     useEffect(() => {
+        getAverageStar();
+    }, []);
+    const getAverageStar = () => {
         axios.get(`${serverIP.ip}/review/averageStar?productId=${loc.state.product.id}`)
             .then(res => {
                 console.log(res.data);
                 setAverageStar(res.data.average);
             })
             .catch(err => console.log(err));
-    }, []);
-
+    }
     // 별점 UI 렌더링 함수
     const renderStars = (average) => {
         return (
@@ -663,7 +665,7 @@ function ProductInfo() {
                         }
 
                         {changeMenu === "review" && (
-                            <ProductReview />
+                            <ProductReview getAverageStar={getAverageStar} averageStar={averageStar}/>
                         )}
 
                     </div>

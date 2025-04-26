@@ -14,6 +14,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -253,5 +256,29 @@ public class OrderService {
             ordersList.addAll(inputOrderList);
         }
         return ordersList.size();
+    }
+
+    public void checkOrders() {
+        List<Orders> ordersList = order_repo.findByShippingState(ShippingState.ONGOING);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+
+        for (Orders order : ordersList) {
+            if (order.getStartDate() == null) continue;
+
+            LocalDateTime orderStartDate;
+            try {
+                orderStartDate = LocalDateTime.parse(order.getStartDate(), formatter).plusHours(9);
+            } catch (Exception e) {
+                System.out.println("날짜 파싱 실패: " + order.getStartDate());
+                continue;
+            }
+
+            long secondsBetween = ChronoUnit.SECONDS.between(orderStartDate, now);
+            if (secondsBetween >= 300) { //5분마다 체크 후 구매확정 >>> 테스트용이라서 실제는 2주
+                order.setShippingState(ShippingState.FINISH);
+                order_repo.save(order);
+            }
+        }
     }
 }
