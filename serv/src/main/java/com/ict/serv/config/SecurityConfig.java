@@ -93,6 +93,8 @@ public class SecurityConfig {
         configuration.addAllowedOrigin("http://211.188.58.70:3000");
         configuration.addAllowedOrigin("http://211.188.58.70");
         configuration.addAllowedOrigin("http://211.188.58.70:80");
+        configuration.addAllowedOrigin("http://mimyo.my");
+        configuration.addAllowedOrigin("http://www.mimyo.my");
         configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
         configuration.addAllowedHeader("*"); // 모든 헤더 허용
         configuration.setAllowCredentials(true); // 인증 정보 포함 허용
