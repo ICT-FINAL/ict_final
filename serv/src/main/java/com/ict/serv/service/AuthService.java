@@ -32,6 +32,9 @@ public class AuthService {
     @Value("${google.client-id}")
     String GOOGLE_CLIENT_ID;
 
+    @Value("${google.redirect-uri}")
+    String GOOGLE_REDIRECT_URI;
+
     @Value("${google.client-secret}")
     String GOOGLE_CLIENT_SECRET;
     private final MailService mailService;
@@ -98,7 +101,7 @@ public class AuthService {
         body.put("code", code);
         body.put("client_id", GOOGLE_CLIENT_ID);
         body.put("client_secret", GOOGLE_CLIENT_SECRET);
-        body.put("redirect_uri", "https://mimyo.my/login/oauth2/code/google");
+        body.put("redirect_uri", GOOGLE_REDIRECT_URI);
         body.put("grant_type", "authorization_code");
 
         HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
