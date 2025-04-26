@@ -14,20 +14,4 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations("file:./uploads/") // 업로드된 파일이 올바르게 제공되도록 설정
                 .setCachePeriod(0);
     }
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:3000")
-                        .allowedOrigins("http://http://211.188.58.70/:3000")
-                        .allowedOrigins("http://http://211.188.58.70/")
-                        .allowedOrigins("http://http://211.188.58.70/:80")
-                        .allowedMethods("*")
-                        .allowedHeaders("*")
-                        .allowCredentials(false);
-            }
-        };
-    }
 }
