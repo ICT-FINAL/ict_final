@@ -17,10 +17,8 @@ public class InitScheduler {
     @PostConstruct
     public void init() {
         System.out.println("[PostConstruct] 서버 시작됨! 현재 시간: " + LocalDateTime.now());
-        /*
-        auctionScheduler();
-        userGradeScheduler();
-        */
+//        auctionScheduler();
+//        userGradeScheduler();
     }
     /*
     @Scheduled(fixedRate = 3000)
