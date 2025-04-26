@@ -90,6 +90,7 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin("http://localhost:3000");
         configuration.addAllowedOrigin("http://192.168.1.146:3000"); // 배포 시 서버 주소로
+        configuration.addAllowedOrigin("http://211.188.58.70:3000");
         configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
         configuration.addAllowedHeader("*"); // 모든 헤더 허용
         configuration.setAllowCredentials(true); // 인증 정보 포함 허용
