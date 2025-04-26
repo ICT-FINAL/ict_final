@@ -8,7 +8,7 @@ import searchReducer from './searchSlice'; //검색 관리
 
 let serverIP = createSlice({
   name: "serverIP",
-  initialState: { ip: "http://192.168.1.146:9977", front: 'http://192.168.1.146:3000' }, // 서버 IP 전역 관리
+  initialState: { ip: "http://211.188.58.70:9977", front: 'http://211.188.58.70:3000' }, // 서버 IP 전역 관리
 });
 
 let test = createSlice({
