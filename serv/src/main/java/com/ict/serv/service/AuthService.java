@@ -98,7 +98,7 @@ public class AuthService {
         body.put("code", code);
         body.put("client_id", GOOGLE_CLIENT_ID);
         body.put("client_secret", GOOGLE_CLIENT_SECRET);
-        body.put("redirect_uri", "http://localhost:3000/login/oauth2/code/google");
+        body.put("redirect_uri", "https://mimyo.my/login/oauth2/code/google");
         body.put("grant_type", "authorization_code");
 
         HttpEntity<Map<String, String>> request = new HttpEntity<>(body, headers);
