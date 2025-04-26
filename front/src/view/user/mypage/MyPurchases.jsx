@@ -108,6 +108,21 @@ function MyPurchases() {
         }
     };
 
+    function formatOrderDate(dateString) {
+        if (!dateString) return "";
+      
+        const utcDate = new Date(dateString.replace(' ', 'T'));
+        const kstDate = new Date(utcDate.getTime() + 9 * 60 * 60 * 1000);
+        const yyyy = kstDate.getFullYear();
+        const mm = String(kstDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(kstDate.getDate()).padStart(2, '0');
+        const hh = String(kstDate.getHours()).padStart(2, '0');
+        const mi = String(kstDate.getMinutes()).padStart(2, '0');
+        const ss = String(kstDate.getSeconds()).padStart(2, '0');
+      
+        return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+    }
+
     const endShipping = (id) => {
         if(user){
             const isConfirmed = window.confirm("정말로 구매 확정 처리 하시겠습니까?\n구매 확정 후에는 환불이 불가능합니다.");
@@ -138,7 +153,6 @@ function MyPurchases() {
             <select onChange={(e) => setSearchOption(e.target.value)} style={{ width: '120px', borderRadius: '10px', padding: '5px 10px', border: '1px solid #ddd'}}>
                 <option value="">전체</option>
                 <option value="PAID">결제 완료</option>
-                <option value="FINISH">구매 확정</option>
                 <option value="CANCELED">결제 취소</option>
                 <option value="PARTCANCELED">부분 취소</option>
                 <option value="RETURNED">전체 환불</option>
@@ -153,7 +167,7 @@ function MyPurchases() {
                             <div className="group-header">
                                 { group.orders.length >0 &&
                                 <div>
-                                    <strong>주문일:</strong> {group.orderDate?.substring(0, 19)} <br/>
+                                    <strong>주문일:</strong> {formatOrderDate(group.orderDate)} <br/>
                                     <strong>배송지:</strong> {group.orders[0].address.address} / {group.orders[0].address.addressDetail}<br />
                                     <strong>수령인:</strong> {group.orders[0].address.recipientName}<br />
                                     <strong>전화번호:</strong> {group.orders[0].address.tel}<br />

@@ -71,7 +71,7 @@ public class RouletteService {
         User user = getUserByUserId(userId);
         if (user == null) return false;
 
-        List<UserPoint> userPointList = userPointRepository.findByUserId(user.getId());
+        List<UserPoint> userPointList = userPointRepository.findByTypeAndUserIdAndLastSpinDate(PointType.ROULETTE,user.getId(),LocalDate.now());
         if (userPointList.isEmpty()) return true;
 
         for(UserPoint userPoint : userPointList) {
