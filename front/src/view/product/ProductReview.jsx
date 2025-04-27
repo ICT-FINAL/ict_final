@@ -6,7 +6,7 @@ import { setModal } from "../../store/modalSlice";
 import { FaStar  } from 'react-icons/fa';
 
 
-function ProductReview(){
+function ProductReview({getAverageStar, averageStar}){
     const modal = useSelector((state)=>state.modal);
     const [isPurchased, setIsPurchased] = useState(false); // 선택한 상품에 대해 구매했는지에 대한 여부 저장 
     const [reviewWrite, setReviewWrite] = useState(false);
@@ -285,6 +285,7 @@ function ProductReview(){
                 setReviewWrite(false);
 
                 getReviewList();
+                getAverageStar();
             }
         })
         .catch(function (error) { console.log(error); })
@@ -299,22 +300,12 @@ function ProductReview(){
             .then(res=>{
                 console.log(res.data);
                 getReviewList();
+                getAverageStar();
                 dispatch(setModal({delCheck:''}));
             })
             .catch(err => console.log(err));
         }
     },[modal.delCheck])
-
-    // 평균 별점 구하기 
-    const [averageStar, setAverageStar] = useState(null);
-    useEffect(() => {
-        axios.get(`${serverIP.ip}/review/averageStar?productId=${loc.state.product.id}`)
-        .then(res => {
-            console.log(res.data); 
-            setAverageStar(res.data.average);
-        })
-        .catch(err => console.log(err));
-    }, []);
 
     // 별점 UI 렌더링 함수
     const renderStars = (average) => {

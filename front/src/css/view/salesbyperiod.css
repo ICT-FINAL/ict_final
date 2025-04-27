@@ -59,7 +59,7 @@
 
 .chart-and-table {
   display: grid;
-  grid-template-columns: 50% 50%;
+  grid-template-columns: 49% 51%;
   gap: 16px;
 }
 
@@ -76,7 +76,7 @@
   background-color: #ffffff;
   padding: 16px;
   border: 1px solid #ccc;
-  height: 580px !important;
+  height: 820px;
   overflow-x: hidden;
 }
 
@@ -94,7 +94,13 @@
 .sales-table thead {
   background-color: #efefef;
 }
-
+.sales-table thead th {
+  position: sticky;
+  top: 0;
+  background-color: #ddd; 
+  z-index: 1;
+  box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+}
 .sales-table th,
 .sales-table td {
   padding: 8px;

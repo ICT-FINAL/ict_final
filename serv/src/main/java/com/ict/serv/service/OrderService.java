@@ -3,15 +3,20 @@ package com.ict.serv.service;
 import com.ict.serv.entity.auction.AuctionProduct;
 import com.ict.serv.entity.order.*;
 import com.ict.serv.entity.product.HotCategoryDTO;
+import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.sales.CategorySalesDTO;
 import com.ict.serv.entity.sales.SalesStatsDTO;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.order.*;
+import com.ict.serv.repository.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -24,6 +29,7 @@ public class OrderService {
     private final AuctionOrderRepository auctionOrderRepository;
     private final OrderRepository orderRepository;
     private final ShippingRepository shippingRepository;
+    private final ProductRepository productRepository;
 
     public Orders insertOrder(Orders orders) {
         return order_repo.save(orders);
@@ -240,5 +246,39 @@ public class OrderService {
 
     public List<Orders> getOrderByAuctionProductAndState(AuctionProduct auctionProduct, ShippingState shippingState) {
         return order_repo.findAllByAuctionProductAndShippingStateOrderByIdDesc(auctionProduct, shippingState);
+    }
+
+    public int getOrderCountBySeller(User user) {
+        List<Product> productList = productRepository.findAllBySellerNo(user);
+        List<Orders> ordersList = new ArrayList<>();
+        for(Product product:productList){
+            List<Orders> inputOrderList = order_repo.findAllByProductIdAndShippingStateOrderByIdDesc(product.getId(), ShippingState.FINISH);
+            ordersList.addAll(inputOrderList);
+        }
+        return ordersList.size();
+    }
+
+    public void checkOrders() {
+        List<Orders> ordersList = order_repo.findByShippingState(ShippingState.ONGOING);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+
+        for (Orders order : ordersList) {
+            if (order.getStartDate() == null) continue;
+
+            LocalDateTime orderStartDate;
+            try {
+                orderStartDate = LocalDateTime.parse(order.getStartDate(), formatter).plusHours(9);
+            } catch (Exception e) {
+                System.out.println("날짜 파싱 실패: " + order.getStartDate());
+                continue;
+            }
+
+            long secondsBetween = ChronoUnit.SECONDS.between(orderStartDate, now);
+            if (secondsBetween >= 300) { //5분마다 체크 후 구매확정 >>> 테스트용이라서 실제는 2주
+                order.setShippingState(ShippingState.FINISH);
+                order_repo.save(order);
+            }
+        }
     }
 }
