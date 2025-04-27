@@ -653,7 +653,6 @@
 
 .product-profile-box{
     display:flex;
-    cursor: pointer;
     font-weight: 700;
     float:left;
     width:50%;

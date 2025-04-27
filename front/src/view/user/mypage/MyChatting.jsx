@@ -10,21 +10,21 @@ function MyChatting() {
     const user = useSelector(state => state.auth.user);
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const selectedTab = searchParams.get('tab') || 'send';
+    const selectedTab = searchParams.get('tab') || 'default';
     const stompClientRef = useRef(null);
 
     const [chatRoomList, setChatRoomList] = useState([]);
-    const [sellerChatRoomList, setSellerChatRoomList] = useState([]);
+    const [productChatRoomList, setProductChatRoomList] = useState([]);
     const [isMessage, setIsMessage] = useState(false);
     
     useEffect(()=>{
         getChatRoomList();
-        getSellerChatRoomList();
+        getProductChatRoomList();
         console.log("!!!!");
     }, [isMessage]);
 
-    const getChatRoomList = ()=>{ // 구매자로서 문의한 내역
-        axios.get(`${serverIP.ip}/chat/chatRoomList?role=buyer`,
+    const getChatRoomList = ()=>{
+        axios.get(`${serverIP.ip}/chat/chatRoomList?tab=default`,
             { headers: {Authorization: `Bearer ${user.token}`}})
         .then(res=>{
             console.log(res.data);
@@ -45,12 +45,12 @@ function MyChatting() {
         .catch(err=>console.log(err));
     }
 
-    const getSellerChatRoomList = ()=>{ // 판매자가 받은 채팅 내역
-        axios.get(`${serverIP.ip}/chat/chatRoomList?role=seller`,
+    const getProductChatRoomList = ()=>{
+        axios.get(`${serverIP.ip}/chat/chatRoomList?tab=product`,
             { headers: {Authorization: `Bearer ${user.token}`}})
         .then(res=>{
             console.log(res.data);
-            setSellerChatRoomList(res.data);
+            setProductChatRoomList(res.data);
             res.data.map(room=>{
                 console.log(room);
                 const socket = new SockJS(`${serverIP.ip}/ws`);
@@ -80,18 +80,20 @@ function MyChatting() {
     return (
         <div>
             <ul className='chat-menu'>
-                <li className={selectedTab === 'send' ? 'selected-menu' : {}} onClick={() => navigate('?tab=send')}>구매 문의</li>
-                <li className={selectedTab === 'receive' ? 'selected-menu' : {}} onClick={() => navigate('?tab=receive')}>판매 문의</li>
+                <li className={selectedTab === 'default' ? 'selected-menu' : {}} onClick={() => navigate('?tab=default')}>일반 채팅</li>
+                <li className={selectedTab === 'product' ? 'selected-menu' : {}} onClick={() => navigate('?tab=product')}>상품 문의 채팅</li>
             </ul>
             {
-                (selectedTab === 'send' && chatRoomList.length === 0) ||
-                (selectedTab === 'receive' && sellerChatRoomList.length === 0) ? (
+                (selectedTab === 'default' && chatRoomList.length === 0) ||
+                (selectedTab === 'product' && productChatRoomList.length === 0) ? (
                     <div style={{padding: '50px', textAlign: 'center'}}>진행 중인 채팅이 없습니다.</div>
                 ) : null
             }
             {
-                (selectedTab === 'send' ? chatRoomList : sellerChatRoomList).map((room, idx)=>{
-                    const selectedUser = selectedTab === 'send' ? room.product.sellerNo : room.buyer
+                (selectedTab === 'default' ? chatRoomList : productChatRoomList).map((room, idx)=>{
+                    const selectedUser = selectedTab === 'default' ?
+                        user.user.id === room.participantA.id ? room.participantB : room.participantA
+                        : room.product.sellerNo.id === room.participantA.id ? room.participantB : room.participantA
                     return (
                         <div key={idx} className="chat-room" onClick={()=>navigate(`/product/chat/${room.chatRoomId}`)}
                             style={room.lastChat.read || room.lastChat.sender.id === user.user.id ? {background: '#f7f7f7'} : {}}>

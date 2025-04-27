@@ -93,7 +93,7 @@ function HotProduct() {
                                             <img style={{ width: '250px', height: '250px', objectFit: 'cover', borderRadius: '10px' }} src={`${serverIP.ip}/uploads/product/${product.id}/${product.images[0].filename}`}/>
                                             <div style={{height:'60px', textAlign:'left'}}>{product.productName}<br />
                                             {product.discountRate === '' || product.discountRate === 0 ? (
-                                                    <span style={{ fontWeight: "700" }}>{product.price.toLocaleString()}원</span> // 할인율이 0%일 때는 기존 가격만 표시
+                                                    <div style={{ fontWeight: "700",textAlign:'center' }}>{product.price.toLocaleString()}원</div> // 할인율이 0%일 때는 기존 가격만 표시
                                                     ) : (
                                                     <div style={{textAlign:'center'}}>
                                                         <span style={{ color: 'red', fontWeight: "700", marginRight: "3px" }}>{product.discountRate}%</span>

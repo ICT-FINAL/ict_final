@@ -12,4 +12,5 @@ public interface ChatRepository extends JpaRepository<ChatMessage, Long> {
 
     List<ChatMessage> findByRoomAndSenderNotAndIsReadFalse(ChatRoom room, User user);
 
+    int countByReceiverAndIsReadFalse(User user);
 }

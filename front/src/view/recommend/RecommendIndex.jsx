@@ -135,7 +135,7 @@ function RecommendIndex() {
     return (
         <div className='recommend-container'>
             <h2 style={{ textAlign: 'center', fontSize: '28px' }}>
-                💖{user.user.username}님을 위한 추천상품입니다.💝
+                💖{user && user.user.username}님을 위한 추천상품입니다.💝
             </h2>
             <ul className="recommend-sort">
                 <li className={priceRange === '' ? 'active' : ''} onClick={loading ? null :() => handlePriceRangeChange('')}>전체</li>

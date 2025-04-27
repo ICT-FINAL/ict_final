@@ -19,7 +19,7 @@
     flex-wrap: wrap;
     gap: 2rem;
     margin-bottom: 3rem;
-    align-items: stretch; /* 중요! 높이 맞춤 */
+    align-items: stretch;
   }
   
   .chart-area {

@@ -264,15 +264,16 @@ function ProductBuy() {
     return path;
   }
 
-  const applyRandomBackground = ()=>{
+  const applyRandomBackground = () => {
     const randomPath = generateRandomPath();
     const svg = `<svg width="600" height="20" xmlns="http://www.w3.org/2000/svg"><path d="${randomPath}" fill="#f9f9f9"/></svg>`;
     const url = `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}')`;
-
-    const style = document.styleSheets[0];
-    style.insertRule(
-      `.product-buy-container::before { background-image: ${url}; }`, 0);
-  }
+  
+    const styleElement = document.createElement('style');
+    styleElement.innerHTML = `.product-buy-container::before { background-image: ${url}; }`;
+  
+    document.head.appendChild(styleElement);
+  };
 
   const formatDateTime = (datetimeStr) => {
       const date = new Date(datetimeStr);

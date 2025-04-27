@@ -191,7 +191,7 @@ public class MypageController {
                         uploadedProfileUrl = "/uploads/user/profile/" + fileName;
                     }
 
-                    userInfo.setKakaoProfileUrl(uploadedProfileUrl);
+                    userInfo.setUploadedProfileUrl(uploadedProfileUrl);
                 }
             }else { // 카카오 로그인이 아니고, 프로필 사진 변경하고 싶을때
                 System.out.println("==================카카오로그인이 아닐때=========================");

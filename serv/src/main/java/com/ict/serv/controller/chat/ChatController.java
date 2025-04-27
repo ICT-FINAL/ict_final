@@ -3,6 +3,7 @@ package com.ict.serv.controller.chat;
 import com.ict.serv.entity.chat.ChatDTO;
 import com.ict.serv.entity.chat.ChatRoom;
 import com.ict.serv.entity.chat.ChatState;
+import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.service.ChatService;
 import com.ict.serv.service.InteractService;
@@ -22,13 +23,25 @@ public class ChatController {
     private final ChatService chatService;
     private final InteractService interactService;
 
-    @GetMapping("/createChatRoom")
-    public String createChatRoom(@AuthenticationPrincipal UserDetails userDetails, Long productId) {
-        User user = interactService.selectUserByName(userDetails.getUsername());
-        ChatRoom room = chatService.findRoom(user, productId);
+//    @GetMapping("/createChatRoom")
+//    public String createChatRoom(@AuthenticationPrincipal UserDetails userDetails, Long productId) {
+//        User user = interactService.selectUserByName(userDetails.getUsername());
+//        ChatRoom room = chatService.findRoom(user, productId);
+//
+//        if (room != null && room.getState() != ChatState.CLOSED) return room.getChatRoomId();
+//        else return chatService.createRoom(user, productId);
+//    }
 
-        if (room != null && room.getState() != ChatState.CLOSED) return room.getChatRoomId();
-        else return chatService.createRoom(user, productId);
+    @GetMapping("/createChatRoom")
+    public String createChatRoom(@AuthenticationPrincipal UserDetails userDetails, Long userId, Long productId) {
+        User creater = interactService.selectUserByName(userDetails.getUsername());
+        User target = interactService.selectUser(userId);
+        ChatRoom room1 = chatService.findRoom(creater, target, productId);
+        ChatRoom room2 = chatService.findRoom(target, creater, productId);
+
+        if (room1 != null && room1.getState() != ChatState.CLOSED) return room1.getChatRoomId();
+        else if (room2 != null && room2.getState() != ChatState.CLOSED) return room2.getChatRoomId();
+        else return chatService.createRoom(creater, target, productId);
     }
 
     @GetMapping("/getChatRoom/{roomId}")
@@ -37,11 +50,11 @@ public class ChatController {
     }
 
     @GetMapping("/chatRoomList")
-    public ResponseEntity<List<ChatRoom>> chatRoomList(@AuthenticationPrincipal UserDetails userDetails, String role) {
+    public ResponseEntity<List<ChatRoom>> chatRoomList(@AuthenticationPrincipal UserDetails userDetails, String tab) {
         User user = interactService.selectUserByName(userDetails.getUsername());
 
-        if (role.equals("buyer")) return ResponseEntity.ok(chatService.getChatRoomList(user));
-        else return ResponseEntity.ok(chatService.getSellerChatRoomList(user));
+        if (tab.equals("default")) return ResponseEntity.ok(chatService.getChatRoomList(user));
+        else return ResponseEntity.ok(chatService.getProductChatRoomList(user));
     }
 
     @GetMapping("/getChatList/{roomId}")
@@ -73,5 +86,11 @@ public class ChatController {
         User user = interactService.selectUserByName(userDetails.getUsername());
         chatService.leaveChatRoom(roomId, user.getId());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/unreadChatCount")
+    public int unreadChatCount(@AuthenticationPrincipal UserDetails userDetails) {
+        User user = interactService.selectUserByName(userDetails.getUsername());
+        return chatService.getUnreadChatCount(user);
     }
 }
