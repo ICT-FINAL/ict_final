@@ -153,7 +153,7 @@ public class ChatService {
         ChatRoom room = getChatRoom(roomId).get();
         if (room.getState().equals(ChatState.ACTIVE)) {
             chatRoomRepository.updateChatRoomStateToLeft(roomId);
-        } else if (room.getState().equals(ChatState.LEFT)) {
+        } else if (room.getState().equals(ChatState.OPEN) || room.getState().equals(ChatState.LEFT)) {
             chatRoomRepository.updateChatRoomStateToClosed(roomId);
         }
     }

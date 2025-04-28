@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import CustomerReview from './CustomerReview';
 import { FaStar } from "react-icons/fa";
-import { useInView } from "react-intersection-observer";
 
 function UserInfo() {
     const user = useSelector((state) => state.auth.user);
@@ -360,7 +359,7 @@ function UserInfo() {
                             products.length === 0 &&
                             <div style={{ padding: '20px', textAlign: 'center' }}>등록된 작품이 없습니다.</div>
                         }
-                        <div className="product-grid" style={{textAlign:'left'}}>
+                        <div className="product-grid" style={{maxWidth: '900px'}}>
                         {products.map((product, index) => (
                             <div
                                 key={`${product.id}-${index}`}
