@@ -79,8 +79,50 @@ function MyPoint(){
                 pointList.map(item => {
                     return (<ul className='mypage-point-list'>
                         <li>
-                            {item.type}
-                        </li>   
+                            {item.type === 'ROULETTE' && (
+                                <span style={{
+                                display: 'inline-block',
+                                padding: '4px 10px',
+                                fontSize: '12px',
+                                fontWeight: 'bold',
+                                borderRadius: '20px',
+                                backgroundColor: '#ff7f50',
+                                color: 'white',
+                                textAlign: 'center'
+                                }}>
+                                룰렛 포인트
+                                </span>
+                            )}
+                            {item.type === 'REVIEW' && (
+                                <span style={{
+                                display: 'inline-block',
+                                padding: '4px 10px',
+                                fontSize: '12px',
+                                fontWeight: 'bold',
+                                borderRadius: '20px',
+                                backgroundColor: '#6a5acd',
+                                color: 'white',
+                                textAlign: 'center'
+                                }}>
+                                리뷰 포인트
+                                </span>
+                            )}
+                            {item.type === 'MELON' && (
+                                <span style={{
+                                display: 'inline-block',
+                                padding: '4px 10px',
+                                fontSize: '12px',
+                                fontWeight: 'bold',
+                                borderRadius: '20px',
+                                backgroundColor: '#3cb371',
+                                color: 'white',
+                                textAlign: 'center'
+                                }}>
+                                멜론 포인트
+                                </span>
+                            )}
+                            </li>
+  
                         <li>
                             {item.lastSpinDate}
                         </li>

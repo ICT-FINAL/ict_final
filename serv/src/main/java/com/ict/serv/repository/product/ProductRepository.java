@@ -1,6 +1,7 @@
 package com.ict.serv.repository.product;
 
 import com.ict.serv.entity.product.Product;
+import com.ict.serv.entity.product.ProductState;
 import com.ict.serv.entity.user.User;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,14 +36,15 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
-            "AND p.product_category IN (:productCategories) AND p.quantity > 0",
+            "AND p.product_category IN (:productCategories) AND p.quantity > 0 AND state='SELL'",
             nativeQuery = true)
     List<Product> findProductsAllCategory(
             @Param("keyword") String keyword,
             @Param("eventCategory") String eventCategory,
             @Param("targetCategory") String targetCategory,
-            @Param("productCategories") List<String> productCategories
-            , PageRequest of
+            @Param("productCategories") List<String> productCategories,
+            @Param("state") ProductState state,
+            PageRequest of
     );
 
     @Query(value = "SELECT * " +
@@ -65,11 +67,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "FROM product p " +
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
-            "AND p.target_category LIKE %:targetCategory% AND p.quantity > 0",
+            "AND p.target_category LIKE %:targetCategory% AND p.quantity > 0 AND state='SELL'",
             nativeQuery = true)
     List<Product> findProductsNoCategory(@Param("keyword") String keyword,
                                          @Param("eventCategory") String eventCategory,
-                                         @Param("targetCategory") String targetCategory, PageRequest of);
+                                         @Param("targetCategory") String targetCategory, @Param("state") ProductState state, PageRequest of);
 
     List<Product> findAllBySellerNo(User user);
 
@@ -77,7 +79,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("""
         SELECT p
         FROM Product p
-        WHERE p.rating >= 3.5 AND p.quantity > 0 
+        WHERE p.rating >= 3.5 AND p.quantity > 0 AND p.state='SELL'
         ORDER BY 
             (SELECT COUNT(r) FROM Review r WHERE r.product = p) +
             (SELECT COUNT(w) FROM Wishlist w WHERE w.product = p) 
@@ -92,7 +94,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
             "AND (:productCategories IS NULL OR p.product_category IN :productCategories) " +
-            "AND p.quantity > 0 " +
+            "AND p.quantity > 0 AND state='SELL' " +
             "GROUP BY p.PRODUCT_ID " +
             "ORDER BY wish_count DESC",
             nativeQuery = true)
@@ -101,6 +103,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("eventCategory") String eventCategory,
             @Param("targetCategory") String targetCategory,
             @Param("productCategories") List<String> productCategories,
+            @Param("state") ProductState state,
             PageRequest pageRequest
     );
 
@@ -110,7 +113,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
-            "AND p.quantity > 0 " +
+            "AND p.quantity > 0 AND state='SELL' " +
             "GROUP BY p.PRODUCT_ID " +
             "ORDER BY wish_count DESC",
             nativeQuery = true)
@@ -118,6 +121,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("keyword") String keyword,
             @Param("eventCategory") String eventCategory,
             @Param("targetCategory") String targetCategory,
+            @Param("state") ProductState state,
             PageRequest pageRequest
     );
 
@@ -128,7 +132,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
             "AND (:productCategories IS NULL OR p.product_category IN :productCategories) " +
-            "AND p.quantity > 0 " +
+            "AND p.quantity > 0 AND state='SELL' " +
             "GROUP BY p.PRODUCT_ID " +
             "ORDER BY review_count DESC",
             nativeQuery = true)
@@ -137,6 +141,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("eventCategory") String eventCategory,
             @Param("targetCategory") String targetCategory,
             @Param("productCategories") List<String> productCategories,
+            @Param("state") ProductState state,
             PageRequest pageRequest
     );
 
@@ -146,7 +151,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
-            "AND p.quantity > 0 " +
+            "AND p.quantity > 0 AND state='SELL' " +
             "GROUP BY p.PRODUCT_ID " +
             "ORDER BY review_count DESC",
             nativeQuery = true)
@@ -154,6 +159,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("keyword") String keyword,
             @Param("eventCategory") String eventCategory,
             @Param("targetCategory") String targetCategory,
+            @Param("state") ProductState state,
             PageRequest pageRequest
     );
 
@@ -163,7 +169,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
-            "AND p.quantity > 0 " +
+            "AND p.quantity > 0 AND state='SELL' " +
             "GROUP BY p.PRODUCT_ID " +
             "ORDER BY order_count DESC",
             nativeQuery = true)
@@ -171,6 +177,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("keyword") String keyword,
             @Param("eventCategory") String eventCategory,
             @Param("targetCategory") String targetCategory,
+            @Param("state") ProductState state,
             PageRequest of
     );
 
@@ -181,7 +188,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
             "AND p.product_category IN (:productCategories) " +
-            "AND p.quantity > 0 " +
+            "AND p.quantity > 0 AND state='SELL' " +
             "GROUP BY p.PRODUCT_ID " +
             "ORDER BY order_count DESC",
             nativeQuery = true)
@@ -190,6 +197,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("eventCategory") String eventCategory,
             @Param("targetCategory") String targetCategory,
             @Param("productCategories") List<String> productCategories,
+            @Param("state") ProductState state,
             PageRequest of
     );
 

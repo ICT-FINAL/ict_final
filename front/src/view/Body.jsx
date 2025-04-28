@@ -83,6 +83,9 @@ import NaverSignupHandler from './user/NaverSignupHandler';
 import RefundModal from '../modal/RefundModal';
 import CancelModal from '../modal/CancelModal';
 import SellerCancelModal from '../modal/SellerCancelModal';
+import ProductCheck from './product/ProductCheck';
+import AuctionCheck from './auction/AuctionCheck';
+import ProductEdit from './product/ProductEdit';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -262,8 +265,10 @@ function Body() {
       <Route path='/inquiry/inquiryview/:id' element={<InquiryView />} />
 
       <Route path='/product/sell' element={<ProductSell />}></Route>
+      <Route path='/product/edit' element={<ProductEdit />}></Route>
       <Route path='/product/info' element={<ProductInfo />}></Route>
       <Route path='/product/buying' element={<ProductBuy />}></Route>
+      <Route path='/product/check' element={<ProductCheck />}></Route>
       <Route path="/payment/success" element={<PaymentSuccess />}></Route>
       <Route path="/payment/auction/success" element={<AuctionPaymentSuccess/>}></Route>
       <Route path="/payment/fail" element={<PaymentFail />}></Route>
@@ -288,6 +293,7 @@ function Body() {
       <Route path='/auction/bid' element={<AuctionBid />}></Route>
       <Route path="/auction/bid/success" element={<AuctionBidSuccess />} />
       <Route path="/auction/search" element={<AuctionSearch />} />
+      <Route path="/auction/check" element={<AuctionCheck />} />
       
 
       <Route path="/shipping/track" element={<ShippingTracker />}></Route>
