@@ -59,7 +59,7 @@ function ProductBuy() {
 
   useEffect(()=>{
     applyRandomBackground();
-    console.log(location);
+    console.log(state);
   },[]);
   
   useEffect(() => {
@@ -282,7 +282,8 @@ function ProductBuy() {
       const day = String(date.getDate()).padStart(2, '0');
       const hours = String(date.getHours()).padStart(2, '0');
       const minutes = String(date.getMinutes()).padStart(2, '0');
-      return `${year}-${month}-${day} ｜ (${hours}:${minutes})`;
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      return `${year}-${month}-${day} ｜ ${hours}:${minutes}:${seconds}`;
   };
 
   return (
@@ -292,7 +293,7 @@ function ProductBuy() {
         {isAuction && 
           <div className="product-buy-info">
             <div style={{padding: '10px', marginBottom: '30px', fontSize: '14pt'}}>
-              <b>{location.state.product.productName}</b>
+              <b>{state.product.productName}</b>
             </div>
             
             <ul className="buy-order-item"
@@ -303,9 +304,9 @@ function ProductBuy() {
               <li>낙찰가</li>
             </ul>
             <ul className="buy-order-item" style={{gridTemplateColumns: '2fr 2fr 1fr'}}>
-              <li></li>
-              <li style={{textAlign: 'left'}}></li>
-              <li style={{fontWeight: 'bold'}}>₩{formatNumberWithCommas(location.state.totalPrice)}</li>
+              <li>{state.bid ? formatDateTime(state.bid.room.lastBidTime) : formatDateTime(Date.now()) + ' (예정)'}</li>
+              <li style={{textAlign: 'left'}}>{state.bid ? formatDateTime(state.bid.room.endTime) : formatDateTime(Date.now()) + ' (예정)'}</li>
+              <li style={{fontWeight: 'bold'}}>₩{formatNumberWithCommas(state.totalPrice)}</li>
             </ul>
 
             <ul className="buy-order-item"
@@ -315,12 +316,12 @@ function ProductBuy() {
               <li>구매자</li>
             </ul>
             <ul className="buy-order-item" style={{gridTemplateColumns: '1fr 1fr'}}>
-              <li>{location.state.product.sellerNo.username}</li>
+              <li>{state.product.sellerNo.username}</li>
               <li style={{fontWeight: 'bold'}}>{user.user.username}</li>
             </ul>
 
-            <div style={{fontSize: '14pt', textAlign: 'center', margin: '30px 0'}}>🥳낙찰을 축하드립니다🎉</div>
-            <div style={{color: '#333'}}><b>배송비</b><b style={{float:'right'}}>₩{formatNumberWithCommas(location.state.shippingFee)}</b></div>
+            <div style={{fontSize: '14pt', textAlign: 'center', margin: '30px 0'}}>{state.bid ? '🥳낙찰을 축하드립니다🎉' : '😎결제를 서둘러 주세요⏰'}</div>
+            <div style={{color: '#333'}}><b>배송비</b><b style={{float:'right'}}>₩{formatNumberWithCommas(state.shippingFee)}</b></div>
             <div className="final-price">총 결제 금액<b style={{float:'right'}}>₩{formatNumberWithCommas(totalPaymentAmount)}</b></div> 
           </div>}
         {orderItems.length > 0 && (

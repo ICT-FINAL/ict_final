@@ -26,8 +26,11 @@ function ProductInfo() {
     const [addBasketItems, setAddBasketItems] = useState(null);
     const [isSubOptionRegistered, setIsSubOptionRegistered] = useState(false);
     const [totalQuantity, setTotalQuantity] = useState(0);
+    const [reviewWrite, setReviewWrite] = useState(false);
 
     const dispatch = useDispatch();
+
+    const reviewRef = useRef(null);
 
     useEffect(() => {
         const headers = user?.token
@@ -337,6 +340,16 @@ function ProductInfo() {
     // changMenu 상태 추가 (상세정보, 리뷰 등등 탭에 들어갈 메뉴들)
     const [changeMenu, setChangeMenu] = useState("detail");
     useEffect(() => {
+        if (loc.state.changeMenu !== undefined && loc.state.changeMenu === 'review') {
+            setReviewWrite(true);
+            setChangeMenu('review');
+
+            setTimeout(() => {
+                if (reviewRef.current) {
+                    reviewRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 100);
+        }
         const savedMenu = localStorage.getItem("changeMenu");
         if (savedMenu) {
             setChangeMenu(savedMenu);
@@ -665,7 +678,7 @@ function ProductInfo() {
                         }
 
                         {changeMenu === "review" && (
-                            <ProductReview getAverageStar={getAverageStar} averageStar={averageStar}/>
+                            <ProductReview ref={reviewRef} getAverageStar={getAverageStar} averageStar={averageStar} reviewWrite={reviewWrite} setReviewWrite={setReviewWrite}/>
                         )}
 
                     </div>

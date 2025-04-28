@@ -211,7 +211,7 @@ function Header() {
                             </div>
                         </div>
                     )}
-                    {hotSearchOpen && (
+                    {hotSearchOpen && hotSearch.length > 0 && (
                         <div className="hot-search-dropdown" onMouseEnter={() => setHotSearchOpen(true)}
                         onMouseLeave={() => setHotSearchOpen(false)}>
                             {hotSearch.map((item, index) => (

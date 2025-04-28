@@ -3,7 +3,6 @@ package com.ict.serv.controller.review;
 import com.ict.serv.dto.ReviewResponseDto;
 import com.ict.serv.entity.PointType;
 import com.ict.serv.entity.UserPoint;
-import com.ict.serv.entity.order.OrderState;
 import com.ict.serv.entity.order.Orders;
 import com.ict.serv.entity.order.ShippingState;
 import com.ict.serv.entity.product.Product;
@@ -417,5 +416,4 @@ public class ReviewController {
 
         return ResponseEntity.ok(result);
     }
-
 }
