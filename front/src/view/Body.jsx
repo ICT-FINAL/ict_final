@@ -49,6 +49,7 @@ import RecommendIndex from './recommend/RecommendIndex';
 import EventIndex from './event/EventIndex';
 import EventWrite from './event/EventWrite';
 import EventInfo from './event/EventInfo';
+import EventEdit from './event/EventEdit';
 import SubMenuIndex from './submenu/SubMenuIndex';
 import SubMenuWrite from './submenu/SubMenuWrite';
 import SubMenuInfo from './submenu/SubMenuInfo';
@@ -273,6 +274,7 @@ function Body() {
       <Route path='/event/*' element={<EventIndex />}></Route>
       <Route path='/event/write' element={<EventWrite />}></Route>
       <Route path='/event/info' element={<EventInfo />}></Route>
+      <Route path='/event/edit/:id' element={<EventEdit />}></Route>
       <Route path='/event/dailycheck' element={<DailyCheck />}></Route>
       <Route path='/event/melongame' element={<MelonGame/>}></Route>
 
