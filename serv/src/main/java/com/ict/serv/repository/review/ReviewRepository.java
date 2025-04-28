@@ -23,4 +23,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Object[]> getAvgAndCountByProduct();
 
     List<Review> findAllByProductOrderByReviewWritedateDesc(Product product);
+
+    int countByProductIn(List<Product> productList);
 }

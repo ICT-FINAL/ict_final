@@ -77,6 +77,7 @@ function ProductSearch() {
                 }
             )
             .then((res) => {
+                console.log(res.data);
                 const { pvo, productList } = res.data;
                 setTotalPage(pvo.totalPage);
 

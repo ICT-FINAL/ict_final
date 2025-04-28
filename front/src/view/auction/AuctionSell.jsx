@@ -28,6 +28,7 @@ function AuctionSell() {
         const now = new Date();
         const twoDaysLater = new Date(now);
         twoDaysLater.setDate(now.getDate() + 0);  // 2일 후  나중에 +2로바꾸기 테스트용 0
+        twoDaysLater.setHours(twoDaysLater.getHours() + 9);
    
         const twoDaysLaterString = twoDaysLater.toISOString().slice(0, 16);
 
