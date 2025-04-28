@@ -205,7 +205,7 @@ function AuctionIndex() {
             <div style={{ paddingTop: '50px', height:'2400px' }}>
                 <div className={`product-main-container ${
                     !visibleSections.hotAuction && !visibleSections.closingAuction && !visibleSections.FINAL ? 'fade-in' : 'fade-out'
-                }`}>
+                }`} style={{marginTop:'50px'}}>
                     <div className="search-page-banner">
                         <h1>🎉 핸드메이드 아이템, 지금 가장 좋은 가격에!</h1>
                         <p>마음에 드는 순간 바로 입찰하고, 소중한 작품의 주인이 되어보세요</p>
