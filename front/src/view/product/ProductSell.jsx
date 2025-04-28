@@ -109,19 +109,28 @@ function ProductSell() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+
+        if (name === "price" || name === "shippingFee" || name === "discountRate") {
+            if (!/^\d*\.?\d*$/.test(value)) {
+                alert("숫자만 입력할 수 있습니다.");
+                return;
+            }
+        }
+    
         if (name === "discountRate") {
             const numericValue = Math.min(40, Math.max(0, parseFloat(value)));
             setFormData({
               ...formData,
               [name]: numericValue,
             });
-          } else {
+        } else {
             setFormData({
               ...formData,
               [name]: value,
             });
-          }
+        }
     };
+    
 
     const handleCategoryChange = (e) => {
         setFormData({
@@ -293,19 +302,8 @@ function ProductSell() {
           new_formData.append("product", new Blob([JSON.stringify(productData)], {
             type: "application/json"
           }));
-          
-          console.log(productData);
-          
-        axios.post(`${serverIP.ip}/product/write`, new_formData, {
-            headers: {
-                Authorization: `Bearer ${user.token}`
-            }
-        })
-        .then(res => {
-            alert("상품 등록 성공");
-            navigate('/product/search');
-        })
-        .catch(err => console.error("상품 등록 실패:", err));
+ 
+        navigate('/product/check', { state: { productData, files } });
     };
 
     return (
@@ -545,7 +543,7 @@ function ProductSell() {
                     </div>
                 ))}
             </div>
-            <button onClick={()=>submitProduct()} style={{ 
+            <button onClick={(()=>submitProduct())} style={{ 
                         marginTop:'30px',
                         width:'100%',
                         backgroundColor: '#333', 

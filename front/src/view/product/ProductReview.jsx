@@ -1,15 +1,14 @@
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { setModal } from "../../store/modalSlice";
 import { FaStar  } from 'react-icons/fa';
 
 
-function ProductReview({getAverageStar, averageStar}){
+const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, setReviewWrite }, ref) => {
     const modal = useSelector((state)=>state.modal);
     const [isPurchased, setIsPurchased] = useState(false); // 선택한 상품에 대해 구매했는지에 대한 여부 저장 
-    const [reviewWrite, setReviewWrite] = useState(false);
     const serverIP = useSelector((state) => state.serverIP);
     const user = useSelector((state) => state.auth.user);
     const loc = useLocation();
@@ -451,7 +450,7 @@ function ProductReview({getAverageStar, averageStar}){
                 ) : null}
             </div>
             {/* 리뷰 전체 이미지 */}
-            <div className="review-gallery-wrapper">
+            <div className="review-gallery-wrapper" ref={ref}>
                 <h3 className="review-gallery-title">📸 리뷰 사진 모아보기</h3>
 
                 <div className="review-preview-container">
@@ -796,6 +795,6 @@ function ProductReview({getAverageStar, averageStar}){
             </div>
         </>
     );
-}
+});
 
 export default ProductReview;

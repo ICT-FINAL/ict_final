@@ -16,4 +16,6 @@ public interface UserPointRepository extends JpaRepository<UserPoint, Long> {
     List<UserPoint> findByTypeAndUserIdAndLastSpinDate(PointType type, Long userId, LocalDate now);
 
     int countIdByUserId(Long id);
+
+    List<UserPoint> findByUserIdOrderByIdDesc(Long id, PageRequest of);
 }

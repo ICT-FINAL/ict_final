@@ -26,10 +26,24 @@ function ProductInfo() {
     const [addBasketItems, setAddBasketItems] = useState(null);
     const [isSubOptionRegistered, setIsSubOptionRegistered] = useState(false);
     const [totalQuantity, setTotalQuantity] = useState(0);
+    const [reviewWrite, setReviewWrite] = useState(false);
 
     const dispatch = useDispatch();
 
+    const reviewRef = useRef(null);
+    const downProduct = () =>{
+        const isConfirmed = window.confirm("정말로 상품을 내리시겠습니까?\n내린 상품은 관리자에게 문의하여 재등록 가능합니다.");
+        if (!isConfirmed) return;
+        if(user)
+            axios.get(`${serverIP.ip}/product/downProduct?id=${loc.state.product.id}`, {
+                headers:{Authorization:`Bearer ${user.token}`}
+            })
+            .then(navigate('/product/search'))
+            .catch(err => console.log(err));
+    }
+
     useEffect(() => {
+        console.log(loc.state.product);
         const headers = user?.token
         ? { Authorization: `Bearer ${user.token}` }
         : {};
@@ -337,6 +351,16 @@ function ProductInfo() {
     // changMenu 상태 추가 (상세정보, 리뷰 등등 탭에 들어갈 메뉴들)
     const [changeMenu, setChangeMenu] = useState("detail");
     useEffect(() => {
+        if (loc.state.changeMenu !== undefined && loc.state.changeMenu === 'review') {
+            setReviewWrite(true);
+            setChangeMenu('review');
+
+            setTimeout(() => {
+                if (reviewRef.current) {
+                    reviewRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 100);
+        }
         const savedMenu = localStorage.getItem("changeMenu");
         if (savedMenu) {
             setChangeMenu(savedMenu);
@@ -348,6 +372,10 @@ function ProductInfo() {
         setChangeMenu(menuName);
         localStorage.setItem("changeMenu", menuName); // 현재 메뉴 저장
     };
+
+    const moveEdit = () => {
+        navigate('/product/edit', {state:{product:loc.state.product, options:options, images: loc.state.product.images}});
+    }
 
     return (
         <>
@@ -385,7 +413,7 @@ function ProductInfo() {
                         }}>
                             {loc.state.product.shippingFee === 0 ? "🚚 무료배송" : `배송비 ${loc.state.product.shippingFee}원`} {/* 배송비 */}
                         </div>
-                        {totalQuantity === 0 &&
+                        {loc.state.product.state === 'SOLDOUT' &&
                             <div style={{
                                 marginTop: "5px", padding: "4px 8px", display: "inline-block",
                                 marginLeft: '10px',
@@ -396,6 +424,19 @@ function ProductInfo() {
                                 lineHeight: "20px" // 가운데 정렬
                             }}>
                                 품절
+                            </div>
+                        }
+                        {loc.state.product.state === 'PAUSE' &&
+                            <div style={{
+                                marginTop: "5px", padding: "4px 8px", display: "inline-block",
+                                marginLeft: '10px',
+                                borderRadius: "5px", fontSize: "12px", fontWeight: "600",
+                                backgroundColor: 'gray',
+                                color: loc.state.product.shippingFee === 0 ? "white" : "black",
+                                minHeight: "20px",
+                                lineHeight: "20px" // 가운데 정렬
+                            }}>
+                                정지
                             </div>
                         }
                         <ul>
@@ -608,14 +649,28 @@ function ProductInfo() {
                                     <strong>총 금액:</strong> {formatNumberWithCommas(totalPrice)}원
                                 </div>
                             </li>
+                            { user && user.user.id !== loc.state.product.sellerNo.id ?
                             <li style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                { loc.state.product.state === 'SELL'&&<>
                                 <button className='product-basket-button' onClick={() => addBasket()}>
                                     장바구니
                                 </button>
                                 <button className='product-buy-button' onClick={() => moveBuy()}>
                                     구매하기
+                                </button></>
+                                }
+                            </li>: <>{ loc.state.product.state!=='PAUSE' &&
+                            <li style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <button className='product-buy-button' onClick={() => moveEdit()}>
+                                    상품수정
+                                </button>
+                                <button className='product-basket-button' onClick={() => downProduct()}>
+                                    상품내리기
                                 </button>
                             </li>
+                            }
+                            </>
+                            }
                         </ul>
                     </div>
                 </div>
@@ -665,7 +720,7 @@ function ProductInfo() {
                         }
 
                         {changeMenu === "review" && (
-                            <ProductReview getAverageStar={getAverageStar} averageStar={averageStar}/>
+                            <ProductReview ref={reviewRef} getAverageStar={getAverageStar} averageStar={averageStar} reviewWrite={reviewWrite} setReviewWrite={setReviewWrite}/>
                         )}
 
                     </div>

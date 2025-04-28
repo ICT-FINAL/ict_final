@@ -98,6 +98,7 @@ public class PaymentController {
                     optionCategory.setQuantity(quantity);
                     productService.saveOptionCategory(optionCategory);
                 }
+                if(product.getQuantity() <= 0) product.setState(ProductState.SOLDOUT);
                 productService.saveProduct(product);
             }
             Long couponId = 0L;

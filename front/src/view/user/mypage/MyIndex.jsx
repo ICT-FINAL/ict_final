@@ -22,6 +22,7 @@ import MyActivity from "./MyActivity";
 import MyOrder from "./MyOrder";
 import MyCoupon from "./MyCoupon";
 import MyPoint from "./MyPoint";
+import UserDelete from "./UserDelete";
 
 function MyIndex(){
     const location = useLocation();
@@ -62,7 +63,7 @@ useEffect(() => {
             activity: { f_name: "통계", l_name: "활동 통계" },
             order: { f_name: "통계", l_name: "구매 통계" },
             "stats-sales": { f_name: "통계", l_name: "판매 통계" },
-            "delete-account": { f_name: "회원 탈퇴", l_name: "회원 탈퇴" },
+            deleteAccount: { f_name: "회원 탈퇴", l_name: "회원 탈퇴" },
         };
 
         if (pathMap[page]) {
@@ -117,6 +118,7 @@ useEffect(() => {
                     { path.l_name == '구매 통계' && <MyOrder/> }
                     { path.l_name == '쿠폰함' && <MyCoupon/> }
                     { path.l_name == '적립 내역' && <MyPoint/> }
+                    { path.l_name == '회원 탈퇴' && <UserDelete/>}
                 </div>
             </div>
         </>
