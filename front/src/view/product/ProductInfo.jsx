@@ -659,7 +659,7 @@ function ProductInfo() {
                                     구매하기
                                 </button></>
                                 }
-                            </li>: <>{ loc.state.product.state!=='PAUSE' &&
+                            </li>: <>{ loc.state.product.state!=='PAUSE' && user &&
                             <li style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <button className='product-buy-button' onClick={() => moveEdit()}>
                                     상품수정

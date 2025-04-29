@@ -1,16 +1,22 @@
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import './../../css/view/recommend.css';
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import RecommendSpinner from '../../effect/RecommendSpinner';
 import { FaStar } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { setLoginView } from '../../store/loginSlice';
 
 function RecommendIndex() {
     const user = useSelector((state) => state.auth.user);
     const serverIP = useSelector((state) => state.serverIP);
-
-    const youEnd = false;
+    const dispatch = useDispatch();
+    useEffect(()=>{
+        if(!user) {
+            dispatch(setLoginView(true));
+            navigate("/");
+        }
+    },[])
 
     const [loading, setLoading] = useState(true);
     const [priceRange, setPriceRange] = useState('');
