@@ -273,7 +273,7 @@ function MyPurchases() {
                                                 🚚 배송 중
                                                 </span>
                                             )}
-                                            {order.shippingState === 'FINISH' && (
+                                            {order.shippingState === 'FINISH' || order.shippingState === 'SETTLED'  && (
                                                 <>
                                                     <span style={{ color: '#28a745', fontWeight: '600' }}>
                                                     ✅ 구매 확정

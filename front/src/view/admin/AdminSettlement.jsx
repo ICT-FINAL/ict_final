@@ -23,7 +23,8 @@ function AdminSettlement() {
                 params: { year, month, keyword, page },
                 headers: { Authorization: `Bearer ${user.token}` },
             });
-            console.log("셀러 정보 : ", res.data);
+            setProductLists({});
+            setExpandedUser(null);
             setSellers(res.data.sellers);
             setTotalCount(res.data.totalCount);
             setSelectedCount(res.data.selectedCount);
@@ -39,14 +40,18 @@ function AdminSettlement() {
 
     const handleExpand = async (user_id) => {
         setExpandedUser(prev => prev === user_id ? null : user_id);
-        if (productLists[user_id]) return;
         setProductLists(prev => ({
             ...prev,
             [user_id]: { loading: true, error: null, products: [] }
         }));
         try {
             const res = await axios.get(`${serverIP.ip}/admin/getSellerSoldProducts`, {
-                params: { user_id, shippingState: "FINISH", year, month },
+                params: { 
+                    user_id,
+                    shippingState: "FINISH",
+                    year: year === "전체" ? "" : year,
+                    month: month === "전체" ? "" : month
+                },
                 headers: { Authorization: `Bearer ${user.token}` }
             });
             console.log("셀러 판매 내역:", res.data);
@@ -61,8 +66,31 @@ function AdminSettlement() {
             }));
         }
     };
+    
 
-    const handleSettlement = async (user_id) => {
+    const handleSettlement = async (user_id, total_sales) => {
+        console.log(productLists[user_id]);
+        if(!productLists[user_id]) {
+            alert("판매금액을 확인후 처리해주세요.");
+            return;
+        }
+        if(user)
+            axios.post(`${serverIP.ip}/admin/handleSettle`,{ orders: productLists[user_id].products},{
+                headers:{Authorization: `Bearer ${user.token}`}
+            })
+            .then(res => {
+                alert("정산처리가 완료되었습니다.");
+                fetchUsers({
+                    year: year,
+                    month: month,
+                    keyword: searchWord,
+                    page: nowPage.readable
+                })
+            })
+            .catch(err=> {
+                console.log(err);
+            })
+        /*
         if (!window.confirm("해당 셀러의 주문을 정산 처리하시겠습니까?")) return;
         try {
             const response = await fetch(`${serverIP.ip}/admin/settlement`, {
@@ -89,7 +117,7 @@ function AdminSettlement() {
         } catch (error) {
             alert("정산 처리 중 오류 발생");
             console.error(error);
-        }
+        }*/
     };
 
 
@@ -212,11 +240,11 @@ function AdminSettlement() {
                                 {formatNumberWithCommas(seller.total_sales)}원
                                 {expandedUser === seller.user_id ? ' ▲' : ' ▼'}
                             </li>
-                            <li>{formatNumberWithCommas(seller.total_sales * 0.8)}원</li>
+                            <li>{formatNumberWithCommas(Math.ceil(seller.total_sales * 0.8))}원</li>
                             <li><button style={{ height: '30px', width: '65px' }}
                                 disable={seller.settled}
-                                onClick={() => handleSettlement(seller.user_id)}
-                            >{seller.settled ? '정산 완료' : '정산 전'}</button></li>
+                                onClick={() => handleSettlement(seller.user_id, seller.total_sales)}
+                            >정산 처리</button></li>
                         </ul>
                         {expandedUser === seller.user_id && (
                             <div style={{ background: '#f9f9f9', padding: '10px 30px', }}>
@@ -255,7 +283,7 @@ function AdminSettlement() {
                                                         <td style={{ textAlign: 'center', padding: '4px' }}>
                                                             {item.quantity}개 / ({item.optionName} - {item.optionCategoryName})
                                                         </td>
-                                                        <td style={{ textAlign: 'center', padding: '4px' }}>{j === 0 ? `${formatNumberWithCommas(shippingPrice)}원` : '⬆️묶음배송'}</td>
+                                                        <td style={{ textAlign: 'center', padding: '4px' }}>{`${formatNumberWithCommas(shippingPrice)}원`}</td>
                                                         <td style={{ textAlign: 'right', padding: '4px' }}>{formatNumberWithCommas((((item.price - (item.price * product.product.discountRate / 100)) + item.additionalFee) * item.quantity) + (j === 0 ? shippingPrice : 0))}원</td>
                                                     </tr>
                                                 ));
