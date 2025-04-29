@@ -11,7 +11,6 @@ function Footer({ loginStatus, contextPath }) {
     const navigate = useNavigate();
 
     useEffect(()=>{
-        console.log(loc.pathname);
         if (loc.pathname === "/product/buying") {
             setIsMargin(false)
         } else {

@@ -14,6 +14,7 @@ public class UserResponseDto {
     private String username;
     private String email;
     private String imgUrl;
+    private String infoText;
     private Authority authority;
     private String zipcode;
     private String address;
