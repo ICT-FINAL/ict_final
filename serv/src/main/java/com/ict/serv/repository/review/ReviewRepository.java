@@ -23,4 +23,13 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Object[]> getAvgAndCountByProduct();
 
     List<Review> findAllByProductOrderByReviewWritedateDesc(Product product);
+
+    @Query(value = """
+        SELECT COUNT(*)
+        FROM review
+        WHERE user_id = :userId
+          AND YEAR(STR_TO_DATE(review_writedate, '%Y-%m-%d %H:%i:%s')) = :year
+          AND (:month IS NULL OR MONTH(STR_TO_DATE(review_writedate, '%Y-%m-%d %H:%i:%s')) = :month)
+    """, nativeQuery = true)
+    Long countByUserIdAndDate(@Param("userId") Long userId, @Param("year") int year, @Param("month") Integer month);
 }

@@ -2,6 +2,7 @@ package com.ict.serv.repository.log;
 
 import com.ict.serv.entity.log.search.SearchLog;
 import com.ict.serv.entity.user.User;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -60,4 +61,31 @@ public interface SearchLogRepository extends JpaRepository<SearchLog, Long> {
     void softDeleteAllByUser(@Param("user") User user);
 
     List<SearchLog> findAllByUser(User user);
+
+
+    @Query("""
+        SELECT sl.searchWord, COUNT(sl.searchWord)
+        FROM SearchLog sl
+        WHERE sl.user.id = :userId
+          AND FUNCTION('YEAR', sl.searchTime) = :year
+          AND (:month IS NULL OR FUNCTION('MONTH', sl.searchTime) = :month)
+          AND sl.searchWord IS NOT NULL
+          AND sl.searchWord <> ''
+        GROUP BY sl.searchWord
+        ORDER BY COUNT(sl.searchWord) DESC
+    """)
+    List<Object[]> findTopKeywordsByUserIdAndDate(@Param("userId") Long userId, @Param("year") int year, @Param("month") Integer month, Pageable pageable);
+
+    @Query("""
+    SELECT sl.eventCategory, COUNT(sl.eventCategory)
+    FROM SearchLog sl
+    WHERE sl.user.id = :userId
+      AND FUNCTION('YEAR', sl.searchTime) = :year
+      AND (:month IS NULL OR FUNCTION('MONTH', sl.searchTime) = :month)
+      AND sl.eventCategory IS NOT NULL
+      AND sl.eventCategory <> ''
+    GROUP BY sl.eventCategory
+    """)
+    List<Object[]> findCategorySearchCountsByUserIdAndDate(@Param("userId") Long userId, @Param("year") int year, @Param("month") Integer month);
+
 }
