@@ -152,6 +152,32 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
                     "JOIN users u ON p.seller_no = u.id " +
                     "JOIN order_item oi ON oi.order_id = o.order_id " +
                     "WHERE o.shipping_state = 'FINISH' " +
+                    "AND MONTH(STR_TO_DATE(o.modified_date, '%Y-%m-%d %H:%i:%s')) = :month " +
+                    "AND (u.user_id LIKE %:keyword% OR u.user_name LIKE %:keyword%) " +
+                    "GROUP BY u.user_id, u.user_name, u.authority, u.id ",
+            countQuery =
+                    "SELECT COUNT(DISTINCT u.user_id) " +
+                            "FROM orders o " +
+                            "JOIN product p ON o.product_id = p.product_id " +
+                            "JOIN users u ON p.seller_no = u.id " +
+                            "WHERE o.shipping_state = 'FINISH' " +
+                            "AND MONTH(STR_TO_DATE(o.modified_date, '%Y-%m-%d %H:%i:%s')) = :month " +
+                            "AND (u.user_id LIKE %:keyword% OR u.user_name LIKE %:keyword%) ",
+            nativeQuery = true)
+    Page<Map<String, Object>> findSellersWithTotalSalesByConditionsNoYear(
+            @Param("month") int month,
+            @Param("keyword") String keyword,
+            Pageable pageable);
+
+
+    @Query(value =
+            "SELECT u.user_id, u.user_name, u.authority, u.id, " +
+                    "SUM(((oi.price + oi.additional_fee) - (oi.price * oi.discount_rate / 100)) * oi.quantity + o.shipping_fee) AS total_sales " +
+                    "FROM orders o " +
+                    "JOIN product p ON o.product_id = p.product_id " +
+                    "JOIN users u ON p.seller_no = u.id " +
+                    "JOIN order_item oi ON oi.order_id = o.order_id " +
+                    "WHERE o.shipping_state = 'FINISH' " +
                     "AND YEAR(STR_TO_DATE(o.modified_date, '%Y-%m-%d %H:%i:%s')) = :year " +
                     "AND MONTH(STR_TO_DATE(o.modified_date, '%Y-%m-%d %H:%i:%s')) = :month " +
                     "AND (u.user_id LIKE %:keyword% OR u.user_name LIKE %:keyword%) " +
@@ -174,6 +200,52 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
 
     List<Orders> findAllByProductSellerNoAndShippingState(User user, ShippingState shippingState);
 
+    @Query(value =
+            "SELECT o.* FROM orders o " +
+                    "JOIN product p ON o.product_id = p.product_id " +
+                    "WHERE p.seller_no = :userId " +
+                    "AND o.shipping_state = :shippingState " +
+                    "AND o.modified_date IS NOT NULL " +
+                    "AND YEAR(STR_TO_DATE(LEFT(o.modified_date, 19), '%Y-%m-%d %H:%i:%s')) = :year " +
+                    "AND MONTH(STR_TO_DATE(LEFT(o.modified_date, 19), '%Y-%m-%d %H:%i:%s')) = :month " +
+                    "ORDER BY o.modified_date DESC",
+            nativeQuery = true)
+    List<Orders> findAllByProductSellerNoAndShippingStateAndYearAndMonth(
+            @Param("userId") Long userId,
+            @Param("shippingState") String shippingState,
+            @Param("year") int year,
+            @Param("month") int month);
+
+    @Query(value =
+            "SELECT o.* FROM orders o " +
+                    "JOIN product p ON o.product_id = p.product_id " +
+                    "WHERE p.seller_no = :userId " +
+                    "AND o.shipping_state = :shippingState " +
+                    "AND o.modified_date IS NOT NULL " +
+                    "AND YEAR(STR_TO_DATE(LEFT(o.modified_date, 19), '%Y-%m-%d %H:%i:%s')) = :year " +
+                    "ORDER BY o.modified_date DESC",
+            nativeQuery = true)
+    List<Orders> findAllByProductSellerNoAndShippingStateAndYear(
+            @Param("userId") Long userId,
+            @Param("shippingState") String shippingState,
+            @Param("year") int year);
+
+    @Query(value =
+            "SELECT o.* FROM orders o " +
+                    "JOIN product p ON o.product_id = p.product_id " +
+                    "WHERE p.seller_no = :userId " +
+                    "AND o.shipping_state = :shippingState " +
+                    "AND o.modified_date IS NOT NULL " +
+                    "AND MONTH(STR_TO_DATE(LEFT(o.modified_date, 19), '%Y-%m-%d %H:%i:%s')) = :month " +
+                    "ORDER BY o.modified_date DESC",
+            nativeQuery = true)
+    List<Orders> findAllByProductSellerNoAndShippingStateAndMonth(
+            @Param("userId") Long userId,
+            @Param("shippingState") String shippingState,
+            @Param("month") int month);
+
 
     List<Orders> findByShippingState(ShippingState shippingState);
+
+
 }

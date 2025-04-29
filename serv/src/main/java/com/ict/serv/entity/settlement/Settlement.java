@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @Table(name = "settlement")
@@ -24,6 +26,7 @@ public class Settlement {
     private Orders orders;
 
     @CreationTimestamp
-    @Column(columnDefinition = "DATETIME default now()")
-    private String createDate;
+    private LocalDateTime createDate;
+
+    private int totalSettlePrice;
 }
