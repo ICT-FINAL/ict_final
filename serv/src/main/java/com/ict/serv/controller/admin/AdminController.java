@@ -6,6 +6,9 @@ import com.ict.serv.entity.Inquiries.Inquiry;
 import com.ict.serv.entity.Inquiries.InquiryPagingVO;
 import com.ict.serv.entity.Inquiries.InquiryState;
 import com.ict.serv.entity.auction.AuctionProduct;
+import com.ict.serv.entity.coupon.Coupon;
+import com.ict.serv.entity.coupon.CouponRequestDTO;
+import com.ict.serv.entity.coupon.CouponState;
 import com.ict.serv.entity.message.Message;
 import com.ict.serv.entity.order.*;
 import com.ict.serv.entity.product.Product;
@@ -52,7 +55,7 @@ public class AdminController {
     private final OrderService orderService;
     private final OrderRepository orderRepository;
     private final SettlementRepository settlementRepository;
-
+    private final CouponService couponService;
 
     @GetMapping("/reportList")
     public Map reportList(PagingVO pvo){
@@ -393,6 +396,35 @@ public class AdminController {
 //        }
 //        return ResponseEntity.ok("정산 완료");
 //}
+    @PostMapping("/giveCoupon")
+    public String giveCoupon(@RequestBody CouponRequestDTO dto) {
+        if(dto.getUserId() == 0){
+            for(User user : inter_service.getAllUserList()) {
+                Coupon coupon = new Coupon();
+                coupon.setCouponName(dto.getCouponName());
+                coupon.setEndDate(LocalDateTime.now().plusYears(1));
+                coupon.setDiscount(dto.getDiscount());
+                coupon.setStartDate(LocalDateTime.now());
+                coupon.setType("ADMIN");
+                coupon.setState(CouponState.AVAILABLE);
+                coupon.setUser(user);
+                couponService.saveCoupon(coupon);
+            }
+        }
+        else {
+            Coupon coupon = new Coupon();
+            coupon.setCouponName(dto.getCouponName());
+            coupon.setEndDate(LocalDateTime.now().plusYears(1));
+            coupon.setDiscount(dto.getDiscount());
+            coupon.setStartDate(LocalDateTime.now());
+            coupon.setType("ADMIN");
+            coupon.setState(CouponState.AVAILABLE);
+            if(inter_service.selectUser(dto.getUserId()) == null) return "no_user";
+            coupon.setUser(inter_service.selectUser(dto.getUserId()));
+            couponService.saveCoupon(coupon);
+        }
+        return "ok";
+    }
 }
 
 
