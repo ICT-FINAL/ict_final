@@ -91,9 +91,9 @@ function MyChatting() {
             }
             {
                 (selectedTab === 'default' ? chatRoomList : productChatRoomList).map((room, idx)=>{
-                    const selectedUser = selectedTab === 'default' ?
-                        user.user.id === room.participantA.id ? room.participantB : room.participantA
-                        : room.product.sellerNo.id === room.participantA.id ? room.participantB : room.participantA
+                    const selectedUser = selectedTab === 'default' ? // selectedUser = 상대방
+                        user.user.id === room.participantA.id ? room.participantB : room.participantA // 일반 채팅
+                        : room.product.sellerNo.id === room.participantA.id ? room.participantB : room.participantA // 상품 문의 채팅
                     return (
                         <div key={idx} className="chat-room" onClick={()=>navigate(`/product/chat/${room.chatRoomId}`)}
                             style={room.lastChat.read || room.lastChat.sender.id === user.user.id ? {background: '#f7f7f7'} : {}}>

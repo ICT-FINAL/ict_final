@@ -51,7 +51,7 @@ function Interact() {
                 <ul className="interact-list">
                     <li className="interact-item" onClick={() => moveInfo(interact.selected)}>정보 보기</li>
                     <li className="interact-item" onClick={() => openMessage('message')}>쪽지 보내기</li>
-                    <li className="interact-item" onClick={() => openChatting('chat')}>채팅 하기</li>
+                    <li className="interact-item" onClick={() => openChatting()}>채팅 하기</li>
                     <li className="interact-item" onClick={() => openMessage('report')}>신고 하기</li>
                 </ul>
             </div>
