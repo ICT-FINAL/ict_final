@@ -88,8 +88,8 @@ public class LogService {
     }
 
     public boolean isValidKeyword(String keyword) {
-        if (keyword == null || keyword.trim().length() < 2) return false;
-        String pattern = "^[가-힣a-zA-Z0-9\\s]{2,}$";
+        if (keyword == null || keyword.trim().isEmpty()) return false;
+        String pattern = "^[가-힣a-zA-Z0-9\\s]+$";
         if (!keyword.matches(pattern)) return false;
         if (keyword.matches(".*(.)\\1{3,}.*")) return false;
         return true;

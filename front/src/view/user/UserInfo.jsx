@@ -29,18 +29,22 @@ function UserInfo() {
         if (user) {
             setUserNo(loc.state === null ? user.user.id : loc.state);
             setLoginNo(user.user.id);
+        } else {
+            setUserNo(loc.state);
         }
     }, []);
 
     useEffect(() => {
-        if (loginNo !== 0) {
+        if (userNo !== 0) {
             getGuestbookList();
             getProductList();
             getUserInfo();
             getInfo();
-            getFollowState();
+            if (user) {
+                getFollowState();
+            }
         }
-    }, [loginNo])
+    }, [userNo])
 
     useEffect(() => {
         guestbookList.forEach(item => {
@@ -53,11 +57,10 @@ function UserInfo() {
     const getInfo = () => {
         axios.get(`${serverIP.ip}/mypage/myInfoCount?id=${userNo}`, {
             headers: {
-                Authorization: `Bearer ${user.token}`
+                Authorization: user ? `Bearer ${user.token}` : {}
             }
         })
             .then(res => {
-                console.log(res.data);
                 setFollowerCount(res.data.followerCount);
                 setFollowingCount(res.data.followingCount);
                 setWishCount(res.data.wishCount);
@@ -70,11 +73,10 @@ function UserInfo() {
     const getUserInfo = () => {
         axios.get(`${serverIP.ip}/interact/getUserInfo?id=${userNo}`, {
             headers: {
-                Authorization: `Bearer ${user.token}`
+                Authorization: user ? `Bearer ${user.token}` : {}
             }
         })
             .then(res => {
-                console.log("User: ", res.data);
                 setUserinfo(res.data);
             })
             .catch(err => console.log(err));
@@ -83,7 +85,7 @@ function UserInfo() {
     const getGuestbookList = () => {
         axios.get(`${serverIP.ip}/mypage/guestbookList?id=${userNo}`, {
             headers: {
-                Authorization: `Bearer ${user.token}`
+                Authorization: user ? `Bearer ${user.token}` : {}
             }
         })
             .then(res => {
@@ -108,7 +110,7 @@ function UserInfo() {
         } else {
             axios.post(`${serverIP.ip}/mypage/guestbookWrite`, JSON.stringify(data), {
                 headers: {
-                    Authorization: `Bearer ${user.token}`,
+                    Authorization: user ? `Bearer ${user.token}` : {},
                     "Content-Type": "application/json"
                 }
             })
@@ -129,7 +131,7 @@ function UserInfo() {
         if (window.confirm("삭제하시겠습니까?")) {
             axios.get(`${serverIP.ip}/mypage/guestbookDelete/${id}`, {
                 headers: {
-                    Authorization: `Bearer ${user.token}`
+                    Authorization: user ? `Bearer ${user.token}` : {},
                 }
             })
                 .then(res => {
@@ -147,11 +149,10 @@ function UserInfo() {
         axios
             .get(
                 `${serverIP.ip}/mypage/productList/${userNo}`,{
-                    headers:{Authorization:`Bearer ${ user && user.token}`}
+                    Authorization: user ? `Bearer ${user.token}` : {},
                 }
             )
             .then((res) => {
-                console.log(res.data);
                 const productList = res.data;
 
                 Promise.all(
@@ -182,7 +183,7 @@ function UserInfo() {
     const getReplyList = (id) => {
         axios.get(`${serverIP.ip}/mypage/replyList/${id}`, {
             headers: {
-                Authorization: `Bearer ${user.token}`
+                Authorization: user ? `Bearer ${user.token}` : {},
             }
         })
             .then(res => {
@@ -210,7 +211,7 @@ function UserInfo() {
         if (userNo !== loginNo) {
             axios.get(`${serverIP.ip}/interact/getFollowState?from=${loginNo}&to=${userNo}`, {
                 headers: {
-                    Authorization: `Bearer ${user.token}`
+                    Authorization: user ? `Bearer ${user.token}` : {},
                 }
             })
                 .then(res => {
@@ -223,7 +224,7 @@ function UserInfo() {
         if (followState && !window.confirm("언팔로우 하시겠습니까?")) return;
         axios.get(`${serverIP.ip}/interact/followUser?from=${loginNo}&to=${userNo}&state=${followState}`, {
             headers: {
-                Authorization: `Bearer ${user.token}`
+                Authorization: user ? `Bearer ${user.token}` : {},
             }
         })
             .then(() => {
@@ -234,7 +235,9 @@ function UserInfo() {
 
     const openChatting = () => {
         axios.get(`${serverIP.ip}/chat/createChatRoom?userId=${userNo}`, {
-            headers: { Authorization: `Bearer ${user.token}` }
+            headers: {
+                Authorization: user ? `Bearer ${user.token}` : {},
+            }
         })
         .then(res => {
             console.log("roomId", res.data);
@@ -246,23 +249,31 @@ function UserInfo() {
     return (
         <div className="profile-container" style={loc.state !== null ? { paddingTop: '140px' } : {}}>
             <div className="profile-top">
-                {userinfo.imgUrl && <img src={userinfo.imgUrl.indexOf('http') !== -1 ? `${userinfo.imgUrl}` : `${serverIP.ip}${userinfo.imgUrl}`} alt='' width={140} height={140} />}
+                {userinfo.imgUrl && <img src={userinfo.imgUrl.indexOf('http') !== -1 ? `${userinfo.imgUrl}` : `${serverIP.ip}${userinfo.imgUrl}`} alt='' width={140} height={140} style={{borderRadius: '50%', alignSelf: 'center'}}/>}
                 <div className="profile-info">
                     <div style={{ fontWeight: 'bold', fontSize: '1.2em' }}>
                         <div style={{display: 'flex', justifyContent: 'space-between', height: '45px'}}>
-                            <span>{userinfo.username}</span>
+                            <div style={{alignSelf: 'center'}}>
+                                <span>{userinfo.username}</span>
+                                <span style={{fontWeight: '400', marginLeft: '10px', fontSize: '10pt'}}><span style={{fontSize: '12pt'}}>⭐</span>{Math.round(rating * 100) / 100} ({reviewCount})</span>
+                            </div>
                             {
-                                userNo !== loginNo &&
+                                user && 
+                                (userNo === loginNo ?
                                 <div>
-                                    <button id="userinfo-chatting" onClick={openChatting} style={{marginRight: '10px', background: '#8CC7A5'}}>Chatting</button>
-                                    <button id={followState ? "unfollow-btn" : "follow-btn"} onClick={followUser}>
-                                        {followState ? 'Following' : 'Follow'}
-                                    </button>
+                                    <button id="profile-edit-btn" onClick={()=> navigate('/mypage/edit')} style={{background: '#8CC7A5'}}>프로필 수정</button>
                                 </div>
+                                :
+                                <div>
+                                    <button id="userinfo-chatting" onClick={openChatting} style={{marginRight: '10px', background: '#8CC7A5'}}>채팅하기</button>
+                                    <button id={followState ? "unfollow-btn" : "follow-btn"} onClick={followUser}>
+                                        {followState ? '팔로잉' : '팔로우'}
+                                    </button>
+                                </div>)
                             }
                         </div>
                     </div>
-                    <div><FaStar style={{color: '#FFD700'}}/>{Math.round(rating * 100) / 100} ({reviewCount})</div>
+                    <div style={{margin: '5px', padding: '5px', fontSize: '11pt'}}>{userinfo.infoText}</div>
                     <div className="profile-follow">
                         <div onClick={userNo === loginNo ? () => navigate('/mypage/follow?tab=follower') : undefined}
                             style={userNo === loginNo ? { cursor: 'pointer' } : {}}
@@ -288,7 +299,7 @@ function UserInfo() {
                             <div style={{ padding: '20px', textAlign: 'center' }}>작성된 방명록이 없습니다.</div>
                         }
                         {
-                            loc.state !== null &&
+                            user && loc.state !== null &&
                             <div className="guestbook-write-box">
                                 <textarea id="guestbook-write" className="guestbook-write" placeholder="방명록을 남겨 주세요."
                                     rows={5} style={{ height: '50px', lineHeight: '1.2' }} />
@@ -378,7 +389,7 @@ function UserInfo() {
                                     <img style={{ cursor: 'pointer'}} onClick={() => moveInfo(product)}
                                         src={`${serverIP.ip}/uploads/product/${product.id}/${product.images[0]?.filename}`}
                                         alt={product.productName}
-                                        className="w-full h-40 object-cover"
+                                        className={loginNo === userNo ? "mypage-product-img" : "user-product-img"}
                                     />
                                     <div style={{ cursor: 'pointer' }} onClick={() => moveInfo(product)} className="product-info">
                                         <span style={{ fontSize: "14px", color: "#333" }}>{product.productName}</span> {/* 상품명 */} <br />

@@ -187,7 +187,7 @@ function AuctionSearch() {
                         <img style={{ cursor: 'pointer' }} onClick={() => moveInfo(auction.room.roomId)}
                             src={`${serverIP.ip}/uploads/auction/product/${auction.product.id}/${auction.product.images[0]?.filename}`}
                             alt={auction.product.productName}
-                            className="w-full h-40 object-cover"
+                            className="user-product-img"
                         />
                         <div style={{ cursor: 'pointer' }} onClick={() => moveInfo(auction.room.roomId)} className="product-info">
                             <span style={{ fontSize: "16px", color: "#333" }}>{auction.product.productName}</span> <br />

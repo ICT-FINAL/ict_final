@@ -297,14 +297,24 @@ function MyInfoEdit() {
                     {/* uploadedProfilePreview 미리보기 이미지 */}
                     <label>프로필 사진</label>
                     <img id="profile-img" src={
+                                                // user.uploadedProfilePreview
+                                                // ? user.uploadedProfilePreview
+                                                // : user.kakaoProfileUrl
+                                                // ? user.kakaoProfileUrl.startsWith("http")
+                                                //     ? user.kakaoProfileUrl
+                                                //     : `${serverIP.ip}${user.kakaoProfileUrl}`
+                                                // : user.uploadedProfileUrl
+                                                // ? `${serverIP.ip}${user.uploadedProfileUrl}`
+                                                // : ''
+
                                                 user.uploadedProfilePreview
                                                 ? user.uploadedProfilePreview
-                                                : user.kakaoProfileUrl
-                                                ? user.kakaoProfileUrl.startsWith("http")
-                                                    ? user.kakaoProfileUrl
-                                                    : `${serverIP.ip}${user.kakaoProfileUrl}`
                                                 : user.uploadedProfileUrl
                                                 ? `${serverIP.ip}${user.uploadedProfileUrl}`
+                                                : user.kakaoProfileUrl
+                                                ? user.kakaoProfileUrl.startsWith("http")
+                                                ? user.kakaoProfileUrl
+                                                : `${serverIP.ip}${user.kakaoProfileUrl}`
                                                 : ''
                                             } 
                                             alt="프로필 이미지" 
