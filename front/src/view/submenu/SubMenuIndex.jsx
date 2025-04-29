@@ -98,6 +98,10 @@ function SubMenuIndex() {
     const handleSubDelete = (id, event) => {
         event.stopPropagation(); // 부모 div의 클릭 이벤트가 발생하지 않도록 막음
 
+        if (!window.confirm("정말 삭제하시겠습니까?")) {
+            return;
+        }
+
         axios.delete(`${serverIP.ip}/submenu/delete/${id}`, {
             headers: { Authorization: `Bearer ${user.token}` },
         })
