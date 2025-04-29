@@ -111,7 +111,7 @@ function AuctionSearch() {
         <div className="product-grid-container">
             <h2 style={{ fontSize: '28px' }}>{search.searchWord && `'${search.searchWord}'`} 상품 검색 결과</h2>
             <div style={{ maxWidth: '1200px', margin: 'auto' }}>
-                <div className="search-options-container">
+                <div className="search-options-container" style={{marginBottom:'60px'}}>
                     <select
                         value={search.eventCategory}
                         onChange={(e) => dispatch(setSearch({ ...search, eventCategory: e.target.value }))}

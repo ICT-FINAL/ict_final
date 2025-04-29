@@ -57,6 +57,9 @@ public class OrderController {
     public String realCancelOrder(Long orderId, String msgg, @AuthenticationPrincipal UserDetails userDetails) {
         User userFrom = interactService.selectUserByName(userDetails.getUsername());
         Orders order = orderService.selectOrders(orderId).get();
+        if(order.getShippingState() == ShippingState.BEFORE) {
+            return "err4";
+        }
         OrderGroup orderGroup = order.getOrderGroup();
         int cancelAmount = 0;
 
@@ -147,8 +150,6 @@ public class OrderController {
                     }
                     interactService.sendMessage(msg);
                 }
-
-
                 return "ok";
             } else {
                 return "err2";
@@ -288,10 +289,14 @@ public class OrderController {
     }
 
     @GetMapping("/orderConfirm")
-    public void orderConfirm(Long orderId, ShippingState state) {
+    public String orderConfirm(Long orderId, ShippingState state) {
         Orders orders = orderService.selectOrders(orderId).get();
+        if(orders.getShippingState() == ShippingState.CANCELED) {
+            return "err1";
+        }
         orders.setShippingState(state);
         orderService.insertOrder(orders);
+        return "ok";
     }
 
     @GetMapping("/orderList")

@@ -3,11 +3,41 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import ProductEditor from '../product/ProductEditor';
 import { useNavigate } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { forwardRef } from "react";
+import { FaCalendarAlt } from "react-icons/fa";
+import { ko } from 'date-fns/locale';
+
+const CustomInput = forwardRef(({ value, onClick }, ref) => (
+    <div 
+      onClick={onClick} 
+      ref={ref}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '10px 15px',
+        width: '100%',
+        border: '1px solid #ccc',
+        borderRadius: '8px',
+        backgroundColor: 'white',
+        cursor: 'pointer',
+        fontSize: '16px',
+      }}
+    >
+      <span style={{ color: value ? '#000' : '#aaa' }}>
+        {value || "날짜를 선택하세요"}
+      </span>
+      <FaCalendarAlt style={{ marginLeft: '10px', color: '#888' }} />
+    </div>
+));
 
 function AuctionSell() {
     const serverIP = useSelector((state) => state.serverIP);
     const user = useSelector((state) => state.auth.user);
     const navigate = useNavigate();
+    const [endTime, setEndTime] = useState(new Date());
     const [formData, setFormData] = useState({
         subject:"",
         productName: "",
@@ -27,7 +57,8 @@ function AuctionSell() {
     useEffect(() => {
         const now = new Date();
         const twoDaysLater = new Date(now);
-        twoDaysLater.setDate(now.getDate() + 0);  // 2일 후  나중에 +2로바꾸기 테스트용 0
+        twoDaysLater.setDate(now.getDate() + 2);  // 2일 후  나중에 +2로바꾸기 테스트용 0
+        twoDaysLater.setHours(twoDaysLater.getHours() + 9);
    
         const twoDaysLaterString = twoDaysLater.toISOString().slice(0, 16);
 
@@ -41,7 +72,7 @@ function AuctionSell() {
     oneDayLater.setDate(now.getDate() + 1);  // 1일 후
 
     const twoDaysLater = new Date(now);
-    twoDaysLater.setDate(now.getDate() + 2);  // 2일 후
+    twoDaysLater.setDate(now.getDate() + 7);  
 
     const nowString = now.toISOString().slice(0, 16);  // 현재 시간
     const oneDayLaterString = oneDayLater.toISOString().slice(0, 16);  // 1일 후의 시간
@@ -78,6 +109,12 @@ function AuctionSell() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        if (name === "first_price" || name === "shippingFee" || name === "buy_now_price") {
+            if (!/^\d*\.?\d*$/.test(value)) {
+                alert("숫자만 입력할 수 있습니다.");
+                return;
+            }
+        }
         if (name === "discountRate") {
             const numericValue = Math.min(40, Math.max(0, parseFloat(value)));
             setFormData({
@@ -133,73 +170,49 @@ function AuctionSell() {
         setFiles(prevFiles => prevFiles.filter(file => file !== fileToRemove));
     };
 
-    // 대분류 옵션 입력값 유효성 검사 함수
-    const validateMainOptions = () => {
-        const emptyIndex = formData.options.findIndex(option => {
-            return !option.mainOptionName || option.mainOptionName.trim() === "";
-        });
-    
-        if (emptyIndex !== -1) {
-            alert("대분류 옵션 이름을 입력해주세요.");
-            setTimeout(() => document.getElementById(`mainOption-${emptyIndex}`)?.focus(), 0);
-            return false;
-        }
-        return true;
-    };
-
     const submitProduct = () => {
-        /* focus를 위해 각각의 id값 추가 */
-        //상품명 검사
         if (!formData.productName) {
             alert("상품명을 입력해주세요.");
             setTimeout(() => document.getElementById("productName").focus(), 0);
             return;
         }
-
-        // 이벤트 카테고리 검사
         if (!formData.eventCategory) {
             alert("이벤트 카테고리를 선택해주세요.");
             setTimeout(() => document.getElementById("eventCategory").focus(), 0);
             return;
         }
-
-        // 대상 카테고리 검사
         if (!formData.targetCategory) {
             alert("대상 카테고리를 선택해주세요.");
             setTimeout(() => document.getElementById("targetCategory").focus(), 0);
             return;
         }
-
-        // 상품 카테고리 검사
         if (!formData.productCategory) {
             alert("상품 카테고리를 선택해주세요.");
             setTimeout(() => document.getElementById("productCategory").focus(), 0);
             return;
         }
-
-    
-        // 상세 설명 검사
         if (!formData.detail) {
             alert("상세 설명을 입력해주세요.");
             return;
         }
-
         if (!formData.shippingFee) {
             alert("배송비를 입력해주세요.");
             return;
         }
-
-        // 이미지 검사
         if (files.length === 0) {
             alert("이미지를 최소 1개 이상 선택해주세요.");
             return;
         }
-
-        let new_formData = new FormData();
-    
-        for (let i = 0; i < files.length; i++) {
-            new_formData.append("files", files[i]);
+        const firstPrice = parseInt(formData.first_price, 10) || 0;
+        const buyNowPrice = parseInt(formData.buy_now_price, 10) || 0;
+        
+        if (buyNowPrice > 0 && firstPrice < buyNowPrice / 5) {
+            alert("시작 가격은 즉시 구매가의 1/5 이상이어야 합니다.");
+            return;
         }
+    
+        // 여기부터 navigate
+        const adjustedEndTime = new Date(endTime.getTime() + 9 * 60 * 60 * 1000);
 
         const productData = {
             productName: formData.productName,
@@ -209,37 +222,23 @@ function AuctionSell() {
             detail: formData.detail,
             firstPrice: parseInt(formData.first_price, 10) || 0,
             buyNowPrice: parseInt(formData.buy_now_price, 10) || 0,
-            shippingFee:formData.shippingFee,
-            endTime:formData.endTime,
-            deposit:formData.buy_now_price*0.1,
+            shippingFee: formData.shippingFee,
+            endTime: adjustedEndTime.toISOString().slice(0, 16),
+            deposit: parseInt(formData.buy_now_price * 0.1) || 0,
             options: formData.options.map(option => ({
-              mainOptionName: option.mainOptionName,
-              quantity: option.quantity,
-              subOptions: option.subOptions.map(subOption => ({
-                subOptionName: subOption.subOptionName,
-                quantity: subOption.quantity,
-                additionalPrice: subOption.additionalPrice
-              })),
+                mainOptionName: option.mainOptionName,
+                quantity: option.quantity,
+                subOptions: option.subOptions.map(subOption => ({
+                    subOptionName: subOption.subOptionName,
+                    quantity: subOption.quantity,
+                    additionalPrice: subOption.additionalPrice
+                })),
             })),
-          };
-
-          new_formData.append("auction", new Blob([JSON.stringify(productData)], {
-            type: "application/json"
-          }));
-          
-          console.log(productData);
-          
-        axios.post(`${serverIP.ip}/auction/write`, new_formData, {
-            headers: {
-                Authorization: `Bearer ${user.token}`
-            }
-        })
-        .then(res => {
-            alert("상품 등록 성공");
-            navigate('/auction');
-        })
-        .catch(err => console.error("상품 등록 실패:", err));
+        };
+    
+        navigate('/auction/check', { state: { productData, files } });
     };
+    
 
     return (
         <div style={{paddingTop:'150px'}}>
@@ -303,16 +302,59 @@ function AuctionSell() {
                     <label className="product-label">시작 시간</label>
                     <input type="text" disabled className="product-input" value={'경매 등록 시간으로 설정됩니다.'} onChange={handleChange} />
                     <label className="product-label">종료 시간</label>
-                    <input
-                        type="datetime-local"
-                        id="endTime"
-                        name="endTime"
-                        className="product-input"
-                        value={formData.endTime}
-                        onChange={handleChange}
-                        min={oneDayLaterString}  // 최소값 현재 시간
-                        max={twoDaysLaterString}  // 최대값 2일 후의 시간
+                    <DatePicker
+                    selected={endTime}
+                    onChange={(date) => {
+                        setEndTime(date);
+                        setFormData(prev => ({
+                        ...prev,
+                        endTime: date.toISOString().slice(0,16)
+                        }));
+                    }}
+                    showTimeSelect
+                    timeFormat="HH:mm"
+                    timeIntervals={15}
+                    dateFormat="yyyy-MM-dd HH:mm"
+                    minDate={oneDayLater}
+                    maxDate={twoDaysLater}
+                    locale={ko}
+                    calendarClassName="custom-calendar"
+                    popperPlacement="bottom-start"
+                    customInput={<CustomInput />}
+                    renderCustomHeader={({
+                        date,
+                        changeYear,
+                        changeMonth,
+                        decreaseMonth,
+                        increaseMonth,
+                        prevMonthButtonDisabled,
+                        nextMonthButtonDisabled
+                    }) => (
+                        <div style={{ display: "flex", justifyContent: "space-between", margin: 10 }}>
+                        <button onClick={decreaseMonth} disabled={prevMonthButtonDisabled}>{'<'}</button>
+                        <select
+                            value={date.getFullYear()}
+                            onChange={({ target: { value } }) => changeYear(value)}
+                        >
+                            {[2024, 2025, 2026].map((year) => (
+                            <option key={year} value={year}>{year}년</option>
+                            ))}
+                        </select>
+
+                        <select
+                            value={date.getMonth()}
+                            onChange={({ target: { value } }) => changeMonth(value)}
+                        >
+                            {["1월", "2월", "3월", "4월", "5월", "6월",
+                            "7월", "8월", "9월", "10월", "11월", "12월"].map((month, index) => (
+                            <option key={month} value={index}>{month}</option>
+                            ))}
+                        </select>
+                        <button onClick={increaseMonth} disabled={nextMonthButtonDisabled}>{'>'}</button>
+                        </div>
+                    )}
                     />
+
             </fieldset>
 
             <fieldset className="product-fieldset">

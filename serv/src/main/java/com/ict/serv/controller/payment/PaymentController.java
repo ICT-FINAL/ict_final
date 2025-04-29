@@ -5,6 +5,7 @@ import com.ict.serv.entity.coupon.Coupon;
 import com.ict.serv.entity.coupon.CouponState;
 import com.ict.serv.entity.message.Message;
 import com.ict.serv.entity.order.*;
+import com.ict.serv.entity.product.Option;
 import com.ict.serv.entity.product.OptionCategory;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.product.ProductState;
@@ -21,9 +22,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,6 +45,33 @@ public class PaymentController {
         String iid = requestMap.get("iid");
         //Orders orders = orderService.selectOrders(Long.valueOf(iid)).get();
         OrderGroup orderGroup = orderService.selectOrderGroup(Long.valueOf(iid)).get();
+        List<Orders> order_check_list = orderGroup.getOrders();
+        List<OrderItem> order_item_check_list= new ArrayList<>();
+        for(Orders ord_check:order_check_list) {
+            order_item_check_list.addAll(orderService.selectOrderItemList(ord_check));
+        }
+        for (Orders ods : orderGroup.getOrders()) {
+            Product product_check = productService.selectProduct(ods.getProductId()).get();
+            for (OrderItem item : order_item_check_list) {
+                List<Option> option_list = productService.selectOptions(product_check);
+                for (Option option : option_list) {
+                    List<OptionCategory> option_category_list = option.getSubOptionCategories();
+                    for (OptionCategory opt_cat : option_category_list) {
+                        if (Objects.equals(item.getOptionCategoryId(), opt_cat.getId())) {  // 여기 id 비교 수정해야함
+                            if (opt_cat.getQuantity() < item.getQuantity()) {
+                                for(Orders orders:orderGroup.getOrders()) {
+                                    for(OrderItem orderItem: orders.getOrderItems()) orderService.deleteOrderItem(orderItem);
+                                    orderService.deleteOrders(orders);
+                                }
+                                orderService.deleteOrderGroup(orderGroup);
+                                return ResponseEntity.status(400).body("quantity_over");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         int amount = Integer.parseInt(requestMap.get("amount"));
 
         HttpHeaders headers = new HttpHeaders();
@@ -98,6 +124,7 @@ public class PaymentController {
                     optionCategory.setQuantity(quantity);
                     productService.saveOptionCategory(optionCategory);
                 }
+                if(product.getQuantity() <= 0) product.setState(ProductState.SOLDOUT);
                 productService.saveProduct(product);
             }
             Long couponId = 0L;

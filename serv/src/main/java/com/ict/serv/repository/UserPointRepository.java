@@ -28,4 +28,5 @@ public interface UserPointRepository extends JpaRepository<UserPoint, Long> {
         ORDER BY p.lastSpinDate ASC
     """)
     List<UserPoint> findAllByUserIdAndDate(@Param("userId") Long userId, @Param("year") int year, @Param("month") Integer month);
+    List<UserPoint> findByUserIdOrderByIdDesc(Long id, PageRequest of);
 }

@@ -1,5 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding&display=swap');
 
+@font-face {
+    font-family: 'WavvePADO-Regular';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2404@1.0/WavvePADO-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+}
+
 body{
     margin:0;
     padding:0;
@@ -58,8 +65,8 @@ body{
     color: #ebebeb;
     cursor: pointer;
     position: absolute;
-    top: 4px;
-    right: 8px;
+    top: 0px;
+    right:10px;
     transition: color 0.2s;
 }
 
@@ -70,12 +77,12 @@ body{
 .interact-list {
     list-style-type: none;
     padding: 0;
-    margin-top: 20px;
+    margin-top: 16px;
     font-size: 14px;
 }
 
 .interact-item {
-    padding: 10px 15px;
+    padding: 8px 15px;
     cursor: pointer;
     border-radius: 4px;
     transition: background-color 0.2s;
@@ -125,6 +132,74 @@ body{
 }
 
 /* 메인 이벤트 배너 */
+.image-container {
+    position: relative;
+}
+
+.background-image {
+    width: 100%;
+    height: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1; 
+}
+  
+.main-text-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 0 0 10px;
+    border-radius: 10px;
+}
+
+.main-text {
+    font-family: 'WavvePADO-Regular';
+    font-size: 2.3rem;
+    font-weight: 700;
+    letter-spacing: -0.5px; 
+    color: #333;
+    opacity: 0;
+    transform: translateY(-20px);
+    animation: fadeSlideIn 1.5s ease-out forwards;
+    padding: 20px;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes fadeSlideIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.word {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInWord 5s ease-out forwards; /* 5초로 수정 */
+    animation-delay: 3s; /* 8초 - 5초 (애니메이션 시간) = 3초 */
+    margin-right: 5px;
+    animation-iteration-count: infinite; /* 반복 */
+    animation-timing-function: ease-in-out; /* 부드럽게 반복 */
+}
+
+@keyframes fadeInWord {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    50% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+}
+
+
 
 
 .slider-container {
@@ -188,7 +263,7 @@ body{
 
 .dots_custom li button {
     border: none;
-    background: #363636;
+    background: #aaa;
     color: transparent;
     cursor: pointer;
     display: block;
@@ -199,7 +274,7 @@ body{
 }
 
 .dots_custom li.slick-active button {
-    background-color: #4a7b63;
+    background-color: rgb(140, 199, 165);
 }
 
 .dots_custom li {
@@ -210,27 +285,18 @@ body{
     padding: 0;
 }
 
-
-
-.dots_custom li button{
-    background-color: #8CC7A5;
-}
-.dots_custom li.slick-active button {
-    background-color: #4a7b63;
-}
-
 .event-button {
     position: absolute;
     bottom: 20px;
     right: 20px;
     font-size: 15px;
-    background-color: rgba(140, 199, 165, 0.9);
+    background-color: #222;
     backdrop-filter: blur(5px);
     padding: 10px;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
     text-decoration: none;
-    color: #333;
+    color: #fff;
     font-weight: 600;
     transition: all 0.3s ease;
     cursor: pointer;
@@ -238,7 +304,7 @@ body{
 }
 
 .event-button:hover {
-    background-color: #4a7b63;
+    background-color: #444;
     transform: translateY(-2px);
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
     color:white;
@@ -248,8 +314,8 @@ body{
     position: absolute;
     top: 14px;
     right: 20px;
-    background: #FFD700;
-    color: #333;
+    background: linear-gradient(135deg, #FFD700, #FF6347);
+    color: #ffffff;
     font-size: 14px;
     font-weight: bold;
     padding: 10px;
@@ -352,3 +418,23 @@ body{
 }
 
 /* 삭제모달 끝 */
+
+/* 달력 */
+.custom-calendar {
+    background-color: white;
+    border: 2px solid #8CC7A5;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    padding: 10px;
+}
+
+.react-datepicker__day:hover {
+    background-color: #8CC7A5;
+    color: white;
+}
+
+.react-datepicker__day--today {
+    font-weight: bold;
+    color: #8CC7A5;
+}
+/* 달력 끝 */

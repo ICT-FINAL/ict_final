@@ -29,8 +29,12 @@ public class ChatRoom {
     private Product product;
 
     @ManyToOne
-    @JoinColumn(name="buyer_id")
-    private User buyer;
+    @JoinColumn(name="participant_a")
+    private User participantA;
+
+    @ManyToOne
+    @JoinColumn(name="participant_b")
+    private User participantB;
 
     private LocalDateTime createdAt;
 

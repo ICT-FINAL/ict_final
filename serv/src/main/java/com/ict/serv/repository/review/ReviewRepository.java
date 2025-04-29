@@ -32,4 +32,5 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
           AND (:month IS NULL OR MONTH(STR_TO_DATE(review_writedate, '%Y-%m-%d %H:%i:%s')) = :month)
     """, nativeQuery = true)
     Long countByUserIdAndDate(@Param("userId") Long userId, @Param("year") int year, @Param("month") Integer month);
+    int countByProductIn(List<Product> productList);
 }

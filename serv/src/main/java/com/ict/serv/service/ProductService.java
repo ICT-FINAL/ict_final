@@ -1,10 +1,7 @@
 package com.ict.serv.service;
 
 import com.ict.serv.controller.product.ProductPagingVO;
-import com.ict.serv.entity.product.Option;
-import com.ict.serv.entity.product.OptionCategory;
-import com.ict.serv.entity.product.Product;
-import com.ict.serv.entity.product.ProductImage;
+import com.ict.serv.entity.product.*;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.product.OptionCategoryRepository;
 import com.ict.serv.repository.product.OptionRepository;
@@ -54,40 +51,40 @@ public class ProductService {
         switch (pvo.getSort()) {
             case "최신순" -> {
                 if (categories.isEmpty() || categories.get(0).isEmpty()) {
-                    return repo.findProductsNoCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.desc("start_date"))));
+                    return repo.findProductsNoCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), ProductState.SELL, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.desc("start_date"))));
                 } else
-                    return repo.findProductsAllCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), categories, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.desc("start_date"))));
+                    return repo.findProductsAllCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), categories,ProductState.SELL, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.desc("start_date"))));
             }
             case "높은 가격 순" -> {
                 if (categories.isEmpty() || categories.get(0).isEmpty()) {
-                    return repo.findProductsNoCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.desc("price"))));
+                    return repo.findProductsNoCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(),ProductState.SELL, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.desc("price"))));
                 } else
-                    return repo.findProductsAllCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), categories, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.desc("price"))));
+                    return repo.findProductsAllCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), categories,ProductState.SELL, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.desc("price"))));
             }
             case "낮은 가격 순" -> {
                 if (categories.isEmpty() || categories.get(0).isEmpty()) {
-                    return repo.findProductsNoCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.asc("price"))));
+                    return repo.findProductsNoCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(),ProductState.SELL, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.asc("price"))));
                 } else
-                    return repo.findProductsAllCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), categories, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.asc("price"))));
+                    return repo.findProductsAllCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), categories,ProductState.SELL, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.asc("price"))));
             }
             case "할인율 높은 순" -> {
                 if (categories.isEmpty() || categories.get(0).isEmpty()) {
-                    return repo.findProductsNoCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.desc("discount_rate"))));
+                    return repo.findProductsNoCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(),ProductState.SELL, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.desc("discount_rate"))));
                 } else
-                    return repo.findProductsAllCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), categories, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.desc("discount_rate"))));
+                    return repo.findProductsAllCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), categories,ProductState.SELL, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord(), Sort.by(Order.desc("discount_rate"))));
             }
             case "찜 많은순" -> {
                 if (categories.isEmpty() || categories.get(0).isEmpty()) {
-                    return repo.findProductsNoCategoryOrderByWishCount(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord()));
+                    return repo.findProductsNoCategoryOrderByWishCount(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(),ProductState.SELL, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord()));
                 } else {
-                    return repo.findProductsAllCategoryOrderByWishCount(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), categories, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord()));
+                    return repo.findProductsAllCategoryOrderByWishCount(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), categories,ProductState.SELL, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord()));
                 }
             }
             case "후기 많은 순" -> {
                 if (categories.isEmpty() || categories.get(0).isEmpty()) {
-                    return repo.findProductsNoCategoryOrderByReviewCount(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord()));
+                    return repo.findProductsNoCategoryOrderByReviewCount(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(),ProductState.SELL, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord()));
                 } else {
-                    return repo.findProductsAllCategoryOrderByReviewCount(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), categories, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord()));
+                    return repo.findProductsAllCategoryOrderByReviewCount(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), categories,ProductState.SELL, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord()));
                 }
             }
             case "주문 많은 순" -> {
@@ -96,6 +93,7 @@ public class ProductService {
                             pvo.getSearchWord(),
                             pvo.getEventCategory(),
                             pvo.getTargetCategory(),
+                            ProductState.SELL,
                             PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord())
                     );
                 } else {
@@ -104,14 +102,15 @@ public class ProductService {
                             pvo.getEventCategory(),
                             pvo.getTargetCategory(),
                             categories,
+                            ProductState.SELL,
                             PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord())
                     );
                 }
             }
         }
         if(categories.isEmpty() || categories.get(0).isEmpty()) {
-            return repo.findProductsNoCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(), PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord()));
-        }else return repo.findProductsAllCategory(pvo.getSearchWord(),pvo.getEventCategory(),pvo.getTargetCategory(), categories,PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+            return repo.findProductsNoCategory(pvo.getSearchWord(), pvo.getEventCategory(), pvo.getTargetCategory(),ProductState.SELL, PageRequest.of(pvo.getNowPage() - 1, pvo.getOnePageRecord()));
+        }else return repo.findProductsAllCategory(pvo.getSearchWord(),pvo.getEventCategory(),pvo.getTargetCategory(), categories,ProductState.SELL,PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
     }
 
     public List<Product> searchAllNoPaging(List<String> categories) {
@@ -141,5 +140,19 @@ public class ProductService {
 
     public List<Product> selectAllProduct() {
         return repo.findAll();
+    }
+
+    public Optional<Product> findProductById(Long id) {
+        return repo.findById(id);
+    }
+
+    public void deleteOptionsByProduct(Product product) {
+        List<Option> options = optionRepository.findAllByProduct(product);
+
+        for (Option option : options) {
+            optionCategoryRepository.deleteAllByOption(option);
+        }
+
+        optionRepository.deleteAll(options);
     }
 }

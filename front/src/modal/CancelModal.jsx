@@ -28,8 +28,10 @@ function CancelModal() {
         .then(res => {
             if(res.data === "ok"){
                 window.alert("정상 취소 처리되었습니다.");
-                modalClose();
+            } else if(res.data === "err4") {
+              window.alert("이미 판매자가 주문을 확인하였습니다.");
             }
+            modalClose();
         })
         .catch(err => {
             console.log(err);
