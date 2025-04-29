@@ -7,10 +7,7 @@ import com.ict.serv.entity.Inquiries.InquiryPagingVO;
 import com.ict.serv.entity.Inquiries.InquiryState;
 import com.ict.serv.entity.auction.AuctionProduct;
 import com.ict.serv.entity.message.Message;
-import com.ict.serv.entity.order.OrderGroup;
-import com.ict.serv.entity.order.Orders;
-import com.ict.serv.entity.order.Pair;
-import com.ict.serv.entity.order.ShippingState;
+import com.ict.serv.entity.order.*;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.product.ProductState;
 import com.ict.serv.entity.report.Report;
@@ -35,7 +32,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -306,28 +306,25 @@ public class AdminController {
     }
 
     @PostMapping("/handleSettle")
-    public String handleSettle(@RequestBody Map<String, Object> ordersMap) {
-        List<LinkedHashMap<String, Object>> rawOrders = (List<LinkedHashMap<String, Object>>) ordersMap.get("orders");
-        int sales = (int) ordersMap.get("sales");
-
-        for (LinkedHashMap<String, Object> rawOrder : rawOrders) {
-            Long orderId = Long.valueOf(String.valueOf(rawOrder.get("id")));
-            Orders orders = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("주문 없음"));
-
+    public String handleSettle(@RequestBody Map<String, List<Orders>> ordersMap) {
+        List<Orders> ordersList = ordersMap.get("orders");
+        for(Orders orders: ordersList) {
             orders.setShippingState(ShippingState.SETTLED);
             orderRepository.save(orders);
-
             Settlement settlement = new Settlement();
             settlement.setUser(orders.getProduct().getSellerNo());
             settlement.setOrders(orders);
-            settlement.setTotalSettlePrice(sales);
+            int price = 0;
+            for(OrderItem item : orders.getOrderItems()) {
+                price+= (item.getPrice() - item.getDiscountRate()*item.getPrice()/100 + item.getAdditionalFee())*item.getQuantity();
+            }
+            price+=orders.getShippingFee();
+            settlement.setTotalSettlePrice(price);
             settlement.setCreateDate(LocalDateTime.now());
             settlementRepository.save(settlement);
         }
-
         return "ok";
     }
-
 
 
 //    @GetMapping("/getSellerSoldProducts")

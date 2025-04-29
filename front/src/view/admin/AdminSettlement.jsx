@@ -75,7 +75,7 @@ function AdminSettlement() {
             return;
         }
         if(user)
-            axios.post(`${serverIP.ip}/admin/handleSettle`,{ orders: productLists[user_id].products, sales: total_sales},{
+            axios.post(`${serverIP.ip}/admin/handleSettle`,{ orders: productLists[user_id].products},{
                 headers:{Authorization: `Bearer ${user.token}`}
             })
             .then(res => {
