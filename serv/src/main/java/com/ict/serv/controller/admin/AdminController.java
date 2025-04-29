@@ -403,6 +403,7 @@ public class AdminController {
         Map<String, Object> result = new HashMap<>();
         result.put("orderList", orders);
         return result;
+    }
     @PostMapping("/giveCoupon")
     public String giveCoupon(@RequestBody CouponRequestDTO dto) {
         if(dto.getUserId() == 0){
