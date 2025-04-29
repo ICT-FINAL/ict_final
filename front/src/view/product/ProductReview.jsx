@@ -64,7 +64,6 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
 
         // 총 크기 계산
         const totalSize = allFiles.reduce((sum, file) => sum + file.size, 0);
-        console.log("누적 총 파일 크기:", totalSize);
 
         if (totalSize > MAX_TOTAL_SIZE) {
             alert("전체 파일 크기의 합이 10MB를 초과합니다. 더 작은 파일을 선택해주세요.");
@@ -219,7 +218,6 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
       }, [isMod]);
 
     const handleModClick = (review) => {
-        console.log(review);
     
         Promise.all(
             review.images.map(file =>
@@ -276,7 +274,6 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
             }
         })
         .then(function (response) {
-            console.log(response.data);
 
             if (response.data === "reviewAddOk" || response.data === "reviewModOk") {
                 // 새로고침해도 리뷰 탭 유지
@@ -307,7 +304,6 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
                 headers: { Authorization: `Bearer ${user.token}` } 
             })
             .then(res=>{
-                console.log(res.data);
                 getReviewList();
                 getAverageStar();
                 dispatch(setModal({delCheck:''}));

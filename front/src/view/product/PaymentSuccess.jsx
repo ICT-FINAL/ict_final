@@ -50,13 +50,11 @@ const PaymentSuccess = () => {
           return res.json();
         })
         .then((data) => {
-          console.log("결제 성공:", data);
           axios.delete(`${serverIP.ip}/basket/paid/delete`, {
             headers: { Authorization: `Bearer ${user.token}` },
             data: { basketNos }
           })
             .then(() => {
-              console.log("결제된 장바구니 항목 삭제 완료");
             })
             .catch((err) => console.error("삭제 오류:", err));
         })

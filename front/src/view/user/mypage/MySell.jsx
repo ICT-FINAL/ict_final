@@ -43,7 +43,6 @@ function MySell() {
                 setOrderList(res.data.orderList);
                 setTotalRecord(res.data.orderList.length);
                 setFileList(res.data.filenameList);
-                console.log(res.data);
             })
             .catch(err => console.log(err));
     };

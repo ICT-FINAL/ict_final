@@ -74,7 +74,6 @@ function AuctionRoom() {
                 const res = await axios.get(`${serverIP.ip}/auction/bids/${roomId}`, {
                     headers: { Authorization: `Bearer ${user.token}` }
                 });
-                console.log(res.data);
                 const formattedBids = res.data.map(bid => ({
                     state:bid.state,
                     user: bid.user,

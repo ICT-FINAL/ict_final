@@ -28,8 +28,6 @@ function ProductBuy() {
   const [isAuction, setIsAuction] = useState(false);
 
   const handleCouponChange = (e) => {
-    console.log(selectedCouponId);
-    console.log(selectedCoupon);
     setSelectedCoupon(Number(e.target.value.split('-')[0]));
     const [discount, id] = e.target.value.split('-');
     setSelectedCoupon(Number(discount));
@@ -59,7 +57,6 @@ function ProductBuy() {
 
   useEffect(()=>{
     applyRandomBackground();
-    console.log(state);
   },[]);
   
   useEffect(() => {
@@ -161,7 +158,6 @@ function ProductBuy() {
     const orderId = new Date().getTime();
     const tossPayments = window.TossPayments("test_ck_BX7zk2yd8ynK1JyQvDgL3x9POLqK");
     if(isAuction) {
-      console.log(location.state.product.id);
       axios.post(`${serverIP.ip}/order/setAuctionOrder`, {
         productId: location.state.product.id,
         addrId: selAddrId,
@@ -173,7 +169,6 @@ function ProductBuy() {
         headers:{Authorization:`Bearer ${user.token}`}
       })
       .then(res => {
-        console.log(res.data);
         if (res.data === null || res.data === '') {
           alert("품절된 상품입니다.");
           return;

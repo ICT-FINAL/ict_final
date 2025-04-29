@@ -5,6 +5,40 @@ import { useLocation, useNavigate } from "react-router-dom";
 import CustomerReview from './CustomerReview';
 import { FaStar } from "react-icons/fa";
 
+function GradeBar({ point,gg }) {
+    const maxPoint = 10000;
+    const percentage = Math.min((point / maxPoint) * 100, 100);
+    const level = Math.floor(point / 1000) + 1;
+    const [grade, setGrade] = useState(['✊', '☝️', '✌️', '🖐️']);
+    return (
+        <div style={{ marginTop: '10px', width: '100%', maxWidth: '300px' }}>
+            <div style={{ fontWeight: '600', marginBottom: '5px' }}>
+                <span style={{fontWeight:'400',fontSize:'16px'}}>등급:<span style={{fontSize:'24px'}}>{grade[gg]}</span> ({point}pt)</span>
+            </div>
+            <div style={{
+                width: '100%',
+                height: '10px',
+                background: '#eee',
+                overflow: 'hidden',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-start',
+                padding: '0',
+                margin: '0'
+                }}>
+                <div style={{
+                    width: `${percentage}%`,
+                    height: '100%',
+                    background: 'linear-gradient(to right, #8CC7A5, #4a7b63)',
+                    transition: 'width 0.5s ease',
+                    margin:'0px'
+                }} />
+                </div>
+
+        </div>
+    );
+}
+
 function UserInfo() {
     const user = useSelector((state) => state.auth.user);
     let serverIP = useSelector((state) => state.serverIP);
@@ -203,7 +237,6 @@ function UserInfo() {
     };
 
     const moveInfo = (prod) => {
-        console.log(prod);
         navigate('/product/info', { state: { product: prod } });
     }
 
@@ -252,9 +285,10 @@ function UserInfo() {
                 {userinfo.imgUrl && <img src={userinfo.imgUrl.indexOf('http') !== -1 ? `${userinfo.imgUrl}` : `${serverIP.ip}${userinfo.imgUrl}`} alt='' width={140} height={140} style={{borderRadius: '50%', alignSelf: 'center'}}/>}
                 <div className="profile-info">
                     <div style={{ fontWeight: 'bold', fontSize: '1.2em' }}>
-                        <div style={{display: 'flex', justifyContent: 'space-between', height: '45px'}}>
+                        <div style={{display: 'flex', justifyContent: 'space-between', height: '120px'}}>
                             <div style={{alignSelf: 'center'}}>
                                 <span>{userinfo.username}</span>
+                                <GradeBar point={userinfo.gradePoint} gg={userinfo.grade}/>
                                 <span style={{fontWeight: '400', marginLeft: '10px', fontSize: '10pt'}}><span style={{fontSize: '12pt'}}>⭐</span>{Math.round(rating * 100) / 100} ({reviewCount})</span>
                             </div>
                             {

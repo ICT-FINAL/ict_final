@@ -16,7 +16,6 @@ question: "",
 answer: "",
 category: "account",
 });
-console.log("useSelector(state.auth.user) 결과:", user);
 const categories = [
   { id: "account", label: "계정", icon: "👤" },
   { id: "delivery", label: "배송", icon: "🚚" },

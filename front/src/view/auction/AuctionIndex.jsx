@@ -32,7 +32,6 @@ function AuctionIndex() {
     useEffect(()=>{
         axios.get(`${serverIP.ip}/auction/getAuctionMap`)
         .then(res=>{
-            console.log(res.data);
             setHotAuctionList(res.data.hotRooms);
             setClosingAuctionList(res.data.closingRooms);
         })
@@ -154,7 +153,6 @@ function AuctionIndex() {
     };
 
     const moveInfo = (auct) => {
-        console.log(auct);
         navigate(`/auction/room/${auct.roomId}`);
     }
     const isEndingSoon = (endTime) => {

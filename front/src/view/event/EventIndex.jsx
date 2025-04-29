@@ -155,7 +155,6 @@ function EventIndex() {
                 headers: { Authorization: `Bearer ${user.token}` } 
             })
             .then(res=>{
-                console.log(res.data);
                 // 전체 리스트 다시가져오기 
                 const now = new Date();
                 now.setHours(0, 0, 0, 0);

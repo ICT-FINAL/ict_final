@@ -45,7 +45,7 @@ function AdminSettlement() {
             const pages = Array.from({ length: total }, (_, i) => i + 1);
             setPageNumber(prev => ({ ...prev, readable: pages }));
         } catch (err) {
-            //console.error("정산 정보 불러오기 실패", err);
+            console.log(err);
         }
     };
 
@@ -65,7 +65,6 @@ function AdminSettlement() {
                 },
                 headers: { Authorization: `Bearer ${user.token}` }
             });
-            //console.log("셀러 판매 내역:", res.data);
             setProductLists(prev => ({
                 ...prev,
                 [user_id]: { loading: false, error: null, products: res.data.orderList }
@@ -79,7 +78,6 @@ function AdminSettlement() {
     };
 
     const handleSettlement = async (user_id, total_sales) => {
-        //console.log(productLists[user_id]);
         let confirmationMessage;
         if (!productLists[user_id]) {
             alert("판매금액을 확인후 처리해주세요.");
@@ -168,7 +166,6 @@ function AdminSettlement() {
     };
 
     const fetchSettledList = async ({ year = "", month = "", keyword = "", page = 1 }) => {
-        console.log("정산 완료 판매자 목록 불러오기");
         try {
             const res = await axios.get(`${serverIP.ip}/admin/getSettledSellersList`, {
                 params: { year, month, keyword, page },

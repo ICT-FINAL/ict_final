@@ -17,8 +17,6 @@ function InquiryView() {
     const user = useSelector((state) => state.auth.user);
     const serverIP = useSelector((state) => state.serverIP);
 
-    console.log("useSelector(state.auth.user) 결과:", user);
-
     const isAdmin = user?.user?.authority != null && String(user.user.authority) === 'ROLE_ADMIN';
     const [isAuthor, setIsAuthor] = useState(false);
 
@@ -47,7 +45,6 @@ function InquiryView() {
             headers: { Authorization: `Bearer ${user.token}` }
         })
         .then(response => {
-            console.log(response.data);
             if (response.data && response.data.inquiry) {
                 setInquiry(response.data.inquiry);
 
@@ -118,7 +115,6 @@ function InquiryView() {
             inquiryId: parseInt(id, 10),
             content: responseText.trim()
         };
-        console.log("Submitting response:", payload);
 
         const responseEndpoint = `${serverIP.ip}/inquiry/inquiryResponse`;
 

@@ -153,7 +153,6 @@ function Header() {
         .catch(err=>console.log(err));
     }
     const deleteRecentSearch = (searchWord)=>{
-        console.log(searchWord);
         const url = searchWord
         ? `${serverIP.ip}/log/deleteRecentSearch?searchWord=${searchWord}`
         : `${serverIP.ip}/log/deleteRecentSearch`;

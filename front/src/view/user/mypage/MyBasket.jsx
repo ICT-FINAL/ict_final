@@ -22,7 +22,6 @@ function MyBasket() {
                 const response = await axios.get(`${serverIP.ip}/basket/list`, {
                     headers: { Authorization: `Bearer ${user.token}` },
                 });
-                console.log("장바구니리스트:", response.data);
                 setBasketItems(response.data);
 
             } catch (err) {
@@ -38,7 +37,6 @@ function MyBasket() {
                     headers: { Authorization: `Bearer ${user.token}` },
                 })
                 .then((res) => {
-                    console.log("유저정보:", res.data);
                 })
                 .catch((err) => console.log(err));
 
@@ -90,7 +88,6 @@ function MyBasket() {
         return grouped;
     }, [basketItems]);
     {
-        console.log(basketItems);
     }
     const handleAllCheck = (e) => {
         const newAllChecked = e.target.checked;
