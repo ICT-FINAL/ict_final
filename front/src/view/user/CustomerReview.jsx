@@ -24,7 +24,6 @@ function CustomerReview(){
                 }
             })
             .then(res => {
-                console.log("후기 리스트 응답:", res.data);
                 setCusReviewList(res.data);
             })
             .catch(err => console.log(err));
@@ -57,7 +56,6 @@ function CustomerReview(){
     const navigate = useNavigate();
 
     const moveInfo = (prod) => {
-        console.log(prod);
         navigate('/product/info', { state: { product: prod } });
     };
 

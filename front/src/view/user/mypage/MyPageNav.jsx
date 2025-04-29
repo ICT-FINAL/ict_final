@@ -86,13 +86,6 @@ function MyPageNav({ path, isOpen, closeNav }) {
                         <span style={path.l_name === "판매 통계" ? clickedStyle2 : {}}>판매 통계</span>
                     </li>
                 </ul>
-
-                <ul>
-                    <li className="mypage-nav-title">회원 탈퇴</li>
-                    <li onClick={() => handleClick("/mypage/deleteAccount")} style={path.l_name === "회원 탈퇴" ? clickedStyle : {}}>
-                        <span style={path.l_name === "회원 탈퇴" ? clickedStyle2 : {}}>회원 탈퇴</span>
-                    </li>
-                </ul>
             </div>
         </>
     );

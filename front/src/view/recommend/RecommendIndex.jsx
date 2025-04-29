@@ -101,9 +101,6 @@ function RecommendIndex() {
             }
             recommendProducts.push(defaultRes.data);
 
-            // console.log(defaultRes.data);
-
-            console.log(recommendProducts);
             setRecommendList(recommendProducts);
             getRating(recommendProducts);
             

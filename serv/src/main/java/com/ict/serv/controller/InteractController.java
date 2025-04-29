@@ -124,6 +124,8 @@ public class InteractController {
         response.setEmail(user.getEmail());
         response.setUsername(user.getUsername());
         response.setInfoText(user.getInfoText());
+        response.setGradePoint(user.getGradePoint());
+        response.setGrade(user.getGrade());
 
         return response;
     }

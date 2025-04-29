@@ -20,17 +20,14 @@ function MyChatting() {
     useEffect(()=>{
         getChatRoomList();
         getProductChatRoomList();
-        console.log("!!!!");
     }, [isMessage]);
 
     const getChatRoomList = ()=>{
         axios.get(`${serverIP.ip}/chat/chatRoomList?tab=default`,
             { headers: {Authorization: `Bearer ${user.token}`}})
         .then(res=>{
-            console.log(res.data);
             setChatRoomList(res.data);
             res.data.map(room=>{
-                console.log(room);
                 const socket = new SockJS(`${serverIP.ip}/ws`);
                 const stompClient = Stomp.over(socket);
                 stompClientRef.current = stompClient;
@@ -49,10 +46,8 @@ function MyChatting() {
         axios.get(`${serverIP.ip}/chat/chatRoomList?tab=product`,
             { headers: {Authorization: `Bearer ${user.token}`}})
         .then(res=>{
-            console.log(res.data);
             setProductChatRoomList(res.data);
             res.data.map(room=>{
-                console.log(room);
                 const socket = new SockJS(`${serverIP.ip}/ws`);
                 const stompClient = Stomp.over(socket);
                 stompClientRef.current = stompClient;

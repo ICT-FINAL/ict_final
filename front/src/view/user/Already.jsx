@@ -18,7 +18,6 @@ function Already(){
             scope: "openid email profile",
             prompt: "select_account",
         });
-        console.log("Google Login URL:", `https://accounts.google.com/o/oauth2/auth?${params.toString()}`); // 디버깅용
         window.location.href = `https://accounts.google.com/o/oauth2/auth?${params.toString()}`;
     };
 

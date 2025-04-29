@@ -46,7 +46,6 @@ function MyActivity() {
         params: params
       })
       .then(res => {
-        console.log("활동 통계:", res.data);
         setStats(res.data);
       })
       .catch(err => {

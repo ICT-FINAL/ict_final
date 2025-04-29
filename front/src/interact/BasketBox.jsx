@@ -36,7 +36,6 @@ function BasketBox() {
   }, [modalSel.isOpen, modalSel.selected, selectedItem]);
 
   useEffect(() => {
-    console.log("모달에 전달된 아이템:", selectedItem);
   }, [modalSel.isOpen, selectedItem]);
 
   const handleQuantityChange = (e) => {
@@ -74,7 +73,6 @@ function BasketBox() {
         dispatch(setModal({ ...modalSel, isOpen: false }));
       })
       .catch((err) => {
-        console.error(err);
         alert("수정 중 오류가 발생했습니다.");
       })
       .finally(() => {
