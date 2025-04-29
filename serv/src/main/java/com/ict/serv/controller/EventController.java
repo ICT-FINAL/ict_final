@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -112,4 +113,17 @@ public class EventController {
     public List<Melon> getMelonRank() {
         return eventService.getMelonList();
     }
+
+    @GetMapping("/edit/{id}")
+    public Optional<Event> edit(@PathVariable("id") Long id) {
+
+        System.out.println("=======================");
+        System.out.println(id);
+        System.out.println("=======================");
+
+        Optional<Event> event = eventService.selectEventInfo(id);
+
+        return event;
+    }
+
 }
