@@ -175,21 +175,6 @@ function Body() {
     let homeButton=document.getElementById("home");
     var upButton=document.getElementById("up");
     let chatButton=document.getElementById("chat");
-
-    if (user) {
-      axios.get(`${serverIP.ip}/chat/unreadChatCount`, {
-        headers: { Authorization: `Bearer ${user.token}` }
-      })
-      .then(res=>{
-        if (res.data > 0) {
-          const countIcon = document.createElement("span");
-          countIcon.id = "count-icon";
-          countIcon.textContent = res.data;
-          chatButton.appendChild(countIcon);
-        }
-      })
-      .catch(err=>console.log(err));
-    }
     
     homeButton.addEventListener('click', () => {
       menu.close();
@@ -212,6 +197,34 @@ function Body() {
 
     let clicked = false;
   },[]);
+
+  useEffect(()=>{
+    if (user) {
+      axios.get(`${serverIP.ip}/chat/unreadChatCount`, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      })
+      .then(res=>{
+        const chatElement = document.getElementById("chat");
+        const existingIcon = document.getElementById("count-icon");
+
+        if (res.data > 0) {
+          if (!existingIcon) {
+            const countIcon = document.createElement("span");
+            countIcon.id = "count-icon";
+            countIcon.textContent = res.data;
+            chatElement.appendChild(countIcon);
+          } else {
+            existingIcon.textContent = res.data; // 이미 있으면 숫자만 업데이트
+          }
+        } else {
+          if (existingIcon) {
+            chatElement.removeChild(existingIcon); // 0이면 삭제
+          }
+        }
+      })
+      .catch(err=>console.log(err));
+    }
+  },[location.pathname]);
 
   return (<>
     {modal.isOpen && modal.selected == '1' && <ModalIndex />}

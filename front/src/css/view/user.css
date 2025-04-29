@@ -352,17 +352,16 @@ input.tel {
 }
 .profile-info div {
     margin: 5px;
-    padding: 5px;
 }
 .profile-follow {
     display: flex;
     justify-content: space-around;
     text-align: center;
     border: 1px solid #ccc;
+    border-radius: 10px;
 }
-#follow-btn, #unfollow-btn {
+#follow-btn, #unfollow-btn, #userinfo-chatting {
     display: inline;
-    float: right;
     height: 35px;
     padding: 0 20px;
     background-color: #52a575;
