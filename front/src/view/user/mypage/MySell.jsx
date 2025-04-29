@@ -63,8 +63,11 @@ function MySell() {
             axios.get(`${serverIP.ip}/order/orderConfirm?orderId=${id}&state=BEFORE`, {
                 headers: { Authorization: `Bearer ${user.token}` }
             })
-            .then(()=>{
-                window.alert("주문 확인 처리 되었습니다.");
+            .then(res=>{
+                if(res.data === "ok")
+                    window.alert("주문 확인 처리 되었습니다.");
+                else if(res.data === "err1")
+                    window.alert("이미 취소된 주문입니다.");
                 getBoardList();
             })
             .catch(err => console.log(err));

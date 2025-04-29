@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 function EventInfo() {
@@ -6,6 +6,16 @@ function EventInfo() {
     const { eventName, filename, startDate, endDate, content, id } = loc.state;
 
     const serverIP = useSelector((state) => state.serverIP);
+
+    const navigate = useNavigate();
+
+    const handleEditClick = () => {
+        if (id) {
+            navigate(`/event/edit/${id}`);
+        } else {
+            alert("이벤트 ID가 없습니다.");
+        }
+    };
 
     return (
         <div style={{ paddingTop: "150px" }}>
@@ -21,6 +31,10 @@ function EventInfo() {
                     className="event-info-content"
                     dangerouslySetInnerHTML={{ __html: content }}
                 ></div>
+                <div style={{textAlign:'right'}}>
+                    <input type='button' value='수정' className="edit-button" style={{marginRight:'5px'}} onClick={handleEditClick}/>
+                    <input type='button' value='삭제' className="del-button" />
+                </div>
             </div>
         </div>
     );

@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -67,4 +68,32 @@ public class SubMenuController {
     public List<SubMenu> getSubMenuList(){
         return submenuService.getAllSubMenu();
     }
+
+    // 서브메뉴 삭제
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteSubMenu(@PathVariable Long id) {
+
+        Optional<SubMenu> submenu = submenuService.getSubMenuById(id);
+
+        if (!submenu.isPresent()) {  // 수정: Optional의 값이 존재하지 않을 경우
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("서브메뉴를 찾을 수 없습니다.");
+        }
+
+        submenuService.deleteSubMenu(id);
+
+        // 업로드된 파일 삭제 (서버에서 파일도 삭제)
+        String uploadDir = System.getProperty("user.dir") + "/uploads/submenu/" + submenu.get().getId();
+        File dir = new File(uploadDir);
+        if (dir.exists() && dir.isDirectory()) {  // 수정: 디렉토리인지 확인
+            for (File file : dir.listFiles()) {
+                if (file.exists()) {
+                    file.delete();
+                }
+            }
+            dir.delete(); // 폴더 삭제
+        }
+
+        return ResponseEntity.ok("삭제 성공하였습니다.");
+    }
+
 }

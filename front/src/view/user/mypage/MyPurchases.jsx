@@ -114,7 +114,6 @@ function MyPurchases() {
                         }
                     });
     
-                    console.log("최종 resultMap:", resultMap);
                     setIsReviewWritten(resultMap);
                 })
                 .catch(err => console.error('Promise all error:', err));
