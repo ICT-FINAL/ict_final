@@ -330,69 +330,77 @@ public class AdminController {
         return "ok";
     }
 
+    @GetMapping("/getSettledSellersList")
+    public ResponseEntity<Map<String, Object>> getSettledSellersListWithSearch(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int limit,
+            @RequestParam(required = false) String year,
+            @RequestParam(required = false) String month,
+            @RequestParam(required = false) String keyword
+    ) {
+        Map<String, Object> response = new HashMap<>();
 
-//    @GetMapping("/getSellerSoldProducts")
-//    public Map<String, Object> sellList(@RequestParam String user_id,
-//                                        @RequestParam(required = false) String year,
-//                                        @RequestParam(required = false) String month,
-//                                        @RequestParam(required = false) ShippingState shippingState) {
-//
-//        User seller = inter_service.selectUserByName(user_id);
-//        System.out.println("판매자 정보: " + seller);
-//        List<Orders> orders = new ArrayList<>();
-//
-//        Map<String, Object> result = new HashMap<>();
-//        if (shippingState == ShippingState.FINISH) {
-//            if(year.isEmpty() || year.equals("전체")){
-//             //   orders = orderRepository.findAllByProductSellerNoAndShippingStateAndYearAndMonth(seller, ShippingState.FINISH, 0, parsedMonth);
-//                sellerPage = orderRepository.findSellersWithTotalSalesByConditionsNoYearNoMonth(0, 0,keyword, pageable);
-//            }
-//            else if(month.isEmpty() || month.equals("전체")) {
-//                sellerPage = orderRepository.findSellersWithTotalSalesByConditionsNoMonth(Integer.parseInt(year), 0, keyword, pageable);
-//            }
-//            else {
-//                sellerPage = orderRepository.findSellersWithTotalSalesByConditions(Integer.parseInt(year), Integer.parseInt(month), keyword, pageable);
-//            }
-//            if (year != null && !year.isEmpty() && month != null && !month.isEmpty()) {
-//                try {
-//                    int parsedYear = Integer.parseInt(year);
-//                    int parsedMonth = Integer.parseInt(month);
-//                    orders = orderRepository.findAllByProductSellerNoAndShippingStateAndYearAndMonth(seller, ShippingState.FINISH, parsedYear, parsedMonth);
-//                } catch (NumberFormatException e) {
-//                    System.err.println("잘못된 년도 또는 월 형식: " + year + ", " + month);
-//                    result.put("error", "잘못된 년도 또는 월 형식입니다.");
-//                    return result;
-//                }
-//            } else {
-//                orders = orderRepository.findAllByProductSellerNoAndShippingState(seller, ShippingState.FINISH);
-//            }
-//        }
-//        //Map<String, Object> result = new HashMap<>();
-//        result.put("orderList", orders);
-//        return result;
-//    }
+        keyword = (keyword == null) ? "" : keyword.trim();
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Map<String, Object>> sellerPage = null;
 
-//    @PostMapping("/settlement")
-//    public ResponseEntity<String> settleSellerOrders(@RequestBody Map<String, String> body,
-//                                                     @RequestParam(required = false) int year,
-//                                                     @RequestParam(required = false) int month) {
-//        String userId = body.get("user_id");
-//
-//        User user = userRepository.findUserByUserid(userId);
-//
-//        List<Orders> ordersToSettle = orderRepository.findAllByProductSellerNoAndShippingStateAndYearAndMonth(user, ShippingState.FINISH, year, month);
-//        System.out.println("유저 아뒤"+userId);
-//        for (Orders order : ordersToSettle) {
-////            boolean alreadySettled = settlementRepository.existsByOrders(order);
-////            if (!alreadySettled) {
-////                Settlement settlement = new Settlement();
-////                settlement.setUser(user);
-////                settlement.setOrders(order);
-////                //settlementRepository.save(settlement);
-////            }
-//        }
-//        return ResponseEntity.ok("정산 완료");
-//}
+        if((year.isEmpty() || year.equals("전체")) && (month.isEmpty() || month.equals("전체"))){
+            sellerPage = orderRepository.findSettledListWithTotalSalesByConditionsNoYearNoMonth(0, 0,keyword, pageable);
+        }
+        else if((year.isEmpty() || year.equals("전체"))) {
+            sellerPage = orderRepository.findSettledListWithTotalSalesByConditionsNoYear(Integer.parseInt(month), keyword, pageable);
+        }
+        else if(month.isEmpty() || month.equals("전체")) {
+            sellerPage = orderRepository.findSettledListWithTotalSalesByConditionsNoMonth(Integer.parseInt(year), 0, keyword, pageable);
+        }
+        else {
+            sellerPage = orderRepository.findSettledListWithTotalSalesByConditions(Integer.parseInt(year), Integer.parseInt(month),
+                    keyword, pageable);
+        }
+
+        response.put("sellers", sellerPage.getContent());
+        response.put("selectedCount", sellerPage.getTotalElements());
+        response.put("totalPage", sellerPage.getTotalPages());
+
+        System.out.println("정산 완료 판매자 목록"+response);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/getSellerSettledProducts")
+    public Map<String, Object> settledProductList(@RequestParam String user_id,
+                                        @RequestParam(required = false) String settledYear,
+                                        @RequestParam(required = false) String settledMonth,
+                                        @RequestParam(required = false) ShippingState shippingState) {
+
+        User user = inter_service.selectUserByName(user_id);
+        List<Orders> orders = new ArrayList<>();
+
+        if (shippingState == ShippingState.SETTLED) {
+            boolean settledHasYear = settledYear != null && !settledYear.isEmpty() && !settledYear.equals("전체");
+            boolean settledHasMonth = settledMonth != null && !settledMonth.isEmpty() && !settledMonth.equals("전체");
+
+            if (settledHasYear && settledHasMonth) {
+                int settledParsedYear = Integer.parseInt(settledYear);
+                int settledParsedMonth = Integer.parseInt(settledMonth);
+                orders = orderRepository.findAllByProductSellerNoAndShippingStateAndYearAndMonth(
+                        user.getId(), ShippingState.SETTLED.name(), settledParsedYear, settledParsedMonth);
+            } else if (settledHasYear) {
+                int settledParsedYear = Integer.parseInt(settledYear);
+                orders = orderRepository.findAllByProductSellerNoAndShippingStateAndYear(
+                        user.getId(), ShippingState.SETTLED.name(), settledParsedYear);
+            } else if (settledHasMonth) {
+                int settledParsedMonth = Integer.parseInt(settledMonth);
+                orders = orderRepository.findAllByProductSellerNoAndShippingStateAndMonth(
+                        user.getId(), ShippingState.SETTLED.name(), settledParsedMonth);
+            } else {
+                orders = orderRepository.findAllByProductSellerNoAndShippingState(user, ShippingState.SETTLED);
+            }
+        }
+        System.out.println("정산 완료 제품 목록");
+        Map<String, Object> result = new HashMap<>();
+        result.put("orderList", orders);
+        return result;
+    }
 }
 
 
