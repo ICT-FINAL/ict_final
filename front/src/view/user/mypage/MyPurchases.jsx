@@ -114,7 +114,6 @@ function MyPurchases() {
                         }
                     });
     
-                    console.log("최종 resultMap:", resultMap);
                     setIsReviewWritten(resultMap);
                 })
                 .catch(err => console.error('Promise all error:', err));
@@ -275,6 +274,20 @@ function MyPurchases() {
                                                 </span>
                                             )}
                                             {order.shippingState === 'FINISH' && (
+                                                <>
+                                                    <span style={{ color: '#28a745', fontWeight: '600' }}>
+                                                    ✅ 구매 확정
+                                                    </span>
+                                                    {
+                                                        !isReviewWritten[order.productId] &&
+                                                        <span onClick={()=>moveInfo(order.productId, 'review')} style={{background: 'rgb(40, 167, 69)', borderRadius: '5px', marginLeft: '10px', padding: '0 7px 0 5px', color: '#fff', cursor: 'pointer'}}>
+                                                        📝 리뷰 쓰기
+                                                        </span>
+                                                    }
+                                                    
+                                                </>
+                                            )}
+                                            {order.shippingState === 'SETTLED' && (
                                                 <>
                                                     <span style={{ color: '#28a745', fontWeight: '600' }}>
                                                     ✅ 구매 확정

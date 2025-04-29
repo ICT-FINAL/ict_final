@@ -63,8 +63,11 @@ function MySell() {
             axios.get(`${serverIP.ip}/order/orderConfirm?orderId=${id}&state=BEFORE`, {
                 headers: { Authorization: `Bearer ${user.token}` }
             })
-            .then(()=>{
-                window.alert("주문 확인 처리 되었습니다.");
+            .then(res=>{
+                if(res.data === "ok")
+                    window.alert("주문 확인 처리 되었습니다.");
+                else if(res.data === "err1")
+                    window.alert("이미 취소된 주문입니다.");
                 getBoardList();
             })
             .catch(err => console.log(err));
@@ -120,6 +123,7 @@ function MySell() {
                 <option value="">전체</option>
                 <option value="PAID">결제 완료</option>
                 <option value="FINISH">구매 확정</option>
+                <option value="SETTLED">정산 완료</option>
                 <option value="BEFORE">배송 준비 중</option>
                 <option value="ONGOING">배송 중</option>
                 <option value="CANCELED">주문 취소</option>
@@ -212,9 +216,14 @@ function MySell() {
                                                     🚚 배송 중
                                                     </span>
                                                 )}
-                                                {order.shippingState === 'FINISH' && (
+                                                {order.shippingState === 'FINISH'  && (
                                                     <span style={{ color: '#28a745', fontWeight: '600' }}>
                                                     ✅ 구매 확정
+                                                    </span>
+                                                )}
+                                                {order.shippingState === 'SETTLED'  && (
+                                                    <span style={{ color: '#28a745', fontWeight: '600' }}>
+                                                    ✅ 정산 완료
                                                     </span>
                                                 )}
                                                 {order.shippingState === 'CANCELED' && (

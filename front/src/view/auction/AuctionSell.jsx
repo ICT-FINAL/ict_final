@@ -3,11 +3,41 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import ProductEditor from '../product/ProductEditor';
 import { useNavigate } from "react-router-dom";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { forwardRef } from "react";
+import { FaCalendarAlt } from "react-icons/fa";
+import { ko } from 'date-fns/locale';
+
+const CustomInput = forwardRef(({ value, onClick }, ref) => (
+    <div 
+      onClick={onClick} 
+      ref={ref}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '10px 15px',
+        width: '100%',
+        border: '1px solid #ccc',
+        borderRadius: '8px',
+        backgroundColor: 'white',
+        cursor: 'pointer',
+        fontSize: '16px',
+      }}
+    >
+      <span style={{ color: value ? '#000' : '#aaa' }}>
+        {value || "날짜를 선택하세요"}
+      </span>
+      <FaCalendarAlt style={{ marginLeft: '10px', color: '#888' }} />
+    </div>
+));
 
 function AuctionSell() {
     const serverIP = useSelector((state) => state.serverIP);
     const user = useSelector((state) => state.auth.user);
     const navigate = useNavigate();
+    const [endTime, setEndTime] = useState(new Date());
     const [formData, setFormData] = useState({
         subject:"",
         productName: "",
@@ -27,7 +57,7 @@ function AuctionSell() {
     useEffect(() => {
         const now = new Date();
         const twoDaysLater = new Date(now);
-        twoDaysLater.setDate(now.getDate() + 0);  // 2일 후  나중에 +2로바꾸기 테스트용 0
+        twoDaysLater.setDate(now.getDate() + 2);  // 2일 후  나중에 +2로바꾸기 테스트용 0
         twoDaysLater.setHours(twoDaysLater.getHours() + 9);
    
         const twoDaysLaterString = twoDaysLater.toISOString().slice(0, 16);
@@ -42,7 +72,7 @@ function AuctionSell() {
     oneDayLater.setDate(now.getDate() + 1);  // 1일 후
 
     const twoDaysLater = new Date(now);
-    twoDaysLater.setDate(now.getDate() + 2);  // 2일 후
+    twoDaysLater.setDate(now.getDate() + 7);  
 
     const nowString = now.toISOString().slice(0, 16);  // 현재 시간
     const oneDayLaterString = oneDayLater.toISOString().slice(0, 16);  // 1일 후의 시간
@@ -173,8 +203,17 @@ function AuctionSell() {
             alert("이미지를 최소 1개 이상 선택해주세요.");
             return;
         }
+        const firstPrice = parseInt(formData.first_price, 10) || 0;
+        const buyNowPrice = parseInt(formData.buy_now_price, 10) || 0;
+        
+        if (buyNowPrice > 0 && firstPrice < buyNowPrice / 5) {
+            alert("시작 가격은 즉시 구매가의 1/5 이상이어야 합니다.");
+            return;
+        }
     
         // 여기부터 navigate
+        const adjustedEndTime = new Date(endTime.getTime() + 9 * 60 * 60 * 1000);
+
         const productData = {
             productName: formData.productName,
             eventCategory: formData.eventCategory,
@@ -184,7 +223,7 @@ function AuctionSell() {
             firstPrice: parseInt(formData.first_price, 10) || 0,
             buyNowPrice: parseInt(formData.buy_now_price, 10) || 0,
             shippingFee: formData.shippingFee,
-            endTime: formData.endTime,
+            endTime: adjustedEndTime.toISOString().slice(0, 16),
             deposit: parseInt(formData.buy_now_price * 0.1) || 0,
             options: formData.options.map(option => ({
                 mainOptionName: option.mainOptionName,
@@ -263,16 +302,59 @@ function AuctionSell() {
                     <label className="product-label">시작 시간</label>
                     <input type="text" disabled className="product-input" value={'경매 등록 시간으로 설정됩니다.'} onChange={handleChange} />
                     <label className="product-label">종료 시간</label>
-                    <input
-                        type="datetime-local"
-                        id="endTime"
-                        name="endTime"
-                        className="product-input"
-                        value={formData.endTime}
-                        onChange={handleChange}
-                        min={oneDayLaterString}  // 최소값 현재 시간
-                        max={twoDaysLaterString}  // 최대값 2일 후의 시간
+                    <DatePicker
+                    selected={endTime}
+                    onChange={(date) => {
+                        setEndTime(date);
+                        setFormData(prev => ({
+                        ...prev,
+                        endTime: date.toISOString().slice(0,16)
+                        }));
+                    }}
+                    showTimeSelect
+                    timeFormat="HH:mm"
+                    timeIntervals={15}
+                    dateFormat="yyyy-MM-dd HH:mm"
+                    minDate={oneDayLater}
+                    maxDate={twoDaysLater}
+                    locale={ko}
+                    calendarClassName="custom-calendar"
+                    popperPlacement="bottom-start"
+                    customInput={<CustomInput />}
+                    renderCustomHeader={({
+                        date,
+                        changeYear,
+                        changeMonth,
+                        decreaseMonth,
+                        increaseMonth,
+                        prevMonthButtonDisabled,
+                        nextMonthButtonDisabled
+                    }) => (
+                        <div style={{ display: "flex", justifyContent: "space-between", margin: 10 }}>
+                        <button onClick={decreaseMonth} disabled={prevMonthButtonDisabled}>{'<'}</button>
+                        <select
+                            value={date.getFullYear()}
+                            onChange={({ target: { value } }) => changeYear(value)}
+                        >
+                            {[2024, 2025, 2026].map((year) => (
+                            <option key={year} value={year}>{year}년</option>
+                            ))}
+                        </select>
+
+                        <select
+                            value={date.getMonth()}
+                            onChange={({ target: { value } }) => changeMonth(value)}
+                        >
+                            {["1월", "2월", "3월", "4월", "5월", "6월",
+                            "7월", "8월", "9월", "10월", "11월", "12월"].map((month, index) => (
+                            <option key={month} value={index}>{month}</option>
+                            ))}
+                        </select>
+                        <button onClick={increaseMonth} disabled={nextMonthButtonDisabled}>{'>'}</button>
+                        </div>
+                    )}
                     />
+
             </fieldset>
 
             <fieldset className="product-fieldset">

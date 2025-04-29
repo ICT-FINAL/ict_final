@@ -85,7 +85,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 70px;
+    font-size: 50px;
     font-weight: 800;
 }
 
@@ -158,7 +158,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 2rem;
     font-weight: bold;
     text-align: center;
     margin-bottom: 50px;
@@ -172,13 +171,13 @@
 }
 
 .info-benefit .info, .info-benefit .benefit {
-    font-size: 2rem;
+    font-size: 1.5rem;
     color: #333;
 }
 
 .info-benefit .highlight {
     color: #FFCB46;
-    font-size: 3rem;
+    font-size: 2rem;
     margin-left: 5px;
     margin-right: 5px;
 }
@@ -474,6 +473,111 @@
     z-index: 2;
     transition: transform 0.3s ease-in-out;
 }
+
+/* 서브메뉴 디자인 */
+.submenu-list {
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.submenu-list h2 {
+    margin: 0 0 50px 0;
+}
+
+.submenu-list .no-events {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #E5C1C5;
+    font-weight: bold;
+}
+
+.submenu-list > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    text-align: center;
+    justify-content: flex-start;
+}
+
+.submenu-item {
+    position: relative;
+    flex: 0 0 22%;
+    border-radius: 10px;
+    padding: 10px;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease-in-out;
+    box-sizing: border-box;
+}
+
+.submenu-item img {
+    width: 35% !important;
+    height: auto !important;
+    border-radius: 10px;
+    display: block;
+    margin: 0 auto;
+}
+
+.submenu-item:hover img {
+    opacity: 0.8;
+}
+
+.submenu-item > div {
+    font-size: 1rem;
+    color: #333;
+    margin-top: 5px;
+}
+
+.submenu-item > div:nth-child(2) {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.submenu-item > div:nth-child(3) {
+    font-size: 0.9rem;
+    color: #888;
+}
+
+.submenu-notice {
+    font-size: 1.2rem;
+    color: #333;
+    font-weight: 500;
+    padding: 10px;
+    margin: 20px 0;
+    text-align: left;
+    border-left: 4px solid #6ECEDA;
+    font-family: 'Gowun Batang', serif;
+    display: inline-block;
+    width: 100%;
+    max-width: 400px;
+    transition: none; 
+}
+
+.submenu-notice:hover {
+    background-color: transparent;
+    color: #333;
+    border-left: 4px solid #6ECEDA;
+}
+
+.delete-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: transparent;
+    border: none;
+    font-size: 1.2rem;
+    color: #FF4D4D; /* 빨간색 */
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.delete-btn:hover {
+    color: #FF1A1A; 
+}
+
+
+
+
 /* 여기부터 write */
 
 .event-write-container {

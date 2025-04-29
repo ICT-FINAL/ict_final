@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useInView } from "react-intersection-observer";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import first from '../../img/1.png';
@@ -8,8 +8,10 @@ import second from '../../img/2.png';
 import third from '../../img/3.png';
 import fourth from '../../img/4.png';
 import fifth from '../../img/5.png';
+import { setModal } from "../../store/modalSlice";
 
 function EventIndex() {
+    const modal = useSelector((state)=>state.modal);
     const [activeTab, setActiveTab] = useState("ongoing");
     const [visibleEvents, setVisibleEvents] = useState(3);
     const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -21,6 +23,8 @@ function EventIndex() {
     const serverIP = useSelector((state) => state.serverIP);
     const [ongoingEvents, setOngoingEvents] = useState([]);
     const [endedEvents, setEndedEvents] = useState([]);
+
+    const dispatch = useDispatch();
 
     useEffect(() => {
         const now = new Date();
@@ -96,9 +100,9 @@ function EventIndex() {
         setVisibleEvents(3);
     }, [activeTab, currentMonth, currentYear]);
 
-    const moveEvent = (tar) => {
+    const moveEvent = (tar,activeTab) => {
         if (tar.state === 'NOCOUPON') {
-            navigate('/event/info', { state: tar });
+            navigate(`/event/info?activeTab=${activeTab}`, { state: tar });
         } else {
             navigate(tar.redirectUrl);
         }
@@ -131,6 +135,58 @@ function EventIndex() {
             clearInterval(interval);
         };
     }, []);
+
+    const handleEditClick = (id) => {
+        if (id) {
+            navigate(`/event/edit/${id}`);
+        } else {
+            alert("이벤트 ID가 없습니다.");
+        }
+    };
+
+    const handleNoEditClick = () => {
+        alert("종료된 이벤트는 수정할 수 없습니다.");
+    }
+
+    // 이벤트 삭제
+    useEffect(()=>{
+        if(modal.delCheck==='event') {
+            axios.get(`${serverIP.ip}/event/delEvent?eventId=${modal.selected.split('-')[2]}`,{
+                headers: { Authorization: `Bearer ${user.token}` } 
+            })
+            .then(res=>{
+                console.log(res.data);
+                // 전체 리스트 다시가져오기 
+                const now = new Date();
+                now.setHours(0, 0, 0, 0);
+            
+                axios.get(`${serverIP.ip}/event/getEventList`)
+                    .then(res => {
+                        const ongoing = res.data.filter(event => {
+                            const end = new Date(event.endDate);
+                            return end >= now;
+                        }).map(event => ({
+                            ...event,
+                            src: `${serverIP.ip}/uploads/event/${event.id}/${event.filename}`
+                        }));
+            
+                        const ended = res.data.filter(event => {
+                            const end = new Date(event.endDate);
+                            return end < now;
+                        }).map(event => ({
+                            ...event,
+                            src: `${serverIP.ip}/uploads/event/${event.id}/${event.filename}`
+                        }));
+            
+                        setOngoingEvents(ongoing);
+                        setEndedEvents(ended);
+                        dispatch(setModal({delCheck:''}));
+                    })
+                    .catch(err => console.log(err));
+            })
+            .catch(err => console.log(err));
+        }
+    },[modal.delCheck])
 
     return (
         <div className="event-container">
@@ -218,13 +274,21 @@ function EventIndex() {
                 {visibleList.length > 0 ? (
                     visibleList.map((event) => (
                         <div className="event-item" key={event.id}>
-                            <div onClick={() => moveEvent(event)} className={`event-banner ${activeTab === "ended" ? "ended" : ""}`}>
+                            <div onClick={() => moveEvent(event, activeTab)} className={`event-banner ${activeTab === "ended" ? "ended" : ""}`} style={{cursor:'pointer'}}>
                                 <img src={event.src} alt={event.eventName} />
                                 {event.state === "COUPON" && <div className="coupon-badge">🎉 쿠폰 지급!</div>}
                             </div>
                             <div className="event-details">
-                                <div className="event-date">
+                                <div className="event-date" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     📅 {event.startDate.substring(0, 10)} ~ {event.endDate.substring(0, 10)}
+
+                                    {user && user.user.authority === "ROLE_ADMIN" && event.state === "COUPON" && 
+                                        <div>
+                                            {activeTab !== "ended" && <input type='button' value='수정' className="edit-button" style={{marginRight:'5px'}} onClick={() => handleEditClick(event.id, activeTab)}/>}
+                                            {activeTab === "ended" && <input type='button' value='수정' className="edit-button" style={{marginRight:'5px'}} onClick={handleNoEditClick}/>}
+                                            <input type='button' value='삭제' className="del-button" id={`event-delll-${event.id}`} />
+                                        </div>
+                                    }
                                 </div>
                                 <div className="event-title">{event.eventName}</div>
                             </div>

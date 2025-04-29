@@ -243,7 +243,8 @@ function AuctionRoom() {
                                     </div>
                                 </li>
                                 <li style={{ marginTop:'10px',marginBottom:'20px', color:'#444'}}>
-                                    {formatDateTime(roomInfo.createdAt)}
+                                    <strong>시작:</strong>&nbsp; {formatDateTime(roomInfo.createdAt)}<br/>
+                                    <strong>종료:</strong>&nbsp; {formatDateTime(roomInfo.endTime)}
                                 </li>
                                 <li>
                                     <ul className='product-info-main-box'>

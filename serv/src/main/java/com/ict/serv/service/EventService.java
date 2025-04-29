@@ -31,4 +31,12 @@ public class EventService {
     public List<Melon> getMelonList(){
         return melonRepository.findByTodayOrderByScoreDesc();
     }
+
+    public Optional<Event> selectEventInfo(Long id) {
+        return repo.findById(id);
+    }
+
+    public void delEvent(Long eventId) {
+        repo.deleteById(eventId);
+    }
 }

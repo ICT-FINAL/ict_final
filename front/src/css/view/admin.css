@@ -224,6 +224,48 @@
     text-align:center;
 }
 
+.admin-seller-list{
+    list-style-type: none;
+    display: flex;
+    margin:0;
+    padding:10px;
+    margin-top:10px;
+}
+
+.admin-seller-list > li{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.admin-seller-list > li:nth-child(1) {
+    width:5%;
+    text-align:center;
+}
+
+.admin-seller-list > li:nth-child(2) {
+    width:10%;
+    text-align:center;
+}
+
+.admin-seller-list > li:nth-child(3) {
+    width:15%;
+    text-align:center;
+}
+
+.admin-seller-list > li:nth-child(4) {
+    width:30%;
+    text-align:center;
+}
+.admin-seller-list > li:nth-child(5) {
+    width:30%;
+    text-align:center;
+}
+.admin-seller-list > li:nth-child(6) {
+    width:10%;
+    text-align:center;
+}
+
 .admin-paging {
     display:flex;
     list-style-type: none;

@@ -10,6 +10,8 @@ import SalesByPeriod from "./SalesByPeriod";
 import SalesByCategory from "./SalesByCategory";
 import AdminMember from "./AdminMember";
 import AdminUserAct from "./AdminUserAct";
+import AdminSettlement from "./AdminSettlement";
+import AdminCoupon from "./AdminCoupon";
 
 function AdminIndex() {
     const location = useLocation();
@@ -23,21 +25,13 @@ function AdminIndex() {
             reportlist: { f_name: "관리자 페이지", l_name: "신고 목록" },
             inquirylist: { f_name: "관리자 페이지", l_name: "문의 목록" },
             edit: { f_name: "관리자 페이지", l_name: "회원 목록" },
-            posts: { f_name: "나의 활동", l_name: "작성한 글" },
-            reviews: { f_name: "나의 활동", l_name: "리뷰 관리" },
-            comments: { f_name: "나의 활동", l_name: "댓글 관리" },
-            reports: { f_name: "나의 활동", l_name: "신고 내역" },
-            inquiries: { f_name: "나의 활동", l_name: "문의 내역" },
-            purchases: { f_name: "거래 내역", l_name: "구매 기록" },
-            sales: { f_name: "거래 내역", l_name: "판매 기록" },
-            basket: { f_name: "보관함", l_name: "장바구니" },
-            coupons: { f_name: "보관함", l_name: "쿠폰함" },
-            points: { f_name: "보관함", l_name: "적립 내역" },
-            adminmember: { f_name: "통계", l_name: "회원 통계" },
-            adminuseract: { f_name: "통계", l_name: "회원 활동 통계" },
-            salesbycategory: { f_name: "통계", l_name: "상품별 판매 통계" },
-            salesbyperiod: { f_name: "통계", l_name: "기간별 판매 통계" },
-            "delete-account": { f_name: "회원 탈퇴", l_name: "회원 탈퇴" },
+            adminmember: { f_name: "매출관리", l_name: "회원 통계" },
+            adminuseract: { f_name: "매출관리", l_name: "회원 활동 통계" },
+            salesbycategory: { f_name: "매출관리", l_name: "상품별 판매 통계" },
+            salesbyperiod: { f_name: "매출관리", l_name: "기간별 판매 통계" },
+            settlementprocessing: { f_name: "매출관리", l_name: "정산 처리" },
+            sendCoupon: { f_name: "기타 기능", l_name: "쿠폰 지급" },
+
         };
 
         if (pathMap[page]) {
@@ -61,10 +55,12 @@ function AdminIndex() {
                 {path.l_name == '신고 목록' && <AdminReport />}
                 {path.l_name == '문의 목록' && <AdminInquiry />}
                 {path.l_name == '회원 목록' && <AdminEdit />}
-                {path.l_name == '기간별 판매 통계' && <SalesByPeriod />}
-                {path.l_name == '상품별 판매 통계' && <SalesByCategory />}
                 {path.l_name == '회원 통계' && <AdminMember />}
                 {path.l_name == '회원 활동 통계' && <AdminUserAct />}
+                {path.l_name == '기간별 판매 통계' && <SalesByPeriod />}
+                {path.l_name == '상품별 판매 통계' && <SalesByCategory />}
+                {path.l_name == '정산 처리' && <AdminSettlement />}
+                {path.l_name == '쿠폰 지급' && <AdminCoupon />}
             </div>
         </div>
     </>)

@@ -1,16 +1,22 @@
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import './../../css/view/recommend.css';
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import RecommendSpinner from '../../effect/RecommendSpinner';
 import { FaStar } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { setLoginView } from '../../store/loginSlice';
 
 function RecommendIndex() {
     const user = useSelector((state) => state.auth.user);
     const serverIP = useSelector((state) => state.serverIP);
-
-    const youEnd = false;
+    const dispatch = useDispatch();
+    useEffect(()=>{
+        if(!user) {
+            dispatch(setLoginView(true));
+            navigate("/");
+        }
+    },[])
 
     const [loading, setLoading] = useState(true);
     const [priceRange, setPriceRange] = useState('');
@@ -178,8 +184,8 @@ function RecommendIndex() {
                                         item !== "" &&
                                         <div key={index} className={`recommend-product box-${index}`} onClick={() => moveInfo(item)}>
                                             <img className='recommend-product-img' src={`${serverIP.ip}/uploads/product/${item.id}/${item.images[0].filename}`}/>
-                                            <div className={`recommend-product-info info-${index}`}>
-                                                <span style={{ fontSize: "14px", color: "#333" }}>{item.productName}</span> {/* 상품명 */} <br />
+                                            <div className={`recommend-product-info info-${index}`} style={{}}>
+                                                <span style={{ fontSize: "14px", color: "#333", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis" }}>{item.productName}</span> {/* 상품명 */} <br />
 
                                                 {item.discountRate === '' || item.discountRate === 0 ? (
                                                     <span style={{ fontWeight: "700" }}>{item.price.toLocaleString()}원</span> // 할인율이 0%일 때는 기존 가격만 표시

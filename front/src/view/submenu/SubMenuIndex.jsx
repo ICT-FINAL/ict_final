@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useInView } from "react-intersection-observer";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -93,25 +93,66 @@ function SubMenuIndex() {
         setVisibleSubMenus(5);
     }, [activeTab, currentMonth, currentYear]);
 
-    const moveSubMenu = (tar) => {
-        // if (tar.state === 'NOCOUPON') {
-        //     navigate('/submenu/info', { state: tar });
-        // } else {
-        //     navigate(tar.redirectUrl);
-        // }
-    }
+    // 서브메뉴 삭제
+    const dispatch = useDispatch();  // useDispatch를 컴포넌트 내에서 호출
+    const handleSubDelete = (id, event) => {
+        event.stopPropagation(); // 부모 div의 클릭 이벤트가 발생하지 않도록 막음
+
+        if (!window.confirm("정말 삭제하시겠습니까?")) {
+            return;
+        }
+
+        axios.delete(`${serverIP.ip}/submenu/delete/${id}`, {
+            headers: { Authorization: `Bearer ${user.token}` },
+        })
+        .then(response => {
+            // 삭제 성공하면!! 다시 전체 리스트 가져오기
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+            axios.get(`${serverIP.ip}/submenu/getSubMenuList`, {
+                headers: { Authorization: `Bearer ${user.token}` },
+            })
+                .then(res => {
+                    const ongoing = res.data.filter(submenu => {
+                        const end = new Date(submenu.endDate);
+                        return end >= now;
+                    }).map(submenu => ({
+                        ...submenu,
+                        src: `${serverIP.ip}/uploads/submenu/${submenu.id}/${submenu.filename}`
+                    }));
+
+                    const ended = res.data.filter(submenu => {
+                        const end = new Date(submenu.endDate);
+                        return end < now;
+                    }).map(submenu => ({
+                        ...submenu,
+                        src: `${serverIP.ip}/uploads/submenu/${submenu.id}/${submenu.filename}`
+                    }));
+
+                    setOngoingSubMenus(ongoing);
+                    setEndedSubMenus(ended);
+
+                    alert(response.data);
+                })
+                .catch(err => console.log(err));
+        })
+        .catch(err => {
+            console.error(err);
+            alert("삭제 실패하였습니다.");
+        });
+    };
 
     return (
         <div className="event-container">
-            <div className="calendar-nav">
+            <div className="calendar-nav" style={{marginTop:'30px'}}>
                 <button onClick={() => handlePrevMonth()} className="arrow-button">
-                    ‹ {currentMonth === 1 ? currentYear - 1 : currentYear}.{currentMonth === 1 ? 12 : currentMonth - 1}
+                    ‹
                 </button>
                 <span>
                     {currentYear}.{currentMonth.toString().padStart(2, "0")}
                 </span>
                 <button onClick={() => handleNextMonth()} className="arrow-button">
-                    {currentMonth === 12 ? currentYear + 1 : currentYear}.{currentMonth === 12 ? 1 : currentMonth + 1} ›
+                    ›
                 </button>
             </div>
 
@@ -126,23 +167,25 @@ function SubMenuIndex() {
                     <button onClick={() => navigate("/submenu/write")}>서브메뉴 만들기</button>
                 )}
             </div>
-            <div className="event-list">
-                <h2>❇️서브메뉴 리스트</h2>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', textAlign: 'center', justifyContent: 'flex-start' }} >
+
+            <div className="submenu-list">
+                <h2>❇️ 서브메뉴 리스트</h2>
+                <div>
                     {visibleList.length > 0 ? (
                         visibleList.map((submenu) => (
-                            <div onClick={() => moveSubMenu(submenu)} key={submenu.id} style={{ width: 'calc(22%)' }}>
-                                <img style={{ width: '100%' }} src={submenu.src} alt={submenu.subMenuName} />
+                            <div className="submenu-item" key={submenu.id}>
+                                <img src={submenu.src} alt={submenu.subMenuName} />
                                 <div>{submenu.subMenuName}</div>
                                 <div>📅 {submenu.startDate.substring(0, 10)} ~ 📅 {submenu.endDate.substring(0, 10)}</div>
-                                <div></div>
+                                <div className="delete-btn" onClick={(e) => handleSubDelete(submenu.id, e)}>❌</div>
                             </div>
                         ))
                     ) : (
-                        <div className="no-events">📌 해당 월에는 서브메뉴가 없습니다.</div>
+                        <div className="submenu-notice">📌 해당 월에는 서브메뉴가 없습니다.</div>
                     )}
                 </div>
             </div>
+
             <div ref={ref} className="loading-trigger"></div>
         </div >
     );

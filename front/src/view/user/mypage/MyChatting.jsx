@@ -83,6 +83,8 @@ function MyChatting() {
                 <li className={selectedTab === 'default' ? 'selected-menu' : {}} onClick={() => navigate('?tab=default')}>일반 채팅</li>
                 <li className={selectedTab === 'product' ? 'selected-menu' : {}} onClick={() => navigate('?tab=product')}>상품 문의 채팅</li>
             </ul>
+
+            <hr className='menu-divider'/>
             {
                 (selectedTab === 'default' && chatRoomList.length === 0) ||
                 (selectedTab === 'product' && productChatRoomList.length === 0) ? (
@@ -91,14 +93,13 @@ function MyChatting() {
             }
             {
                 (selectedTab === 'default' ? chatRoomList : productChatRoomList).map((room, idx)=>{
-                    const selectedUser = selectedTab === 'default' ?
-                        user.user.id === room.participantA.id ? room.participantB : room.participantA
-                        : room.product.sellerNo.id === room.participantA.id ? room.participantB : room.participantA
+                    const selectedUser = user.user.id === room.participantA.id ? room.participantB : room.participantA
+                        
                     return (
                         <div key={idx} className="chat-room" onClick={()=>navigate(`/product/chat/${room.chatRoomId}`)}
-                            style={room.lastChat.read || room.lastChat.sender.id === user.user.id ? {background: '#f7f7f7'} : {}}>
+                            style={room.lastChat.read || room.lastChat.sender.id === user.user.id ? {background: '#f8f8f8'} : {}}>
                             <img className="chat-user-img" style={{width: '80px', height: '80px'}} src = {selectedUser.profileImageUrl.indexOf('http') !==-1 ? `${selectedUser.profileImageUrl}`:`${serverIP.ip}${selectedUser.profileImageUrl}`} alt=''/>
-                            <div style={{display: 'flex', flexDirection: 'column', paddingLeft: '3%', width: '95%'}}>
+                            <div style={{display: 'flex', flexDirection: 'column', paddingLeft: '3%', width: '85%'}}>
                                 <div>
                                     <span><b>{selectedUser.username}</b></span>
                                     <span className='date'>{getTime(room.lastChat.sendTime)}</span><br/>
@@ -109,7 +110,7 @@ function MyChatting() {
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
-                                    width: '90%'
+                                    width: '100%'
                                 }}>
                                     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '90%' }}>
                                         {room.lastChat.message}

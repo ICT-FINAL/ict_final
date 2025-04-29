@@ -49,9 +49,9 @@ import RecommendIndex from './recommend/RecommendIndex';
 import EventIndex from './event/EventIndex';
 import EventWrite from './event/EventWrite';
 import EventInfo from './event/EventInfo';
+import EventEdit from './event/EventEdit';
 import SubMenuIndex from './submenu/SubMenuIndex';
 import SubMenuWrite from './submenu/SubMenuWrite';
-import SubMenuInfo from './submenu/SubMenuInfo';
 import CommunityIndex from './community/CommunityIndex';
 import UserInfo from './user/UserInfo';
 
@@ -169,26 +169,11 @@ function Body() {
     var item4 = new Item("chat", "fas fa-chat-alt", "", "");
     menu.add(item1);
     menu.add(item2);
-    menu.add(item3);
     menu.add(item4);
+    menu.add(item3);
     let homeButton=document.getElementById("home");
     var upButton=document.getElementById("up");
     let chatButton=document.getElementById("chat");
-
-    if (user) {
-      axios.get(`${serverIP.ip}/chat/unreadChatCount`, {
-        headers: { Authorization: `Bearer ${user.token}` }
-      })
-      .then(res=>{
-        if (res.data > 0) {
-          const countIcon = document.createElement("span");
-          countIcon.id = "count-icon";
-          countIcon.textContent = res.data;
-          chatButton.appendChild(countIcon);
-        }
-      })
-      .catch(err=>console.log(err));
-    }
     
     homeButton.addEventListener('click', () => {
       menu.close();
@@ -211,6 +196,34 @@ function Body() {
 
     let clicked = false;
   },[]);
+
+  useEffect(()=>{
+    if (user) {
+      axios.get(`${serverIP.ip}/chat/unreadChatCount`, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      })
+      .then(res=>{
+        const chatElement = document.getElementById("chat");
+        const existingIcon = document.getElementById("count-icon");
+
+        if (res.data > 0) {
+          if (!existingIcon) {
+            const countIcon = document.createElement("span");
+            countIcon.id = "count-icon";
+            countIcon.textContent = res.data;
+            chatElement.appendChild(countIcon);
+          } else {
+            existingIcon.textContent = res.data;
+          }
+        } else {
+          if (existingIcon) {
+            chatElement.removeChild(existingIcon);
+          }
+        }
+      })
+      .catch(err=>console.log(err));
+    }
+  },[location.pathname]);
 
   return (<>
     {modal.isOpen && modal.selected == '1' && <ModalIndex />}
@@ -278,12 +291,12 @@ function Body() {
       <Route path='/event/*' element={<EventIndex />}></Route>
       <Route path='/event/write' element={<EventWrite />}></Route>
       <Route path='/event/info' element={<EventInfo />}></Route>
+      <Route path='/event/edit/:id' element={<EventEdit />}></Route>
       <Route path='/event/dailycheck' element={<DailyCheck />}></Route>
       <Route path='/event/melongame' element={<MelonGame/>}></Route>
 
       <Route path='/submenu/*' element={<SubMenuIndex />}></Route>
       <Route path='/submenu/write' element={<SubMenuWrite />}></Route>
-      <Route path='/submenu/info' element={<SubMenuInfo />}></Route>
 
       <Route path='/community/*' element={<CommunityIndex />}></Route>
 

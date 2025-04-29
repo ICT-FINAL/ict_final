@@ -198,13 +198,16 @@ function ProductSearch() {
                         key={`${product.id}-${index}`}
                         className="product-card"
                         ref={index === products.length - 1 ? ref : null}
-                        style={{minWidth:0}}
+                        style={{minWidth:0, position: 'relative'}}
                     >
                         <img style={{ cursor: 'pointer' }} onClick={() => moveInfo(product)}
                             src={`${serverIP.ip}/uploads/product/${product.id}/${product.images[0]?.filename}`}
                             alt={product.productName}
-                            className="w-full h-40 object-cover"
+                            className={`user-product-img ${product.state === 'SOLDOUT' ? 'soldout' : ''}`}
                         />
+                        {product.state === "SOLDOUT" && (
+                            <div className="soldout-badge">품절</div>
+                        )}
                         <div style={{ cursor: 'pointer' }} onClick={() => moveInfo(product)} className="product-info">
                             <span style={{ fontSize: "14px", color: "#333" }}>{product.productName}</span> {/* 상품명 */} <br />
 

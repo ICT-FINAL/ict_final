@@ -123,6 +123,7 @@ public class InteractController {
         response.setImgUrl(user.getProfileImageUrl());
         response.setEmail(user.getEmail());
         response.setUsername(user.getUsername());
+        response.setInfoText(user.getInfoText());
 
         return response;
     }

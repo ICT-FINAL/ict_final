@@ -504,7 +504,7 @@ function ProductInfo() {
                                     <li>
                                     </li>
                                     {(loc.state.product.discountRate !== 0 || selectedCoupon !== 0) &&
-                                        <li className='info-coupon-box' style={{ color: '#d34141', border: '1px solid #ddd', width: '76%', margin: '15px 0px 15px 20px', borderRadius: '10px' }}>
+                                        <li className='info-coupon-box' style={{ color: '#d34141', border: '1px solid #ddd', width: '90%', margin: '15px 0px 15px 20px', borderRadius: '10px' }}>
                                             {loc.state.product.discountRate !== 0 && <div>상품 할인가: -{formatNumberWithCommas(loc.state.product.discountRate * loc.state.product.price / 100)}원</div>}
                                             {loc.state.product.shippingFee !== 0 && <div style={{ color: '#0288D1' }}>배송비: +{formatNumberWithCommas(loc.state.product.shippingFee)}원</div>}
                                             {selectedCoupon !== 0 && <div>쿠폰: -{selectedCoupon}원</div>}
@@ -539,7 +539,7 @@ function ProductInfo() {
                                     </li>
                                     {selectedItems.length > 0 && (
                                         <li style={{ marginTop: '20px', borderTop: '1px solid #ddd', paddingTop: '15px' }}>
-                                            <strong>선택된 옵션:</strong>
+                                            <strong>선택한 옵션:</strong>
                                             <ul>
                                                 {selectedItems.map((item, index) => {
                                                     const basePrice = loc.state.product.discountRate === 0
@@ -659,7 +659,7 @@ function ProductInfo() {
                                     구매하기
                                 </button></>
                                 }
-                            </li>: <>{ loc.state.product.state!=='PAUSE' &&
+                            </li>: <>{ loc.state.product.state!=='PAUSE' && user &&
                             <li style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <button className='product-buy-button' onClick={() => moveEdit()}>
                                     상품수정
