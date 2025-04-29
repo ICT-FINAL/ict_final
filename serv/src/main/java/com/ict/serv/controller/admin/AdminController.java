@@ -307,7 +307,11 @@ public class AdminController {
 
     @PostMapping("/handleSettle")
     public String handleSettle(@RequestBody Map<String, List<Orders>> ordersMap) {
-        List<Orders> ordersList = ordersMap.get("orders");
+        List<Orders> ordersList = new ArrayList<>();
+        for(Orders odd : ordersMap.get("orders")){
+            ordersList.add(orderRepository.findById(odd.getId()).get());
+        }
+
         for(Orders orders: ordersList) {
             orders.setShippingState(ShippingState.SETTLED);
             orderRepository.save(orders);
