@@ -77,6 +77,7 @@ function ProductSearch() {
                 }
             )
             .then((res) => {
+                console.log(res.data);
                 const { pvo, productList } = res.data;
                 setTotalPage(pvo.totalPage);
 
@@ -132,7 +133,7 @@ function ProductSearch() {
                             <option key={index} value={target}>{target}</option>
                         ))}
                     </select>
-
+                        
                     <button
                         onClick={() => dispatch(setModal({
                             ...modal,
@@ -170,6 +171,13 @@ function ProductSearch() {
                             onChange={changeSearchWord}
                         />
                     </div>
+                </div>
+                <div className="in-hashtag-box" style={{marginBottom:'20px'}}>
+                    {search.eventCategory && <span id='search-hashtag'>#{search.eventCategory}</span>}
+                    {search.targetCategory && <span id='search-hashtag'>#{search.targetCategory}</span>}
+                    {search.productCategory && search.productCategory.map((item, index) => (
+                        <span key={index} id='search-hashtag'>#{item}</span>
+                    ))}
                 </div>
                 <ul className='search-sort'>
                     {["최신순", "찜 많은순", "후기 많은 순", "주문 많은 순", "할인율 높은 순", "높은 가격 순", "낮은 가격 순"].map((item, index) => (

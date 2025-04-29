@@ -8,9 +8,7 @@ import com.ict.serv.entity.user.Address;
 import com.ict.serv.entity.user.AddressState;
 import com.ict.serv.entity.user.Guestbook;
 import com.ict.serv.entity.user.User;
-import com.ict.serv.service.AuthService;
-import com.ict.serv.service.InteractService;
-import com.ict.serv.service.MypageService;
+import com.ict.serv.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,6 +38,8 @@ public class MypageController {
     private final MypageService service;
     private final InteractService interactService;
     private final AuthService authService;
+    private final ProductService productService;
+    private final ReviewService reviewService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -82,15 +82,25 @@ public class MypageController {
     }
 
     @GetMapping("/myInfoCount")
-    public Map<String, Integer> myInfoCount(User user) {
+    public Map<String, Object> myInfoCount(User user) {
         int followerCount = interactService.getFollowerList(user.getId()).size();
         int followingCount = interactService.getFollowingList(user.getId()).size();
         int wishCount = service.getWishCount(user.getId());
 
-        Map<String, Integer> info = new HashMap<>();
+        List<Product> productList = productService.selectProductByUser(user);
+        int reviewCount = reviewService.countAllByProductList(productList);
+
+        float total = 0;
+        for(Product product:productList) {
+            total += product.getRating();
+        }
+
+        Map<String, Object> info = new HashMap<>();
         info.put("followerCount", followerCount);
         info.put("followingCount", followingCount);
         info.put("wishCount", wishCount);
+        info.put("rating", reviewCount == 0 ? 0 : total / reviewCount);
+        info.put("reviewCount", reviewCount);
 
         return info;
     }

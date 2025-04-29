@@ -97,7 +97,7 @@ public class InteractService {
         return user_point_repo.countIdByUserId(user.getId());
     }
     public List<UserPoint> getAllPointList(CouponPagingVO pvo,User user){
-        return user_point_repo.findByUserId(user.getId(), PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+        return user_point_repo.findByUserIdOrderByIdDesc(user.getId(), PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
     }
 
     public List<Coupon> getAllCouponList(CouponPagingVO pvo, User user){

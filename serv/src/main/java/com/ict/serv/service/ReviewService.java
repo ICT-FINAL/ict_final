@@ -83,4 +83,7 @@ public class ReviewService {
         return reviews; // 최종적으로 각 상품 ID에 대한 리뷰 리스트를 반환
     }
 
+    public int countAllByProductList(List<Product> productList) {
+        return repository.countByProductIn(productList);
+    }
 }
