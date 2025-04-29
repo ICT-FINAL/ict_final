@@ -150,8 +150,6 @@ public class OrderController {
                     }
                     interactService.sendMessage(msg);
                 }
-
-
                 return "ok";
             } else {
                 return "err2";
