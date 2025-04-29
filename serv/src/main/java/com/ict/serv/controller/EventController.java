@@ -116,14 +116,86 @@ public class EventController {
 
     @GetMapping("/edit/{id}")
     public Optional<Event> edit(@PathVariable("id") Long id) {
-
-        System.out.println("=======================");
-        System.out.println(id);
-        System.out.println("=======================");
-
         Optional<Event> event = eventService.selectEventInfo(id);
-
         return event;
+    }
+
+    @PostMapping("/editForm")
+    @Transactional(rollbackFor = {RuntimeException.class, SQLException.class})
+    public ResponseEntity<String> editForm(Event eventEdit, MultipartFile file, @AuthenticationPrincipal UserDetails userDetails) {
+
+        try{
+            Optional<Event> originEvent = eventService.selectEventInfo(eventEdit.getId());
+
+            /* start : 기존 썸네일 이미지가 아닌 새로운 썸네일 이미지로 수정했을때 */
+            String uploadDir = System.getProperty("user.dir") + "/uploads/event/" + eventEdit.getId();
+            File dir = new File(uploadDir);
+            if (!dir.exists()) {
+                dir.mkdirs(); // 폴더 없으면 만들어주기
+            }
+            if (file != null && !file.isEmpty()) {
+                // 1. 기존 파일 삭제
+                File[] existingFiles = dir.listFiles();
+                if (existingFiles != null) {
+                    for (File existingFile : existingFiles) {
+                        if (existingFile.isFile()) {
+                            existingFile.delete();
+                        }
+                    }
+                }
+                // 2. 새 파일 저장
+                String savePath = uploadDir + "/" + file.getOriginalFilename();
+                file.transferTo(new File(savePath));
+
+                originEvent.get().setFilename(file.getOriginalFilename());
+            }
+            /* end : 기존 썸네일 이미지가 아닌 새로운 썸네일 이미지로 수정했을때 */
+
+
+            originEvent.get().setEventName(eventEdit.getEventName());
+            originEvent.get().setStartDate(eventEdit.getStartDate());
+            originEvent.get().setEndDate(eventEdit.getEndDate());
+            originEvent.get().setContent(eventEdit.getContent());
+            originEvent.get().setRedirectUrl(eventEdit.getRedirectUrl());
+
+            eventService.saveEvent(originEvent.get());
+
+            return ResponseEntity.ok("eventEditOk");
+        } catch (Exception e) {
+            e.printStackTrace();
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("이벤트 수정 실패");
+        }
+
+    }
+
+    @GetMapping("/delEvent")
+    public ResponseEntity<String> delEvent(Long eventId){
+        try {
+            // 1. DB에서 이벤트 삭제
+            eventService.delEvent(eventId);
+
+            // 2. 파일 삭제
+            String deleteDirPath = System.getProperty("user.dir") + "/uploads/event/" + eventId;
+            File deleteDir = new File(deleteDirPath);
+
+            if (deleteDir.exists() && deleteDir.isDirectory()) {
+                File[] files = deleteDir.listFiles();
+                if (files != null) {
+                    for (File file : files) {
+                        if (file.isFile()) {
+                            file.delete(); // 파일 삭제
+                        }
+                    }
+                }
+                deleteDir.delete(); // 폴더 자체도 삭제 (비어있어야 삭제 가능)
+            }
+
+            return ResponseEntity.ok("delEventOk");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("delEventFail");
+        }
     }
 
 }

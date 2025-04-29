@@ -259,7 +259,7 @@ function Main() {
                                     📅 {item.startDate.substring(0, 10)} ~ 📅 {item.endDate.substring(0, 10)}
                                 </div>
                                 {item.state === "COUPON" && <div className="main-coupon-badge">🎉 쿠폰 지급!</div>}
-                                <div className="event-button" onClick={() => moveToEvent(item)}>자세히보기 ▶</div>
+                                <div className="event-button" onClick={() => moveToEvent(item)}>👀 자세히보기 ➔</div>
                             </div>
 
                         </div>

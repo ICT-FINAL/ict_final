@@ -170,8 +170,8 @@ function Body() {
     var item4 = new Item("chat", "fas fa-chat-alt", "", "");
     menu.add(item1);
     menu.add(item2);
-    menu.add(item3);
     menu.add(item4);
+    menu.add(item3);
     let homeButton=document.getElementById("home");
     var upButton=document.getElementById("up");
     let chatButton=document.getElementById("chat");

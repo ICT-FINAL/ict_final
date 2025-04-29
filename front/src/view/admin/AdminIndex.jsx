@@ -11,6 +11,7 @@ import SalesByCategory from "./SalesByCategory";
 import AdminMember from "./AdminMember";
 import AdminUserAct from "./AdminUserAct";
 import AdminSettlement from "./AdminSettlement";
+import AdminCoupon from "./AdminCoupon";
 
 function AdminIndex() {
     const location = useLocation();
@@ -29,6 +30,7 @@ function AdminIndex() {
             salesbycategory: { f_name: "매출관리", l_name: "상품별 판매 통계" },
             salesbyperiod: { f_name: "매출관리", l_name: "기간별 판매 통계" },
             settlementprocessing: { f_name: "매출관리", l_name: "정산 처리" },
+            sendCoupon: { f_name: "기타 기능", l_name: "쿠폰 지급" },
 
         };
 
@@ -58,6 +60,7 @@ function AdminIndex() {
                 {path.l_name == '기간별 판매 통계' && <SalesByPeriod />}
                 {path.l_name == '상품별 판매 통계' && <SalesByCategory />}
                 {path.l_name == '정산 처리' && <AdminSettlement />}
+                {path.l_name == '쿠폰 지급' && <AdminCoupon />}
             </div>
         </div>
     </>)

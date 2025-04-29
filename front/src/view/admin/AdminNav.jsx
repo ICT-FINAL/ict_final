@@ -36,7 +36,12 @@ function AdminNav({ path }) {
                 <li onClick={() => navigate("/admin/settlementprocessing")} style={path.l_name === "정산 처리" ? clickedStyle : {}}>
                     <span style={path.l_name === "정산 처리" ? clickedStyle2 : {}}>정산 처리</span>
                 </li>
-
+            </ul>
+            <ul>
+                <li>기타 기능</li>
+                <li onClick={() => navigate("/admin/sendCoupon")} style={path.l_name === "쿠폰 지급" ? clickedStyle : {}}>
+                    <span style={path.l_name === "쿠폰 지급" ? clickedStyle2 : {}}>쿠폰 지급</span>
+                </li>
             </ul>
 
         </div>

@@ -273,7 +273,21 @@ function MyPurchases() {
                                                 🚚 배송 중
                                                 </span>
                                             )}
-                                            {order.shippingState === 'FINISH' || order.shippingState === 'SETTLED'  && (
+                                            {order.shippingState === 'FINISH' && (
+                                                <>
+                                                    <span style={{ color: '#28a745', fontWeight: '600' }}>
+                                                    ✅ 구매 확정
+                                                    </span>
+                                                    {
+                                                        !isReviewWritten[order.productId] &&
+                                                        <span onClick={()=>moveInfo(order.productId, 'review')} style={{background: 'rgb(40, 167, 69)', borderRadius: '5px', marginLeft: '10px', padding: '0 7px 0 5px', color: '#fff', cursor: 'pointer'}}>
+                                                        📝 리뷰 쓰기
+                                                        </span>
+                                                    }
+                                                    
+                                                </>
+                                            )}
+                                            {order.shippingState === 'SETTLED' && (
                                                 <>
                                                     <span style={{ color: '#28a745', fontWeight: '600' }}>
                                                     ✅ 구매 확정
