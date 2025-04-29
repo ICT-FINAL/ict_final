@@ -147,9 +147,9 @@ function ProductEdit() {
           subCategories: product.productCategory || "",
           detail: product.detail || "",
           price: product.price || "",
-          quantity: product.quantity || "",
-          discountRate: product.discountRate || "",
-          shippingFee: product.shippingFee || "",
+          quantity: product.quantity || 0,
+          discountRate: product.discountRate || 0,
+          shippingFee: product.shippingFee || 0,
           options: options.map(option => ({
             mainOptionName: option.optionName,
             quantity: option.subOptionCategories.reduce((acc, cur) => acc + (cur.quantity || 0), 0),

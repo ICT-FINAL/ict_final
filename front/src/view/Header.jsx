@@ -141,7 +141,6 @@ function Header() {
     const movePage = (where) => {
         dispatch(setMenuModal(false));
         navigate(where);
-        console.log(where);
     }
 
     const getRecentSearch = ()=>{
