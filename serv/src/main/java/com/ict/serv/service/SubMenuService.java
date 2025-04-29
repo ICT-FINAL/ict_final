@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,5 +18,13 @@ public class SubMenuService {
 
     public List<SubMenu> getAllSubMenu() {
         return repo.findAllByOrderByStartDateDesc();
+    }
+
+    public Optional<SubMenu> getSubMenuById(Long id) {
+        return repo.findById(id);
+    }
+
+    public void deleteSubMenu(Long id) {
+        repo.deleteById(id);
     }
 }

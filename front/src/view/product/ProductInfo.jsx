@@ -26,10 +26,24 @@ function ProductInfo() {
     const [addBasketItems, setAddBasketItems] = useState(null);
     const [isSubOptionRegistered, setIsSubOptionRegistered] = useState(false);
     const [totalQuantity, setTotalQuantity] = useState(0);
+    const [reviewWrite, setReviewWrite] = useState(false);
 
     const dispatch = useDispatch();
 
+    const reviewRef = useRef(null);
+    const downProduct = () =>{
+        const isConfirmed = window.confirm("정말로 상품을 내리시겠습니까?\n내린 상품은 관리자에게 문의하여 재등록 가능합니다.");
+        if (!isConfirmed) return;
+        if(user)
+            axios.get(`${serverIP.ip}/product/downProduct?id=${loc.state.product.id}`, {
+                headers:{Authorization:`Bearer ${user.token}`}
+            })
+            .then(navigate('/product/search'))
+            .catch(err => console.log(err));
+    }
+
     useEffect(() => {
+        console.log(loc.state.product);
         const headers = user?.token
         ? { Authorization: `Bearer ${user.token}` }
         : {};
@@ -47,14 +61,16 @@ function ProductInfo() {
     // 평균 별점 구하기 
     const [averageStar, setAverageStar] = useState(null);
     useEffect(() => {
+        getAverageStar();
+    }, []);
+    const getAverageStar = () => {
         axios.get(`${serverIP.ip}/review/averageStar?productId=${loc.state.product.id}`)
             .then(res => {
                 console.log(res.data);
                 setAverageStar(res.data.average);
             })
             .catch(err => console.log(err));
-    }, []);
-
+    }
     // 별점 UI 렌더링 함수
     const renderStars = (average) => {
         return (
@@ -318,13 +334,13 @@ function ProductInfo() {
     };
 
     const inquiry = () => {
-        axios.get(`${serverIP.ip}/chat/createChatRoom?productId=${loc.state.product.id}`, {
+        axios.get(`${serverIP.ip}/chat/createChatRoom?userId=${loc.state.product.sellerNo.id}&productId=${loc.state.product.id}`, {
             headers: { Authorization: `Bearer ${user.token}` }
         })
-            .then(res => {
-                console.log("roomId", res.data);
-                navigate(`/product/chat/${res.data}`)
-            })
+        .then(res => {
+            console.log("roomId", res.data);
+            navigate(`/product/chat/${res.data}`)
+        })
     }
 
     const openMessage = (wh, name) => {
@@ -335,6 +351,16 @@ function ProductInfo() {
     // changMenu 상태 추가 (상세정보, 리뷰 등등 탭에 들어갈 메뉴들)
     const [changeMenu, setChangeMenu] = useState("detail");
     useEffect(() => {
+        if (loc.state.changeMenu !== undefined && loc.state.changeMenu === 'review') {
+            setReviewWrite(true);
+            setChangeMenu('review');
+
+            setTimeout(() => {
+                if (reviewRef.current) {
+                    reviewRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 100);
+        }
         const savedMenu = localStorage.getItem("changeMenu");
         if (savedMenu) {
             setChangeMenu(savedMenu);
@@ -346,6 +372,10 @@ function ProductInfo() {
         setChangeMenu(menuName);
         localStorage.setItem("changeMenu", menuName); // 현재 메뉴 저장
     };
+
+    const moveEdit = () => {
+        navigate('/product/edit', {state:{product:loc.state.product, options:options, images: loc.state.product.images}});
+    }
 
     return (
         <>
@@ -383,7 +413,7 @@ function ProductInfo() {
                         }}>
                             {loc.state.product.shippingFee === 0 ? "🚚 무료배송" : `배송비 ${loc.state.product.shippingFee}원`} {/* 배송비 */}
                         </div>
-                        {totalQuantity === 0 &&
+                        {loc.state.product.state === 'SOLDOUT' &&
                             <div style={{
                                 marginTop: "5px", padding: "4px 8px", display: "inline-block",
                                 marginLeft: '10px',
@@ -396,10 +426,23 @@ function ProductInfo() {
                                 품절
                             </div>
                         }
+                        {loc.state.product.state === 'PAUSE' &&
+                            <div style={{
+                                marginTop: "5px", padding: "4px 8px", display: "inline-block",
+                                marginLeft: '10px',
+                                borderRadius: "5px", fontSize: "12px", fontWeight: "600",
+                                backgroundColor: 'gray',
+                                color: loc.state.product.shippingFee === 0 ? "white" : "black",
+                                minHeight: "20px",
+                                lineHeight: "20px" // 가운데 정렬
+                            }}>
+                                정지
+                            </div>
+                        }
                         <ul>
                             <li style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <div className='product-profile-box'>
-                                    <img id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' src={loc.state.product.sellerNo.uploadedProfileUrl ? `${serverIP.ip}${loc.state.product.sellerNo.uploadedProfileUrl}` : `${serverIP.ip}${loc.state.product.sellerNo.profileImageUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
+                                    <img id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' src={loc.state.product.sellerNo.uploadedProfileUrl ? `${serverIP.ip}${loc.state.product.sellerNo.uploadedProfileUrl}` : `${loc.state.product.sellerNo.kakaoProfileUrl.indexOf('http')===-1 ? `${serverIP.ip}${loc.state.product.sellerNo.kakaoProfileUrl}`:loc.state.product.sellerNo.kakaoProfileUrl }`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
                                     <div id={`mgx-${loc.state.product.sellerNo.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{loc.state.product.sellerNo.username} &gt;</div>
                                 </div>
                                 {/* 평균 별점 */}
@@ -427,7 +470,7 @@ function ProductInfo() {
                                 <div className='product-info-name'>
                                     {loc.state.product.productName}
                                 </div>
-                                {user.user.id !== loc.state.product.sellerNo.id &&
+                                {user && user.user.id !== loc.state.product.sellerNo.id &&
                                     <div className='product-wish'>
                                         {!isWish ? (
                                             <div className="wishlist-icon" onClick={() => { addWish() }}>
@@ -606,14 +649,28 @@ function ProductInfo() {
                                     <strong>총 금액:</strong> {formatNumberWithCommas(totalPrice)}원
                                 </div>
                             </li>
+                            { user && user.user.id !== loc.state.product.sellerNo.id ?
                             <li style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                { loc.state.product.state === 'SELL'&&<>
                                 <button className='product-basket-button' onClick={() => addBasket()}>
                                     장바구니
                                 </button>
                                 <button className='product-buy-button' onClick={() => moveBuy()}>
                                     구매하기
+                                </button></>
+                                }
+                            </li>: <>{ loc.state.product.state!=='PAUSE' && user &&
+                            <li style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <button className='product-buy-button' onClick={() => moveEdit()}>
+                                    상품수정
+                                </button>
+                                <button className='product-basket-button' onClick={() => downProduct()}>
+                                    상품내리기
                                 </button>
                             </li>
+                            }
+                            </>
+                            }
                         </ul>
                     </div>
                 </div>
@@ -663,7 +720,7 @@ function ProductInfo() {
                         }
 
                         {changeMenu === "review" && (
-                            <ProductReview />
+                            <ProductReview ref={reviewRef} getAverageStar={getAverageStar} averageStar={averageStar} reviewWrite={reviewWrite} setReviewWrite={setReviewWrite}/>
                         )}
 
                     </div>

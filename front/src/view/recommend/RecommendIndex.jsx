@@ -1,16 +1,22 @@
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import './../../css/view/recommend.css';
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import RecommendSpinner from '../../effect/RecommendSpinner';
 import { FaStar } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { setLoginView } from '../../store/loginSlice';
 
 function RecommendIndex() {
     const user = useSelector((state) => state.auth.user);
     const serverIP = useSelector((state) => state.serverIP);
-
-    const youEnd = false;
+    const dispatch = useDispatch();
+    useEffect(()=>{
+        if(!user) {
+            dispatch(setLoginView(true));
+            navigate("/");
+        }
+    },[])
 
     const [loading, setLoading] = useState(true);
     const [priceRange, setPriceRange] = useState('');
@@ -135,7 +141,7 @@ function RecommendIndex() {
     return (
         <div className='recommend-container'>
             <h2 style={{ textAlign: 'center', fontSize: '28px' }}>
-                💖{user.user.username}님을 위한 추천상품입니다.💝
+                💖{user && user.user.username}님을 위한 추천상품입니다.💝
             </h2>
             <ul className="recommend-sort">
                 <li className={priceRange === '' ? 'active' : ''} onClick={loading ? null :() => handlePriceRangeChange('')}>전체</li>

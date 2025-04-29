@@ -4,13 +4,12 @@ import com.ict.serv.controller.admin.PagingVO;
 import com.ict.serv.dto.UserPwdModDto;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.report.ReportState;
+import com.ict.serv.entity.review.Review;
 import com.ict.serv.entity.user.Address;
 import com.ict.serv.entity.user.AddressState;
 import com.ict.serv.entity.user.Guestbook;
 import com.ict.serv.entity.user.User;
-import com.ict.serv.service.AuthService;
-import com.ict.serv.service.InteractService;
-import com.ict.serv.service.MypageService;
+import com.ict.serv.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -40,6 +39,8 @@ public class MypageController {
     private final MypageService service;
     private final InteractService interactService;
     private final AuthService authService;
+    private final ProductService productService;
+    private final ReviewService reviewService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -82,15 +83,28 @@ public class MypageController {
     }
 
     @GetMapping("/myInfoCount")
-    public Map<String, Integer> myInfoCount(User user) {
+    public Map<String, Object> myInfoCount(User user) {
         int followerCount = interactService.getFollowerList(user.getId()).size();
         int followingCount = interactService.getFollowingList(user.getId()).size();
         int wishCount = service.getWishCount(user.getId());
 
-        Map<String, Integer> info = new HashMap<>();
+        List<Product> productList = productService.selectProductByUser(user);
+        int reviewCount = reviewService.countAllByProductList(productList);
+        List<Review> reviewList = new ArrayList<>();
+        float total = 0;
+        for(Product product:productList) {
+            reviewList.addAll(reviewService.productReviewList(product));
+        }
+        for(Review review: reviewList) {
+            total+= Float.parseFloat(review.getRate());
+        }
+
+        Map<String, Object> info = new HashMap<>();
         info.put("followerCount", followerCount);
         info.put("followingCount", followingCount);
         info.put("wishCount", wishCount);
+        info.put("rating", reviewCount == 0 ? 0 : total / reviewCount);
+        info.put("reviewCount", reviewCount);
 
         return info;
     }
@@ -191,7 +205,7 @@ public class MypageController {
                         uploadedProfileUrl = "/uploads/user/profile/" + fileName;
                     }
 
-                    userInfo.setKakaoProfileUrl(uploadedProfileUrl);
+                    userInfo.setUploadedProfileUrl(uploadedProfileUrl);
                 }
             }else { // 카카오 로그인이 아니고, 프로필 사진 변경하고 싶을때
                 System.out.println("==================카카오로그인이 아닐때=========================");

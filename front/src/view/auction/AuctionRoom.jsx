@@ -233,7 +233,7 @@ function AuctionRoom() {
                             <ul>
                                 <li style={{ display: 'flex' }}>
                                 <div className='product-profile-box'>
-                                <img id={`mgx-${roomInfo.auctionProduct.sellerNo.id}`} className='message-who' src={roomInfo.auctionProduct.sellerNo.uploadedProfileUrl ? `${serverIP.ip}${roomInfo.auctionProduct.sellerNo.uploadedProfileUrl}` : `${serverIP.ip}${roomInfo.auctionProduct.sellerNo.profileImageUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
+                                <img id={`mgx-${roomInfo.auctionProduct.sellerNo.id}`} className='message-who' src={roomInfo.auctionProduct.sellerNo.uploadedProfileUrl ? `${serverIP.ip}${roomInfo.auctionProduct.sellerNo.uploadedProfileUrl}` : `${roomInfo.auctionProduct.sellerNo.kakaoProfileUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
                                     <div id={`mgx-${roomInfo.auctionProduct.sellerNo.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{roomInfo.auctionProduct.sellerNo.username} &gt;</div>
                                 </div>
                                 </li>
@@ -243,7 +243,8 @@ function AuctionRoom() {
                                     </div>
                                 </li>
                                 <li style={{ marginTop:'10px',marginBottom:'20px', color:'#444'}}>
-                                    {formatDateTime(roomInfo.createdAt)}
+                                    <strong>시작:</strong>&nbsp; {formatDateTime(roomInfo.createdAt)}<br/>
+                                    <strong>종료:</strong>&nbsp; {formatDateTime(roomInfo.endTime)}
                                 </li>
                                 <li>
                                     <ul className='product-info-main-box'>
@@ -340,14 +341,14 @@ function AuctionRoom() {
                         <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
                     </div>
                     <div className='auction-bottom'>
-                        <div style={{overflow:'hidden', width:'50%'}}><div dangerouslySetInnerHTML={{ __html: roomInfo.auctionProduct.detail }} style={{ width:'100%', marginTop: '30px'}} /></div>
+                        <div style={{overflow:'hidden', width:'50%'}}><div dangerouslySetInnerHTML={{ __html: roomInfo.auctionProduct.detail }} style={{ width:'100%', padding: '30px'}} /></div>
                         <div className='auction-bottom-right'>
                             <ul>
                                 {
                                     bidHistory.map((item, idx) => {
                                         return(<li>
                                             <div className='product-profile-box'>
-                                                <img id={`mgx-${item.user.id}`} className='message-who' src={item.user.uploadedProfileUrl ? `${serverIP.ip}${item.user.uploadedProfileUrl}` : `${serverIP.ip}${item.user.profileImageUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
+                                                {/* <img id={`mgx-${item.user.id}`} className='message-who' src={item.user.uploadedProfileUrl ? `${serverIP.ip}${item.user.uploadedProfileUrl}` : `${item.user.kakaoProfileUrl.indexOf('http')===-1 ? `${serverIP.ip}${item.user.sellerNo.kakaoProfileUrl}`:item.user.sellerNo.kakaoProfileUrl }`} /> */}
                                                <div id={`mgx-${item.user.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{item.user.username} &gt;</div>
                                             </div>
                                             <div>

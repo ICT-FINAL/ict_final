@@ -175,4 +175,5 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
     List<Orders> findAllByProductSellerNoAndShippingState(User user, ShippingState shippingState);
 
 
+    List<Orders> findByShippingState(ShippingState shippingState);
 }

@@ -352,17 +352,16 @@ input.tel {
 }
 .profile-info div {
     margin: 5px;
-    padding: 5px;
 }
 .profile-follow {
     display: flex;
     justify-content: space-around;
     text-align: center;
     border: 1px solid #ccc;
+    border-radius: 10px;
 }
-#follow-btn, #unfollow-btn {
+#follow-btn, #unfollow-btn, #userinfo-chatting {
     display: inline;
-    float: right;
     height: 35px;
     padding: 0 20px;
     background-color: #52a575;
@@ -392,7 +391,6 @@ input.tel {
     color: #419c67;
 }
 .profile-bottom {
-    padding: 30px;
     border: 1px solid #ddd;
     min-width: 500px;
 }
@@ -493,50 +491,4 @@ input.tel {
     font-weight: bold;
     font-size: 18px;
     color: #555;
-}
-
-/* ========== Mypage Product ========== */
-.product-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1%;
-    padding: 10px;
-    justify-content: center;
-    transition: all 1s ease;
-}
-.product-item {
-    width: 100%;
-    max-width: 200px;
-    height: 250px;
-    margin: 0 auto;
-    padding: 10px;
-    background-color: #eee;
-    border-radius: 10px;
-    box-sizing: border-box;
-    cursor: pointer;
-    transition: all 0.5s ease;
-}
-.product-item:hover {
-    background-color: #ccc;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    transform: translateY(-4px);
-}
-@media (max-width: 1500px) {
-    .product-container {
-      grid-template-columns: repeat(3, 1fr);
-    }
-}
-@media (max-width: 1000px) {
-    .product-container {
-      grid-template-columns: repeat(2, 1fr);
-    }
-}
-#product-img {
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-}
-#discount-sticker {
-    top: 200px;
-    left: 50px;
 }

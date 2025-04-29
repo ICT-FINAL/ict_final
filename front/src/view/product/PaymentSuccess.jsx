@@ -26,7 +26,8 @@ const PaymentSuccess = () => {
     const iid = searchParams.get('iid');
     setOrderId(orderIdParam);
     setAmount(amountParam);
-    if(user)
+  
+    if (user) {
       fetch(`${serverIP.ip}/payment/confirm`, {
         method: "POST",
         headers: {
@@ -41,7 +42,13 @@ const PaymentSuccess = () => {
           couponId: couponId
         }),
       })
-        .then((res) => res.json())
+        .then(async (res) => {
+          if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.error || "결제 승인 중 에러 발생");
+          }
+          return res.json();
+        })
         .then((data) => {
           console.log("결제 성공:", data);
           axios.delete(`${serverIP.ip}/basket/paid/delete`, {
@@ -50,14 +57,21 @@ const PaymentSuccess = () => {
           })
             .then(() => {
               console.log("결제된 장바구니 항목 삭제 완료");
-
             })
             .catch((err) => console.error("삭제 오류:", err));
         })
         .catch((err) => {
           console.error("결제 승인 실패:", err);
+          if (err.message === "quantity_over") {
+            alert("결제 중 재고가 부족해 구매를 완료할 수 없습니다.");
+          } else {
+            alert("결제 승인 중 오류가 발생했습니다.");
+          }
+          navigate("/product/search");
         });
+    }
   }, [searchParams]);
+  
 
   function formatNumberWithCommas(num) {
     return num.toLocaleString();

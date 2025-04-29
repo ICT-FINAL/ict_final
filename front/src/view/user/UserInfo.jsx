@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import CustomerReview from './CustomerReview';
+import { FaStar } from "react-icons/fa";
 
 function UserInfo() {
     const user = useSelector((state) => state.auth.user);
@@ -15,12 +16,14 @@ function UserInfo() {
     const [userinfo, setUserinfo] = useState({});
     const [profileMenu, setProfileMenu] = useState('guestbook');
     const [guestbookList, setGuestbookList] = useState([]);
-    const [productList, setProductList] = useState([]);
+    const [products, setProducts] = useState([]);
     const [replyList, setReplyList] = useState({});
     const [wishCount, setWishCount] = useState(0);
     const [followState, setFollowState] = useState(false);
     const [followerCount, setFollowerCount] = useState(0);
     const [followingCount, setFollowingCount] = useState(0);
+    const [rating, setRating] = useState(0);
+    const [reviewCount, setReviewCount] = useState(0);
 
     useEffect(() => {
         if (user) {
@@ -54,9 +57,12 @@ function UserInfo() {
             }
         })
             .then(res => {
+                console.log(res.data);
                 setFollowerCount(res.data.followerCount);
                 setFollowingCount(res.data.followingCount);
                 setWishCount(res.data.wishCount);
+                setRating(res.data.rating);
+                setReviewCount(res.data.reviewCount);
             })
             .catch(err => console.log(err));
     }
@@ -138,17 +144,40 @@ function UserInfo() {
     }
 
     const getProductList = () => {
-        axios.get(`${serverIP.ip}/mypage/productList/${userNo}`, {
-            headers: {
-                Authorization: `Bearer ${user.token}`
-            }
-        })
-            .then(res => {
-                console.log("판매작품:", res.data);
-                setProductList(res.data);
+        axios
+            .get(
+                `${serverIP.ip}/mypage/productList/${userNo}`,{
+                    headers:{Authorization:`Bearer ${ user && user.token}`}
+                }
+            )
+            .then((res) => {
+                console.log(res.data);
+                const productList = res.data;
+
+                Promise.all(
+                    productList.map(product =>
+                      axios.get(`${serverIP.ip}/review/averageStar?productId=${product.id}`)
+                        .then(res => ({
+                          ...product,
+                          average: res.data.average,
+                          reviewCount: res.data.reviewCount,
+                          reviewContent: res.data.reviewContent
+                        }))
+                        .catch(err => {
+                          console.error(err);
+                          return { ...product, average: 0, reviewCount: 0 };
+                        })
+                    )
+                  ).then(updatedList => {
+                    setProducts(prev => {
+                        return [...prev, ...updatedList]; 
+                      });
+                });
             })
-            .catch(err => console.log(err));
-    }
+            .catch((err) => {
+                console.log(err)
+            });
+    };
 
     const getReplyList = (id) => {
         axios.get(`${serverIP.ip}/mypage/replyList/${id}`, {
@@ -203,12 +232,16 @@ function UserInfo() {
             .catch(err => console.log(err));
     }
 
-    const formatNumberWithCommas = (number) => {
-        if (number === undefined || number === null) {
-            return "0";
-        }
-        return number.toLocaleString();
-    };
+    const openChatting = () => {
+        axios.get(`${serverIP.ip}/chat/createChatRoom?userId=${userNo}`, {
+            headers: { Authorization: `Bearer ${user.token}` }
+        })
+        .then(res => {
+            console.log("roomId", res.data);
+            navigate(`/product/chat/${res.data}`);
+        })
+        .catch(err=>console.log(err));
+    }
 
     return (
         <div className="profile-container" style={loc.state !== null ? { paddingTop: '140px' } : {}}>
@@ -216,15 +249,20 @@ function UserInfo() {
                 {userinfo.imgUrl && <img src={userinfo.imgUrl.indexOf('http') !== -1 ? `${userinfo.imgUrl}` : `${serverIP.ip}${userinfo.imgUrl}`} alt='' width={140} height={140} />}
                 <div className="profile-info">
                     <div style={{ fontWeight: 'bold', fontSize: '1.2em' }}>
-                        <span>{userinfo.username}</span>
-                        {
-                            userNo !== loginNo &&
-                            <button id={followState ? "unfollow-btn" : "follow-btn"} onClick={followUser}>
-                                {followState ? 'Following' : 'Follow'}
-                            </button>
-                        }
+                        <div style={{display: 'flex', justifyContent: 'space-between', height: '45px'}}>
+                            <span>{userinfo.username}</span>
+                            {
+                                userNo !== loginNo &&
+                                <div>
+                                    <button id="userinfo-chatting" onClick={openChatting} style={{marginRight: '10px', background: '#8CC7A5'}}>Chatting</button>
+                                    <button id={followState ? "unfollow-btn" : "follow-btn"} onClick={followUser}>
+                                        {followState ? 'Following' : 'Follow'}
+                                    </button>
+                                </div>
+                            }
+                        </div>
                     </div>
-                    <div>별점(후기개수)</div>
+                    <div><FaStar style={{color: '#FFD700'}}/>{Math.round(rating * 100) / 100} ({reviewCount})</div>
                     <div className="profile-follow">
                         <div onClick={userNo === loginNo ? () => navigate('/mypage/follow?tab=follower') : undefined}
                             style={userNo === loginNo ? { cursor: 'pointer' } : {}}
@@ -324,27 +362,86 @@ function UserInfo() {
                 }
                 {
                     profileMenu === "product" &&
-                    <div className="product-container">
+                    <>
                         {
-                            productList.length === 0 &&
+                            (products.length === 0 || loginNo !== userNo && products.filter(product => product.state === 'SELL').length === 0) ?
                             <div style={{ padding: '20px', textAlign: 'center' }}>등록된 작품이 없습니다.</div>
-                        }
-                        {
-                            productList.map(product => {
-                                return (
-                                    <div key={product.id} className="product-item" onClick={() => { moveInfo(product) }}>
-                                        <img id="product-img" src={`${serverIP.ip}/uploads/product/${product.id}/${product.images[0].filename}`} alt='상품이미지준비중' />
-                                        {
-                                            product.discountRate !== 0 &&
-                                            <div id="discount-sticker">{product.discountRate}</div>
-                                        }
-                                        <div>상품명: {product.productName}</div>
-                                        <div>가격: {formatNumberWithCommas(product.price)}원</div>
+                            :
+                            <div className="product-grid" style={loginNo === userNo ? {width: '90%'} : {}} >
+                            {products.map((product, index) => (
+                                (loginNo === userNo || product.state === 'SELL') &&
+                                <div
+                                    key={`${product.id}-${index}`}
+                                    className="product-card"
+                                    style={{minWidth:0}}
+                                >
+                                    <img style={{ cursor: 'pointer'}} onClick={() => moveInfo(product)}
+                                        src={`${serverIP.ip}/uploads/product/${product.id}/${product.images[0]?.filename}`}
+                                        alt={product.productName}
+                                        className="w-full h-40 object-cover"
+                                    />
+                                    <div style={{ cursor: 'pointer' }} onClick={() => moveInfo(product)} className="product-info">
+                                        <span style={{ fontSize: "14px", color: "#333" }}>{product.productName}</span> {/* 상품명 */} <br />
+
+                                        {product.discountRate === '' || product.discountRate === 0 ? (
+                                            <span style={{ fontWeight: "700" }}>{product.price.toLocaleString()}원</span> // 할인율이 0%일 때는 기존 가격만 표시
+                                            ) : (
+                                            <>
+                                                <span style={{ color: 'red', fontWeight: "700", marginRight: "3px" }}>{product.discountRate}%</span>
+                                                <span style={{ textDecoration: "line-through", textDecorationColor: "red", textDecorationThickness: "2px", fontWeight: "700", marginRight: '3px' }}>
+                                                    {product.price.toLocaleString()}원
+                                                </span>
+                                                <span style={{ color: 'red', fontWeight: "700" }}>
+                                                    {Math.round(product.price * (1 - product.discountRate / 100)).toLocaleString()}원
+                                                </span> 
+                                            </>
+                                        )}
+
+                                        <br />
+                                        <div style={{
+                                            marginTop: "5px", padding: "4px 8px", display: "inline-block",
+                                            borderRadius: "5px", fontSize: "12px", fontWeight: "600",
+                                            backgroundColor: product.shippingFee === 0 ? "#ff4d4d" : "#f2f2f2",
+                                            color: product.shippingFee === 0 ? "white" : "black",
+                                            minHeight: "10px",
+                                            lineHeight: "10px",
+                                        }}>
+                                            {product.shippingFee === 0 ? "🚚 무료배송" : `배송비 ${product.shippingFee.toLocaleString()}원`} {/* 배송비 */}
+                                        </div>
+
+                                        {/* 별과 평균 별점, 리뷰 개수 */}
+                                        <div style={{ display: 'flex', alignItems: 'center', marginTop: '3px' }}>
+                                            <FaStar style={{ color: '#FFD700', fontSize: '15px' }} />
+                                            <div style={{ marginLeft: '8px', fontSize: '12px', color: '#555' }}>
+                                                <b>{product.average ? product.average.toFixed(1) : '0.0'}</b>
+                                                <span style={{ marginLeft: '4px', color: '#999' }}>
+                                                    ({product.reviewCount})
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div
+                                        style={{
+                                            width: '100%',
+                                            maxWidth: '100%',
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            fontSize: '13px',
+                                            color: '#666',
+                                            marginTop: '5px',
+                                            lineHeight: '1.4',
+                                        }}
+                                        >
+                                        <span style={{ fontWeight: '600', marginRight: '5px', color: '#333' }}>후기</span>
+                                        {product.reviewContent !== '' && product.reviewContent}
+                                        </div>
+
                                     </div>
-                                )
-                            })
+                                </div>
+                            ))}
+                            </div>
                         }
-                    </div>
+                    </>
                 }
                 {
                     profileMenu === "review" && <CustomerReview/>

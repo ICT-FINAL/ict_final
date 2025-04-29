@@ -49,6 +49,7 @@ import RecommendIndex from './recommend/RecommendIndex';
 import EventIndex from './event/EventIndex';
 import EventWrite from './event/EventWrite';
 import EventInfo from './event/EventInfo';
+import EventEdit from './event/EventEdit';
 import SubMenuIndex from './submenu/SubMenuIndex';
 import SubMenuWrite from './submenu/SubMenuWrite';
 import SubMenuInfo from './submenu/SubMenuInfo';
@@ -83,6 +84,9 @@ import NaverSignupHandler from './user/NaverSignupHandler';
 import RefundModal from '../modal/RefundModal';
 import CancelModal from '../modal/CancelModal';
 import SellerCancelModal from '../modal/SellerCancelModal';
+import ProductCheck from './product/ProductCheck';
+import AuctionCheck from './auction/AuctionCheck';
+import ProductEdit from './product/ProductEdit';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -159,15 +163,6 @@ function Body() {
   }, []);
 
   useEffect(()=>{
-    if (user) {
-      axios.get(`${serverIP.ip}/chat/unreadChatCount`, {
-        headers: { Authorization: `Bearer ${user.token}` }
-      })
-      .then(res=>{
-        console.log(res.data);
-      })
-      .catch(err=>console.log(err));
-    }
     var menu = new Menu("#myMenu");
     var item1 = new Item("list", "fas fa-bars", "");
     var item2 = new Item("up", "fas fa-id-card", "", "");
@@ -202,6 +197,34 @@ function Body() {
 
     let clicked = false;
   },[]);
+
+  useEffect(()=>{
+    if (user) {
+      axios.get(`${serverIP.ip}/chat/unreadChatCount`, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      })
+      .then(res=>{
+        const chatElement = document.getElementById("chat");
+        const existingIcon = document.getElementById("count-icon");
+
+        if (res.data > 0) {
+          if (!existingIcon) {
+            const countIcon = document.createElement("span");
+            countIcon.id = "count-icon";
+            countIcon.textContent = res.data;
+            chatElement.appendChild(countIcon);
+          } else {
+            existingIcon.textContent = res.data; // 이미 있으면 숫자만 업데이트
+          }
+        } else {
+          if (existingIcon) {
+            chatElement.removeChild(existingIcon); // 0이면 삭제
+          }
+        }
+      })
+      .catch(err=>console.log(err));
+    }
+  },[location.pathname]);
 
   return (<>
     {modal.isOpen && modal.selected == '1' && <ModalIndex />}
@@ -256,8 +279,10 @@ function Body() {
       <Route path='/inquiry/inquiryview/:id' element={<InquiryView />} />
 
       <Route path='/product/sell' element={<ProductSell />}></Route>
+      <Route path='/product/edit' element={<ProductEdit />}></Route>
       <Route path='/product/info' element={<ProductInfo />}></Route>
       <Route path='/product/buying' element={<ProductBuy />}></Route>
+      <Route path='/product/check' element={<ProductCheck />}></Route>
       <Route path="/payment/success" element={<PaymentSuccess />}></Route>
       <Route path="/payment/auction/success" element={<AuctionPaymentSuccess/>}></Route>
       <Route path="/payment/fail" element={<PaymentFail />}></Route>
@@ -267,6 +292,7 @@ function Body() {
       <Route path='/event/*' element={<EventIndex />}></Route>
       <Route path='/event/write' element={<EventWrite />}></Route>
       <Route path='/event/info' element={<EventInfo />}></Route>
+      <Route path='/event/edit/:id' element={<EventEdit />}></Route>
       <Route path='/event/dailycheck' element={<DailyCheck />}></Route>
       <Route path='/event/melongame' element={<MelonGame/>}></Route>
 
@@ -282,6 +308,7 @@ function Body() {
       <Route path='/auction/bid' element={<AuctionBid />}></Route>
       <Route path="/auction/bid/success" element={<AuctionBidSuccess />} />
       <Route path="/auction/search" element={<AuctionSearch />} />
+      <Route path="/auction/check" element={<AuctionCheck />} />
       
 
       <Route path="/shipping/track" element={<ShippingTracker />}></Route>

@@ -111,8 +111,10 @@ function Chatting() {
         axios.post(`${serverIP.ip}/chat/read/room/${roomId}`, null, {
             headers: { Authorization: `Bearer ${user.token}` }
         }).then(()=>{
-            getRoomInfo();
-            getChatList();
+            setTimeout(() => {
+                getRoomInfo();
+                getChatList();
+              }, 100);
         }).
         catch(err => {
             console.error('읽음 처리 실패', err);
@@ -159,19 +161,15 @@ function Chatting() {
     return (
         <div style={{paddingTop: '100px'}}>
             {
-                (user && roomInfo.product) &&
+                user &&
                 <>
-                    <div className='chat-header'>
-                        <span>{roomInfo.product.productName}</span>
-                    </div>
                     <div className="iphone-frame">
                         <div className='chat-container'>
                             {
                                 roomInfo.state !== 'CLOSED' &&
                                 <div style={{padding: '10px', display: 'flex', alignItems: 'center'}}>
-                                    <div style={{width: 'calc(100% - 60px)'}}><b style={{fontSize: '12pt'}}>{roomInfo.product.productName}</b></div>
+                                    <div style={{width: 'calc(100% - 60px)'}}><b style={{fontSize: '12pt'}}>{roomInfo.product?.productName}</b></div>
                                     {
-                                        ((roomInfo.state === 'ACTIVE' && roomInfo.buyer.id === user.user.id) || roomInfo.state === 'LEFT') &&
                                         <div style={{width: '60px'}}><span style={{width: '50px', float: 'right', textAlign: 'center', padding: '5px', background: '#e54d4b', color: '#fff', borderRadius: '10px', fontSize: '10pt', cursor: 'pointer'}}
                                             onClick={leaveChatRoom}>나가기</span></div>
                                     }
@@ -181,6 +179,7 @@ function Chatting() {
                                 {
                                     roomInfo.state === "OPEN"
                                     ?
+                                    roomInfo.product &&
                                     <div id="info-message">
                                         💬 작품 관련 궁금한 점이 있다면 편하게 문의해 주세요.<br/>
                                         ⏱ 판매자는 최대한 빠르게 답변드릴게요.<br/>
@@ -222,7 +221,9 @@ function Chatting() {
                                 }
                                 {
                                     roomInfo.state === 'LEFT' &&
-                                    <div style={{textAlign: 'center', padding: '10px', color: '#555'}}>- {roomInfo.buyer.username}님이 방을 나가셨습니다 -</div>
+                                    <div style={{textAlign: 'center', padding: '10px', color: '#555'}}>
+                                        - {user.user.id === roomInfo.participantA.id ? roomInfo.participantB.username : roomInfo.participantA.username}님이 방을 나가셨습니다 -
+                                    </div> 
                                 }
                             </div>
                             <div className="chat-input">

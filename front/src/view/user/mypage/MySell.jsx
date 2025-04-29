@@ -63,8 +63,11 @@ function MySell() {
             axios.get(`${serverIP.ip}/order/orderConfirm?orderId=${id}&state=BEFORE`, {
                 headers: { Authorization: `Bearer ${user.token}` }
             })
-            .then(()=>{
-                window.alert("주문 확인 처리 되었습니다.");
+            .then(res=>{
+                if(res.data === "ok")
+                    window.alert("주문 확인 처리 되었습니다.");
+                else if(res.data === "err1")
+                    window.alert("이미 취소된 주문입니다.");
                 getBoardList();
             })
             .catch(err => console.log(err));
@@ -99,6 +102,21 @@ function MySell() {
         }
     }
 
+    function formatOrderDate(dateString) {
+        if (!dateString) return "";
+      
+        const utcDate = new Date(dateString.replace(' ', 'T'));
+        const kstDate = new Date(utcDate.getTime() + 9 * 60 * 60 * 1000);
+        const yyyy = kstDate.getFullYear();
+        const mm = String(kstDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(kstDate.getDate()).padStart(2, '0');
+        const hh = String(kstDate.getHours()).padStart(2, '0');
+        const mi = String(kstDate.getMinutes()).padStart(2, '0');
+        const ss = String(kstDate.getSeconds()).padStart(2, '0');
+      
+        return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+    }
+
     return (
         <div className="report-box">
             <select onChange={(e) => setShippingOption(e.target.value)} style={{ width: '120px', borderRadius: '10px', padding: '5px 10px', border: '1px solid #ddd', marginBottom:'30px'}}>
@@ -121,7 +139,7 @@ function MySell() {
                                 <div className="order-section" key={order.id} style={{ border: '1px solid #ddd' }}>
                                     <div className="order-info">
                                         <strong>주문번호:</strong> {order.orderNum}<br />
-                                        <strong>주문일자:</strong> {order.startDate}<br/>
+                                        <strong>주문일자:</strong> {formatOrderDate(order.startDate)}<br/>
                                         <strong>배송지:</strong> {order.address.address} / {order.address.addressDetail}<br />
                                         <strong>구매자:</strong> <span style={{ cursor: 'pointer' }} className="message-who" id={`mgx-${order.user.id}`}>{order.user.username}</span><br />
                                         <strong>수령인:</strong> {order.address.recipientName}<br />

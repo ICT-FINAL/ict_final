@@ -24,18 +24,21 @@ function MyPurchases() {
     const [searchOption, setSearchOption] = useState('');
     const [shippingOption, setShippingOption] = useState('');
 
+    const [isReviewWritten, setIsReviewWritten] = useState({});
+
     const dispatch = useDispatch();
 
-    const moveInfo = (prodId) => {
+    const moveInfo = (prodId, menu) => {
         if(user)
             axios.get(`${serverIP.ip}/product/getInfo?productId=${prodId}`,{
                 headers:{Authorization:`Bearer ${user.token}`}
             })
             .then(res =>{
-                navigate('/product/info', { state: { product: res.data } });
+                navigate('/product/info', { state: { product: res.data, changeMenu: menu } });
             })
             .catch(err => console.log(err))
     }
+
     const moveAuctionInfo = (auctionProduct) => {
         if(user)
             axios.get(`${serverIP.ip}/auction/getRoomId?productId=${auctionProduct.id}`,{
@@ -66,21 +69,56 @@ function MyPurchases() {
             axios.get(`${serverIP.ip}/order/orderList?nowPage=${nowPage}&state=${searchOption}&shippingState=${shippingOption}`, {
                 headers: { Authorization: `Bearer ${user.token}` }
             })
-                .then(res => {
-                    console.log(res.data);
-                    const newPageNumbers = [];
-                    for (let p = res.data.pvo.startPageNum; p < res.data.pvo.startPageNum + res.data.pvo.onePageCount; p++) {
-                        if (p <= res.data.pvo.totalPage) {
-                            newPageNumbers.push(p);
-                        }
+            .then(res => {
+                console.log(res.data);
+                const newPageNumbers = [];
+                for (let p = res.data.pvo.startPageNum; p < res.data.pvo.startPageNum + res.data.pvo.onePageCount; p++) {
+                    if (p <= res.data.pvo.totalPage) {
+                        newPageNumbers.push(p);
                     }
-                    setPageNumber(newPageNumbers);
-                    setTotalPage(res.data.pvo.totalPage);
-                    setOrder(res.data.orderList);
-                    setNowPage(res.data.pvo.nowPage);
-                    setTotalRecord(res.data.pvo.totalRecord);
+                }
+                setPageNumber(newPageNumbers);
+                setTotalPage(res.data.pvo.totalPage);
+                setOrder(res.data.orderList);
+                setNowPage(res.data.pvo.nowPage);
+                setTotalRecord(res.data.pvo.totalRecord);
+
+                const promises = res.data.orderList.map(async order => {
+                    if (order.orders[0].productId !== null) {
+                        try {
+                            const response = await axios.get(`${serverIP.ip}/review/checkPurchase?userId=${user.user.id}&productId=${order.orders[0].productId}`, {
+                                headers: { Authorization: `Bearer ${user.token}` }
+                            });
+                            return ({
+                                productId: order.orders[0].productId,
+                                review: response.data.review
+                            });
+                        } catch (err) {
+                            console.error(err);
+                            return {
+                                productId: order.orders[0].productId,
+                                review: false
+                            };
+                        }
+                    } else {
+                        return Promise.resolve(null);
+                    }
+                });
+    
+                Promise.all(promises)
+                .then(results => {
+                    const resultMap = {};
+                    results.forEach(item => {
+                        if (item !== null) {
+                            resultMap[item.productId] = item.review;
+                        }
+                    });
+    
+                    setIsReviewWritten(resultMap);
                 })
-                .catch(err => console.log(err));
+                .catch(err => console.error('Promise all error:', err));
+            })
+            .catch(err => console.log(err));
     };
 
     function formatNumberWithCommas(num) {
@@ -107,6 +145,21 @@ function MyPurchases() {
                 return { label: '알 수 없음', color: '#7f8c8d' };
         }
     };
+
+    function formatOrderDate(dateString) {
+        if (!dateString) return "";
+      
+        const utcDate = new Date(dateString.replace(' ', 'T'));
+        const kstDate = new Date(utcDate.getTime() + 9 * 60 * 60 * 1000);
+        const yyyy = kstDate.getFullYear();
+        const mm = String(kstDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(kstDate.getDate()).padStart(2, '0');
+        const hh = String(kstDate.getHours()).padStart(2, '0');
+        const mi = String(kstDate.getMinutes()).padStart(2, '0');
+        const ss = String(kstDate.getSeconds()).padStart(2, '0');
+      
+        return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+    }
 
     const endShipping = (id) => {
         if(user){
@@ -138,7 +191,6 @@ function MyPurchases() {
             <select onChange={(e) => setSearchOption(e.target.value)} style={{ width: '120px', borderRadius: '10px', padding: '5px 10px', border: '1px solid #ddd'}}>
                 <option value="">전체</option>
                 <option value="PAID">결제 완료</option>
-                <option value="FINISH">구매 확정</option>
                 <option value="CANCELED">결제 취소</option>
                 <option value="PARTCANCELED">부분 취소</option>
                 <option value="RETURNED">전체 환불</option>
@@ -153,7 +205,7 @@ function MyPurchases() {
                             <div className="group-header">
                                 { group.orders.length >0 &&
                                 <div>
-                                    <strong>주문일:</strong> {group.orderDate?.substring(0, 19)} <br/>
+                                    <strong>주문일:</strong> {formatOrderDate(group.orderDate)} <br/>
                                     <strong>배송지:</strong> {group.orders[0].address.address} / {group.orders[0].address.addressDetail}<br />
                                     <strong>수령인:</strong> {group.orders[0].address.recipientName}<br />
                                     <strong>전화번호:</strong> {group.orders[0].address.tel}<br />
@@ -178,14 +230,14 @@ function MyPurchases() {
                                         <>
                                         <div className='order-wrapper'>
                                             <div style={{textAlign:'center'}}>
-                                                <img style={{width:`200px`, height:`200px`, borderRadius:'10px', cursor:'pointer'}} onClick={()=>moveInfo(order.productId)} src={`${serverIP.ip}/uploads/product/${order.productId}/${order.filename}`}/>
+                                                <img style={{width:`200px`, height:`200px`, borderRadius:'10px', cursor:'pointer'}} onClick={()=>moveInfo(order.productId, 'detail')} src={`${serverIP.ip}/uploads/product/${order.productId}/${order.filename}`}/>
                                             </div>
                                             <div>
                                             {order.orderItems.map((oi) => {
                                                 const itemTotal = (oi.price * (100 - oi.discountRate) / 100 + oi.additionalFee) * oi.quantity;
                                                 orderSum += itemTotal;
                                                 return (
-                                                    <div className="order-item" key={oi.id} style={{cursor:'pointer'}} onClick={()=>moveInfo(order.productId)}>
+                                                    <div className="order-item" key={oi.id} style={{cursor:'pointer'}} onClick={()=>moveInfo(order.productId, 'detail')}>
                                                         <div className="product-details">
                                                             <strong>{oi.productName}<br/>{oi.optionName}</strong>
                                                             <div style={{ marginTop: '5px' }}>
@@ -222,9 +274,18 @@ function MyPurchases() {
                                                 </span>
                                             )}
                                             {order.shippingState === 'FINISH' && (
-                                                <span style={{ color: '#28a745', fontWeight: '600' }}>
-                                                ✅ 구매 확정
-                                                </span>
+                                                <>
+                                                    <span style={{ color: '#28a745', fontWeight: '600' }}>
+                                                    ✅ 구매 확정
+                                                    </span>
+                                                    {
+                                                        !isReviewWritten[order.productId] &&
+                                                        <span onClick={()=>moveInfo(order.productId, 'review')} style={{background: 'rgb(40, 167, 69)', borderRadius: '5px', marginLeft: '10px', padding: '0 7px 0 5px', color: '#fff', cursor: 'pointer'}}>
+                                                        📝 리뷰 쓰기
+                                                        </span>
+                                                    }
+                                                    
+                                                </>
                                             )}
                                             {order.shippingState === 'RETURNED' && (
                                                 <span style={{ color: '#dc3545', fontWeight: '600' }}>

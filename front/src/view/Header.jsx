@@ -141,7 +141,6 @@ function Header() {
     const movePage = (where) => {
         dispatch(setMenuModal(false));
         navigate(where);
-        console.log(where);
     }
 
     const getRecentSearch = ()=>{
@@ -211,7 +210,7 @@ function Header() {
                             </div>
                         </div>
                     )}
-                    {hotSearchOpen && (
+                    {hotSearchOpen && hotSearch.length > 0 && (
                         <div className="hot-search-dropdown" onMouseEnter={() => setHotSearchOpen(true)}
                         onMouseLeave={() => setHotSearchOpen(false)}>
                             {hotSearch.map((item, index) => (

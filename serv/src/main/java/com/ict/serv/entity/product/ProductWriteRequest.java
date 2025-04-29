@@ -7,6 +7,7 @@ import java.util.List;
 
 @Data
 public class ProductWriteRequest {
+    Long id;
     private String productName;
     private String eventCategory;
     private String targetCategory;
@@ -17,4 +18,5 @@ public class ProductWriteRequest {
     private float discountRate;
     private List<OptionDTO> options;
     private int shippingFee;
+    private List<String> originalImages;
 }

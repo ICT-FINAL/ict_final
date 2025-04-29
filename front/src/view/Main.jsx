@@ -14,6 +14,8 @@ import HotProduct from "./product/HotProduct";
 import RAWProduct from "./product/RAWProduct";
 import PopProduct from "./product/PopProduct";
 
+import back from './../img/back.png';
+
 function Main() {
     const [activeTab, setActiveTab] = useState("ongoing");
     const [visibleSubMenus, setVisibleSubMenus] = useState(12);
@@ -226,7 +228,23 @@ function Main() {
 
 
     return (
-        <div style={{ paddingTop: '100px' }}>
+        <div style={{ paddingTop: '80px' }}>
+
+            <div className="image-container">
+                <img src={back} alt="back" className="background-image" />
+                <div className="main-text-box">
+                    <div className="main-text">
+                        <span className="word" style={{ animationDelay: '0.3s' }}>손끝에서&nbsp;</span>
+                        <span className="word" style={{ animationDelay: '0.6s' }}>탄생한&nbsp;</span>
+                        <span className="word" style={{ animationDelay: '0.9s' }}>특별함,&nbsp;</span>
+                        <span className="word" style={{ animationDelay: '1.2s' }}>당신을&nbsp;</span>
+                        <span className="word" style={{ animationDelay: '1.5s' }}>위한&nbsp;</span>
+                        <span className="word" style={{ animationDelay: '1.8s' }}>수제작품&nbsp;</span>
+                        <span className="word" style={{ animationDelay: '2.1s' }}>공간</span>
+                    </div>
+                </div>
+            </div>
+
             <div className="slider-container">
                 <Slider {...settings} className={event_list.length === 1 ? "slick-center" : ""}>
                     {event_list.map((item, idx) => (
@@ -240,9 +258,7 @@ function Main() {
                                 <div className="event-date-badge">
                                     📅 {item.startDate.substring(0, 10)} ~ 📅 {item.endDate.substring(0, 10)}
                                 </div>
-
-                                {item.state === "COUPON" && <div className="main-coupon-badge">쿠폰 지급!</div>}
-
+                                {item.state === "COUPON" && <div className="main-coupon-badge">🎉 쿠폰 지급!</div>}
                                 <div className="event-button" onClick={() => moveToEvent(item)}>자세히보기 ▶</div>
                             </div>
 
@@ -250,6 +266,7 @@ function Main() {
                     ))}
                 </Slider>
             </div>
+
             <div style={{
                 width:'70%',
                 minWidth:'1200px',

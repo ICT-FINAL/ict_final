@@ -89,7 +89,7 @@ function MyPageNav({ path, isOpen, closeNav }) {
 
                 <ul>
                     <li className="mypage-nav-title">회원 탈퇴</li>
-                    <li onClick={() => handleClick("/mypage/delete-account")} style={path.l_name === "회원 탈퇴" ? clickedStyle : {}}>
+                    <li onClick={() => handleClick("/mypage/deleteAccount")} style={path.l_name === "회원 탈퇴" ? clickedStyle : {}}>
                         <span style={path.l_name === "회원 탈퇴" ? clickedStyle2 : {}}>회원 탈퇴</span>
                     </li>
                 </ul>

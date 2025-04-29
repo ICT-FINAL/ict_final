@@ -4,7 +4,10 @@ import com.ict.serv.entity.UserPoint;
 import com.ict.serv.entity.coupon.Coupon;
 import com.ict.serv.entity.coupon.CouponPagingVO;
 import com.ict.serv.entity.coupon.CouponState;
+import com.ict.serv.entity.order.Orders;
+import com.ict.serv.entity.order.ShippingState;
 import com.ict.serv.entity.product.Product;
+import com.ict.serv.entity.review.Review;
 import com.ict.serv.entity.user.Follow;
 import com.ict.serv.entity.wish.WishPagingVO;
 import com.ict.serv.entity.wish.Wishlist;
@@ -13,10 +16,12 @@ import com.ict.serv.entity.report.Report;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.*;
 import com.ict.serv.repository.product.ProductRepository;
+import com.ict.serv.repository.review.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,6 +36,8 @@ public class InteractService {
     private final FollowRepository follow_repo;
     private final CouponRepository coupon_repo;
     private final UserPointRepository user_point_repo;
+    private final ProductRepository product_repo;
+    private final ReviewRepository review_repo;
 
     public void saveUserPoint(UserPoint userPoint) { user_point_repo.save(userPoint);}
 
@@ -90,7 +97,7 @@ public class InteractService {
         return user_point_repo.countIdByUserId(user.getId());
     }
     public List<UserPoint> getAllPointList(CouponPagingVO pvo,User user){
-        return user_point_repo.findByUserId(user.getId(), PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+        return user_point_repo.findByUserIdOrderByIdDesc(user.getId(), PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
     }
 
     public List<Coupon> getAllCouponList(CouponPagingVO pvo, User user){
@@ -127,6 +134,9 @@ public class InteractService {
 
     public void checkUserPoint() {
         List<User> userList = user_repo.findAll();
+        if (userList.isEmpty()) {
+            return;
+        }
         for(User user: userList) {
             if(user.getGradePoint() >= 1000 && user.getGradePoint() <2000 && user.getGrade()==0) {
                 user.setGrade(1);
@@ -141,5 +151,35 @@ public class InteractService {
                 user_repo.save(user);
             }
         }
+    }
+
+    public List<User> getAllUserList() {
+        return user_repo.findAll();
+    }
+
+    public int getReviewCountBySeller(User user) {
+        List<Product> productList = product_repo.findAllBySellerNo(user);
+        List<Review> reviewList = new ArrayList<>();
+        double sum=0;
+        for(Product product:productList){
+            List<Review> inputReviewList = review_repo.findAllByProductOrderByReviewWritedateDesc(product);
+            reviewList.addAll(inputReviewList);
+        }
+        return reviewList.size();
+    }
+
+    public double getReviewAverage(User user) {
+        List<Product> productList = product_repo.findAllBySellerNo(user);
+        List<Review> reviewList = new ArrayList<>();
+        double sum=0;
+        for(Product product:productList){
+            List<Review> inputReviewList = review_repo.findAllByProductOrderByReviewWritedateDesc(product);
+            reviewList.addAll(inputReviewList);
+        }
+        for(Review review: reviewList){
+            sum+=Double.parseDouble(review.getRate());
+        }
+        if(reviewList.isEmpty()) return 0;
+        return sum/reviewList.size();
     }
 }
