@@ -174,6 +174,10 @@ function ProductBuy() {
       })
       .then(res => {
         console.log(res.data);
+        if (res.data === null || res.data === '') {
+          alert("품절된 상품입니다.");
+          return;
+        }
         const successUrl = `${serverIP.front}/payment/auction/success?iid=${res.data.id}`;
           tossPayments
             .requestPayment("카드", {
@@ -197,7 +201,7 @@ function ProductBuy() {
       })
       return;
     }
-    const orderName = orderItems.length > 0 ? `${orderItems[0].productName} 외 ${orderItems.length - 1}건` : "주문";
+    const orderName = orderItems.length > 0 ? `${orderItems[0].productName.slice(0, 50)} 외 ${orderItems.length - 1}건` : "주문";
     const productIds = orderItems.map(item => item.productNo);
     const orderDetails = [];
     const usedProductNos = new Set();

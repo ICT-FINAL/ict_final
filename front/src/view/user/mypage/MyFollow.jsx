@@ -81,7 +81,7 @@ function MyFollow(){
 
                         <div className="follow-user-info">
                             <div id={`mgx-${user.id}`} className='message-who' style={{cursor: 'pointer'}}>{user.username}<span>{grade[user.grade]}</span></div>
-                            <div style={{width:'80%'}}>{user.infoText}</div>
+                            <div style={{width:'80%', display: "-webkit-box", WebkitLineClamp: 3,  WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis"}}>{user.infoText}</div>
                         </div>
 
                         <button id={followState.includes(user.id) ? "unfollow-btn" : "follow-btn"} onClick={()=>followUser(user.id)}>

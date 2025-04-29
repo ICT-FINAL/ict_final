@@ -52,7 +52,6 @@ import EventInfo from './event/EventInfo';
 import EventEdit from './event/EventEdit';
 import SubMenuIndex from './submenu/SubMenuIndex';
 import SubMenuWrite from './submenu/SubMenuWrite';
-import SubMenuInfo from './submenu/SubMenuInfo';
 import CommunityIndex from './community/CommunityIndex';
 import UserInfo from './user/UserInfo';
 
@@ -214,11 +213,11 @@ function Body() {
             countIcon.textContent = res.data;
             chatElement.appendChild(countIcon);
           } else {
-            existingIcon.textContent = res.data; // 이미 있으면 숫자만 업데이트
+            existingIcon.textContent = res.data;
           }
         } else {
           if (existingIcon) {
-            chatElement.removeChild(existingIcon); // 0이면 삭제
+            chatElement.removeChild(existingIcon);
           }
         }
       })
@@ -298,7 +297,6 @@ function Body() {
 
       <Route path='/submenu/*' element={<SubMenuIndex />}></Route>
       <Route path='/submenu/write' element={<SubMenuWrite />}></Route>
-      <Route path='/submenu/info' element={<SubMenuInfo />}></Route>
 
       <Route path='/community/*' element={<CommunityIndex />}></Route>
 

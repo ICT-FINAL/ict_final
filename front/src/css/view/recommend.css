@@ -40,22 +40,26 @@
     position: absolute;
     top: 195px;
     right: 20px;
-    font-size: 20pt;
-    color: #333;
-    background-color: #8CC7A5;
-    border: 2px solid #555;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    color: #fff;
+    background-color: #222;
+    border: none;
     border-radius: 50%;
     cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
 }
 
 #refresh-btn:hover {
-    background-color: #78B895;
-    border-color: #444;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s;
+    background-color: #fff;
+    color: #222;
 }
 
+#refresh-btn:active {
+    transform: scale(0.95);
+}
 .recommend-list {
     position: relative;
     margin: 20px 0;
@@ -168,8 +172,8 @@
 .recommend-product-info {
     position:absolute;
     bottom: 0px;
-    width: 100%;
-    padding: 10px 0;
+    width: calc(100% - 20px);
+    padding: 10px;
     background-color: rgba(255, 255, 255, 0.82);
     font-size: 10pt;
 }

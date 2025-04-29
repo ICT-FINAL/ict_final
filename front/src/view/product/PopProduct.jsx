@@ -122,7 +122,7 @@ function PopProduct() {
                                 </div>
                                 <div className='pop-right' style={{ position: 'relative' }}> {/* position: relative 추가 */}
                                     <div>
-                                        <p className="pop-author-desc">{ item.user.infoText===null ? '작가 소개가 없습니다.':item.user.infoText}</p>
+                                        <div className="pop-author-desc">{ item.user.infoText===null ? '작가 소개가 없습니다.':item.user.infoText}</div>
                                     </div>
                                     <div>
                                         <ul className="pop-author-stats">
