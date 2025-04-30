@@ -79,7 +79,11 @@ function PopProduct() {
     }
 
     const moveProduct = (prod) => {
-        navigate('/product/info', { state: { product: prod } });
+        axios.get(`${serverIP.ip}/review/productReviewList?productId=${prod.id}`)
+        .then(list=>{
+            navigate('/product/info', { state: { product: prod, reviewCount: list.data.length } })
+        })
+        .catch(err => console.log(err));
     }
 
     return (
