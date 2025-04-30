@@ -10,7 +10,7 @@ function GradeBar({ point,gg }) {
     const percentage = Math.min((point / maxPoint) * 100, 100);
     const [grade, setGrade] = useState(['✊', '☝️', '✌️', '🖐️']);
     return (
-        <div style={{ marginTop: '10px', width: '100%', maxWidth: '300px' }}>
+        <div style={{ width: '100%', maxWidth: '300px' }}>
             <div style={{ fontWeight: '600', marginBottom: '5px' }}>
                 <span style={{fontWeight:'400',fontSize:'16px'}}>등급:<span style={{fontSize:'24px'}}>{grade[gg]}</span> ({point}pt)</span>
             </div>
@@ -284,12 +284,13 @@ function UserInfo() {
                 {userinfo.imgUrl && <img src={userinfo.imgUrl.indexOf('http') !== -1 ? `${userinfo.imgUrl}` : `${serverIP.ip}${userinfo.imgUrl}`} alt='' width={140} height={140} style={{borderRadius: '50%', alignSelf: 'center'}}/>}
                 <div className="profile-info">
                     <div style={{ fontWeight: 'bold', fontSize: '1.2em' }}>
-                        <div style={{display: 'flex', justifyContent: 'space-between', height: '120px'}}>
+                        <div style={{display: 'flex', justifyContent: 'space-between', height: '100px'}}>
                             <div style={{alignSelf: 'center'}}>
-                                <span>{userinfo.username}</span>
+                                <div style={{paddingLeft:'4px'}}>
+                                <span>{userinfo.username}</span><span style={{fontWeight: '400', marginLeft: '10px', fontSize: '10pt'}}><span style={{fontSize: '12pt'}}>⭐</span>{Math.round(rating * 100) / 100} ({reviewCount})</span>
+                                </div>
                                 <GradeBar point={userinfo.gradePoint} gg={userinfo.grade}/>
-                                <span style={{fontWeight: '400', marginLeft: '10px', fontSize: '10pt'}}><span style={{fontSize: '12pt'}}>⭐</span>{Math.round(rating * 100) / 100} ({reviewCount})</span>
-                            </div>
+                                </div>
                             {
                                 user && 
                                 (userNo === loginNo ?
@@ -306,7 +307,7 @@ function UserInfo() {
                             }
                         </div>
                     </div>
-                    <div style={{margin: '5px', padding: '5px', fontSize: '11pt'}}>{userinfo.infoText}</div>
+                    <div style={{margin: '5px', marginBottom:'15px', padding: '5px', fontSize: '11pt'}}>{userinfo.infoText}</div>
                     <div className="profile-follow">
                         <div onClick={userNo === loginNo ? () => navigate('/mypage/follow?tab=follower') : undefined}
                             style={userNo === loginNo ? { cursor: 'pointer' } : {}}
