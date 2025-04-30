@@ -125,7 +125,7 @@ public class ReviewController {
         List<Orders> orders = orderService.selectCheckPurchase(user, productId);
         boolean orderIsOk = false;
         for(Orders order:orders) {
-            if (order.getShippingState() == ShippingState.FINISH) {
+            if (order.getShippingState() == ShippingState.FINISH || order.getShippingState() == ShippingState.SETTLED) {
                 orderIsOk = true;
                 break;
             }
