@@ -117,11 +117,11 @@ public class ChatService {
     }
 
     public List<ChatRoom> getChatRoomList(User user) {
-        return chatRoomRepository.findChatRoomsWithoutProduct(user, ChatState.ACTIVE);
+        return chatRoomRepository.findChatRoomsWithoutProduct(user, List.of(ChatState.ACTIVE, ChatState.LEFT));
     }
 
     public List<ChatRoom> getProductChatRoomList(User user) {
-        return chatRoomRepository.findChatRoomsWithProduct(user, ChatState.ACTIVE);
+        return chatRoomRepository.findChatRoomsWithProduct(user, List.of(ChatState.ACTIVE, ChatState.LEFT));
     }
 
     public void markChatAsRead(Long id, User user) {
@@ -153,6 +153,7 @@ public class ChatService {
         ChatRoom room = getChatRoom(roomId).get();
         if (room.getState().equals(ChatState.ACTIVE)) {
             chatRoomRepository.updateChatRoomStateToLeft(roomId);
+            chatRoomRepository.updateFirstLeftUser(roomId, userId);
         } else if (room.getState().equals(ChatState.OPEN) || room.getState().equals(ChatState.LEFT)) {
             chatRoomRepository.updateChatRoomStateToClosed(roomId);
         }
