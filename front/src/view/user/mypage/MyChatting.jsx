@@ -28,6 +28,8 @@ function MyChatting() {
         .then(res=>{
             console.log(res.data);
             setChatRoomList(res.data);
+            console.log(res.data.filter(room => room.state === 'LEFT' && room.firstLeftUser !== user.user.id).length);
+            console.log(res.data.filter(room => room.state === 'ACTIVE').length);
             res.data.map(room=>{
                 console.log(room);
                 const socket = new SockJS(`${serverIP.ip}/ws`);
@@ -85,15 +87,15 @@ function MyChatting() {
 
             <hr className='menu-divider'/>
             {
-                (selectedTab === 'default' && chatRoomList.length === 0) ||
-                (selectedTab === 'product' && productChatRoomList.length === 0) ? (
+                (selectedTab === 'default' && chatRoomList.filter(room => room.state === 'ACTIVE' || (room.state === 'LEFT' && room.firstLeftUser !== user.user.id)).length === 0) ||
+                (selectedTab === 'product' && productChatRoomList.filter(room => room.state === 'ACTIVE' || (room.state === 'LEFT' && room.firstLeftUser !== user.user.id)).length === 0) ? (
                     <div style={{padding: '50px', textAlign: 'center'}}>진행 중인 채팅이 없습니다.</div>
                 ) : null
             }
             {
                 (selectedTab === 'default' ? chatRoomList : productChatRoomList).map((room, idx)=>{
                     const selectedUser = user.user.id === room.participantA.id ? room.participantB : room.participantA
-                        
+                    if (room.state === 'ACTIVE' || (room.state === 'LEFT' && (room.firstLeftUser != undefined && room.firstLeftUser !== user.user.id)))
                     return (
                         <div key={idx} className="chat-room" onClick={()=>navigate(`/product/chat/${room.chatRoomId}`)}
                             style={room.lastChat.read || room.lastChat.sender.id === user.user.id ? {background: '#f8f8f8'} : {}}>

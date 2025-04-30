@@ -141,6 +141,10 @@ function Chatting() {
                 headers: { Authorization: `Bearer ${user.token}` }
             })
             .then(()=>{
+                stompClientRef.current.send(`/app/chat/read/${roomId}`, {}, JSON.stringify({
+                    roomId: roomId,
+                    urd: { userid: user.user.userid }
+                }));
                 navigate(-1);
             })
             .catch(err=>console.log(err));
@@ -238,7 +242,7 @@ function Chatting() {
                                 />
                             </div>
                         </div>
-                        (<div className="home-button" onClick={()=> navigate(-1)}></div>)
+                        <div className="home-button" onClick={()=> navigate(-1)}></div>
                     </div>
                 </>
             }

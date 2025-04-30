@@ -680,7 +680,7 @@ function ProductInfo() {
                             fontWeight: '600'
                         }}>
                             <div className="product-div">상세정보</div>
-                            <div className="product-div">리뷰 ({loc.state.product.reviewCount})</div>
+                            <div className="product-div">리뷰 ({loc.state.product.reviewCount ? loc.state.product.reviewCount : loc.state.reviewCount})</div>
                         </div>
                         <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
                     </div>
