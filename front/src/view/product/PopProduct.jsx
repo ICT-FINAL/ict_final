@@ -49,7 +49,6 @@ function PopProduct() {
     useEffect(() => {
         axios.get(`${serverIP.ip}/interact/getPopUser`)
             .then((res) => {
-                console.log(res.data);
                 setPopList(res.data);
             })
             .catch(err => {

@@ -78,8 +78,6 @@ function SignupForm() {
     }
 
     const changeUser = (e) => {
-        // console.log(loc.state)
-        // console.log(user);
         const { name, value } = e.target;
         setUser({...user, [name]: value});
         const updatedUser = { ...user, [name]: value };

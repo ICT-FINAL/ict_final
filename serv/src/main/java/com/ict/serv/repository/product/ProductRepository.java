@@ -22,7 +22,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
-            "AND p.product_category IN (:productCategories) AND p.quantity > 0 ",
+            "AND p.product_category IN (:productCategories) AND (p.state='SELL' OR p.state='SOLDOUT') ",
             nativeQuery = true)
     int countProductsAllCategory(
             @Param("keyword") String keyword,
@@ -36,7 +36,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
-            "AND p.product_category IN (:productCategories) AND p.quantity > 0 AND p.state='SELL' OR p.state='SOLDOUT'",
+            "AND p.product_category IN (:productCategories) AND (p.state='SELL' OR p.state='SOLDOUT')",
             nativeQuery = true)
     List<Product> findProductsAllCategory(
             @Param("keyword") String keyword,
@@ -57,7 +57,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "FROM product p " +
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
-            "AND p.target_category LIKE %:targetCategory% AND p.quantity > 0 ",
+            "AND p.target_category LIKE %:targetCategory% AND (p.state='SELL' OR p.state='SOLDOUT')",
             nativeQuery = true)
     int countProductsNoCategory(@Param("keyword") String keyword,
                                 @Param("eventCategory") String eventCategory,
@@ -67,7 +67,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "FROM product p " +
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
-            "AND p.target_category LIKE %:targetCategory% AND p.quantity > 0 AND p.state='SELL' OR p.state='SOLDOUT'",
+            "AND p.target_category LIKE %:targetCategory% AND (p.state='SELL' OR p.state='SOLDOUT')",
             nativeQuery = true)
     List<Product> findProductsNoCategory(@Param("keyword") String keyword,
                                          @Param("eventCategory") String eventCategory,
@@ -79,7 +79,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("""
         SELECT p
         FROM Product p
-        WHERE p.rating >= 3.5 AND p.quantity > 0 AND p.state='SELL' OR p.state='SOLDOUT'
+        WHERE p.rating >= 3.5 AND p.state='SELL'
         ORDER BY 
             (SELECT COUNT(r) FROM Review r WHERE r.product = p) +
             (SELECT COUNT(w) FROM Wishlist w WHERE w.product = p) 
@@ -94,7 +94,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
             "AND (:productCategories IS NULL OR p.product_category IN :productCategories) " +
-            "AND p.quantity > 0 AND p.state='SELL' OR p.state='SOLDOUT' " +
+            "AND (p.state='SELL' OR p.state='SOLDOUT') " +
             "GROUP BY p.PRODUCT_ID " +
             "ORDER BY wish_count DESC",
             nativeQuery = true)
@@ -113,7 +113,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
-            "AND p.quantity > 0 AND p.state='SELL' OR p.state='SOLDOUT' " +
+            "AND (p.state='SELL' OR p.state='SOLDOUT') " +
             "GROUP BY p.PRODUCT_ID " +
             "ORDER BY wish_count DESC",
             nativeQuery = true)
@@ -132,7 +132,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
             "AND (:productCategories IS NULL OR p.product_category IN :productCategories) " +
-            "AND p.quantity > 0 AND p.state='SELL' OR p.state='SOLDOUT' " +
+            "AND (p.state='SELL' OR p.state='SOLDOUT') " +
             "GROUP BY p.PRODUCT_ID " +
             "ORDER BY review_count DESC",
             nativeQuery = true)
@@ -151,7 +151,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
-            "AND p.quantity > 0 AND p.state='SELL' OR p.state='SOLDOUT' " +
+            "AND (p.state='SELL' OR p.state='SOLDOUT') " +
             "GROUP BY p.PRODUCT_ID " +
             "ORDER BY review_count DESC",
             nativeQuery = true)
@@ -169,7 +169,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
-            "AND p.quantity > 0 AND p.state='SELL' OR p.state='SOLDOUT' " +
+            "AND (p.state='SELL' OR p.state='SOLDOUT') " +
             "GROUP BY p.PRODUCT_ID " +
             "ORDER BY order_count DESC",
             nativeQuery = true)
@@ -188,7 +188,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
             "AND p.product_category IN (:productCategories) " +
-            "AND p.quantity > 0 AND p.state='SELL' OR p.state='SOLDOUT' " +
+            "AND (p.state='SELL' OR p.state='SOLDOUT') " +
             "GROUP BY p.PRODUCT_ID " +
             "ORDER BY order_count DESC",
             nativeQuery = true)

@@ -3,11 +3,12 @@ import '../css/view/footer.css';
 import facebookIcon from '../img/footer_facebook.png';
 import instagramIcon from '../img/footer_insta.png';
 import kakaoIcon from '../img/footer_kakao.png';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 function Footer({ loginStatus, contextPath }) {
     const loc = useLocation();
     const [isMargin, setIsMargin] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(()=>{
         if (loc.pathname === "/product/buying") {
@@ -22,12 +23,12 @@ function Footer({ loginStatus, contextPath }) {
             <li className="footer-info">
                 <h3 className="footer-title">(주)MIMYO</h3>
                 <ul className="footer-list">
-                    <li>대표이사 : 한미묘</li>
+                    <li>대표이사 : 이건모</li>
                     <li>주소 : 서울시 성동구 아차산로 113 2층</li>
                     <li>사업자등록번호 : 123-45-67890 | <a href="https://www.ftc.go.kr/www/selectBizCommList.do?key=253&token=78EE9F4C-413C-820A-7398-B340B79BAF7DE0C2B52E069C60B33029F901F8639F73" className="business-info-link">사업자 정보 확인</a></li>
                     <li>통신판매업신고 : 2025-성동-2025호</li>
-                    <li>호스팅서비스 제공자 : AWS WES Service, Inc.</li>
-                    <li>대표번호 : <a href="tel:1234-5678">1234-5678</a></li><br/>
+                    <li>호스팅서비스 제공자 : Naver Cloud Platform</li>
+                    <li>대표번호 : <a href="tel:010-6385-4676">010-6385-4676</a></li><br/>
 
                                        
                 </ul>
@@ -36,10 +37,10 @@ function Footer({ loginStatus, contextPath }) {
                 <h3 className="footer-title">고객 센터</h3>
                 <ul className="footer-list">
                     <li>오전 10시 ~ 오후 5시 (주말, 공휴일 제외)</li>
-                    <li><button className="cs-chat">채팅 상담하기</button></li><br/>
+                    <li><button className="cs-chat" onClick={()=>navigate('/customerservice/inquiryWrite')}>문의하기</button></li><br/>
                     <li>MIMYO는 통신판매중개자이며 통신판매의 당사자가 아닙니다.</li>
                     <li>따라서 MIMYO는 상품 거래 정보 및 거래에 대하여 책임을 지지 않습니다.</li> 
-                    <li><a href="mailto:mimyo@mimyo.com" className="partnership-link">제휴 문의: mimyo@mimyo.com</a></li>
+                    <li><a href="mailto:rjsah5676@gmail.com" className="partnership-link">제휴 문의: rjsah5676@gmail.com</a></li>
                 </ul>
                 
                 

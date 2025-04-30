@@ -22,7 +22,6 @@ function MyBasket() {
                 const response = await axios.get(`${serverIP.ip}/basket/list`, {
                     headers: { Authorization: `Bearer ${user.token}` },
                 });
-                console.log("장바구니리스트:", response.data);
                 setBasketItems(response.data);
 
             } catch (err) {
@@ -38,7 +37,6 @@ function MyBasket() {
                     headers: { Authorization: `Bearer ${user.token}` },
                 })
                 .then((res) => {
-                    console.log("유저정보:", res.data);
                 })
                 .catch((err) => console.log(err));
 
@@ -90,7 +88,6 @@ function MyBasket() {
         return grouped;
     }, [basketItems]);
     {
-        console.log(basketItems);
     }
     const handleAllCheck = (e) => {
         const newAllChecked = e.target.checked;
@@ -212,7 +209,7 @@ function MyBasket() {
     return (
         <div style={{ paddingLeft: "10px" }}>
             <div className="basket-sel-all">
-                <input type="checkbox" checked={allChecked} onChange={handleAllCheck} /> 전체 선택
+                <input type="checkbox" checked={allChecked} onChange={handleAllCheck} /> 🛒 전체 선택
                 <button id="selected-delete-btn" type="button" onClick={handleDeleteSelected}>선택 삭제</button>
                 <hr />
             </div>
@@ -243,14 +240,14 @@ function MyBasket() {
                             </li>
                             <li>
                                 <div>
-                                    <span style={{fontSize: '14pt', cursor: 'pointer'}} onClick={() => moveProductInfo(group.productNo)}>{group.productName}</span><br/>
+                                    <span style={{ fontSize: '14pt', cursor: 'pointer' }} onClick={() => moveProductInfo(group.productNo)}>{group.productName}</span><br />
                                     {
                                         group.productDiscountRate > 0 ?
-                                        <>
-                                            <b>{formatNumberWithCommas(group.productPrice - group.productPrice * group.productDiscountRate / 100)}원</b>
-                                            <span style={{textDecoration: 'line-through', color: '#aaa', paddingLeft: '5px'}}>{formatNumberWithCommas(group.productPrice)}</span>
-                                        </> :
-                                        <b>{formatNumberWithCommas(group.productPrice)}원</b>}
+                                            <>
+                                                <b>{formatNumberWithCommas(group.productPrice - group.productPrice * group.productDiscountRate / 100)}원</b>
+                                                <span style={{ textDecoration: 'line-through', color: '#aaa', paddingLeft: '5px' }}>{formatNumberWithCommas(group.productPrice)}</span>
+                                            </> :
+                                            <b>{formatNumberWithCommas(group.productPrice)}원</b>}
                                 </div>
                                 <div>
                                     {group.items.map((item, idx) => (
@@ -260,7 +257,7 @@ function MyBasket() {
                                                 checked={checkedItems[item.basketNo] || false}
                                                 onChange={() => handleItemCheck(item.basketNo)}
                                             />
-                                            <span>옵션: {item.optionName} / {item.categoryName} - 추가금액 +{formatNumberWithCommas(item.additionalPrice)}원</span><br/>
+                                            <span>옵션: {item.optionName} / {item.categoryName} - 추가금액 +{formatNumberWithCommas(item.additionalPrice)}원</span><br />
                                             <span>수량: {item.quantity}</span>
                                             <button id="order-modify-btn"
                                                 onClick={() => dispatch(setModal({ isOpen: true, selected: 'basket-box', selectedItem: item }))}
@@ -269,7 +266,7 @@ function MyBasket() {
                                     ))}
                                 </div>
                             </li>
-                            <li style={{textAlign: 'center', alignSelf: 'center'}}>배송비<br/>{formatNumberWithCommas(group.productShippingFee)}원</li>
+                            <li style={{ textAlign: 'center', alignSelf: 'center' }}>배송비<br />{formatNumberWithCommas(group.productShippingFee)}원</li>
                         </ul>
                     </div>
                 ))
@@ -278,8 +275,8 @@ function MyBasket() {
             )}
 
 
-            <div className="basket-body" style={{display: 'flex', alignItems: 'center'}}>
-                <div style={{width: '80%'}}>
+            <div className="basket-body" style={{ display: 'flex', alignItems: 'center' }}>
+                <div style={{ width: '80%' }}>
                     <ul className="price-list">
                         <li>선택상품금액</li>
                         <li>총배송비</li>

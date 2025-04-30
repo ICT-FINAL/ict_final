@@ -263,11 +263,6 @@ function ProductEdit() {
         return;
       }
     
-      // 배송비 검사
-      if (!formData.shippingFee) {
-        alert("배송비를 입력해주세요.");
-        return;
-      }
     
       // 상세설명 검사
       if (!formData.detail) {

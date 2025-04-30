@@ -78,7 +78,6 @@ function SubMenuWrite() {
         if (!validateForm()) return;
 
         let newFormData = new FormData();
-        //console.log("테스트 찍어보자 현기증 나니까요!!!!!!!!!!!!!", formData);
         newFormData.append("file", file);
         newFormData.append("subMenuName", formData.subMenuName);
         newFormData.append("startDate", formData.startDate);

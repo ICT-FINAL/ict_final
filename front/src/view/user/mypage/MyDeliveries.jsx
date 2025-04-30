@@ -27,7 +27,6 @@ function MyDeliveries() {
                 headers : {Authorization:`Bearer ${user.token}`}
             })
             .then((res) => {
-                console.log(res.data);
                 setAddressList(res.data);
             })
             .catch((error) => {
@@ -57,7 +56,6 @@ function MyDeliveries() {
                 headers: { Authorization: `Bearer ${user.token}` },
             })
             .then(res => {
-                console.log("주소 추가 완료:", res);
                 setAddressList(prev => [...prev, res.data]);
                 setRecipientName("");
                 setAddress("");
@@ -94,7 +92,6 @@ function MyDeliveries() {
                     headers: { Authorization: `Bearer ${user.token}` },
                 })
                 .then((res) => {
-                    console.log("주소 삭제 완료:", res.data);
                     if(res.data==="deleteAddrOk"){
                         alert("삭제되었습니다.");
                         // 삭제 후 상태 갱신 (주소 리스트 다시 받아오기)

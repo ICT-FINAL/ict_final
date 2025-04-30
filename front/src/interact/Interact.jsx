@@ -38,7 +38,6 @@ function Interact() {
             headers: { Authorization: `Bearer ${user.token}` }
         })
         .then(res => {
-            console.log("roomId", res.data);
             navigate(`/product/chat/${res.data}`);
         })
         .catch(err=>console.log(err));

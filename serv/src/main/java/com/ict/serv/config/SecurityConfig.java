@@ -49,6 +49,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/signup/**", "/auth/login").permitAll()
+                        .requestMatchers("/checkLogin").authenticated()
                         .requestMatchers("/uploads/**").permitAll() //파일
                         .requestMatchers("/static/**", "/resources/**").permitAll()
                         .requestMatchers("/product/search").permitAll()

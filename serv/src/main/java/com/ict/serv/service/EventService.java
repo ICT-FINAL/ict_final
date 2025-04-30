@@ -35,4 +35,8 @@ public class EventService {
     public Optional<Event> selectEventInfo(Long id) {
         return repo.findById(id);
     }
+
+    public void delEvent(Long eventId) {
+        repo.deleteById(eventId);
+    }
 }

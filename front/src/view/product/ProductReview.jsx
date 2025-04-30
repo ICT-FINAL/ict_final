@@ -51,17 +51,29 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
     const [reviewFiles, setReviewFiles] = useState([]);
     const fileInputRef = useRef(null);
 
+    const MAX_TOTAL_SIZE = 10 * 1024 * 1024; // 총 10MB
+
     const changeFile = (e) => {
-        const files = Array.from(e.target.files);
+        const newFiles = Array.from(e.target.files);
         
         // 이미지 파일만 필터링
-        const validFiles = files.filter(file => file.type.startsWith('image/'));
-        
-        if (validFiles.length > 0) {
-            handleFiles(validFiles);
+        const validNewFiles = newFiles.filter(file => file.type.startsWith('image/'));
+
+        // 기존 파일 + 새 파일 합치기
+        const allFiles = [...reviewFiles, ...validNewFiles];
+
+        // 총 크기 계산
+        const totalSize = allFiles.reduce((sum, file) => sum + file.size, 0);
+
+        if (totalSize > MAX_TOTAL_SIZE) {
+            alert("전체 파일 크기의 합이 10MB를 초과합니다. 더 작은 파일을 선택해주세요.");
+            return;
+        }
+
+        if (validNewFiles.length > 0) {
+            handleFiles(validNewFiles); // 새로운 파일만 추가 처리
         } else {
-            // 파일이 없으면 처리할 로직을 추가할 수 있음
-            console.log("올바른 이미지 파일을 선택하세요.");
+            alert("더 용량이 작은 파일을 선택하거나 올바른 이미지 파일을 선택하세요.");
         }
     };
 
@@ -206,7 +218,6 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
       }, [isMod]);
 
     const handleModClick = (review) => {
-        console.log(review);
     
         Promise.all(
             review.images.map(file =>
@@ -263,7 +274,6 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
             }
         })
         .then(function (response) {
-            console.log(response.data);
 
             if (response.data === "reviewAddOk" || response.data === "reviewModOk") {
                 // 새로고침해도 리뷰 탭 유지
@@ -294,7 +304,6 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
                 headers: { Authorization: `Bearer ${user.token}` } 
             })
             .then(res=>{
-                console.log(res.data);
                 getReviewList();
                 getAverageStar();
                 dispatch(setModal({delCheck:''}));
@@ -583,7 +592,7 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
                                  onClick={() => fileInputRef.current.click()}>
                                  이미지를 드래그/선택하여 1~5개 첨부해주세요
                             </div>
-                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', margin:'0 30px' }}>
                                 <input type="file" style={{ display: 'none' }} ref={fileInputRef} multiple accept="image/*" onChange={changeFile} />
                                 <input type="button" style={{backgroundColor: 'rgb(85, 85, 85)', color: 'white', padding: '8px', border: 'none', cursor: 'pointer', borderRadius: '5px', fontSize: '12px' }} onClick={() => fileInputRef.current.click()} value="이미지 선택" />
                             </div>

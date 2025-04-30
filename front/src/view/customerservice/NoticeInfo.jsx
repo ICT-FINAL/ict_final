@@ -12,9 +12,7 @@ function NoticeInfo() {
 
     const [notice, setNotice] = useState(null);
 
-    console.log(user);
     useEffect(() => {
-        console.log("!")
         if(user)
         axios.get(`${serverIP.ip}/notice/${id}`, {
             headers: {

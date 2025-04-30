@@ -31,7 +31,6 @@ function MyReviewList(){
             }
         })
         .then(res => {
-            console.log("구매후기:", res.data);
             setMyReviewList(res.data);
         })
         .catch(err => console.log(err));

@@ -101,9 +101,6 @@ function RecommendIndex() {
             }
             recommendProducts.push(defaultRes.data);
 
-            // console.log(defaultRes.data);
-
-            console.log(recommendProducts);
             setRecommendList(recommendProducts);
             getRating(recommendProducts);
             
@@ -140,7 +137,7 @@ function RecommendIndex() {
 
     return (
         <div className='recommend-container'>
-            <h2 style={{ textAlign: 'center', fontSize: '28px' }}>
+            <h2 style={{ textAlign: 'center', fontSize: '32px'}}>
                 💖{user && user.user.username}님을 위한 추천상품입니다.💝
             </h2>
             <ul className="recommend-sort">

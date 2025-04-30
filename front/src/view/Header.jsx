@@ -98,6 +98,22 @@ function Header() {
                 })
                 .catch(err => console.log(err));
 
+        if (user) {
+            axios.get(`${serverIP.ip}/checkLogin`, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            })
+            .then(res => {
+            })
+            .catch(err => {
+                alert("다시 로그인 해주세요");
+                /*
+                if (err.response && err.response.status === 401) {
+                    
+                }*/
+                handleLogout();
+            });
+        }
+
         if (user)
             axios.get(`${serverIP.ip}/interact/getCouponList`, {
                 headers: { Authorization: `Bearer ${user.token}` }
@@ -153,7 +169,6 @@ function Header() {
         .catch(err=>console.log(err));
     }
     const deleteRecentSearch = (searchWord)=>{
-        console.log(searchWord);
         const url = searchWord
         ? `${serverIP.ip}/log/deleteRecentSearch?searchWord=${searchWord}`
         : `${serverIP.ip}/log/deleteRecentSearch`;

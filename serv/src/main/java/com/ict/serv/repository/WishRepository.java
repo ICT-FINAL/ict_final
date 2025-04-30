@@ -30,4 +30,13 @@ public interface WishRepository extends JpaRepository<Wishlist, Long> {
 
     @Query("SELECT w.product.id, COUNT(w) FROM Wishlist w GROUP BY w.product.id")
     List<Object[]> countAllGroupedByProduct();
+
+    @Query(value = """
+        SELECT COUNT(*)
+        FROM wishlist
+        WHERE user_no = :userId
+          AND YEAR(STR_TO_DATE(start_date, '%Y-%m-%d %H:%i:%s')) = :year
+          AND (:month IS NULL OR MONTH(STR_TO_DATE(start_date, '%Y-%m-%d %H:%i:%s')) = :month)
+    """, nativeQuery = true)
+    Long countByUserIdAndDate(@Param("userId") Long userId, @Param("year") int year, @Param("month") Integer month);
 }

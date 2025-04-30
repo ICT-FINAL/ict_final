@@ -305,7 +305,6 @@ function AdminReport() {
                     report.readable.length == 0 ?
                         <div className='no-list'>검색 결과가 없습니다.</div> :
                         report.readable.map(item => {
-                            // { console.log("신고처리전 아이템!!!!!!", item) }
                             return (<><ul className='admin-report-list'>
                                 <li>
                                     {item.id}
@@ -416,7 +415,6 @@ function AdminReport() {
                     report.processing.length == 0 ?
                         <div className='no-list'>검색 결과가 없습니다.</div> :
                         report.processing.map(item => {
-                            // { console.log("신고처리중 아이템!!!!!!", item) }
                             return (<><ul className='admin-report-list'>
                                 <li>
                                     {item.id}
@@ -526,7 +524,6 @@ function AdminReport() {
                     report.complete.length == 0 ?
                         <div className='no-list'>검색 결과가 없습니다.</div> :
                         report.complete.map(item => {
-                            // { console.log("신고처리후 아이템!!!!!!", item) }
                             return (<><ul className='admin-report-list'>
                                 <li>
                                     {item.id}
