@@ -364,11 +364,6 @@ function ProductInfo() {
         }
     }, []);
 
-    const handleChangeMenu = (menuName) => {
-        setChangeMenu(menuName);
-        localStorage.setItem("changeMenu", menuName); // 현재 메뉴 저장
-    };
-
     const moveEdit = () => {
         navigate('/product/edit', {state:{product:loc.state.product, options:options, images: loc.state.product.images}});
     }
@@ -672,7 +667,7 @@ function ProductInfo() {
                 </div>
 
                 {/* start : 상세정보, 리뷰 */}
-                <div style={{ paddingTop: "10%", width: '80%', margin: '0 auto' }}>
+                <div style={{ paddingTop: "10%", width: '100%', margin: '0 auto', minWidth: '1000px' }}>
                     <div>
                         <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
                         <div style={{
@@ -680,44 +675,37 @@ function ProductInfo() {
                             fontSize: '16px',
                             fontWeight: '600'
                         }}>
-                            <div onClick={() => handleChangeMenu("detail")} className="product-div">상세정보</div>
-                            <div onClick={() => handleChangeMenu("review")} className="product-div">리뷰</div>
+                            <div className="product-div">상세정보</div>
+                            <div className="product-div">리뷰 ({loc.state.product.reviewCount})</div>
                         </div>
                         <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
                     </div>
 
-                    <div>
-                        {changeMenu === "detail" &&
-                            <>
-                                {loc.state.product.detail ? (
-                                    <div dangerouslySetInnerHTML={{ __html: loc.state.product.detail }} style={{ marginTop: '30px' }} />
-                                ) : (
-                                    <p>등록된 상세 정보가 없습니다.</p>
-                                )}
-                                <div className="bell-icon" onClick={() => { openMessage('report', loc.state.product) }}
-                                    style={{
-                                        position: 'fixed',
-                                        right: '20px',
-                                        bottom: '20px',
-                                        zIndex: 100,
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        backgroundColor: 'white',
-                                        padding: '8px',
-                                        borderRadius: '5px',
-                                        border: '1px solid #ccc',
-                                    }}
-                                >
-                                    <FaBell />
-                                    <span>상품신고</span>
-                                </div>
-                            </>
-                        }
-
-                        {changeMenu === "review" && (
-                            <ProductReview ref={reviewRef} getAverageStar={getAverageStar} averageStar={averageStar} reviewWrite={reviewWrite} setReviewWrite={setReviewWrite}/>
+                    <div style={{display: 'flex'}}>
+                        {loc.state.product.detail ? (
+                            <div className="product-bottom-left" dangerouslySetInnerHTML={{ __html: loc.state.product.detail }} style={{ padding: '15px', width: '50%'}} />
+                        ) : (
+                            <p>등록된 상세 정보가 없습니다.</p>
                         )}
+                        <div className="bell-icon" onClick={() => { openMessage('report', loc.state.product) }}
+                            style={{
+                                position: 'fixed',
+                                right: '20px',
+                                bottom: '20px',
+                                zIndex: 100,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                backgroundColor: 'white',
+                                padding: '8px',
+                                borderRadius: '5px',
+                                border: '1px solid #ccc',
+                            }}
+                        >
+                            <FaBell />
+                            <span>상품신고</span>
+                        </div>
+                        <div style={{width: '50%', borderLeft: '1px solid #ddd'}}><ProductReview ref={reviewRef} getAverageStar={getAverageStar} averageStar={averageStar} reviewWrite={reviewWrite} setReviewWrite={setReviewWrite}/></div>
 
                     </div>
                 </div>

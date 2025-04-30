@@ -19,8 +19,19 @@ public class MailService {
 
     public boolean sendVerificationCode(String email, String code) {
         try {
-            String subject = "인증번호 확인";
-            String message = "인증번호: " + code;
+            String subject = "\uD83D\uDD10 인증번호를 확인해주세요.";
+            String message = "<div style=\"font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; border: 2px solid #ccc; width: 80%; margin: 0 auto; padding: 20px; border-radius: 10px;\">" +
+                    "<div style=\"text-align: center; margin-bottom: 20px; background-color: #222; color: #fff; padding: 10px; letter-spacing: 10px; font-weight: bold; border-radius: 10px; font-size: 30px;\">MIMYO</div>" +
+                    "<h2 style=\"color: #2c3e50; text-align: center;\">🔐 인증번호 안내</h2>" +
+                    "<p style=\"text-align: center;\">안녕하세요! 😊</p>" +
+                    "<p style=\"text-align: center;\">요청하신 인증번호는 아래와 같습니다:</p>" +
+                    "<div style=\"width: 50%; margin: 0 auto; padding: 10px 15px; background-color: #f4f4f4; border: 1px dashed #ccc; display: block; text-align: center; font-size: 18px; font-weight: bold; letter-spacing: 2px;\">" +
+                    "✅ 인증번호: <span style=\"color: #D97B6D;\">" + code + "</span>" +
+                    "</div>" +
+                    "<p style=\"text-align: center;\">타인에게 공유하지 마시고, 정확히 입력해주세요.</p>" +
+                    "<p style=\"color: #999; font-size: 14px; text-align: center;\">감사합니다. 🙏</p>" +
+                    "</div>";
+
             sendEmail(email, subject, message);
             return true;
         } catch (Exception e) {
@@ -55,7 +66,8 @@ public class MailService {
             message.setFrom(new InternetAddress(googleOAuthConfig.getEmail()));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
             message.setSubject(subject);
-            message.setText(body);
+            message.setContent(body, "text/html; charset=UTF-8");
+
             Transport.send(message);
             log.info("📩 이메일 전송 성공: {}", recipientEmail);
         } catch (MessagingException e) {

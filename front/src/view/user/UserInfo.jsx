@@ -6,9 +6,8 @@ import CustomerReview from './CustomerReview';
 import { FaStar } from "react-icons/fa";
 
 function GradeBar({ point,gg }) {
-    const maxPoint = 10000;
+    const maxPoint = 5000;
     const percentage = Math.min((point / maxPoint) * 100, 100);
-    const level = Math.floor(point / 1000) + 1;
     const [grade, setGrade] = useState(['✊', '☝️', '✌️', '🖐️']);
     return (
         <div style={{ marginTop: '10px', width: '100%', maxWidth: '300px' }}>
