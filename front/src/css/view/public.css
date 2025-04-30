@@ -156,7 +156,11 @@ body{
 .main-text {
     font-family: 'WavvePADO-Regular';
     font-size: 2.3rem;
-    font-weight: 700;
+    font-weight: 500;
+    text-shadow: 
+        0 0 0.3px #333,
+        0 0 0.3px #333,
+        0 0 0.3px #333;
     letter-spacing: -0.5px; 
     color: #333;
     opacity: 0;
@@ -184,6 +188,26 @@ body{
     animation-timing-function: ease-in-out; /* 부드럽게 반복 */
 }
 
+.highlight-circle {
+    position: relative;
+    display: inline-block;
+    font-weight: 500;
+    font-size: 2.3rem;
+}
+
+.highlight-circle::before {
+    content: "";
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    background-color: rgba(255, 0, 0, 0.6);  /* 반투명 빨간색 */
+    border-radius: 50%;
+    box-shadow: 0 0 4px rgba(255, 0, 0, 0.6);
+}
+
 @keyframes fadeInWord {
     0% {
         opacity: 0;
@@ -208,7 +232,7 @@ body{
     overflow: hidden;
     margin: 0 auto;
     margin-top: 50px;
-    padding: 0 20px;
+    
 }
 
 .slider-image-banner {
@@ -286,6 +310,28 @@ body{
     padding: 0;
 }
 
+@media (max-width: 768px) {
+    .slider-image-banner {
+        width: 100%;
+        height: 250px;
+    }
+
+    .slider-image-wrapper {
+        width: 100%;
+        height: 100%;
+    }
+
+    .slider-image {
+        filter: none;
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .slick-center {
+        opacity: 1 !important;
+    }
+}
+
 .event-button {
     position: absolute;
     bottom: 20px;
@@ -351,7 +397,94 @@ body{
     }
 }
 
+@media (max-width: 768px) {
+    .event-button {
+        bottom: 12px;
+        right: 12px;
+        font-size: 12px;
+        padding: 8px 12px;
+        border-radius: 16px;
+    }
+
+    .main-coupon-badge {
+        top: 10px;
+        right: 12px;
+        font-size: 12px;
+        padding: 6px 10px;
+        border-radius: 8px;
+    }
+
+    .event-date-badge {
+        top: 8px;
+        left: 8px;
+        font-size: 12px;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .event-button {
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+
+    .main-coupon-badge {
+        font-size: 11px;
+        padding: 5px 8px;
+    }
+
+    .event-date-badge {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+}
+
 /* 메인 이벤트 배너 끝 */
+
+/* 메인 문구 반응형 */
+.mimyo-main-section {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto 60px auto;
+    padding: 40px 20px;
+    border-bottom: 1px solid #e0dcd5;
+    font-family: 'Pretendard', sans-serif;
+    text-align: center;
+  }
+  
+  .mimyo-main-title {
+    font-size: 32px;
+    color: #222;
+    font-weight: 700;
+    margin-bottom: 15px;
+    letter-spacing: -0.5px;
+  }
+  
+  .mimyo-main-subtext {
+    font-size: 18px;
+    color: #555;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+  
+  .mimyo-main-highlight {
+    font-weight: 600;
+    color: #8CC7A5;
+  }
+  
+  @media (max-width: 768px) {
+    .mimyo-main-title {
+      font-size: 22px;
+    }
+  
+    .mimyo-main-subtext {
+      font-size: 14px;
+      padding: 0 10px;
+    }
+  }
+
 
 /* 로딩 스피너 */
 .recommend-spinner {

@@ -1,3 +1,29 @@
+.submenu-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    text-align: center;
+    justify-content: center;
+    margin: auto;
+    margin-bottom: 150px;
+    width: 90%;
+    max-width: 800px;
+  }
+  
+  .submenu-grid-item {
+    padding: 0 10px;
+    width: 100px;
+    font-size: 11pt;
+    padding-bottom: 10px;
+  }
+  
+  @media (max-width: 768px) {
+    .submenu-grid-item {
+      width: 80px;
+      font-size: 10pt;
+    }
+  }
+
 .top-auction {
     position: fixed;
     left: 50%;
@@ -18,19 +44,20 @@
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
     transition: background-color 0.2s ease-in-out;
 }
-.hot-product-container {
-    width:70%;
-    margin:auto;
-    min-width: 1200px;
-    max-width: 1600px;
+
+.hot-product-container,
+.raw-container {
+  width: 90%;
+  max-width: 1600px;
+  margin: auto;
 }
 
-.raw-container {
-    width:70%;
-    margin:auto;
-    min-width: 1200px;
-    max-width: 1600px;
-}
+@media (max-width: 768px) {
+    .hot-product-container,
+    .raw-container {
+      width: 95%;
+    }
+  }
 
 .hot-title {
     font-size: 24px;
@@ -115,14 +142,24 @@
 }
 
 .hot-product-cards-wrapper {
-    width: 1130px;
-    overflow: hidden;
-}
+    width: 100%;
+    overflow-x: auto;
+    padding: 0 10px;
+  }
 
-.hot-product-cards {
-    display: flex;
-    transition: transform 0.3s ease-in-out;
-}
+  .hot-product-card {
+    width: 270px;
+    height: 350px;
+  }
+
+  @media (max-width: 768px) {
+    .hot-product-card {
+      width: 180px;
+      height: 260px;
+      font-size: 13px;
+    }
+  }
+  
 
 .hot-product-card {
     border:1px solid #ddd;
@@ -152,19 +189,25 @@
 }
 
 .polaroid-wall {
-    position: relative;
-    display: flex;
+    min-width: 0;
+    width: 100%;
+    padding: 20px;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 40px;
-    padding: 40px;
-    background: #eaeaea;
-    background-image: 
-      radial-gradient(#cfcfcf 1px, transparent 1px),
-      linear-gradient(transparent, rgba(0,0,0,0.02));
-    background-size: 10px 10px, 100% 100%;
-    overflow-x: hidden;
-    min-width: 1200px;
+  }
+
+  @media (max-width: 768px) {
+  .polaroid {
+    width: 140px;
+    height: 180px;
+  }
+
+  .polaroid p {
+    font-size: 12px;
+  }
+
+  .polaroid-meta {
+    font-size: 11px;
+  }
 }
 .polaroid {
     position: relative;
