@@ -24,7 +24,7 @@ function MyPurchases() {
     const [searchOption, setSearchOption] = useState('');
     const [shippingOption, setShippingOption] = useState('');
 
-    const [isReviewWritten, setIsReviewWritten] = useState({});
+    const [isReviewWritten, setIsReviewWritten] = useState(new Map());
 
     const dispatch = useDispatch();
 
@@ -65,6 +65,7 @@ function MyPurchases() {
     }, [loc, searchOption, shippingOption]);
 
     const getBoardList = () => {
+        setIsReviewWritten(new Map());
         if (user)
             axios.get(`${serverIP.ip}/order/orderList?nowPage=${nowPage}&state=${searchOption}&shippingState=${shippingOption}`, {
                 headers: { Authorization: `Bearer ${user.token}` }
@@ -81,44 +82,41 @@ function MyPurchases() {
                 setOrder(res.data.orderList);
                 setNowPage(res.data.pvo.nowPage);
                 setTotalRecord(res.data.pvo.totalRecord);
-
-                const promises = res.data.orderList.map(async order => {
-                    if (order.orders[0].productId !== null) {
-                        try {
-                            const response = await axios.get(`${serverIP.ip}/review/checkPurchase?userId=${user.user.id}&productId=${order.orders[0].productId}`, {
+    
+                const productCheckSet = new Set();
+                const promises = res.data.orderList.flatMap(order =>
+                    order.orders
+                        .filter(o => o.productId !== null && !productCheckSet.has(o.productId))
+                        .map(o => {
+                            productCheckSet.add(o.productId);
+                            return axios.get(`${serverIP.ip}/review/checkPurchase?userId=${user.user.id}&productId=${o.productId}`, {
                                 headers: { Authorization: `Bearer ${user.token}` }
-                            });
-                            return ({
-                                productId: order.orders[0].productId,
+                            }).then(response => ({
+                                productId: o.productId,
                                 review: response.data.review
+                            })).catch(err => {
+                                console.error(err);
+                                return { productId: o.productId, review: false };
                             });
-                        } catch (err) {
-                            console.error(err);
-                            return {
-                                productId: order.orders[0].productId,
-                                review: false
-                            };
-                        }
-                    } else {
-                        return Promise.resolve(null);
-                    }
-                });
-    
+                        })
+                );
+                
                 Promise.all(promises)
-                .then(results => {
-                    const resultMap = {};
-                    results.forEach(item => {
-                        if (item !== null) {
-                            resultMap[item.productId] = item.review;
-                        }
-                    });
-    
-                    setIsReviewWritten(resultMap);
+                    .then(results => {
+                        const resultMap = new Map();
+                        results.forEach(item => {
+                            if (item !== null) {
+                                resultMap.set(item.productId, item.review);
+                            }
+                        });
+                
+                        setIsReviewWritten(resultMap);
+                    })
+                    .catch(err => console.error('Promise all error:', err));
                 })
-                .catch(err => console.error('Promise all error:', err));
-            })
             .catch(err => console.log(err));
     };
+    
 
     function formatNumberWithCommas(num) {
         return num.toLocaleString();
@@ -278,10 +276,21 @@ function MyPurchases() {
                                                     ✅ 구매 확정
                                                     </span>
                                                     {
-                                                        !isReviewWritten[order.productId] &&
-                                                        <span onClick={()=>moveInfo(order.productId, 'review')} style={{background: 'rgb(40, 167, 69)', borderRadius: '5px', marginLeft: '10px', padding: '0 7px 0 5px', color: '#fff', cursor: 'pointer'}}>
-                                                        📝 리뷰 쓰기
-                                                        </span>
+                                                        isReviewWritten.has(order.productId) && !isReviewWritten.get(order.productId) && (
+                                                            <span
+                                                                onClick={() => moveInfo(order.productId, 'review')}
+                                                                style={{
+                                                                    background: 'rgb(40, 167, 69)',
+                                                                    borderRadius: '5px',
+                                                                    marginLeft: '10px',
+                                                                    padding: '0 7px 0 5px',
+                                                                    color: '#fff',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                            >
+                                                                📝 리뷰 쓰기
+                                                            </span>
+                                                        )
                                                     }
                                                     
                                                 </>
@@ -292,10 +301,21 @@ function MyPurchases() {
                                                     ✅ 구매 확정
                                                     </span>
                                                     {
-                                                        !isReviewWritten[order.productId] &&
-                                                        <span onClick={()=>moveInfo(order.productId, 'review')} style={{background: 'rgb(40, 167, 69)', borderRadius: '5px', marginLeft: '10px', padding: '0 7px 0 5px', color: '#fff', cursor: 'pointer'}}>
-                                                        📝 리뷰 쓰기
-                                                        </span>
+                                                        isReviewWritten.has(order.productId) && !isReviewWritten.get(order.productId) && (
+                                                            <span
+                                                                onClick={() => moveInfo(order.productId, 'review')}
+                                                                style={{
+                                                                    background: 'rgb(40, 167, 69)',
+                                                                    borderRadius: '5px',
+                                                                    marginLeft: '10px',
+                                                                    padding: '0 7px 0 5px',
+                                                                    color: '#fff',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                            >
+                                                                📝 리뷰 쓰기
+                                                            </span>
+                                                        )
                                                     }
                                                     
                                                 </>

@@ -101,7 +101,7 @@ public class InteractService {
     }
 
     public List<Coupon> getAllCouponList(CouponPagingVO pvo, User user){
-        if(pvo.getState() == null) return coupon_repo.findAllByUserOrderByIdDesc(user);
+        if(pvo.getState() == null) return coupon_repo.findAllByUserOrderByIdDesc(user, PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
         return coupon_repo.findAllByUserAndStateOrderByIdDesc(user, pvo.getState(), PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
     }
 
