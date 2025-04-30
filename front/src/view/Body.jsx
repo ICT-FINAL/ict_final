@@ -66,7 +66,7 @@ import AuctionBid from './auction/AuctionBid';
 import AuctionBidSuccess from './auction/AuctionBidSuccess';
 import ShippingTracker from './shipping/ShippingTracker';
 import Notice from './customerservice/Notice';
-import Chatting from './user/Chatting';
+import Chatting from './product/Chatting';
 import DeleteModal from '../modal/DeleteModal';
 import MelonGame from './event/coupon/MelonGame';
 import NoticeEdit from './customerservice/NoticeEdit';
