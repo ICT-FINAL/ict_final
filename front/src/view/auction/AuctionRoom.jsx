@@ -232,7 +232,7 @@ function AuctionRoom() {
                             <ul>
                                 <li style={{ display: 'flex' }}>
                                 <div className='product-profile-box'>
-                                <img id={`mgx-${roomInfo.auctionProduct.sellerNo.id}`} className='message-who' src={roomInfo.auctionProduct.sellerNo.uploadedProfileUrl ? `${serverIP.ip}${roomInfo.auctionProduct.sellerNo.uploadedProfileUrl}` : `${roomInfo.auctionProduct.sellerNo.kakaoProfileUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
+                                    <img id={`mgx-${roomInfo.auctionProduct.sellerNo.id}`} className='message-who' src={roomInfo.auctionProduct.sellerNo.uploadedProfileUrl ? `${serverIP.ip}${roomInfo.auctionProduct.sellerNo.uploadedProfileUrl}` : `${roomInfo.auctionProduct.sellerNo.kakaoProfileUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
                                     <div id={`mgx-${roomInfo.auctionProduct.sellerNo.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{roomInfo.auctionProduct.sellerNo.username} &gt;</div>
                                 </div>
                                 </li>
@@ -268,7 +268,7 @@ function AuctionRoom() {
                                     <li style={{borderTop:'1px solid #ddd'}}>
                                         <br/>
                                         <span>
-                                            배송비: {roomInfo.auctionProduct.shippingFee} 원
+                                            배송비: {formatNumberWithCommas(roomInfo.auctionProduct.shippingFee)} 원
                                         </span>
                                     </li>
                                    { user && user.user.id != roomInfo.auctionProduct.sellerNo.id &&
@@ -347,8 +347,8 @@ function AuctionRoom() {
                                     bidHistory.map((item, idx) => {
                                         return(<li>
                                             <div className='product-profile-box'>
-                                                {/* <img id={`mgx-${item.user.id}`} className='message-who' src={item.user.uploadedProfileUrl ? `${serverIP.ip}${item.user.uploadedProfileUrl}` : `${item.user.kakaoProfileUrl.indexOf('http')===-1 ? `${serverIP.ip}${item.user.sellerNo.kakaoProfileUrl}`:item.user.sellerNo.kakaoProfileUrl }`} /> */}
-                                               <div id={`mgx-${item.user.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{item.user.username} &gt;</div>
+                                            <img id={`mgx-${item.user.id}`} className='message-who' src={item.user.uploadedProfileUrl ? `${serverIP.ip}${item.user.uploadedProfileUrl}` : `${item.user.kakaoProfileUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
+                                            <div id={`mgx-${item.user.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{item.user.username} &gt;</div>
                                             </div>
                                             <div>
                                                 { item.state=='SUCCESS' && <div className='auc-stat' style={{backgroundColor:'#FFD700'}}>최종 입찰자</div>}
