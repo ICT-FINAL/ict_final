@@ -29,12 +29,19 @@
 .header-center {
     width: 50%;
 }
+
 .header-right {
     width: 40%;
     display: flex;
     align-items: center;
     gap: 8px;
 }
+
+@media screen and (max-width: 768px) {
+    .header-right {
+      justify-content: flex-end;
+    }
+  }
 
 .header-center ul {
     list-style: none;
@@ -152,6 +159,12 @@
     width: 17%;
     height: 80px;
     transition: all 0.5s;
+}
+
+@media screen and (max-width: 768px) {
+    .header-search-box {
+      display: none;
+    }
 }
 
 .recent-search-list {
@@ -388,4 +401,10 @@
 .badge span{
     position: relative;
     top:-1px;
+}
+
+@media(max-width:780px) {
+    .menu-icon{
+        right:50px;
+    }
 }
