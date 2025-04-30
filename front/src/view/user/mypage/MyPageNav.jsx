@@ -82,7 +82,7 @@ function MyPageNav({ path, isOpen, closeNav }) {
                     <li onClick={() => handleClick("/mypage/order")} style={path.l_name === "구매 통계" ? clickedStyle : {}}>
                         <span style={path.l_name === "구매 통계" ? clickedStyle2 : {}}>구매 통계</span>
                     </li>
-                    <li onClick={() => handleClick("/mypage/stats-sales")} style={path.l_name === "판매 통계" ? clickedStyle : {}}>
+                    <li onClick={() => handleClick("/mypage/salesstat")} style={path.l_name === "판매 통계" ? clickedStyle : {}}>
                         <span style={path.l_name === "판매 통계" ? clickedStyle2 : {}}>판매 통계</span>
                     </li>
                 </ul>

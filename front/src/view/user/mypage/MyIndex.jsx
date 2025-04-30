@@ -20,6 +20,7 @@ import MyReviewList from "./MyReviewList";
 import MyBid from "./MyBid";
 import MyActivity from "./MyActivity";
 import MyOrder from "./MyOrder";
+import MySales from "./MySales";
 import MyCoupon from "./MyCoupon";
 import MyPoint from "./MyPoint";
 import UserDelete from "./UserDelete";
@@ -62,7 +63,7 @@ useEffect(() => {
             buybid: { f_name:"거래내역", l_name:"구매 입찰 내역"},
             activity: { f_name: "통계", l_name: "활동 통계" },
             order: { f_name: "통계", l_name: "구매 통계" },
-            "stats-sales": { f_name: "통계", l_name: "판매 통계" },
+            salesstat: { f_name: "통계", l_name: "판매 통계" },
             deleteAccount: { f_name: "회원 탈퇴", l_name: "회원 탈퇴" },
         };
 
@@ -116,6 +117,7 @@ useEffect(() => {
                     { path.l_name == '구매 입찰 내역' && <MyBid/> }
                     { path.l_name == '활동 통계' && <MyActivity/> }
                     { path.l_name == '구매 통계' && <MyOrder/> }
+                    { path.l_name == '판매 통계' && <MySales/> }
                     { path.l_name == '쿠폰함' && <MyCoupon/> }
                     { path.l_name == '적립 내역' && <MyPoint/> }
                     { path.l_name == '회원 탈퇴' && <UserDelete/>}
