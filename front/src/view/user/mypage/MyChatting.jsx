@@ -93,10 +93,21 @@ function MyChatting() {
                     return (
                         <div key={idx} className="chat-room" onClick={()=>navigate(`/product/chat/${room.chatRoomId}`)}
                             style={room.lastChat.read || room.lastChat.sender.id === user.user.id ? {background: '#f8f8f8'} : {}}>
-                            <img className="chat-user-img" style={{width: '80px', height: '80px'}} src = {selectedUser.profileImageUrl.indexOf('http') !==-1 ? `${selectedUser.profileImageUrl}`:`${serverIP.ip}${selectedUser.profileImageUrl}`} alt=''/>
+                            {
+                                room.product
+                                ? 
+                                <img className="chat-room-img" 
+                                    style={{borderRadius: '5px'}}
+                                    src = {`${serverIP.ip}/uploads/product/${room.product.id}/${room.product.images[0].filename}`} alt=''
+                                />
+                                :
+                                <img className="chat-room-img" 
+                                    src = {selectedUser.profileImageUrl.indexOf('http') !==-1 ? `${selectedUser.profileImageUrl}`:`${serverIP.ip}${selectedUser.profileImageUrl}`} alt=''
+                                />
+                            }
                             <div style={{display: 'flex', flexDirection: 'column', paddingLeft: '3%', width: '85%'}}>
                                 <div>
-                                    <span><b>{selectedUser.username}</b></span>
+                                    <span style={{color: room?.product?.sellerNo.id === user.user.id ? '#2e704a' : ''}}><b>{room.product ? room.product.productName : selectedUser.username}</b></span>
                                     <span className='date'>{getTime(room.lastChat.sendTime)}</span><br/>
                                 </div>
                                 <div style={{

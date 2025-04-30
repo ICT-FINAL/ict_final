@@ -1041,14 +1041,15 @@
 
 /* 상세정보, 리뷰....... 등 Tab */
 .product-div{
-    padding: 15px 60px;
+    width: 50%;
+    text-align: center;
+    padding: 15px;
 }
 
-.product-div:hover{
-    background-color: #edfcf3;
-    cursor: pointer;
+.product-bottom-left img {
+    width: 100%;
+    height: 100%;
 }
-
 
 /* 배송 모달 */
 #shipping-modal{

@@ -534,6 +534,20 @@
     color: #636e72;
     margin-top: 50px;
   }
+
+.order-control-btn, .order-cancel-btn {
+    margin-top: 20px;
+    cursor: pointer;
+    border: none;
+    padding: 10px 15px;
+    font-size: 18px;
+    border-radius: 5px;
+    background-color: #90B892;
+    color: white;
+}
+.order-cancel-btn {
+    background-color: #D97B6D;
+}
   
 /* 주문 내역 끝 */
 

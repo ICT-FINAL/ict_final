@@ -247,14 +247,9 @@ function MySell() {
                                         <><strong>최종 결제 금액:</strong> {formatNumberWithCommas(orderSum + order.shippingFee)}원</>:<><strong>최종 결제 금액:</strong> {formatNumberWithCommas( order.auctionProduct.discountRate+ order.shippingFee)}원</>
                                     }
                                     </div>
-                                    {order.shippingState==='BEFORE' && <button style={{marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'
-                                        ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#8CC7A5'
-                                    }} onClick={()=>setShipping(order.id)}>배송 등록</button>}
-                                    {order.shippingState==='PAID' && <><button style={{marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'
-                                        ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#8CC7A5'
-                                    }} onClick={()=>setOrderConfirm(order.id)}>주문 확인</button><button style={{marginTop:'20px', marginLeft:'10px', cursor:'pointer', border:'none', padding:'10px 20px'
-                                        ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#e74c3c', color:'white'
-                                        }} onClick={()=>cancelOrder(order.id)}>배송 취소</button></>}
+                                    {order.shippingState==='BEFORE' && <button className="order-control-btn" onClick={()=>setShipping(order.id)}>배송 등록</button>}
+                                    {order.shippingState==='PAID' && <><button className="order-control-btn" style={{backgroundColor:'#90B892'}} onClick={()=>setOrderConfirm(order.id)}>주문 확인</button>
+                                    <button className="order-cancel-btn" style={{marginLeft:'10px'}} onClick={()=>cancelOrder(order.id)}>배송 취소</button></>}
                                      {order.shippingState==='ONGOING' && <><br/><span style={{color:'#e74c3c'}}>※구매자가 배송 완료 처리시 배송 완료 됩니다.※</span></>}
                                 </div>
                             );

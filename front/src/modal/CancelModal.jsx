@@ -154,7 +154,7 @@ function CancelModal() {
         padding:'10px 20px',
         fontSize:'18px',
         borderRadius:'5px',
-        backgroundColor: agree ? '#8CC7A5' : '#ccc',
+        backgroundColor: agree ? '#D97B6D' : '#ccc',
         color: 'white',
 
     }

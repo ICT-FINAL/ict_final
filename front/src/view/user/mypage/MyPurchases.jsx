@@ -335,15 +335,14 @@ function MyPurchases() {
                                         </div>
                                         </>
                                         }
-                                        {order.shippingState==='PAID' && <><button style={{marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'
-                                        ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#e74c3c', color:'white'
-                                        }} onClick={()=>cancelOrder(order.id)}>주문 취소</button></>}
+                                        {order.shippingState==='PAID' && <><button className="order-cancel-btn" onClick={()=>cancelOrder(order.id)}>주문 취소</button></>}
 
-                                        {order.shippingState==='ONGOING' && <><button style={{marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'
-                                        ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#8CC7A5'
-                                        }} onClick={()=>endShipping(order.id)}>구매 확정</button><button style={{marginLeft:'10px',marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'
-                                            ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#e74c3c', color:'white'
-                                            }} onClick={()=>refundOrder(order.id)}>환불 신청</button></>}
+                                        {
+                                            order.shippingState==='ONGOING' &&
+                                            <>
+                                                <button className="order-control-btn" onClick={()=>endShipping(order.id)}>구매 확정</button>
+                                                <button className="order-cancel-btn"style={{marginLeft:'10px'}} onClick={()=>refundOrder(order.id)}>환불 신청</button></>
+                                        }
                                         <br/>
                                         {order.shippingState==='ONGOING' && <><br/><span style={{color:'#e74c3c'}}>※배송 완료시 환불이 불가능 합니다. 배송 완료는 2주 내 자동으로 배송 완료상태로 변경됩니다.※</span></>}
                                     </div>
