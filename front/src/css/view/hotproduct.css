@@ -529,8 +529,6 @@
     color: #555;
 }
 
-
-
 @media screen and (max-width: 1100px) {
     .pop-list-wrapper{
         min-height: 750px;
@@ -542,13 +540,8 @@
     }
 
     .pop-left {
-        flex: none;
-        width: 100%;
-        display: flex;           /* flex 박스로 설정 */
-        flex-direction: column;  /* 세로 정렬 유지 */
-        align-items: center;     /* 수직축(가로 기준) 가운데 정렬 */
-        justify-content: center; /* 수평축(세로 기준) 가운데 정렬 */
         padding: 20px 0;
+        border-radius: 25px;
     }
 
     .pop-left img {
@@ -569,8 +562,18 @@
 
     .pop-right{
         padding-top: 60px;
+        border-radius: 25px;
+    }
+
+    .pop-author-desc{
+        margin-top: 80px;
+    }
+
+    .pop-product-item{
+        width:70px;
     }
 }
+
 /* 감성 강조용 폰트 및 배경 */
 .search-page-banner h1 {
     font-size: 32px;
