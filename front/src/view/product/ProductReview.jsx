@@ -424,7 +424,6 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
     
     return(
         <>
-            <div style={{fontSize:'20px', fontWeight:'700', padding:'10px 30px'}}>리뷰({reviewList.length})</div>
             <div   style={{display: 'flex', justifyContent: 'center'}}> 
                 {/* 평균 별점 */}
                 {averageStar !== null ? (

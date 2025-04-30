@@ -341,7 +341,7 @@ function AuctionRoom() {
                         <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
                     </div>
                     <div className='auction-bottom'>
-                        <div style={{overflow:'hidden', width:'50%'}}><div dangerouslySetInnerHTML={{ __html: roomInfo.auctionProduct.detail }} style={{ width:'100%', padding: '30px'}} /></div>
+                        <div style={{overflow:'hidden', width:'50%'}}><div dangerouslySetInnerHTML={{ __html: roomInfo.auctionProduct.detail }} style={{ width:'calc(100% - 40px)', padding: '30px'}} /></div>
                         <div className='auction-bottom-right'>
                             <ul>
                                 {

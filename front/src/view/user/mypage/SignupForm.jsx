@@ -358,6 +358,11 @@ function SignupForm() {
     return (
         <>
         <div id="modal-background" style={modalBackStyle}></div>
+        {isSendingCode && (
+            <div className="blocking-overlay">
+                <div className="spinner"></div>
+            </div>
+        )}
             <div className="sign-up-form">
                 <h2>회원가입</h2>
                 <label>아이디</label>
