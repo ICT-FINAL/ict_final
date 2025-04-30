@@ -68,7 +68,6 @@ function Login({ onClose }) {
             }
         } catch (err) {
             setIsLogin(true);
-            console.log(err.response.data.substring(0,2));
             if(err.response.data.substring(0,2) === '유저')setUseridValid(false);
             else if(err.response.data.substring(0,2) === '비밀') {
                 setUseridValid(true);

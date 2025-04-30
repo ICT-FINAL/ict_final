@@ -412,9 +412,14 @@
 .pop-author-desc {
     font-size: 16px;
     color: #555;
-    line-height: 1.7;
-    max-height: 60px;
+    line-height: 1.3;
     max-width: 500px;
+    margin: 20px auto 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;  
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .pop-author-stats {
@@ -425,7 +430,7 @@
 }
 
 .pop-author-stats li {
-    margin-bottom: 10px;
+    line-height: 2;
 }
 
 .pop-author-stats li strong {
@@ -479,21 +484,10 @@
     position: absolute;
 }
 
-.pop-right > div:last-child {
-    margin-bottom: 0; /* 마지막 섹션 하단 마진 제거 */
-}
-
-.pop-product-list-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 10px;
-}
-
 .pop-product-list {
     display: flex;
-    gap: 10px; /* 상품 아이템 간 간격 */
-    overflow-x: auto; /* 가로 스크롤 가능 */
+    gap: 10px;
+    overflow-x: auto;
 }
 
 .pop-product-item {
@@ -501,13 +495,13 @@
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     padding: 10px;
-    width: 100px; /* 상품 아이템 너비 조정 */
+    width: 100px;
     text-align: center;
     font-size: 14px;
     color: #666;
-    white-space: nowrap; /* 텍스트 한 줄로 표시 */
+    white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; /* 넘치는 텍스트 ... 처리 */
+    text-overflow: ellipsis;
 }
 
 .pop-product-item img {
@@ -577,4 +571,109 @@
         padding-top: 60px;
     }
 }
+/* 감성 강조용 폰트 및 배경 */
+.search-page-banner h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #333;
+    text-align: center;
+    font-family: 'Pretendard', sans-serif;
+    letter-spacing: -0.5px;
+    animation: fadeInDown 0.8s ease-out;
+  }
+  
+  .search-page-banner p {
+    animation: fadeIn 1.2s ease-out;
+  }
+  
+  /* 작가 왼쪽 정보 */
+  .pop-left {
+    background: linear-gradient(135deg, #e6f4f1, #8CC7A5);
+    padding: 20px;
+    border-top-left-radius: 25px;
+    border-bottom-left-radius: 25px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+    animation: fadeInLeft 0.8s ease-out;
+  }
+  
+  .pop-profile-img {
+    border: 4px solid white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    border-radius: 100%;
+    transition: transform 0.3s ease;
+  }
+  .pop-profile-img:hover {
+    transform: scale(1.05);
+  }
+  
+  /* 오른쪽 작가 설명 */
+  .pop-right {
+    animation: fadeInRight 0.8s ease-out;
+    background: #fff;
+    border-top-right-radius: 25px;
+    border-bottom-right-radius: 25px;
+    padding: 20px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+  }
+  
+  /* 등록 작품 */
+  .pop-product-item img {
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+  }
+  .pop-product-item img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  
+  /* 이동 버튼 스타일 업 */
+  .pop-go-info {
+    margin-top: 20px;
+    background-color: #8CC7A5;
+    color: white;
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+  }
+  .pop-go-info:hover {
+    background-color: #4a7b63;
+    cursor: pointer;
+  }
+  
+  /* 네비게이션 버튼 */
+  .pop-nav {
+    font-size: 24px;
+    color: white;
+    background: rgba(0,0,0,0.5);
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+    transition: background 0.3s;
+  }
+  .pop-nav:hover {
+    background: #8CC7A5;
+  }
+  
+  /* 애니메이션 */
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes fadeInLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  
+  @keyframes fadeInRight {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
   

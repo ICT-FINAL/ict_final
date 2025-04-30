@@ -225,7 +225,6 @@ function ProductSell() {
         if (!validateMainOptions()) {
             return;
         }
-        console.log(formData.options);
         // 소분류 옵션 추가시에 소분휴 이름이 비어있으면 검사
         for (let i = 0; i < formData.options.length; i++) {
             if(formData.options[i].subOptions.length === 0) {

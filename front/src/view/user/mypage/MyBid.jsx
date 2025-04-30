@@ -60,7 +60,6 @@ function MyBid() {
                 setBid(res.data.bidList);
                 setNowPage(res.data.pvo.nowPage);
                 setTotalRecord(res.data.pvo.totalRecord);
-                console.log(res.data);
             })
             .catch(err => {
                 console.log(err);

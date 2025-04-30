@@ -4,6 +4,7 @@ import com.ict.serv.controller.admin.PagingVO;
 import com.ict.serv.dto.UserPwdModDto;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.report.ReportState;
+import com.ict.serv.entity.review.Review;
 import com.ict.serv.entity.user.Address;
 import com.ict.serv.entity.user.AddressState;
 import com.ict.serv.entity.user.Guestbook;
@@ -89,10 +90,13 @@ public class MypageController {
 
         List<Product> productList = productService.selectProductByUser(user);
         int reviewCount = reviewService.countAllByProductList(productList);
-
+        List<Review> reviewList = new ArrayList<>();
         float total = 0;
         for(Product product:productList) {
-            total += product.getRating();
+            reviewList.addAll(reviewService.productReviewList(product));
+        }
+        for(Review review: reviewList) {
+            total+= Float.parseFloat(review.getRate());
         }
 
         Map<String, Object> info = new HashMap<>();

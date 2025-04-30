@@ -36,7 +36,6 @@ function MyReport() {
           headers: { Authorization: `Bearer ${user.token}` },
         })
         .then((res) => {
-          console.log(res.data);
           const newPageNumbers = [];
           for (
             let p = res.data.pvo.startPageNum;

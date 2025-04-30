@@ -50,7 +50,6 @@ function Report() {
       }
       else {
         setTarget(modalSel.selectedItem);
-        //console.log("모달 셀렉티드아이템!!", modalSel.selectedItem);
       }
     }
   }, [modalSel.isOpen]);

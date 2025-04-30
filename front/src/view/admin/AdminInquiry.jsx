@@ -61,7 +61,6 @@ function AdminInquiry() {
             }
         })
         .then(response => {
-            console.log(response.data);
             const { inquiryList, pvo } = response.data;
             const newPageNumbers = [];
             if (pvo && pvo.totalPage > 0) {
@@ -207,7 +206,6 @@ function AdminInquiry() {
             </ul>
         );
     };
-    console.log("Rendering ANSWER inquiries:", inquiriesAnswer);
     return (
         <div style={{ padding: '10px 20px' }}>
             <div className='inquiry-box'>

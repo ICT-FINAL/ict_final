@@ -41,10 +41,6 @@ function Main() {
     }
 
     useEffect(() => {
-        console.log("현재 로그인된 사용자:", user);
-    }, [user]);
-
-    useEffect(() => {
         const now = new Date();
         axios.get(`${serverIP.ip}/event/getEventList`)
             .then(res => {
@@ -93,7 +89,6 @@ function Main() {
         now.setHours(0, 0, 0, 0);
         axios.get(`${serverIP.ip}/submenu/getSubMenuList`)
             .then(res => {
-                console.log(res.data);
                 const ongoing = res.data.filter(submenu => {
                     const end = new Date(submenu.endDate);
                     return end >= now;
@@ -146,7 +141,6 @@ function Main() {
     }, [activeTab, currentMonth, currentYear]);
 
     const moveSubMenu = (tar) => {
-        console.log(tar.subMenuCategory);
         const str = tar.subMenuCategory;
 
         const result = [];

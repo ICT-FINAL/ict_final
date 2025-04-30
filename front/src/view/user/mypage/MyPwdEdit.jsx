@@ -124,7 +124,6 @@ function MyPwdEdit(){
                 }
             })
             .then(res => {
-                console.log(res.data);
                 if(res.data==="pwdEditOk"){
                     window.alert("정상적으로 수정이 완료되었습니다.\n다시 로그인해주세요.");
                     handleLogout();

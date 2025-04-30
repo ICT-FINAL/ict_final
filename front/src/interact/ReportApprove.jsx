@@ -55,14 +55,14 @@ function ReportApprove() {
       setIsRegex({ isOpen: true, msg: '내용이 너무 깁니다' });
       return;
     }
-    if (user) { console.log("모달?????????????", modal.info) }
-    axios.get(`${serverIP.ip}/admin/reportApprove?toId=${modal.info.toId}&fromId=${modal.info.fromId}&reportId=${modal.info.reportId}&sort=${modal.info.sort}&sortId=${modal.info.sortId}&approveType=${report_cat}&comment=${encodeURIComponent(comment)}`, {
-      headers: { Authorization: `Bearer ${user.token}` },
-    })
-      .then(res => {
-        modalClose();
+    if (user)
+      axios.get(`${serverIP.ip}/admin/reportApprove?toId=${modal.info.toId}&fromId=${modal.info.fromId}&reportId=${modal.info.reportId}&sort=${modal.info.sort}&sortId=${modal.info.sortId}&approveType=${report_cat}&comment=${encodeURIComponent(comment)}`, {
+        headers: { Authorization: `Bearer ${user.token}` },
       })
-      .catch(err => console.log(err))
+        .then(res => {
+          modalClose();
+        })
+        .catch(err => console.log(err))
   }
 
   useEffect(() => {

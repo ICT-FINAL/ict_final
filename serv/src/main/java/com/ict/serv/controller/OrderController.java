@@ -4,6 +4,8 @@ import com.ict.serv.controller.admin.PagingVO;
 import com.ict.serv.dto.OrderRequest;
 import com.ict.serv.dto.OrderRequestDto;
 import com.ict.serv.entity.auction.AuctionProduct;
+import com.ict.serv.entity.auction.AuctionRoom;
+import com.ict.serv.entity.auction.AuctionState;
 import com.ict.serv.entity.message.Message;
 import com.ict.serv.entity.order.*;
 import com.ict.serv.entity.product.Option;
@@ -150,8 +152,6 @@ public class OrderController {
                     }
                     interactService.sendMessage(msg);
                 }
-
-
                 return "ok";
             } else {
                 return "err2";
@@ -175,6 +175,10 @@ public class OrderController {
         User user = interactService.selectUserByName(userDetails.getUsername());
         Address address = new Address();
         address.setId(Long.valueOf(request.getAddrId()));
+
+        AuctionRoom auctionRoom = auctionService.getAuctionRoom(auctionService.getAuctionRoomByProduct(auctionService.getAuctionProduct(request.getProductId()))).get();
+        System.out.println(auctionRoom.getState());
+        if (auctionRoom.getState() == AuctionState.CLOSED) return null;
 
         // OrderGroup 객체 생성
         OrderGroup orderGroup = new OrderGroup();

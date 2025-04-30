@@ -19,19 +19,18 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
 
     // 선택한 상품에 대해 구매자인지 확인 
     useEffect(() => {
-        axios.get(`${serverIP.ip}/review/checkPurchase?userId=${user.user.id}&productId=${loc.state.product.id}`, {
-            headers: { Authorization: `Bearer ${user.token}` }
-        })
-        .then(function(response) {  
-            //  console.log(response.data.purchased);
-            //  console.log(response.data.review);
-            if (response.data.purchased === true) {
-                setIsPurchased(true);
-            }
-        })
-        .catch(function(error) {
-            console.log(error);
-        });
+        if(user)
+            axios.get(`${serverIP.ip}/review/checkPurchase?userId=${user.user.id}&productId=${loc.state.product.id}`, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            })
+            .then(function(response) {  
+                if (response.data.purchased === true) {
+                    setIsPurchased(true);
+                }
+            })
+            .catch(function(error) {
+                console.log(error);
+            });
     }, []);
 
     // 별점 
@@ -65,7 +64,6 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
 
         // 총 크기 계산
         const totalSize = allFiles.reduce((sum, file) => sum + file.size, 0);
-        console.log("누적 총 파일 크기:", totalSize);
 
         if (totalSize > MAX_TOTAL_SIZE) {
             alert("전체 파일 크기의 합이 10MB를 초과합니다. 더 작은 파일을 선택해주세요.");
@@ -110,23 +108,21 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
     }, [serverIP, loc, user]);
 
     const getReviewList = () => {
-        if(user)
-            axios.get(`${serverIP.ip}/review/productReviewList?productId=${loc.state.product.id}`, {
-                headers: { Authorization: `Bearer ${user.token}` }
-            })
-            .then(response => {
-                setReviewList(response.data);
-                // 리뷰를 작성한 사용자가 있는지 확인
-                const hasReviewed = response.data.some(review => review.user.id=== user.user.id);
-                setIsReview(hasReviewed); // 이미 리뷰를 작성했으면 true, 아니면 false
-            })
-            .catch(error => {
-                console.error(error);
-            });
+        axios.get(`${serverIP.ip}/review/productReviewList?productId=${loc.state.product.id}`)
+        .then(response => {
+            setReviewList(response.data);
+            // 리뷰를 작성한 사용자가 있는지 확인
+            const hasReviewed = response.data.some(review => user && review.user.id=== user.user.id);
+            setIsReview(hasReviewed); // 이미 리뷰를 작성했으면 true, 아니면 false
+        })
+        .catch(error => {
+            console.error(error);
+        });
     }
 
     //리뷰좋아요버튼 
     const handleLike = async (reviewId, userId, review) => {
+        if(!userId) return;
         try {
             let updatedLikes = review.likes;
     
@@ -222,7 +218,6 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
       }, [isMod]);
 
     const handleModClick = (review) => {
-        console.log(review);
     
         Promise.all(
             review.images.map(file =>
@@ -279,7 +274,6 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
             }
         })
         .then(function (response) {
-            console.log(response.data);
 
             if (response.data === "reviewAddOk" || response.data === "reviewModOk") {
                 // 새로고침해도 리뷰 탭 유지
@@ -310,7 +304,6 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
                 headers: { Authorization: `Bearer ${user.token}` } 
             })
             .then(res=>{
-                console.log(res.data);
                 getReviewList();
                 getAverageStar();
                 dispatch(setModal({delCheck:''}));
@@ -788,13 +781,13 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
                                             )}
                                         </div>
                                     )}
-                                    {user.user.id === review.user.id && (
+                                    {user && user.user.id === review.user.id && (
                                         <div className="review-action-buttons">
                                             <button className="edit-button" onClick={() => handleModClick(review)}>수정</button>
                                             <button id={`review-delll-${review.id}`} className="del-button">삭제</button>
                                         </div>
                                     )}
-                                    <button className="like-button" onClick={(e) => {e.stopPropagation(); handleLike(review.id, user.user.id, review);}}>
+                                    <button className="like-button" onClick={(e) => {e.stopPropagation(); handleLike(review.id, user, review);}}>
                                         {review.likes?.some(like => like.user.id === user.user.id) ? '❤️' : '🤍'} {review.likes?.length || 0}
                                     </button>
                                 </div>

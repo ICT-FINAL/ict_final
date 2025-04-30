@@ -70,7 +70,6 @@ function MyPurchases() {
                 headers: { Authorization: `Bearer ${user.token}` }
             })
             .then(res => {
-                console.log(res.data);
                 const newPageNumbers = [];
                 for (let p = res.data.pvo.startPageNum; p < res.data.pvo.startPageNum + res.data.pvo.onePageCount; p++) {
                     if (p <= res.data.pvo.totalPage) {
@@ -274,6 +273,20 @@ function MyPurchases() {
                                                 </span>
                                             )}
                                             {order.shippingState === 'FINISH' && (
+                                                <>
+                                                    <span style={{ color: '#28a745', fontWeight: '600' }}>
+                                                    ✅ 구매 확정
+                                                    </span>
+                                                    {
+                                                        !isReviewWritten[order.productId] &&
+                                                        <span onClick={()=>moveInfo(order.productId, 'review')} style={{background: 'rgb(40, 167, 69)', borderRadius: '5px', marginLeft: '10px', padding: '0 7px 0 5px', color: '#fff', cursor: 'pointer'}}>
+                                                        📝 리뷰 쓰기
+                                                        </span>
+                                                    }
+                                                    
+                                                </>
+                                            )}
+                                            {order.shippingState === 'SETTLED' && (
                                                 <>
                                                     <span style={{ color: '#28a745', fontWeight: '600' }}>
                                                     ✅ 구매 확정

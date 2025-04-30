@@ -38,7 +38,6 @@ function MyCoupon(){
                 headers: { Authorization: `Bearer ${user.token}` }
             })
             .then(res => {
-                console.log(res.data)
                 const newPageNumbers = [];
                 for (let p = res.data.pvo.startPageNum; p < res.data.pvo.startPageNum + res.data.pvo.onePageCount; p++) {
                     if (p <= res.data.pvo.totalPage) {

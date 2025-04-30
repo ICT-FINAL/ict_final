@@ -4,8 +4,6 @@ import axios from 'axios';
 
 import Main from "./Main";
 
-import Test from './Test';
-
 import '../css/floatstyle.css';
 
 import SignupHandler from "./user/SignupHandler";
@@ -52,8 +50,6 @@ import EventInfo from './event/EventInfo';
 import EventEdit from './event/EventEdit';
 import SubMenuIndex from './submenu/SubMenuIndex';
 import SubMenuWrite from './submenu/SubMenuWrite';
-import SubMenuInfo from './submenu/SubMenuInfo';
-import CommunityIndex from './community/CommunityIndex';
 import UserInfo from './user/UserInfo';
 
 import AuctionIndex from './auction/AuctionIndex';
@@ -119,21 +115,6 @@ function Body() {
 
       const handleClick = (e) => {
         if (e.target.className === 'message-who' || e.target.className === 'msg-who') {
-          /*
-          axios.post(`${serverIP}/tech/selUser`, {
-            id: e.target.id.split('-')[1],
-          })
-          .then(res => {
-            if (sessionStorage.getItem('id') != res.data.id) {
-              setInteract({
-                selected: res.data,
-                isOpen: true,
-                where: e,
-              });
-            }
-          })
-          .catch(err => console.log(err));
-          */
           if (user)
             axios.get(`${serverIP.ip}/auth/me`, {
               headers: { Authorization: `Bearer ${user.token}` }
@@ -170,26 +151,11 @@ function Body() {
     var item4 = new Item("chat", "fas fa-chat-alt", "", "");
     menu.add(item1);
     menu.add(item2);
-    menu.add(item3);
     menu.add(item4);
+    menu.add(item3);
     let homeButton=document.getElementById("home");
     var upButton=document.getElementById("up");
     let chatButton=document.getElementById("chat");
-
-    if (user) {
-      axios.get(`${serverIP.ip}/chat/unreadChatCount`, {
-        headers: { Authorization: `Bearer ${user.token}` }
-      })
-      .then(res=>{
-        if (res.data > 0) {
-          const countIcon = document.createElement("span");
-          countIcon.id = "count-icon";
-          countIcon.textContent = res.data;
-          chatButton.appendChild(countIcon);
-        }
-      })
-      .catch(err=>console.log(err));
-    }
     
     homeButton.addEventListener('click', () => {
       menu.close();
@@ -212,6 +178,34 @@ function Body() {
 
     let clicked = false;
   },[]);
+
+  useEffect(()=>{
+    if (user) {
+      axios.get(`${serverIP.ip}/chat/unreadChatCount`, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      })
+      .then(res=>{
+        const chatElement = document.getElementById("chat");
+        const existingIcon = document.getElementById("count-icon");
+
+        if (res.data > 0) {
+          if (!existingIcon) {
+            const countIcon = document.createElement("span");
+            countIcon.id = "count-icon";
+            countIcon.textContent = res.data;
+            chatElement.appendChild(countIcon);
+          } else {
+            existingIcon.textContent = res.data;
+          }
+        } else {
+          if (existingIcon) {
+            chatElement.removeChild(existingIcon);
+          }
+        }
+      })
+      .catch(err=>console.log(err));
+    }
+  },[location.pathname]);
 
   return (<>
     {modal.isOpen && modal.selected == '1' && <ModalIndex />}
@@ -237,7 +231,6 @@ function Body() {
     {modal.isOpen && modal.selected.indexOf('delll') !== -1 && <DeleteModal />}
     <Routes>
       <Route path="/" element={<Main />} />
-      <Route path="/test" element={<Test />} />
       <Route path="/signup/info" element={<SignupInfo />} />
       <Route exact path="/login/oauth2/code/kakao" element={<SignupHandler />} />
       <Route exact path="/login/oauth2/code/google" element={<GoogleSignupHandler />} />
@@ -285,9 +278,6 @@ function Body() {
 
       <Route path='/submenu/*' element={<SubMenuIndex />}></Route>
       <Route path='/submenu/write' element={<SubMenuWrite />}></Route>
-      <Route path='/submenu/info' element={<SubMenuInfo />}></Route>
-
-      <Route path='/community/*' element={<CommunityIndex />}></Route>
 
       <Route path='/auction/*' element={<AuctionIndex />}></Route>
       <Route path='/auction/room/:roomId' element={<AuctionRoom />}></Route>

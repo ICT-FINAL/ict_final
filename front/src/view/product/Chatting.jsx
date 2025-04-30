@@ -29,7 +29,6 @@ function Chatting() {
                     behavior: 'smooth',
                 });
             }
-            console.log(chatHistory);
         }
     },[chatHistory])
 
@@ -71,7 +70,7 @@ function Chatting() {
             })
             return () => {
                 stompClient.disconnect(() => {
-                    console.log('Disconnected from chat room');
+                    //추후 구현현
                 });
             };
         }
@@ -221,7 +220,9 @@ function Chatting() {
                                 }
                                 {
                                     roomInfo.state === 'LEFT' &&
-                                    <div style={{textAlign: 'center', padding: '10px', color: '#555'}}>- {user.user.id === roomInfo.participantA.id ? roomInfo.participantB.username : roomInfo.participantA.username}님이 방을 나가셨습니다 -</div> 
+                                    <div style={{textAlign: 'center', padding: '10px', color: '#555'}}>
+                                        - {user.user.id === roomInfo.participantA.id ? roomInfo.participantB.username : roomInfo.participantA.username}님이 방을 나가셨습니다 -
+                                    </div> 
                                 }
                             </div>
                             <div className="chat-input">
