@@ -20,17 +20,14 @@ function MyChatting() {
     useEffect(()=>{
         getChatRoomList();
         getProductChatRoomList();
-        console.log("!!!!");
     }, [isMessage]);
 
     const getChatRoomList = ()=>{
         axios.get(`${serverIP.ip}/chat/chatRoomList?tab=default`,
             { headers: {Authorization: `Bearer ${user.token}`}})
         .then(res=>{
-            console.log(res.data);
             setChatRoomList(res.data);
             res.data.map(room=>{
-                console.log(room);
                 const socket = new SockJS(`${serverIP.ip}/ws`);
                 const stompClient = Stomp.over(socket);
                 stompClientRef.current = stompClient;
@@ -49,10 +46,8 @@ function MyChatting() {
         axios.get(`${serverIP.ip}/chat/chatRoomList?tab=product`,
             { headers: {Authorization: `Bearer ${user.token}`}})
         .then(res=>{
-            console.log(res.data);
             setProductChatRoomList(res.data);
             res.data.map(room=>{
-                console.log(room);
                 const socket = new SockJS(`${serverIP.ip}/ws`);
                 const stompClient = Stomp.over(socket);
                 stompClientRef.current = stompClient;
@@ -83,6 +78,8 @@ function MyChatting() {
                 <li className={selectedTab === 'default' ? 'selected-menu' : {}} onClick={() => navigate('?tab=default')}>일반 채팅</li>
                 <li className={selectedTab === 'product' ? 'selected-menu' : {}} onClick={() => navigate('?tab=product')}>상품 문의 채팅</li>
             </ul>
+
+            <hr className='menu-divider'/>
             {
                 (selectedTab === 'default' && chatRoomList.length === 0) ||
                 (selectedTab === 'product' && productChatRoomList.length === 0) ? (
@@ -91,16 +88,26 @@ function MyChatting() {
             }
             {
                 (selectedTab === 'default' ? chatRoomList : productChatRoomList).map((room, idx)=>{
-                    const selectedUser = selectedTab === 'default' ? // selectedUser = 상대방
-                        user.user.id === room.participantA.id ? room.participantB : room.participantA // 일반 채팅
-                        : room.product.sellerNo.id === room.participantA.id ? room.participantB : room.participantA // 상품 문의 채팅
+                    const selectedUser = user.user.id === room.participantA.id ? room.participantB : room.participantA
+                        
                     return (
                         <div key={idx} className="chat-room" onClick={()=>navigate(`/product/chat/${room.chatRoomId}`)}
-                            style={room.lastChat.read || room.lastChat.sender.id === user.user.id ? {background: '#f7f7f7'} : {}}>
-                            <img className="chat-user-img" style={{width: '80px', height: '80px'}} src = {selectedUser.profileImageUrl.indexOf('http') !==-1 ? `${selectedUser.profileImageUrl}`:`${serverIP.ip}${selectedUser.profileImageUrl}`} alt=''/>
-                            <div style={{display: 'flex', flexDirection: 'column', paddingLeft: '3%', width: '95%'}}>
+                            style={room.lastChat.read || room.lastChat.sender.id === user.user.id ? {background: '#f8f8f8'} : {}}>
+                            {
+                                room.product
+                                ? 
+                                <img className="chat-room-img" 
+                                    style={{borderRadius: '5px'}}
+                                    src = {`${serverIP.ip}/uploads/product/${room.product.id}/${room.product.images[0].filename}`} alt=''
+                                />
+                                :
+                                <img className="chat-room-img" 
+                                    src = {selectedUser.profileImageUrl.indexOf('http') !==-1 ? `${selectedUser.profileImageUrl}`:`${serverIP.ip}${selectedUser.profileImageUrl}`} alt=''
+                                />
+                            }
+                            <div style={{display: 'flex', flexDirection: 'column', paddingLeft: '3%', width: '85%'}}>
                                 <div>
-                                    <span><b>{selectedUser.username}</b></span>
+                                    <span style={{color: room?.product?.sellerNo.id === user.user.id ? '#2e704a' : ''}}><b>{room.product ? room.product.productName : selectedUser.username}</b></span>
                                     <span className='date'>{getTime(room.lastChat.sendTime)}</span><br/>
                                 </div>
                                 <div style={{
@@ -109,7 +116,7 @@ function MyChatting() {
                                     whiteSpace: 'nowrap',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',
-                                    width: '90%'
+                                    width: '100%'
                                 }}>
                                     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '90%' }}>
                                         {room.lastChat.message}

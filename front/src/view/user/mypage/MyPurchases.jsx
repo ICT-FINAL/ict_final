@@ -24,7 +24,7 @@ function MyPurchases() {
     const [searchOption, setSearchOption] = useState('');
     const [shippingOption, setShippingOption] = useState('');
 
-    const [isReviewWritten, setIsReviewWritten] = useState({});
+    const [isReviewWritten, setIsReviewWritten] = useState(new Map());
 
     const dispatch = useDispatch();
 
@@ -65,12 +65,12 @@ function MyPurchases() {
     }, [loc, searchOption, shippingOption]);
 
     const getBoardList = () => {
+        setIsReviewWritten(new Map());
         if (user)
             axios.get(`${serverIP.ip}/order/orderList?nowPage=${nowPage}&state=${searchOption}&shippingState=${shippingOption}`, {
                 headers: { Authorization: `Bearer ${user.token}` }
             })
             .then(res => {
-                console.log(res.data);
                 const newPageNumbers = [];
                 for (let p = res.data.pvo.startPageNum; p < res.data.pvo.startPageNum + res.data.pvo.onePageCount; p++) {
                     if (p <= res.data.pvo.totalPage) {
@@ -82,44 +82,41 @@ function MyPurchases() {
                 setOrder(res.data.orderList);
                 setNowPage(res.data.pvo.nowPage);
                 setTotalRecord(res.data.pvo.totalRecord);
-
-                const promises = res.data.orderList.map(async order => {
-                    if (order.orders[0].productId !== null) {
-                        try {
-                            const response = await axios.get(`${serverIP.ip}/review/checkPurchase?userId=${user.user.id}&productId=${order.orders[0].productId}`, {
+    
+                const productCheckSet = new Set();
+                const promises = res.data.orderList.flatMap(order =>
+                    order.orders
+                        .filter(o => o.productId !== null && !productCheckSet.has(o.productId))
+                        .map(o => {
+                            productCheckSet.add(o.productId);
+                            return axios.get(`${serverIP.ip}/review/checkPurchase?userId=${user.user.id}&productId=${o.productId}`, {
                                 headers: { Authorization: `Bearer ${user.token}` }
-                            });
-                            return ({
-                                productId: order.orders[0].productId,
+                            }).then(response => ({
+                                productId: o.productId,
                                 review: response.data.review
+                            })).catch(err => {
+                                console.error(err);
+                                return { productId: o.productId, review: false };
                             });
-                        } catch (err) {
-                            console.error(err);
-                            return {
-                                productId: order.orders[0].productId,
-                                review: false
-                            };
-                        }
-                    } else {
-                        return Promise.resolve(null);
-                    }
-                });
-    
+                        })
+                );
+                
                 Promise.all(promises)
-                .then(results => {
-                    const resultMap = {};
-                    results.forEach(item => {
-                        if (item !== null) {
-                            resultMap[item.productId] = item.review;
-                        }
-                    });
-    
-                    setIsReviewWritten(resultMap);
+                    .then(results => {
+                        const resultMap = new Map();
+                        results.forEach(item => {
+                            if (item !== null) {
+                                resultMap.set(item.productId, item.review);
+                            }
+                        });
+                
+                        setIsReviewWritten(resultMap);
+                    })
+                    .catch(err => console.error('Promise all error:', err));
                 })
-                .catch(err => console.error('Promise all error:', err));
-            })
             .catch(err => console.log(err));
     };
+    
 
     function formatNumberWithCommas(num) {
         return num.toLocaleString();
@@ -273,16 +270,52 @@ function MyPurchases() {
                                                 🚚 배송 중
                                                 </span>
                                             )}
-                                            {order.shippingState === 'FINISH' || order.shippingState === 'SETTLED'  && (
+                                            {order.shippingState === 'FINISH' && (
                                                 <>
                                                     <span style={{ color: '#28a745', fontWeight: '600' }}>
                                                     ✅ 구매 확정
                                                     </span>
                                                     {
-                                                        !isReviewWritten[order.productId] &&
-                                                        <span onClick={()=>moveInfo(order.productId, 'review')} style={{background: 'rgb(40, 167, 69)', borderRadius: '5px', marginLeft: '10px', padding: '0 7px 0 5px', color: '#fff', cursor: 'pointer'}}>
-                                                        📝 리뷰 쓰기
-                                                        </span>
+                                                        isReviewWritten.has(order.productId) && !isReviewWritten.get(order.productId) && (
+                                                            <span
+                                                                onClick={() => moveInfo(order.productId, 'review')}
+                                                                style={{
+                                                                    background: 'rgb(40, 167, 69)',
+                                                                    borderRadius: '5px',
+                                                                    marginLeft: '10px',
+                                                                    padding: '0 7px 0 5px',
+                                                                    color: '#fff',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                            >
+                                                                📝 리뷰 쓰기
+                                                            </span>
+                                                        )
+                                                    }
+                                                    
+                                                </>
+                                            )}
+                                            {order.shippingState === 'SETTLED' && (
+                                                <>
+                                                    <span style={{ color: '#28a745', fontWeight: '600' }}>
+                                                    ✅ 구매 확정
+                                                    </span>
+                                                    {
+                                                        isReviewWritten.has(order.productId) && !isReviewWritten.get(order.productId) && (
+                                                            <span
+                                                                onClick={() => moveInfo(order.productId, 'review')}
+                                                                style={{
+                                                                    background: 'rgb(40, 167, 69)',
+                                                                    borderRadius: '5px',
+                                                                    marginLeft: '10px',
+                                                                    padding: '0 7px 0 5px',
+                                                                    color: '#fff',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                            >
+                                                                📝 리뷰 쓰기
+                                                            </span>
+                                                        )
                                                     }
                                                     
                                                 </>
@@ -322,15 +355,14 @@ function MyPurchases() {
                                         </div>
                                         </>
                                         }
-                                        {order.shippingState==='PAID' && <><button style={{marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'
-                                        ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#e74c3c', color:'white'
-                                        }} onClick={()=>cancelOrder(order.id)}>주문 취소</button></>}
+                                        {order.shippingState==='PAID' && <><button className="order-cancel-btn" onClick={()=>cancelOrder(order.id)}>주문 취소</button></>}
 
-                                        {order.shippingState==='ONGOING' && <><button style={{marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'
-                                        ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#8CC7A5'
-                                        }} onClick={()=>endShipping(order.id)}>구매 확정</button><button style={{marginLeft:'10px',marginTop:'20px', cursor:'pointer', border:'none', padding:'10px 20px'
-                                            ,fontSize:'18px', borderRadius:'5px', backgroundColor:'#e74c3c', color:'white'
-                                            }} onClick={()=>refundOrder(order.id)}>환불 신청</button></>}
+                                        {
+                                            order.shippingState==='ONGOING' &&
+                                            <>
+                                                <button className="order-control-btn" onClick={()=>endShipping(order.id)}>구매 확정</button>
+                                                <button className="order-cancel-btn"style={{marginLeft:'10px'}} onClick={()=>refundOrder(order.id)}>환불 신청</button></>
+                                        }
                                         <br/>
                                         {order.shippingState==='ONGOING' && <><br/><span style={{color:'#e74c3c'}}>※배송 완료시 환불이 불가능 합니다. 배송 완료는 2주 내 자동으로 배송 완료상태로 변경됩니다.※</span></>}
                                     </div>

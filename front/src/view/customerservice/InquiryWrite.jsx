@@ -29,7 +29,6 @@ const InquiryWrite = () => {
     }, [user, navigate]);
 
     const handleTitleChange = (event) => {
-        console.log(user);
         setInquirySubject(event.target.value);
     };
 
@@ -58,7 +57,6 @@ const InquiryWrite = () => {
         
         if (!user || !user.user || user.user.id === undefined || user.user.id === null) {
             setErrorMessage('로그인해주세요.');
-            console.error("로그인정보보", user);
             return;
        }
       
@@ -95,9 +93,6 @@ const InquiryWrite = () => {
                 
                 formData.append('inquiry_image', file, file.name);
             });
-        }
-        for (let [key, value] of formData.entries()) {
-            console.log(`${key}:`, value);
         }
         axios.post(`${serverIP.ip}/inquiry/inquiryWriteOk`, formData,{
             headers:{

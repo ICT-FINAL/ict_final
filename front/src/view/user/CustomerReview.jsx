@@ -11,22 +11,19 @@ function CustomerReview(){
 
     let [cusReviewList, setCusReviewList] = useState([]);
 
-
-
     useEffect(() => {
+
         getCusReviewList();
     }, [])
 
 
     const getCusReviewList = () => {
-        if(user)
-            axios.get(`${serverIP.ip}/review/cusReviewList`, {
+            axios.get(`${serverIP.ip}/review/cusReviewList?userNo=${loc.state === null ? user.user.id : loc.state}`, {
                 headers: {
-                    Authorization: `Bearer ${user.token}`,
+                    Authorization: user ? `Bearer ${user.token}` : {},
                 }
             })
             .then(res => {
-                console.log("후기 리스트 응답:", res.data);
                 setCusReviewList(res.data);
             })
             .catch(err => console.log(err));
@@ -59,7 +56,6 @@ function CustomerReview(){
     const navigate = useNavigate();
 
     const moveInfo = (prod) => {
-        console.log(prod);
         navigate('/product/info', { state: { product: prod } });
     };
 
@@ -67,7 +63,7 @@ function CustomerReview(){
         <>
             <div>
                 {cusReviewList && cusReviewList.length > 0 ? (
-                    <div >
+                    <div>
                         <div className="cusReview-wrapper">
                             <ul className="cusReview-list">
                                 {cusReviewList.map((review, index) => (
@@ -197,7 +193,7 @@ function CustomerReview(){
                         
                     </div>
                 ) : (
-                    <p  style={{ padding: '3px', textAlign: 'center' }}>작성된 구매 후기가 없습니다.</p>
+                    <div style={{ padding: '20px', textAlign: 'center' }}>작성된 구매 후기가 없습니다.</div>
                 )}
             </div>
         </>

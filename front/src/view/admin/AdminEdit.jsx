@@ -36,7 +36,6 @@ function AdminEdit() {
                 params: { page, keyword, authority },
                 headers: { Authorization: `Bearer ${user.token}` },
             });
-            //console.log("보내는 데이터!!!", searchWord, category);
             setUsers(res.data.users);
             setTotalCount(res.data.totalCount);
             setSelectedCount(res.data.selectedCount);

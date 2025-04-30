@@ -125,7 +125,7 @@ public class ReviewController {
         List<Orders> orders = orderService.selectCheckPurchase(user, productId);
         boolean orderIsOk = false;
         for(Orders order:orders) {
-            if (order.getShippingState() == ShippingState.FINISH) {
+            if (order.getShippingState() == ShippingState.FINISH || order.getShippingState() == ShippingState.SETTLED) {
                 orderIsOk = true;
                 break;
             }
@@ -406,8 +406,9 @@ public class ReviewController {
 
     // 각각의 상품에 대한 구매 후기 리스트
     @GetMapping("/cusReviewList")
-    public ResponseEntity<List<Review>> cusReviewList(@AuthenticationPrincipal UserDetails userDetails) {
-        User user = interactService.selectUserByName(userDetails.getUsername());
+    public ResponseEntity<List<Review>> cusReviewList(Long userNo) {
+        User user = interactService.selectUser(userNo);
+        System.out.println("userNo: " + userNo);
         List<Product> productList = productService.selectProductByUser(user);
         List<Review> result = new ArrayList<>();
         for(Product product:productList) {

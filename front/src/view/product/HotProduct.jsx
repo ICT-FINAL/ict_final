@@ -33,7 +33,6 @@ function HotProduct() {
         axios.get(`${serverIP.ip}/product/getList/byCategory?category=${category}`)
             .then((res) => {
                 setProductList(res.data);
-                console.log(res.data);
             })
             .catch((err) => console.log(err));
     };
@@ -55,7 +54,6 @@ function HotProduct() {
     };
 
     const moveInfo = (prod) => {
-        console.log(prod);
         navigate('/product/info', { state: { product: prod } });
     }
 

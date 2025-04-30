@@ -36,4 +36,5 @@ public interface CouponRepository extends JpaRepository<Coupon, Long> {
     GROUP BY FUNCTION('YEAR', c.useDate), FUNCTION('MONTH', c.useDate)
 """)
     List<Object[]> getUsedCouponStatsByUser(@Param("userId") Long userId);
+    List<Coupon> findAllByUserOrderByIdDesc(User user, PageRequest of);
 }

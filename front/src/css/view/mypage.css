@@ -147,13 +147,6 @@
     opacity: 0.9;
 }
 
-.follow-menu,
-.follow-menu > li {
-    margin: 0;
-    padding: 0;
-    list-style-type: none;
-}
-
 .search-input-box {
     width: 80%;
     margin: 0 auto;
@@ -182,12 +175,13 @@
     justify-content: center;
     gap: 10%;
     font-size: 14pt;
+    list-style-type: none;
+    padding: 0;
 }
 
 .follow-menu > li {
     margin-bottom: 20px;
     padding: 10px 0;
-    border-bottom: 1px solid #999;
     text-align: center;
     cursor: pointer;
 }
@@ -227,12 +221,12 @@
 }
 
 .follow-user-img {
-    width: 100%;
-    height: 100%;
+    width: 72px;
+    height: 72px;
     object-fit: cover;
     border-radius: 50%;
     background-color: white;
-    padding: 4px;
+    padding: 3px;
     box-sizing: border-box;
     image-rendering: auto;
 }
@@ -540,6 +534,20 @@
     color: #636e72;
     margin-top: 50px;
   }
+
+.order-control-btn, .order-cancel-btn {
+    margin-top: 20px;
+    cursor: pointer;
+    border: none;
+    padding: 10px 15px;
+    font-size: 18px;
+    border-radius: 5px;
+    background-color: #90B892;
+    color: white;
+}
+.order-cancel-btn {
+    background-color: #D97B6D;
+}
   
 /* 주문 내역 끝 */
 

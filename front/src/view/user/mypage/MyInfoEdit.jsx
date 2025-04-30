@@ -112,7 +112,6 @@ function MyInfoEdit() {
 
 
     useEffect(()=> {
-        console.log(modal.info);
         if(modal.info !== undefined) {
             if(modal.info.address !== undefined && modal.info.address !== null && modal.info.address !== '') {
                 setUser(prev => ({ 
@@ -189,7 +188,6 @@ function MyInfoEdit() {
                 }
             })
             .then(res => {
-                console.log(res.data);
                 if(res.data==="editInfoOk"){
                     window.alert("정상적으로 수정이 완료되었습니다.\n다시 로그인해주세요.");
                     handleLogout();
@@ -218,7 +216,6 @@ function MyInfoEdit() {
                 headers: { Authorization: `Bearer ${getUser.token}` }
             })
             .then((res) => {
-                console.log(res.data);
                 const tel = res.data.tel || '';
                 const [tel1, tel2, tel3] = tel.split('-');
                 setUser({ 
@@ -297,14 +294,24 @@ function MyInfoEdit() {
                     {/* uploadedProfilePreview 미리보기 이미지 */}
                     <label>프로필 사진</label>
                     <img id="profile-img" src={
+                                                // user.uploadedProfilePreview
+                                                // ? user.uploadedProfilePreview
+                                                // : user.kakaoProfileUrl
+                                                // ? user.kakaoProfileUrl.startsWith("http")
+                                                //     ? user.kakaoProfileUrl
+                                                //     : `${serverIP.ip}${user.kakaoProfileUrl}`
+                                                // : user.uploadedProfileUrl
+                                                // ? `${serverIP.ip}${user.uploadedProfileUrl}`
+                                                // : ''
+
                                                 user.uploadedProfilePreview
                                                 ? user.uploadedProfilePreview
-                                                : user.kakaoProfileUrl
-                                                ? user.kakaoProfileUrl.startsWith("http")
-                                                    ? user.kakaoProfileUrl
-                                                    : `${serverIP.ip}${user.kakaoProfileUrl}`
                                                 : user.uploadedProfileUrl
                                                 ? `${serverIP.ip}${user.uploadedProfileUrl}`
+                                                : user.kakaoProfileUrl
+                                                ? user.kakaoProfileUrl.startsWith("http")
+                                                ? user.kakaoProfileUrl
+                                                : `${serverIP.ip}${user.kakaoProfileUrl}`
                                                 : ''
                                             } 
                                             alt="프로필 이미지" 

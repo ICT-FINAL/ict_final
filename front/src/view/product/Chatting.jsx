@@ -29,7 +29,6 @@ function Chatting() {
                     behavior: 'smooth',
                 });
             }
-            console.log(chatHistory);
         }
     },[chatHistory])
 
@@ -71,7 +70,7 @@ function Chatting() {
             })
             return () => {
                 stompClient.disconnect(() => {
-                    console.log('Disconnected from chat room');
+                    //추후 구현현
                 });
             };
         }

@@ -184,30 +184,36 @@ div.me-date, div.other-date, #unread-sticker {
     box-sizing: border-box;
 }
 .chat-menu {
-    margin: 0;
-    padding: 0;
     list-style-type: none;
     height: 55px;
     display: flex;
     justify-content: center;
     gap: 10%;
     font-size: 14pt;
+    padding: 0;
 }
 .chat-menu>li {
     margin-bottom: 20px;
     padding: 10px 0;
-    border-bottom: 1px solid #999;
     text-align: center;
     cursor: pointer;
 }
 .chat-room {
     display: flex;
     align-items: center;
+    max-width: 700px;
     margin: 0px auto;
     padding: 10px;
     line-height: 30px;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #ddd;
     cursor: pointer;
+}
+.chat-room-img, .chat-user-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 50%;
+    flex-shrink: 0;
 }
 .chat-room .date {
     padding-left: 10px;
@@ -217,9 +223,6 @@ div.me-date, div.other-date, #unread-sticker {
 .chat-user-img {
     width: 40px;
     height: 40px;
-    object-fit: cover;
-    border-radius: 50%;
-    flex-shrink: 0;
 }
 #new-chat-sticker {
     float: right;

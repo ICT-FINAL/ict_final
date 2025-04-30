@@ -101,9 +101,6 @@ function RecommendIndex() {
             }
             recommendProducts.push(defaultRes.data);
 
-            // console.log(defaultRes.data);
-
-            console.log(recommendProducts);
             setRecommendList(recommendProducts);
             getRating(recommendProducts);
             
@@ -140,7 +137,7 @@ function RecommendIndex() {
 
     return (
         <div className='recommend-container'>
-            <h2 style={{ textAlign: 'center', fontSize: '28px' }}>
+            <h2 style={{ textAlign: 'center', fontSize: '32px'}}>
                 💖{user && user.user.username}님을 위한 추천상품입니다.💝
             </h2>
             <ul className="recommend-sort">
@@ -184,8 +181,8 @@ function RecommendIndex() {
                                         item !== "" &&
                                         <div key={index} className={`recommend-product box-${index}`} onClick={() => moveInfo(item)}>
                                             <img className='recommend-product-img' src={`${serverIP.ip}/uploads/product/${item.id}/${item.images[0].filename}`}/>
-                                            <div className={`recommend-product-info info-${index}`}>
-                                                <span style={{ fontSize: "14px", color: "#333" }}>{item.productName}</span> {/* 상품명 */} <br />
+                                            <div className={`recommend-product-info info-${index}`} style={{}}>
+                                                <span style={{ fontSize: "14px", color: "#333", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis" }}>{item.productName}</span> {/* 상품명 */} <br />
 
                                                 {item.discountRate === '' || item.discountRate === 0 ? (
                                                     <span style={{ fontWeight: "700" }}>{item.price.toLocaleString()}원</span> // 할인율이 0%일 때는 기존 가격만 표시

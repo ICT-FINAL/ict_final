@@ -78,8 +78,6 @@ function SignupForm() {
     }
 
     const changeUser = (e) => {
-        // console.log(loc.state)
-        // console.log(user);
         const { name, value } = e.target;
         setUser({...user, [name]: value});
         const updatedUser = { ...user, [name]: value };
@@ -358,6 +356,11 @@ function SignupForm() {
     return (
         <>
         <div id="modal-background" style={modalBackStyle}></div>
+        {isSendingCode && (
+            <div className="blocking-overlay">
+                <div className="spinner"></div>
+            </div>
+        )}
             <div className="sign-up-form">
                 <h2>회원가입</h2>
                 <label>아이디</label>

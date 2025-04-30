@@ -244,8 +244,108 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
             @Param("shippingState") String shippingState,
             @Param("month") int month);
 
-
     List<Orders> findByShippingState(ShippingState shippingState);
 
+    @Query(value =
+            "SELECT u.user_id, u.user_name, u.authority, u.id, " +
+                    "SUM(((oi.price + oi.additional_fee) - (oi.price * oi.discount_rate / 100)) * oi.quantity + o.shipping_fee) AS total_sales " +
+                    "FROM orders o " +
+                    "JOIN product p ON o.product_id = p.product_id " +
+                    "JOIN users u ON p.seller_no = u.id " +
+                    "JOIN order_item oi ON oi.order_id = o.order_id " +
+                    "WHERE o.shipping_state = 'SETTLED' " +
+                    "AND (u.user_id LIKE %:keyword% OR u.user_name LIKE %:keyword%) " +
+                    "GROUP BY u.user_id, u.user_name, u.authority, u.id",
+            countQuery =
+                    "SELECT COUNT(DISTINCT u.user_id) " +
+                            "FROM orders o " +
+                            "JOIN product p ON o.product_id = p.product_id " +
+                            "JOIN users u ON p.seller_no = u.id " +
+                            "WHERE o.shipping_state = 'SETTLED' " +
+                            "AND (u.user_id LIKE %:keyword% OR u.user_name LIKE %:keyword%) " ,
+            nativeQuery = true)
+    Page<Map<String, Object>> findSettledListWithTotalSalesByConditionsNoYearNoMonth(@Param("year") int year,
+                                                                                 @Param("month") int month,
+                                                                                 @Param("keyword") String keyword,
+                                                                                 Pageable pageable);
+
+    @Query(value =
+            "SELECT u.user_id, u.user_name, u.authority, u.id, " +
+                    "SUM(((oi.price + oi.additional_fee) - (oi.price * oi.discount_rate / 100)) * oi.quantity + o.shipping_fee) AS total_sales " +
+                    "FROM orders o " +
+                    "JOIN product p ON o.product_id = p.product_id " +
+                    "JOIN users u ON p.seller_no = u.id " +
+                    "JOIN order_item oi ON oi.order_id = o.order_id " +
+                    "WHERE o.shipping_state = 'SETTLED' " +
+                    "AND MONTH(STR_TO_DATE(o.modified_date, '%Y-%m-%d %H:%i:%s')) = :month " +
+                    "AND (u.user_id LIKE %:keyword% OR u.user_name LIKE %:keyword%) " +
+                    "GROUP BY u.user_id, u.user_name, u.authority, u.id ",
+            countQuery =
+                    "SELECT COUNT(DISTINCT u.user_id) " +
+                            "FROM orders o " +
+                            "JOIN product p ON o.product_id = p.product_id " +
+                            "JOIN users u ON p.seller_no = u.id " +
+                            "WHERE o.shipping_state = 'SETTLED' " +
+                            "AND MONTH(STR_TO_DATE(o.modified_date, '%Y-%m-%d %H:%i:%s')) = :month " +
+                            "AND (u.user_id LIKE %:keyword% OR u.user_name LIKE %:keyword%) ",
+            nativeQuery = true)
+    Page<Map<String, Object>> findSettledListWithTotalSalesByConditionsNoYear(
+            @Param("month") int month,
+            @Param("keyword") String keyword,
+            Pageable pageable);
+
+    @Query(value =
+            "SELECT u.user_id, u.user_name, u.authority, u.id, " +
+                    "SUM(((oi.price + oi.additional_fee) - (oi.price * oi.discount_rate / 100)) * oi.quantity + o.shipping_fee) AS total_sales " +
+                    "FROM orders o " +
+                    "JOIN product p ON o.product_id = p.product_id " +
+                    "JOIN users u ON p.seller_no = u.id " +
+                    "JOIN order_item oi ON oi.order_id = o.order_id " +
+                    "WHERE o.shipping_state = 'SETTLED' " +
+                    "AND YEAR(STR_TO_DATE(o.modified_date, '%Y-%m-%d %H:%i:%s')) = :year " +
+                    "AND (u.user_id LIKE %:keyword% OR u.user_name LIKE %:keyword%) " +
+                    "GROUP BY u.user_id, u.user_name, u.authority, u.id ",
+            countQuery =
+                    "SELECT COUNT(DISTINCT u.user_id) " +
+                            "FROM orders o " +
+                            "JOIN product p ON o.product_id = p.product_id " +
+                            "JOIN users u ON p.seller_no = u.id " +
+                            "WHERE o.shipping_state = 'SETTLED' " +
+                            "AND YEAR(STR_TO_DATE(o.modified_date, '%Y-%m-%d %H:%i:%s')) = :year " +
+                            "AND (u.user_id LIKE %:keyword% OR u.user_name LIKE %:keyword%) " ,
+            nativeQuery = true)
+    Page<Map<String, Object>> findSettledListWithTotalSalesByConditionsNoMonth(
+            @Param("year") int year,
+            @Param("month") int month,
+            @Param("keyword") String keyword,
+            Pageable pageable);
+
+    @Query(value =
+            "SELECT u.user_id, u.user_name, u.authority, u.id, " +
+                    "SUM(((oi.price + oi.additional_fee) - (oi.price * oi.discount_rate / 100)) * oi.quantity + o.shipping_fee) AS total_sales " +
+                    "FROM orders o " +
+                    "JOIN product p ON o.product_id = p.product_id " +
+                    "JOIN users u ON p.seller_no = u.id " +
+                    "JOIN order_item oi ON oi.order_id = o.order_id " +
+                    "WHERE o.shipping_state = 'SETTLED' " +
+                    "AND YEAR(STR_TO_DATE(o.modified_date, '%Y-%m-%d %H:%i:%s')) = :year " +
+                    "AND MONTH(STR_TO_DATE(o.modified_date, '%Y-%m-%d %H:%i:%s')) = :month " +
+                    "AND (u.user_id LIKE %:keyword% OR u.user_name LIKE %:keyword%) " +
+                    "GROUP BY u.user_id, u.user_name, u.authority, u.id ",
+
+            countQuery =
+                    "SELECT COUNT(DISTINCT u.user_id) " +
+                            "FROM orders o " +
+                            "JOIN product p ON o.product_id = p.product_id " +
+                            "JOIN users u ON p.seller_no = u.id " +
+                            "WHERE o.shipping_state = 'SETTLED' " +
+                            "AND YEAR(STR_TO_DATE(o.modified_date, '%Y-%m-%d %H:%i:%s')) = :year " +
+                            "AND MONTH(STR_TO_DATE(o.modified_date, '%Y-%m-%d %H:%i:%s')) = :month " +
+                            "AND (u.user_id LIKE %:keyword% OR u.user_name LIKE %:keyword%) " ,
+            nativeQuery = true)
+    Page<Map<String, Object>> findSettledListWithTotalSalesByConditions(@Param("year") int year,
+                                                                    @Param("month") int month,
+                                                                    @Param("keyword") String keyword,
+                                                                    Pageable pageable);
 
 }

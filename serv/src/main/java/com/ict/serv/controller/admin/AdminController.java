@@ -6,11 +6,11 @@ import com.ict.serv.entity.Inquiries.Inquiry;
 import com.ict.serv.entity.Inquiries.InquiryPagingVO;
 import com.ict.serv.entity.Inquiries.InquiryState;
 import com.ict.serv.entity.auction.AuctionProduct;
+import com.ict.serv.entity.coupon.Coupon;
+import com.ict.serv.entity.coupon.CouponRequestDTO;
+import com.ict.serv.entity.coupon.CouponState;
 import com.ict.serv.entity.message.Message;
-import com.ict.serv.entity.order.OrderGroup;
-import com.ict.serv.entity.order.Orders;
-import com.ict.serv.entity.order.Pair;
-import com.ict.serv.entity.order.ShippingState;
+import com.ict.serv.entity.order.*;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.product.ProductState;
 import com.ict.serv.entity.report.Report;
@@ -35,7 +35,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -52,7 +55,7 @@ public class AdminController {
     private final OrderService orderService;
     private final OrderRepository orderRepository;
     private final SettlementRepository settlementRepository;
-
+    private final CouponService couponService;
 
     @GetMapping("/reportList")
     public Map reportList(PagingVO pvo){
@@ -306,92 +309,130 @@ public class AdminController {
     }
 
     @PostMapping("/handleSettle")
-    public String handleSettle(@RequestBody Map<String, Object> ordersMap) {
-        List<LinkedHashMap<String, Object>> rawOrders = (List<LinkedHashMap<String, Object>>) ordersMap.get("orders");
-        int sales = (int) ordersMap.get("sales");
+    public String handleSettle(@RequestBody Map<String, List<Orders>> ordersMap) {
+        List<Orders> ordersList = new ArrayList<>();
+        for(Orders odd : ordersMap.get("orders")){
+            ordersList.add(orderRepository.findById(odd.getId()).get());
+        }
 
-        for (LinkedHashMap<String, Object> rawOrder : rawOrders) {
-            Long orderId = Long.valueOf(String.valueOf(rawOrder.get("id")));
-            Orders orders = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("주문 없음"));
-
+        for(Orders orders: ordersList) {
             orders.setShippingState(ShippingState.SETTLED);
             orderRepository.save(orders);
-
             Settlement settlement = new Settlement();
             settlement.setUser(orders.getProduct().getSellerNo());
             settlement.setOrders(orders);
-            settlement.setTotalSettlePrice(sales);
+            int price = 0;
+            for(OrderItem item : orders.getOrderItems()) {
+                price+= (item.getPrice() - item.getDiscountRate()*item.getPrice()/100 + item.getAdditionalFee())*item.getQuantity();
+            }
+            price+=orders.getShippingFee();
+            settlement.setTotalSettlePrice(price);
             settlement.setCreateDate(LocalDateTime.now());
             settlementRepository.save(settlement);
         }
-
         return "ok";
     }
 
+    @GetMapping("/getSettledSellersList")
+    public ResponseEntity<Map<String, Object>> getSettledSellersListWithSearch(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int limit,
+            @RequestParam(required = false) String year,
+            @RequestParam(required = false) String month,
+            @RequestParam(required = false) String keyword
+    ) {
+        Map<String, Object> response = new HashMap<>();
 
+        keyword = (keyword == null) ? "" : keyword.trim();
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Map<String, Object>> sellerPage = null;
 
-//    @GetMapping("/getSellerSoldProducts")
-//    public Map<String, Object> sellList(@RequestParam String user_id,
-//                                        @RequestParam(required = false) String year,
-//                                        @RequestParam(required = false) String month,
-//                                        @RequestParam(required = false) ShippingState shippingState) {
-//
-//        User seller = inter_service.selectUserByName(user_id);
-//        System.out.println("판매자 정보: " + seller);
-//        List<Orders> orders = new ArrayList<>();
-//
-//        Map<String, Object> result = new HashMap<>();
-//        if (shippingState == ShippingState.FINISH) {
-//            if(year.isEmpty() || year.equals("전체")){
-//             //   orders = orderRepository.findAllByProductSellerNoAndShippingStateAndYearAndMonth(seller, ShippingState.FINISH, 0, parsedMonth);
-//                sellerPage = orderRepository.findSellersWithTotalSalesByConditionsNoYearNoMonth(0, 0,keyword, pageable);
-//            }
-//            else if(month.isEmpty() || month.equals("전체")) {
-//                sellerPage = orderRepository.findSellersWithTotalSalesByConditionsNoMonth(Integer.parseInt(year), 0, keyword, pageable);
-//            }
-//            else {
-//                sellerPage = orderRepository.findSellersWithTotalSalesByConditions(Integer.parseInt(year), Integer.parseInt(month), keyword, pageable);
-//            }
-//            if (year != null && !year.isEmpty() && month != null && !month.isEmpty()) {
-//                try {
-//                    int parsedYear = Integer.parseInt(year);
-//                    int parsedMonth = Integer.parseInt(month);
-//                    orders = orderRepository.findAllByProductSellerNoAndShippingStateAndYearAndMonth(seller, ShippingState.FINISH, parsedYear, parsedMonth);
-//                } catch (NumberFormatException e) {
-//                    System.err.println("잘못된 년도 또는 월 형식: " + year + ", " + month);
-//                    result.put("error", "잘못된 년도 또는 월 형식입니다.");
-//                    return result;
-//                }
-//            } else {
-//                orders = orderRepository.findAllByProductSellerNoAndShippingState(seller, ShippingState.FINISH);
-//            }
-//        }
-//        //Map<String, Object> result = new HashMap<>();
-//        result.put("orderList", orders);
-//        return result;
-//    }
+        if((year.isEmpty() || year.equals("전체")) && (month.isEmpty() || month.equals("전체"))){
+            sellerPage = orderRepository.findSettledListWithTotalSalesByConditionsNoYearNoMonth(0, 0,keyword, pageable);
+        }
+        else if((year.isEmpty() || year.equals("전체"))) {
+            sellerPage = orderRepository.findSettledListWithTotalSalesByConditionsNoYear(Integer.parseInt(month), keyword, pageable);
+        }
+        else if(month.isEmpty() || month.equals("전체")) {
+            sellerPage = orderRepository.findSettledListWithTotalSalesByConditionsNoMonth(Integer.parseInt(year), 0, keyword, pageable);
+        }
+        else {
+            sellerPage = orderRepository.findSettledListWithTotalSalesByConditions(Integer.parseInt(year), Integer.parseInt(month),
+                    keyword, pageable);
+        }
 
-//    @PostMapping("/settlement")
-//    public ResponseEntity<String> settleSellerOrders(@RequestBody Map<String, String> body,
-//                                                     @RequestParam(required = false) int year,
-//                                                     @RequestParam(required = false) int month) {
-//        String userId = body.get("user_id");
-//
-//        User user = userRepository.findUserByUserid(userId);
-//
-//        List<Orders> ordersToSettle = orderRepository.findAllByProductSellerNoAndShippingStateAndYearAndMonth(user, ShippingState.FINISH, year, month);
-//        System.out.println("유저 아뒤"+userId);
-//        for (Orders order : ordersToSettle) {
-////            boolean alreadySettled = settlementRepository.existsByOrders(order);
-////            if (!alreadySettled) {
-////                Settlement settlement = new Settlement();
-////                settlement.setUser(user);
-////                settlement.setOrders(order);
-////                //settlementRepository.save(settlement);
-////            }
-//        }
-//        return ResponseEntity.ok("정산 완료");
-//}
+        response.put("sellers", sellerPage.getContent());
+        response.put("selectedCount", sellerPage.getTotalElements());
+        response.put("totalPage", sellerPage.getTotalPages());
+
+        System.out.println("정산 완료 판매자 목록"+response);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/getSellerSettledProducts")
+    public Map<String, Object> settledProductList(@RequestParam String user_id,
+                                        @RequestParam(required = false) String settledYear,
+                                        @RequestParam(required = false) String settledMonth,
+                                        @RequestParam(required = false) ShippingState shippingState) {
+
+        User user = inter_service.selectUserByName(user_id);
+        List<Orders> orders = new ArrayList<>();
+
+        if (shippingState == ShippingState.SETTLED) {
+            boolean settledHasYear = settledYear != null && !settledYear.isEmpty() && !settledYear.equals("전체");
+            boolean settledHasMonth = settledMonth != null && !settledMonth.isEmpty() && !settledMonth.equals("전체");
+
+            if (settledHasYear && settledHasMonth) {
+                int settledParsedYear = Integer.parseInt(settledYear);
+                int settledParsedMonth = Integer.parseInt(settledMonth);
+                orders = orderRepository.findAllByProductSellerNoAndShippingStateAndYearAndMonth(
+                        user.getId(), ShippingState.SETTLED.name(), settledParsedYear, settledParsedMonth);
+            } else if (settledHasYear) {
+                int settledParsedYear = Integer.parseInt(settledYear);
+                orders = orderRepository.findAllByProductSellerNoAndShippingStateAndYear(
+                        user.getId(), ShippingState.SETTLED.name(), settledParsedYear);
+            } else if (settledHasMonth) {
+                int settledParsedMonth = Integer.parseInt(settledMonth);
+                orders = orderRepository.findAllByProductSellerNoAndShippingStateAndMonth(
+                        user.getId(), ShippingState.SETTLED.name(), settledParsedMonth);
+            } else {
+                orders = orderRepository.findAllByProductSellerNoAndShippingState(user, ShippingState.SETTLED);
+            }
+        }
+        System.out.println("정산 완료 제품 목록");
+        Map<String, Object> result = new HashMap<>();
+        result.put("orderList", orders);
+        return result;
+    }
+    @PostMapping("/giveCoupon")
+    public String giveCoupon(@RequestBody CouponRequestDTO dto) {
+        if(dto.getUserId() == 0){
+            for(User user : inter_service.getAllUserList()) {
+                Coupon coupon = new Coupon();
+                coupon.setCouponName(dto.getCouponName());
+                coupon.setEndDate(LocalDateTime.now().plusYears(1));
+                coupon.setDiscount(dto.getDiscount());
+                coupon.setStartDate(LocalDateTime.now());
+                coupon.setType("ADMIN");
+                coupon.setState(CouponState.AVAILABLE);
+                coupon.setUser(user);
+                couponService.saveCoupon(coupon);
+            }
+        }
+        else {
+            Coupon coupon = new Coupon();
+            coupon.setCouponName(dto.getCouponName());
+            coupon.setEndDate(LocalDateTime.now().plusYears(1));
+            coupon.setDiscount(dto.getDiscount());
+            coupon.setStartDate(LocalDateTime.now());
+            coupon.setType("ADMIN");
+            coupon.setState(CouponState.AVAILABLE);
+            if(inter_service.selectUser(dto.getUserId()) == null) return "no_user";
+            coupon.setUser(inter_service.selectUser(dto.getUserId()));
+            couponService.saveCoupon(coupon);
+        }
+        return "ok";
+    }
 }
 
 

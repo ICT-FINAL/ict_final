@@ -35,9 +35,6 @@ function NoticeWrite(){
     };
 
     const submitNotice = () => {
-        console.log("Current user:", user);
-        console.log("Token:", user?.token);
-        console.log(formData.noticeState)
         let newFormData = new FormData();
         newFormData.append("noticeName", formData.noticeName);
         newFormData.append("state", formData.noticeState);
@@ -52,9 +49,6 @@ function NoticeWrite(){
             navigate("/customerservice/Notice");
         })
         .catch(err => {
-            console.error("공지사항 등록 실패:", err.response?.data || err.message);
-            console.error("Status:", err.response?.status);
-            console.error("Headers:", err.response?.headers);
             alert(`등록 실패: ${err.response?.data?.message || err.message}`);
         });
     };

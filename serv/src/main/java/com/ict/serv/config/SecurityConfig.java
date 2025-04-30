@@ -49,6 +49,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers("/ws/**").permitAll()
                         .requestMatchers("/signup/**", "/auth/login").permitAll()
+                        .requestMatchers("/checkLogin").authenticated()
                         .requestMatchers("/uploads/**").permitAll() //파일
                         .requestMatchers("/static/**", "/resources/**").permitAll()
                         .requestMatchers("/product/search").permitAll()
@@ -69,6 +70,15 @@ public class SecurityConfig {
                         .requestMatchers("/interact/getPopUser").permitAll()
                         .requestMatchers("/api/roulette/check").authenticated()
                         .requestMatchers("/api/roulette/spin").authenticated()
+                        .requestMatchers(
+                                "/mypage/myInfoCount",
+                                "/interact/getUserInfo",
+                                "/mypage/guestbookList",
+                                "/mypage/productList/**",
+                                "/review/averageStar",
+                                "/mypage/replyList/**",
+                                "/review/cusReviewList"
+                        ).permitAll()
                         .anyRequest().authenticated() // 나머지는 인증 필요
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
