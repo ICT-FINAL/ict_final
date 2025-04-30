@@ -198,6 +198,7 @@ function AuctionIndex() {
 
     return (
         <>
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '480px', background: 'linear-gradient(to bottom,rgb(225, 250, 224) 0%, #FFFFFF 100%)', zIndex: -1 }} />
             <div className="scroll-indicator-shadow" />
             <div className="scroll-indicator-icon"><div className="aaaarrow"></div></div>
             <div style={{ paddingTop: '50px', height:'2400px' }}>

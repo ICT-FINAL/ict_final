@@ -106,7 +106,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-}
+  }
 
 .svg-image-container img {
     width: 60px;
@@ -127,14 +127,14 @@
         transform: scale(1);
     }
 }
-  
+
 .pop {
     width: 60px;
     height: 60px;
     animation: bounce 3.0s infinite ease-in-out;
     transform-origin: center;
     position: relative;
-}
+  }
 
 @keyframes bounce {
     0% {
