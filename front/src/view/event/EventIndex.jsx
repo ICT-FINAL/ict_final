@@ -189,30 +189,28 @@ function EventIndex() {
 
     return (
         <div className="event-container">
-
+            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '480px', background: 'linear-gradient(to bottom,rgb(255, 236, 211) 0%, #FFFFFF 100%)', zIndex: -1 }} />
             <div className="shape-text-wrapper">
                 <span className="shape-text">이벤트</span>
 
-                <svg
-                className="animated-shape"
-                viewBox="-80 -40 160 80"
-                style={{
-                    fill: colors[index],
-                    transition: 'fill 0.6s ease-in-out',
-                    position: 'relative',
-                    zIndex: 1
-                }}
+                <svg className="animated-shape" viewBox="-80 -40 160 80"
+                        style={{
+                            fill: colors[index],
+                            transition: 'fill 0.6s ease-in-out',
+                            position: 'relative',
+                            zIndex: 1
+                        }}
                 >
-                <path d={shapePath} />
+                    <path d={shapePath} />
 
-                <foreignObject x="-50" y="-130" width="100" height="180">
-                    <div className="svg-image-container">
-                        {index % 4 === 0 && <img src={first} alt="first" className="pop" />}
-                        {index % 4 === 1 && <img src={second} alt="second" className="pop" />}
-                        {index % 4 === 2 && <img src={third} alt="third" className="pop" />}
-                        {index % 4 === 3 && <img src={fourth} alt="third" className="pop" />}
-                    </div>
-                </foreignObject>
+                    <foreignObject x="-50" y="-130" width="100" height="180">
+                        <div className="svg-image-container">
+                            {index % 4 === 0 && <img src={first} alt="first" className="pop" />}
+                            {index % 4 === 1 && <img src={second} alt="second" className="pop" />}
+                            {index % 4 === 2 && <img src={third} alt="third" className="pop" />}
+                            {index % 4 === 3 && <img src={fourth} alt="third" className="pop" />}
+                        </div>
+                    </foreignObject>
                 </svg>
                 <span className="shape-text">모아보기</span>
             </div>

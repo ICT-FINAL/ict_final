@@ -233,7 +233,12 @@ function Main() {
                         <span className="word" style={{ animationDelay: '0.9s' }}>특별함,&nbsp;</span>
                         <span className="word" style={{ animationDelay: '1.2s' }}>당신을&nbsp;</span>
                         <span className="word" style={{ animationDelay: '1.5s' }}>위한&nbsp;</span>
-                        <span className="word" style={{ animationDelay: '1.8s' }}>수제작품&nbsp;</span>
+                        <span className="word" style={{ animationDelay: '1.8s' }}>
+                            <span className="highlight-circle">수</span>
+                            <span className="highlight-circle">제</span>
+                            <span className="highlight-circle">작</span>
+                            <span className="highlight-circle">품</span>&nbsp;
+                        </span>
                         <span className="word" style={{ animationDelay: '2.1s' }}>공간</span>
                     </div>
                 </div>
@@ -261,46 +266,18 @@ function Main() {
                 </Slider>
             </div>
 
-            <div style={{
-                width:'70%',
-                minWidth:'1200px',
-                maxWidth:'1600px',
-                margin:'auto',
-                textAlign: 'center',
-                marginTop: '0px',
-                marginBottom: '60px',
-                padding: '40px 20px',
-                borderBottom:'1px solid #e0dcd5',
-                fontFamily:'Pretendard, san-serif'
-            }}>
-            <h2 style={{
-                fontSize: '32px',
-                color: '#222',
-                fontWeight: '700',
-                marginBottom: '15px',
-                letterSpacing: '-0.5px'
-            }}>
-                🎁 MIMYO 핸드메이드 셀렉션
-            </h2>
-            <p style={{
-                fontSize: '18px',
-                color: '#555',
-                maxWidth: '600px',
-                margin: '0 auto',
-                lineHeight: '1.6',
-            }}>
-                정성과 감성을 담아 만든 핸드메이드 아이템,<br />
-                <span style={{ fontWeight: '600', color: '#8CC7A5' }}>
-                MIMYO가 이번 달 추천하는 컬렉션
-                </span>을 만나보세요.
-            </p>
+            <div className="mimyo-main-section">
+                <h2 className="mimyo-main-title">🎁 MIMYO 핸드메이드 셀렉션</h2>
+                <p className="mimyo-main-subtext">
+                    정성과 감성을 담아 만든 핸드메이드 아이템,<br />
+                    <span className="mimyo-main-highlight">MIMYO가 이번 달 추천하는 컬렉션</span>을 만나보세요.
+                </p>
             </div>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', textAlign: 'center', justifyContent: 'center', margin: 'auto', width:'800px',marginBottom:'150px' }} >
+            <div className="submenu-grid">
                 {visibleList.length > 0 ? (
                     visibleList.map((submenu) => (
-                        <div onClick={() => moveSubMenu(submenu)} key={submenu.id}
-                            style={{ padding: '0 10px', width: '100px' }}>
+                        <div className="submenu-grid-item" onClick={() => moveSubMenu(submenu)} key={submenu.id}>
                             <img id="submenu-img" src={submenu.src} alt={submenu.subMenuName}/>
                             <div style={{fontSize: '11pt', padding: '10px 0'}}>{submenu.subMenuName}</div>
                         </div>
