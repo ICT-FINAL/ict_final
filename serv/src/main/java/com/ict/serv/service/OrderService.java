@@ -5,6 +5,7 @@ import com.ict.serv.entity.order.*;
 import com.ict.serv.entity.product.HotCategoryDTO;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.sales.CategorySalesDTO;
+import com.ict.serv.entity.sales.DailySalesDTO;
 import com.ict.serv.entity.sales.SalesStatsDTO;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.repository.order.*;
@@ -108,7 +109,7 @@ public class OrderService {
         return order_group_repo.findAllByState(OrderState.PAID);
     }
     public List<SalesStatsDTO> getDailySalesStats() {
-        List<OrderState> targetOrderGroupStates = Arrays.asList(OrderState.PAID, OrderState.PARTRETURNED);
+        List<OrderState> targetOrderGroupStates = Arrays.asList(OrderState.PAID, OrderState.PARTRETURNED,OrderState.PARTCANCELED);
 
         List<OrderGroup> orderGroups = order_group_repo.findAllByStateIn(targetOrderGroupStates);
         List<AuctionOrder> auctionOrders = auctionOrderRepository.findAllByState(OrderState.PAID); //
@@ -195,8 +196,12 @@ public class OrderService {
             List<Orders> orders = group.getOrders();
             if (orders.isEmpty()) continue;
 
+            String category = "";
             // 하나의 카테고리만 존재한다고 가정
-            String category = orders.get(0).getProduct().getProductCategory();
+            if(orders.get(0).getProduct() == null) {
+                category = orders.get(0).getAuctionProduct().getProductCategory();
+            }
+            else category = orders.get(0).getProduct().getProductCategory();
 
             // 해당 카테고리에 validPrice를 더함
             categoryMap.computeIfPresent(category, (k, dto) -> {
