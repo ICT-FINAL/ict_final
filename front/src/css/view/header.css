@@ -406,5 +406,6 @@
 @media(max-width:768px) {
     .menu-icon{
         right:50px;
+        width: 233px;
     }
 }
