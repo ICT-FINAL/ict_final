@@ -112,13 +112,27 @@
 }
 .mypage-box{
     background-color: white;
-    width:85%;
-    min-width: 602px;
-    max-width: 1400px;
+    width: 100%;
     margin:auto;
     margin-top:30px;
     padding:20px;
     border-radius: 10px;
+}
+@media (min-width: 768px) {
+    .mypage-box {
+        width:85%;
+        min-width: 602px;
+        max-width: 1400px;
+    }
+    .follow-container {
+        min-width: 500px;
+    }
+    .order-wrapper{
+        display: grid;
+    }
+    .mypage-point-list{
+        width:60%;
+    }
 }
 
 .mypage-title{
@@ -131,7 +145,6 @@
 
 /* ========== Mypage Follow ========== */
 .follow-container {
-    min-width: 500px;
     max-width: 1400px;
     margin: 0 auto;
 }
@@ -490,7 +503,6 @@
     border-top: 1px dashed #bbb;
     border-bottom: 1px dashed #bbb;
     padding: 20px;
-    display: grid;
     grid-template-columns: 0.8fr 2fr;
     align-items: center;
 }
@@ -651,7 +663,7 @@
     margin:0 auto;
     padding:10px;
     margin-top:10px;
-    width:60%;
+    width:100%;
     text-align: center;
 }
 

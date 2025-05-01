@@ -298,7 +298,7 @@ function UserInfo() {
                                     <button id="profile-edit-btn" onClick={()=> navigate('/mypage/edit')} style={{background: '#8CC7A5'}}>프로필 수정</button>
                                 </div>
                                 :
-                                <div>
+                                <div style={{textAlign: 'center'}}>
                                     <button id="userinfo-chatting" onClick={openChatting} style={{marginRight: '10px', background: '#8CC7A5'}}>채팅하기</button>
                                     <button id={followState ? "unfollow-btn" : "follow-btn"} onClick={followUser}>
                                         {followState ? '팔로잉' : '팔로우'}
