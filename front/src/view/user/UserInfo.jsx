@@ -333,7 +333,7 @@ function UserInfo() {
                             <div style={{ padding: '20px', textAlign: 'center' }}>작성된 방명록이 없습니다.</div>
                         }
                         {
-                            user && loc.state !== null &&
+                            user && loc.state !== null && user.user.id !== loc.state &&
                             <div className="guestbook-write-box">
                                 <textarea id="guestbook-write" className="guestbook-write" placeholder="방명록을 남겨 주세요."
                                     rows={5} style={{ height: '50px', lineHeight: '1.2' }} />

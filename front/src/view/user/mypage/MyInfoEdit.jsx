@@ -88,7 +88,7 @@ function MyInfoEdit() {
                 ...prev,
                 uploadedProfile: null,
                 uploadedProfilePreview: null,
-                kakaoProfileUrl: user.kakaoProfileUrl
+                kakaoProfileUrl:  null
             }));
             return;
         }
@@ -173,12 +173,21 @@ function MyInfoEdit() {
         }
     
         const formData = new FormData();
-        formData.append("user", new Blob([JSON.stringify(user)], { type: "application/json" }));
-
-        // 프로필 이미지가 있으면 그 이미지를 formData에 첨부
+        const userCopy = { ...user };
+    
+        // uploadedProfile이 없고, 기존에 등록한 이미지 URL이 있다면 서버에 전달
+        if (!user.uploadedProfile && user.profileImageUrl) {
+            userCopy.profileImageUrl = user.profileImageUrl; // 기존 이미지 유지 요청
+        }
+    
+        formData.append(
+            "user",
+            new Blob([JSON.stringify(userCopy)], { type: "application/json" })
+        );
+    
         if (user.uploadedProfile) {
             formData.append("profileImage", user.uploadedProfile);
-        } 
+        }
         
         if(uuser)        
             axios.post(`${serverIP.ip}/mypage/editInfo`,formData, {

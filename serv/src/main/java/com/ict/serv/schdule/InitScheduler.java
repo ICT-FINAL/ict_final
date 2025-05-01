@@ -1,6 +1,7 @@
 package com.ict.serv.schdule;
 
 import com.ict.serv.service.AuctionService;
+import com.ict.serv.service.ChatService;
 import com.ict.serv.service.InteractService;
 import com.ict.serv.service.OrderService;
 import jakarta.annotation.PostConstruct;
@@ -28,7 +29,7 @@ public class InitScheduler {
         System.out.println("[Scheduled] 3초마다 실행됨! 현재 시간: " + LocalDateTime.now());
     }*/
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 30000)
     public void userGradeScheduler() {
         auctionService.closeAllAuctionIfClosed();
         interactService.checkUserPoint();
