@@ -83,6 +83,7 @@ import SellerCancelModal from '../modal/SellerCancelModal';
 import ProductCheck from './product/ProductCheck';
 import AuctionCheck from './auction/AuctionCheck';
 import ProductEdit from './product/ProductEdit';
+import ChatFileModal from '../modal/ChatFileModal';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -227,6 +228,7 @@ function Body() {
     {modal.isOpen && modal.selected == 'refund' && <RefundModal />}
     {modal.isOpen && modal.selected == 'cancel-order' && <CancelModal />}
     {modal.isOpen && modal.selected == 'seller-cancel-order' && <SellerCancelModal />}
+    {modal.isOpen && modal.selected == 'chat-file-modal' && <ChatFileModal />}
     {interact.isOpen && <Interact />}
     {modal.isOpen && modal.selected.indexOf('delll') !== -1 && <DeleteModal />}
     <Routes>

@@ -108,6 +108,12 @@ public class ChatService {
             dto.setSendTime(chat.getSendTime());
             dto.setUrd(urd);
 
+            dto.setImageUrls(
+                    chat.getImages().stream()
+                            .map(img -> "/uploads/chat/" + chat.getId() + "/" + img.getFilename())
+                            .collect(Collectors.toList())
+            );
+
             return dto;
         }).collect(Collectors.toList());
     }
