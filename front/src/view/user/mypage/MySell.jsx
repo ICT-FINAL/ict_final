@@ -105,7 +105,7 @@ function MySell() {
         if (!dateString) return "";
       
         const utcDate = new Date(dateString.replace(' ', 'T'));
-        const kstDate = new Date(utcDate.getTime() + 9 * 60 * 60 * 1000);
+        const kstDate = new Date(utcDate.getTime() + 0 * 60 * 60 * 1000);
         const yyyy = kstDate.getFullYear();
         const mm = String(kstDate.getMonth() + 1).padStart(2, '0');
         const dd = String(kstDate.getDate()).padStart(2, '0');

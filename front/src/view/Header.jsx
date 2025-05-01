@@ -233,7 +233,7 @@ function Header() {
                                     <div onClick={()=>{dispatch(setSearch({ ...search, searchWord: item.keyword }));navigate('/product/search');}} style={{overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>
                                         <span>{index + 1} </span>
                                         {item.keyword}
-                                        <span style={item.change>0?{fontSize:'12px',color:'red'}:{fontSize:'12px',color:'blue'}}> {item.change > 0  ? `${item.change}▲` : item.change < 0 ? `${item.change}▼` : ''}</span>
+                                        <span style={item.change>0?{fontSize:'12px',color:'red'}:{fontSize:'12px',color:'blue'}}> {item.change > 0  ? `${item.change}▲` : item.change < 0 ? `${-item.change}▼` : ''}</span>
                                         <span style={{fontSize:'12px',color:'green'}}> {item.change === 'NEW' && 'NEW' }</span>
                                     </div>
                                     
