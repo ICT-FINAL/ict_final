@@ -9,13 +9,18 @@
 /* 메인페이지 */
 .product-main-container{
     position:fixed;
-    width:70%;
+    width:100%;
     margin:auto;
-    min-width: 1200px;
-    max-width: 1600px;
     top:37%;
     left:50%;
     transform: translate(-50%,-40%);
+}
+@media (min-width: 768px) {
+    .product-main-container {
+        width: 70%;
+        min-width: 1200px;
+        max-width: 1600px;
+    }
 }
 .product-main-box{
     width:80%;
@@ -819,23 +824,18 @@
 }
 
 .search-options-container {
-    display: inline-block; /* 한 줄로 배치 */
-    text-align: center;
-}
-
-.search-options-container {
     display: flex;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: center;
     gap: 20px;
     width: 100%;
-    flex-wrap: nowrap;
     margin-bottom:20px;
 }
 
 .search-container {
     position: relative;
-    flex: 1;
+    flex: 1 1 100%;
     min-width: 200px;
 }
 
@@ -879,6 +879,55 @@
 
 .search-sort span {
     cursor: pointer;
+}
+
+.auction-select-box {
+    display: flex;
+    justify-content: center;
+}
+#auction-title-br {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .search-options-container {
+        flex-wrap: wrap;
+    }
+    .search-container {
+        order: 2;
+    }
+
+    .search-options-container > select,
+    .search-options-container > button {
+        flex: 1 1 auto;
+        min-width: 30%;
+    }
+    .search-sort {
+        flex-wrap: wrap;
+        margin: 0;
+        padding: 0;
+    }
+    .search-sort > li {
+        flex: 1 1 25%;
+        box-sizing: border-box;
+        padding: 8px 10px;
+        text-align: center;
+    }
+    .product-main-box {
+        width: 100%;
+    }
+    .auction-select-box {
+        flex-wrap: wrap;
+    }
+    #auction-category-select {
+        width: 70%;
+    }
+    #auction-title {
+        font-size: 26px;
+    }
+    #auction-title-br {
+        display: block;
+    }
 }
 
 /* 상품구매 */
@@ -1047,8 +1096,8 @@
 }
 
 .product-bottom-left img {
-    width: 100%;
-    height: 100%;
+    width: calc(100% - 50px);
+    height: calc(100% - 50px);
 }
 
 /* 배송 모달 */

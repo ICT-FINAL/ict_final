@@ -283,10 +283,13 @@ function MyBasket() {
                         <li>할인예상금액</li>
                         <li>주문금액</li>
                     </ul>
-                    <ul className="price-list">
-                        <li>{formatNumberWithCommas(totals.selectedPrice)}원 ➕</li>
-                        <li>{formatNumberWithCommas(totals.totalShippingFee)}원 ➖</li>
-                        <li>{formatNumberWithCommas(totals.totalDiscountedPrice)}원 🟰</li>
+                    <ul className="price-list" style={{width: '85%', margin: '0 auto'}}>
+                        <li>{formatNumberWithCommas(totals.selectedPrice)}원</li>
+                        <li>➕</li>
+                        <li>{formatNumberWithCommas(totals.totalShippingFee)}원</li>
+                        <li>➖</li>
+                        <li>{formatNumberWithCommas(totals.totalDiscountedPrice)}원</li>
+                        <li>🟰</li>
                         <li>{formatNumberWithCommas(totals.totalAmount)}원</li>
                     </ul>
                 </div>
