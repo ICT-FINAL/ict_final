@@ -208,7 +208,7 @@ function Header() {
                     {user ? (
                         <>
                             <div ref={menuButtonRef} className="menu-icon" onClick={() => dispatch(setMenuModal(!menuModal))}>
-                                <img src={user.user.imgUrl.indexOf('http') !== -1 ? `${user.user.imgUrl}` : `${serverIP.ip}${user.user.imgUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white' }} />
+                                <img src={user.user.imgUrl.indexOf('http') !== -1 ? `${user.user.imgUrl}` : `${serverIP.ip}${user.user.imgUrl}`} alt='' width={40} height={40} style={{ objectFit: 'cover', borderRadius: '100%', backgroundColor: 'white' }} />
                                 <div style={{ color: 'white', textAlign: 'center', width: '120px', fontSize: '15px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{user.user.username} {grade[user.user.grade]}</div>
                             </div>
                         </>
@@ -233,7 +233,7 @@ function Header() {
                                     <div onClick={()=>{dispatch(setSearch({ ...search, searchWord: item.keyword }));navigate('/product/search');}} style={{overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>
                                         <span>{index + 1} </span>
                                         {item.keyword}
-                                        <span style={item.change>0?{fontSize:'12px',color:'red'}:{fontSize:'12px',color:'blue'}}> {item.change > 0  ? `${item.change}▲` : item.change < 0 ? `${item.change}▼` : ''}</span>
+                                        <span style={item.change>0?{fontSize:'12px',color:'red'}:{fontSize:'12px',color:'blue'}}> {item.change > 0  ? `${item.change}▲` : item.change < 0 ? `${-item.change}▼` : ''}</span>
                                         <span style={{fontSize:'12px',color:'green'}}> {item.change === 'NEW' && 'NEW' }</span>
                                     </div>
                                     

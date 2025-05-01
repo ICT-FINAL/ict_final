@@ -281,7 +281,7 @@ function UserInfo() {
     return (
         <div className="profile-container" style={loc.state !== null ? { paddingTop: '140px' } : {}}>
             <div className="profile-top">
-                {userinfo.imgUrl && <img src={userinfo.imgUrl.indexOf('http') !== -1 ? `${userinfo.imgUrl}` : `${serverIP.ip}${userinfo.imgUrl}`} alt='' width={140} height={140} style={{borderRadius: '50%', alignSelf: 'center'}}/>}
+                {userinfo.imgUrl && <img src={userinfo.imgUrl.indexOf('http') !== -1 ? `${userinfo.imgUrl}` : `${serverIP.ip}${userinfo.imgUrl}`} alt='' width={140} height={140} style={{borderRadius: '50%', objectFit: 'cover', alignSelf: 'center'}}/>}
                 <div className="profile-info">
                     <div style={{ fontWeight: 'bold', fontSize: '1.2em' }}>
                         <div style={{display: 'flex', justifyContent: 'space-between', height: '100px'}}>
