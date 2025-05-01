@@ -238,6 +238,7 @@ function Chatting() {
                                 />
                                 <input type="button" value="보내기" id="chat-send-btn"
                                     onClick={sendMessage}
+                                    disabled={roomInfo.state === 'LEFT'}
                                 />
                             </div>
                         </div>

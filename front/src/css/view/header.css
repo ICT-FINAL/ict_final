@@ -403,7 +403,7 @@
     top:-1px;
 }
 
-@media(max-width:780px) {
+@media(max-width:768px) {
     .menu-icon{
         right:50px;
     }
