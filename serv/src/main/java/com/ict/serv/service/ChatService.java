@@ -7,6 +7,7 @@ import com.ict.serv.entity.chat.ChatRoom;
 import com.ict.serv.entity.chat.ChatState;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.user.User;
+import com.ict.serv.repository.UserRepository;
 import com.ict.serv.repository.chat.ChatRepository;
 import com.ict.serv.repository.chat.ChatRoomRepository;
 import com.ict.serv.repository.product.ProductRepository;
@@ -29,7 +30,6 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ProductRepository productRepository;
-    private final SimpMessagingTemplate messagingTemplate;
 
     public String createRoom(User user1, User user2, Long productId) {
         String roomId = UUID.randomUUID().toString();
@@ -107,6 +107,12 @@ public class ChatService {
             dto.setRead(chat.isRead());
             dto.setSendTime(chat.getSendTime());
             dto.setUrd(urd);
+
+            dto.setImageUrls(
+                    chat.getImages().stream()
+                            .map(img -> "/uploads/chat/" + chat.getId() + "/" + img.getFilename())
+                            .collect(Collectors.toList())
+            );
 
             return dto;
         }).collect(Collectors.toList());
