@@ -4,7 +4,6 @@ import com.ict.serv.dto.recommend.WishRecommendRequest;
 import com.ict.serv.entity.basket.Basket;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.product.ProductState;
-import com.ict.serv.entity.review.Review;
 import com.ict.serv.entity.user.User;
 import com.ict.serv.entity.wish.Wishlist;
 import com.ict.serv.repository.RecommendRepository;

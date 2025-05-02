@@ -270,14 +270,14 @@ function MyInfoEdit() {
                 <div id="modal-background" style={modalBackStyle}></div>
                 <form className="sign-up-form" onSubmit={myInfoEdit}>
                     <label>아이디</label>
-                    <input type="text" name="userid" value={user.userid || ''} style={{width:'calc(65%)', backgroundColor:'#ddd'}} disabled/>
+                    <input id="info-edit-id" type="text" name="userid" value={user.userid || ''} style={{width:'calc(65%)', backgroundColor:'#ddd'}} disabled/>
 
                     <label>이름</label>
                     <input type="text" name="username" value={user.username || ''} onChange={changeUser}/><br/>
                     {alert.username.content && <><span className="form-alert">{alert.username.content}</span><br/></>}
 
                     <label>이메일</label>
-                    <input type="text" name="email" value={user.email || ''} style={{width:'calc(65%)', backgroundColor:'#ddd'}} autoComplete="useremail" disabled/><br/>
+                    <input id="info-edit-email" type="text" name="email" value={user.email || ''} style={{width:'calc(65%)', backgroundColor:'#ddd'}} autoComplete="useremail" disabled/><br/>
 
                     {!userInfo.kakaoProfileUrl && (
                         <>
@@ -331,7 +331,7 @@ function MyInfoEdit() {
                     <label htmlFor="profile-image-file" id="profile-image-btn">사진첨부</label><br/>
 
                     {/* 소개 */}
-                    <div style={{ display: "flex", alignItems: "center", marginTop: "50px" }}>
+                    <div className="info-box-style">
                         <label style={{ textAlign: "left" }}>소개</label>
                         <textarea name="infoText" maxLength={200} value={intro} onChange={handleChange} style={{height: "18vh", padding: "10px", fontFamily:'inherit'}} />
                     </div>
@@ -343,7 +343,7 @@ function MyInfoEdit() {
                 </form>
 
                 {!userInfo.kakaoProfileUrl && (
-                    <div style={{textAlign:'right', fontSize:'14px', marginTop:'10px', cursor:'pointer'}} onClick={()=>setCurrentPage("pwdPage")} >비밀번호 재설정</div>
+                    <div className="new-pwd-style" onClick={()=>setCurrentPage("pwdPage")} >비밀번호 재설정</div>
                 )}
                 
             </>

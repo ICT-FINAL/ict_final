@@ -140,7 +140,6 @@ function AdminMember() {
                   <th>날짜</th>
                   <th>방문자 수</th>
                   <th>가입자 수</th>
-                  <th>탈퇴자 수</th>
                 </tr>
               </thead>
               <tbody>
@@ -152,7 +151,6 @@ function AdminMember() {
                       <td>{date}</td>
                       <td>{visit}</td>
                       <td>{register}</td>
-                      <td></td>
                     </tr>
                   );
                 })}

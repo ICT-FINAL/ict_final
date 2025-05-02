@@ -1,16 +1,13 @@
 package com.ict.serv.controller.stats;
 
-import com.ict.serv.entity.UserPoint;
-import com.ict.serv.entity.sales.CouponUsageDTO;
+import com.ict.serv.entity.review.ReviewStatsDTO;
 import com.ict.serv.entity.sales.DailySalesDTO;
 import com.ict.serv.entity.sales.PurchaseStatsDTO;
 import com.ict.serv.entity.sales.SellerSalesSummaryDTO;
-import com.ict.serv.repository.order.OrderItemRepository;
 import com.ict.serv.service.InteractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
@@ -101,4 +98,17 @@ public class MyStatsController {
         return ResponseEntity.ok(myStatsService.getDailySales(sellerId, start, end));
     }
 
+    @GetMapping("/productcount/{userId}")
+    public ResponseEntity<Long> getProductCount(@PathVariable Long userId) {
+        return ResponseEntity.ok(myStatsService.getRegisteredProductCount(userId));
+    }
+
+    @GetMapping("/review/{userId}")
+    public ResponseEntity<ReviewStatsDTO> getReviewStats(
+            @PathVariable Long userId,
+            @RequestParam String start,
+            @RequestParam String end
+    ) {
+        return ResponseEntity.ok(myStatsService.getFilteredReviewStats(userId, start, end));
+    }
 }

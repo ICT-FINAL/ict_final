@@ -142,6 +142,16 @@ div.me-date, div.other-date, #unread-sticker {
     font-family: inherit;
 }
 
+.chat-file-button {
+    width:60px;
+    background-color: #525252;
+    border-radius: 6px;
+    text-align: center;
+    font-size:30px;
+    color:white;
+    cursor: pointer;
+}
+
 #chat-send-btn {
     width: 18%;
     background-color: #525252;

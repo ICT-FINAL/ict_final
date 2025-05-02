@@ -9,5 +9,5 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface MyStatsRepository extends JpaRepository<Orders, Long> {
-    List<Orders> findByUserIdAndShippingState(Long userId, ShippingState shippingState);
+    List<Orders> findByUserIdAndShippingStateIn(Long userId, List<ShippingState> states);
 }

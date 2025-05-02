@@ -2,6 +2,8 @@ package com.ict.serv.controller;
 
 import com.ict.serv.controller.admin.PagingVO;
 import com.ict.serv.dto.UserPwdModDto;
+import com.ict.serv.entity.order.Orders;
+import com.ict.serv.entity.order.ShippingState;
 import com.ict.serv.entity.product.Product;
 import com.ict.serv.entity.report.ReportState;
 import com.ict.serv.entity.review.Review;
@@ -9,9 +11,13 @@ import com.ict.serv.entity.user.Address;
 import com.ict.serv.entity.user.AddressState;
 import com.ict.serv.entity.user.Guestbook;
 import com.ict.serv.entity.user.User;
+import com.ict.serv.repository.order.OrderRepository;
 import com.ict.serv.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -41,6 +47,7 @@ public class MypageController {
     private final AuthService authService;
     private final ProductService productService;
     private final ReviewService reviewService;
+    private final OrderRepository orderRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -312,5 +319,76 @@ public class MypageController {
         service.updateAddressState(address.get());
 
         return ResponseEntity.ok("deleteAddrOk");
+    }
+
+    @GetMapping("/getSettledSellersList")
+    public ResponseEntity<Map<String, Object>> getSettledSellersListWithSearch(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "5") int limit,
+            @RequestParam(required = false) String year,
+            @RequestParam(required = false) String month,
+            @RequestParam(required = false) String keyword,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        Map<String, Object> response = new HashMap<>();
+        User user = interactService.selectUserByName(userDetails.getUsername());
+        keyword = (keyword == null) ? "" : keyword.trim();
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Map<String, Object>> sellerPage = null;
+
+        if((year.isEmpty() || year.equals("전체")) && (month.isEmpty() || month.equals("전체"))){
+            sellerPage = orderRepository.findMonthlySettledSalesByUser(user.getId(), keyword, pageable);
+        }
+        else if((year.isEmpty() || year.equals("전체"))) {
+            sellerPage = orderRepository.findSettledListWithTotalSalesByConditionsNoYearAndUserId(Integer.parseInt(month), keyword,user.getId(), pageable);
+        }
+        else if(month.isEmpty() || month.equals("전체")) {
+            sellerPage = orderRepository.findSettledListWithTotalSalesByConditionsNoMonthAndUserId(Integer.parseInt(year), 0, keyword,user.getId(), pageable);
+        }
+        else {
+            sellerPage = orderRepository.findSettledListWithTotalSalesByConditionsAndUserId(Integer.parseInt(year), Integer.parseInt(month),
+                    keyword,user.getId(), pageable);
+        }
+
+        response.put("sellers", sellerPage.getContent());
+        response.put("selectedCount", sellerPage.getTotalElements());
+        response.put("totalPage", sellerPage.getTotalPages());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/getSellerSettledProducts")
+    public Map<String, Object> settledProductList(@RequestParam String user_id,
+                                                  @RequestParam(required = false) String settledYear,
+                                                  @RequestParam(required = false) String settledMonth,
+                                                  @RequestParam(required = false) ShippingState shippingState) {
+
+        User user = interactService.selectUserByName(user_id);
+        List<Orders> orders = new ArrayList<>();
+        if (shippingState == ShippingState.SETTLED) {
+            boolean settledHasYear = settledYear != null && !settledYear.isEmpty() && !settledYear.equals("전체");
+            boolean settledHasMonth = settledMonth != null && !settledMonth.isEmpty() && !settledMonth.equals("전체");
+
+            if (settledHasYear && settledHasMonth) {
+                int settledParsedYear = Integer.parseInt(settledYear);
+                int settledParsedMonth = Integer.parseInt(settledMonth);
+                orders = orderRepository.findAllByProductSellerNoAndShippingStateAndYearAndMonth(
+                        user.getId(), ShippingState.SETTLED.name(), settledParsedYear, settledParsedMonth);
+            } else if (settledHasYear) {
+                int settledParsedYear = Integer.parseInt(settledYear);
+                orders = orderRepository.findAllByProductSellerNoAndShippingStateAndYear(
+                        user.getId(), ShippingState.SETTLED.name(), settledParsedYear);
+            } else if (settledHasMonth) {
+                int settledParsedMonth = Integer.parseInt(settledMonth);
+                orders = orderRepository.findAllByProductSellerNoAndShippingStateAndMonth(
+                        user.getId(), ShippingState.SETTLED.name(), settledParsedMonth);
+            } else {
+                orders = orderRepository.findAllByProductSellerNoAndShippingState(user, ShippingState.SETTLED);
+            }
+        }
+        System.out.println("정산 완료 제품 목록");
+        Map<String, Object> result = new HashMap<>();
+        result.put("orderList", orders);
+        return result;
     }
 }
