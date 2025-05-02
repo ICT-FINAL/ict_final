@@ -617,20 +617,6 @@ input.tel {
     justify-content: center;
     align-items: center;
 }
-.spinner {
-    width: 70px;
-    height: 70px;
-    border: 10px solid #ddd;
-    border-top-color: #777;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
 
 @media (min-width: 768px) {
     .profile-top, .profile-menu {

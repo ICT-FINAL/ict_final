@@ -151,7 +151,6 @@ function AdminMember() {
                       <td>{date}</td>
                       <td>{visit}</td>
                       <td>{register}</td>
-                      <td></td>
                     </tr>
                   );
                 })}

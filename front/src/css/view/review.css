@@ -103,6 +103,7 @@
     line-height: 1.5;
     background-color: #f9f9f9;
     transition: border-color 0.3s, background-color 0.3s;
+    font-family: inherit;
 }
 
 .reviewBtn-style {
@@ -478,7 +479,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-top: 60px; /* header 높이 고려해서 내리기 */
+  padding-top: 60px;
   box-sizing: border-box;
 }
   
@@ -487,24 +488,28 @@
     padding: 30px;
     border-radius: 12px;
     position: relative;
-    max-width: 90%;
-    max-height: 80%;
     overflow-y: auto;
   }
   
   .review-modal-images {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 10px;
-  }
-  
-  .review-modal-img {
-    width: 120px;
-    height: 120px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.review-modal-img {
+    width: 100px;
+    height: 100px;
     object-fit: cover;
-    cursor: pointer;
-    border-radius: 8px;
-  }
+    border: 2px solid #ddd;
+    padding: 10px;
+}
+
+.review-modal-img:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* hover 시 그림자 강조 */
+}
   
   .review-enlarged-img {
     width: 500px;

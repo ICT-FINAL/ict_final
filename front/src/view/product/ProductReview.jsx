@@ -367,21 +367,10 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
 
     const previewImages = allImages.slice(0, 5);
 
-    const handleImageClick = (img) => {
-        const review = reviewList.find((r) => r.id === img.reviewId); // 리뷰를 찾는 로직 추가
-        setModalImage({
-            src: img.src,
-            reviewId: img.reviewId,
-            reviewContent: review ? review.reviewContent : '',  // 리뷰 내용 추가
-            reviewDate: review ? new Date(review.reviewWritedate).toLocaleDateString() : '', // 작성일 추가
-            username: review ? review.user.username : '', // 사용자명 추가
-            rate: review ? review.rate : '', // 별점 추가
-        });
-    }
-
     const closeModal = () => {
-        setModalImage(null); // 모달을 닫을 때 이미지 초기화
-    }
+        setModalImageIndex(null); // 모달 인덱스 초기화
+        setModalImage(null); // 모달 이미지 상태 초기화
+    };
 
     // 더보기+를 누르면 원래있던 이미지 전체리스트에 스크롤이 생겨서 막는 로직 
     useEffect(() => {
@@ -430,89 +419,129 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
             localStorage.removeItem("currentReviewId");
         }
     }, []);
+
+    const [modalImageIndex, setModalImageIndex] = useState(null);
+
+    const updateModalImage = (index) => {
+        const img = allImages[index];
+        const review = reviewList.find((r) => r.id === img.reviewId); // 리뷰를 찾는 로직
+        setModalImageIndex(index); // 선택된 인덱스 저장
+        setModalImage({
+            src: img.src,
+            reviewId: img.reviewId,
+            reviewContent: review ? review.reviewContent : '',  // 리뷰 내용
+            reviewDate: review ? new Date(review.reviewWritedate).toLocaleDateString() : '', // 작성일
+            username: review ? review.user.username : '', // 사용자명
+            rate: review ? review.rate : '', // 별점
+        });
+    };
+
+    const handlePrevImage = () => {
+        setModalImageIndex((prevIndex) => {
+            const newIndex = prevIndex === 0 ? allImages.length - 1 : prevIndex - 1;
+            return newIndex;
+        });
+    };
+    
+    const handleNextImage = () => {
+        setModalImageIndex((prevIndex) => {
+            const newIndex = prevIndex === allImages.length - 1 ? 0 : prevIndex + 1;
+            return newIndex;
+        });
+    };
+
+    useEffect(() => {
+        if (modalImageIndex !== null) {
+            updateModalImage(modalImageIndex);
+        }
+    }, [modalImageIndex]);
     
     return(
         <>
-            <div   style={{display: 'flex', justifyContent: 'center'}}> 
-                {/* 평균 별점 */}
-                {averageStar !== null ? (
-                    <>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                            {/* 별점 표시 */}
-                            {renderStars(averageStar)}
-                            <p
-                                style={{
-                                    marginLeft: '8px',
-                                    fontSize: '25px',
-                                    fontWeight: '800',
-                                    lineHeight: '24px', // 텍스트와 별 사이 간격 조정
-                                }}
-                            >
-                                {averageStar.toFixed(1)}
-                            </p>
-                        </div>
-                    </>
-                ) : null}
-            </div>
             {/* 리뷰 전체 이미지 */}
-            <div className="review-gallery-wrapper" ref={ref}>
-                <h3 className="review-gallery-title">📸 리뷰 사진 모아보기</h3>
+                <div className="review-gallery-wrapper" ref={ref}>
+                    <h3 className="review-gallery-title">📸  리뷰사진 모아보기</h3>
 
-                <div className="review-preview-container">
-                    {(showAllImages ? allImages : previewImages).map((img, idx) => (
-                    <img
-                        key={idx}
-                        className="review-preview-img"
-                        src={img.src}
-                        alt={`review-${img.reviewId}-${img.filename}`}
-                        onClick={() => handleImageClick(img)}
-                    />
-                    ))}
-
-                    {/* +더보기 버튼 */}
-                    {allImages.length > 5 && !showAllImages && (
-                    <div className="review-preview-more" onClick={() => setShowAllImages(true)}>
-                        + 더보기
-                    </div>
-                    )}
-                </div>
-
-                {/* 전체 이미지 모달 */}
-                {showAllImages && (
-                    <div className="review-modal-overlay" onClick={() => setShowAllImages(false)}>
-                    <div className="review-modal-content" onClick={(e) => e.stopPropagation()}>
-                        <div className="review-modal-images">
-                        {allImages.map((img, idx) => (
+                    <div className="review-preview-container">
+                        {/* 5개 이하의 이미지만 먼저 보여주기 */}
+                        {(showAllImages ? allImages : previewImages).map((img, idx) => (
                             <img
-                            key={idx}
-                            className="review-modal-img"
-                            src={img.src}
-                            alt={`review-${img.reviewId}-${img.filename}`}
-                            onClick={() => handleImageClick(img)}
+                                key={idx}
+                                className="review-preview-img"
+                                src={img.src}
+                                alt={`review-${img.reviewId}-${img.filename}`}
+                                onClick={() => updateModalImage(idx)}  // 클릭된 인덱스를 전달
                             />
                         ))}
-                        </div>
-                        <button className="review-modal-close" onClick={() => setShowAllImages(false)}>X</button>
-                    </div>
-                    </div>
-                )}
 
-                {/* 확대 이미지 모달 */}
-                {modalImage && (
-                    <div className="review-modal-overlay" onClick={closeModal}>
-                        <div className="review-modal-content" onClick={(e) => e.stopPropagation()}>
-                            <img className="review-enlarged-img" src={modalImage.src} alt="enlarged" />
-                            <div className="review-details">
-                                <p><strong>작성자:</strong> {modalImage.username}</p>
-                                <p><strong>작성일:</strong> {modalImage.reviewDate}</p>
-                                <p><strong>별점:</strong> {modalImage.rate} / 5</p>
-                                <p><strong>리뷰 내용:</strong> {modalImage.reviewContent}</p>
+                        {/* +더보기 버튼 (이미지 5개 이상일 경우만 보이도록) */}
+                        {allImages.length > 5 && !showAllImages && (
+                            <div className="review-preview-more" onClick={() => setShowAllImages(true)}>
+                                + 더보기
                             </div>
-                            <button className="review-modal-close" onClick={closeModal}>X</button>
-                        </div>
+                        )}
                     </div>
-                )}
+
+                    {/* 전체 이미지 모달 */}
+                    {showAllImages && (
+                        <div className="review-modal-overlay" onClick={() => {
+                            setShowAllImages(false); // 전체 이미지 모달 닫기
+                            closeModal(); // 확대 이미지 모달 초기화
+                        }}>
+                            <div className="review-modal-content" onClick={(e) => e.stopPropagation()}>
+                                <div className="review-modal-images">
+                                    {allImages.map((img, idx) => (
+                                        <img
+                                            key={idx}
+                                            className="review-modal-img"
+                                            src={img.src}
+                                            alt={`review-${img.reviewId}-${img.filename}`}
+                                            onClick={() => updateModalImage(idx)}
+                                        />
+                                    ))}
+                                </div>
+                                <button className="overlay-close" onClick={() => {
+                                    setShowAllImages(false); // 전체 이미지 모달 닫기
+                                    closeModal(); // 확대 이미지 모달 초기화
+                                }}>X</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 확대 이미지 모달 */}
+{modalImage && (
+    <div className="review-modal-overlay" onClick={closeModal}>
+        {/* 좌측 화살표 버튼 */}
+        <button 
+            className="overlay-arrow left" 
+            onClick={(e) => { e.stopPropagation(); handlePrevImage(); }} 
+            disabled={allImages.length <= 1} // 이미지가 1개 이하일 경우 비활성화
+        >
+            &lt;
+        </button>
+
+        <div className="review-modal-content" onClick={(e) => e.stopPropagation()}>
+            <img className="review-enlarged-img" src={modalImage.src} alt="enlarged" />
+            <div className="review-details">
+                <p><strong>작성자:</strong> {modalImage.username}</p>
+                <p><strong>작성일:</strong> {modalImage.reviewDate}</p>
+                <p><strong>별점:</strong> {modalImage.rate} / 5</p>
+                <p><strong>리뷰 내용:</strong> {modalImage.reviewContent}</p>
             </div>
+            <button className="overlay-close" onClick={closeModal}>X</button>
+        </div>
+
+        {/* 우측 화살표 버튼 */}
+        <button 
+            className="overlay-arrow right" 
+            onClick={(e) => { e.stopPropagation(); handleNextImage(); }} 
+            disabled={allImages.length <= 1} // 이미지가 1개 이하일 경우 비활성화
+        >
+            &gt;
+        </button>
+    </div>
+)}
+                </div>
 
             <hr style={{ border: '0', height: '5px', backgroundColor: 'rgb(241, 241, 241)' }} />
 

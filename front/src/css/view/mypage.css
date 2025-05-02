@@ -478,6 +478,23 @@
 
 /* 주문 내역 */
 
+#excel-download-btn {
+    background-color: #222;
+    color: #fff;
+    border: 2px solid #222;
+    border-radius: 10px;
+    height: 40px;
+    float: right;
+    cursor: pointer;
+    transition: all 0.5s ease;
+    font-weight: bold;
+    padding: 5px 10px;
+}
+#excel-download-btn:hover {
+    background-color: #fff;
+    color: #222;
+}
+
 .order-group-list {
     display: flex;
     flex-direction: column;

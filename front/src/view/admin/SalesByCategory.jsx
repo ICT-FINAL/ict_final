@@ -55,9 +55,7 @@ function SalesByCategory() {
         position: "right",
       },
       datalabels: {
-        color: "#000",
-        formatter: (value, context) => context.chart.data.labels[context.dataIndex],
-        font: { weight: "bold" },
+        display: false, 
       },
     },
     maintainAspectRatio: false,
