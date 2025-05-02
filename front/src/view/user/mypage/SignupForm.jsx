@@ -434,7 +434,7 @@ function SignupForm() {
                 <label htmlFor="profile-image-file" id="profile-image-btn">사진첨부</label>
 
                 {/* 소개 */}
-                <div style={{ display: "flex", alignItems: "center", marginTop: "50px" }}>
+                <div className="info-box-style">
                     <label style={{ textAlign: "left" }}>소개</label>
                     <textarea name="infoText" maxLength={200} value={intro} onChange={handleChange} style={{height: "18vh", padding: "10px", fontFamily:'inherit'}} />
                 </div>
