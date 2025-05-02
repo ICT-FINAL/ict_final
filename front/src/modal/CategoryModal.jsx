@@ -22,6 +22,16 @@ function CategoryModal() {
         setModalTransform('scale(0.8)');
     }
 
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     useEffect(() => {
         if (modalSel.isOpen) {
             setModalOpen(true);
@@ -145,7 +155,7 @@ function CategoryModal() {
 
     const modalStyle = {
         position: 'fixed',
-        width: '650px',
+        width: isMobile ? '400px' : '650px',
         maxHeight: '80vh',
         backgroundColor: 'white',
         zIndex: 10001,

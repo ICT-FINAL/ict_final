@@ -338,8 +338,6 @@ input.tel {
     border: 1px solid #ccc;
     padding: 30px;
     margin: 20px auto;
-    display: flex;
-    min-width: 500px;
 }
 .profile-top{
     max-width: 750px;
@@ -378,6 +376,7 @@ input.tel {
     background-color: #8CC7A5;
 }
 .profile-menu {
+    display: flex;
     justify-content:center;
     padding: 10px 30px;
     margin-bottom: 0;
@@ -393,7 +392,6 @@ input.tel {
 }
 .profile-bottom {
     border: 1px solid #ddd;
-    min-width: 500px;
 }
 /* ========== Guestbook ========== */
 .guestbook-item {
@@ -492,4 +490,41 @@ input.tel {
     font-weight: bold;
     font-size: 18px;
     color: #555;
+}
+
+.blocking-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.6);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.spinner {
+    width: 70px;
+    height: 70px;
+    border: 10px solid #ddd;
+    border-top-color: #777;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (min-width: 768px) {
+    .profile-top, .profile-menu {
+        min-width: 500px;
+        display: flex;
+    }
+    .profile-bottom {
+        min-width: 500px;
+    }
 }

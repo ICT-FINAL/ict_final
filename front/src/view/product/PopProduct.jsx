@@ -79,7 +79,11 @@ function PopProduct() {
     }
 
     const moveProduct = (prod) => {
-        navigate('/product/info', { state: { product: prod } });
+        axios.get(`${serverIP.ip}/review/productReviewList?productId=${prod.id}`)
+        .then(list=>{
+            navigate('/product/info', { state: { product: prod, reviewCount: list.data.length } })
+        })
+        .catch(err => console.log(err));
     }
 
     return (
@@ -117,9 +121,13 @@ function PopProduct() {
                                         alt=''
                                         className='pop-profile-img'
                                     />
+                                    <div className="pop-go-info" onClick={()=>moveInfo(item.user.id)}>
+                                        작가 정보 더보기 <span style={{ fontSize: '18px' }}>→</span>
+                                    </div>
                                     <span style={{marginTop:'20px', fontSize:'22px'}}>💕{item.user.username}{grade[item.user.grade]}</span>
                                 </div>
                                 <div className='pop-right' style={{ position: 'relative' }}> {/* position: relative 추가 */}
+                                    
                                     <div>
                                         <div className="pop-author-desc">{ item.user.infoText===null ? '작가 소개가 없습니다.':item.user.infoText}</div>
                                     </div>
@@ -148,9 +156,6 @@ function PopProduct() {
                                                 <div>등록된 상품이 없습니다.</div>
                                             )}
                                         </div>
-                                    </div>
-                                    <div className="pop-go-info" onClick={()=>moveInfo(item.user.id)}>
-                                        작가 정보 더보기 <span style={{ fontSize: '18px' }}>→</span>
                                     </div>
                                 </div>
                             </div>

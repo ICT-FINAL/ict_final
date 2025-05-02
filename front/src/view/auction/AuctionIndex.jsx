@@ -61,8 +61,10 @@ function AuctionIndex() {
                 setItemsPerPage(5);
             } else if (width >= 1080) {
                 setItemsPerPage(4);
-            } else {
+            } else if (width >= 768) {
                 setItemsPerPage(3);
+            } else {
+                setItemsPerPage(1);
             }
             setFirstSlide(0);
             setSecondSlide(0);
@@ -206,43 +208,45 @@ function AuctionIndex() {
                     !visibleSections.hotAuction && !visibleSections.closingAuction && !visibleSections.FINAL ? 'fade-in' : 'fade-out'
                 }`} style={{marginTop:'50px'}}>
                     <div className="search-page-banner">
-                        <h1>🎉 핸드메이드 아이템, 지금 가장 좋은 가격에!</h1>
+                        <h1 id="auction-title">🎉 핸드메이드 아이템, <br id="auction-title-br"/>지금 가장 좋은 가격에!</h1>
                         <p>마음에 드는 순간 바로 입찰하고, 소중한 작품의 주인이 되어보세요</p>
                     </div>
                     <div className='product-main-box'>
                         
                         <div className='product-right-box'>
-                            <select
-                                value={search.eventCategory}
-                                onChange={(e) => dispatch(setSearch({ ...search, eventCategory: e.target.value }))}
-                                className="selectbox-style"
-                            >
-                                <option value="">이벤트 선택</option>
-                                {eventOptions.map((event, index) => (
-                                    <option key={index} value={event}>{event}</option>
-                                ))}
-                            </select>
+                            <div className="auction-select-box">
+                                <select
+                                    value={search.eventCategory}
+                                    onChange={(e) => dispatch(setSearch({ ...search, eventCategory: e.target.value }))}
+                                    className="selectbox-style"
+                                >
+                                    <option value="">이벤트 선택</option>
+                                    {eventOptions.map((event, index) => (
+                                        <option key={index} value={event}>{event}</option>
+                                    ))}
+                                </select>
 
-                            <select
-                                value={search.targetCategory}
-                                onChange={(e) => dispatch(setSearch({ ...search, targetCategory: e.target.value }))}
-                                className="selectbox-style"
-                            >
-                                <option value="">대상 선택</option>
-                                {targetOptions.map((target, index) => (
-                                    <option key={index} value={target}>{target}</option>
-                                ))}
-                            </select>
-                            <button onClick={() => dispatch(setModal({
-                                ...modal,
-                                isOpen: true,
-                                selected: "categorymodal",
-                                info: productOptions,
-                            }))} className="selectbox-style" style={{ fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block' }}>
-                                {search.productCategory.length == 0 ? '카테고리 선택' : search.productCategory.map((item, index) => (
-                                    <div style={{ display: 'inline-block' }} key={index}> #{item}</div>
-                                ))}
-                            </button>
+                                <select
+                                    value={search.targetCategory}
+                                    onChange={(e) => dispatch(setSearch({ ...search, targetCategory: e.target.value }))}
+                                    className="selectbox-style"
+                                >
+                                    <option value="">대상 선택</option>
+                                    {targetOptions.map((target, index) => (
+                                        <option key={index} value={target}>{target}</option>
+                                    ))}
+                                </select>
+                                <button onClick={() => dispatch(setModal({
+                                    ...modal,
+                                    isOpen: true,
+                                    selected: "categorymodal",
+                                    info: productOptions,
+                                }))} id="auction-category-select" className="selectbox-style" style={{ fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block' }}>
+                                    {search.productCategory.length == 0 ? '카테고리 선택' : search.productCategory.map((item, index) => (
+                                        <div style={{ display: 'inline-block' }} key={index}> #{item}</div>
+                                    ))}
+                                </button>
+                            </div>
                             <div className="search-wrapper">
                                 <div className="search-container">
                                     <input onKeyDown={handleSearch} type="text" value={search.searchWord} placeholder="검색어 입력" onChange={changeSearchWord} className="searchWord-style" />

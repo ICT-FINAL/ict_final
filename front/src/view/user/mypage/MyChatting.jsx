@@ -27,6 +27,8 @@ function MyChatting() {
             { headers: {Authorization: `Bearer ${user.token}`}})
         .then(res=>{
             setChatRoomList(res.data);
+            console.log(res.data.filter(room => room.state === 'LEFT' && room.firstLeftUser !== user.user.id).length);
+            console.log(res.data.filter(room => room.state === 'ACTIVE').length);
             res.data.map(room=>{
                 const socket = new SockJS(`${serverIP.ip}/ws`);
                 const stompClient = Stomp.over(socket);
@@ -81,22 +83,33 @@ function MyChatting() {
 
             <hr className='menu-divider'/>
             {
-                (selectedTab === 'default' && chatRoomList.length === 0) ||
-                (selectedTab === 'product' && productChatRoomList.length === 0) ? (
+                (selectedTab === 'default' && chatRoomList.filter(room => room.state === 'ACTIVE' || (room.state === 'LEFT' && room.firstLeftUser !== user.user.id)).length === 0) ||
+                (selectedTab === 'product' && productChatRoomList.filter(room => room.state === 'ACTIVE' || (room.state === 'LEFT' && room.firstLeftUser !== user.user.id)).length === 0) ? (
                     <div style={{padding: '50px', textAlign: 'center'}}>진행 중인 채팅이 없습니다.</div>
                 ) : null
             }
             {
                 (selectedTab === 'default' ? chatRoomList : productChatRoomList).map((room, idx)=>{
                     const selectedUser = user.user.id === room.participantA.id ? room.participantB : room.participantA
-                        
+                    if (room.state === 'ACTIVE' || (room.state === 'LEFT' && (room.firstLeftUser != undefined && room.firstLeftUser !== user.user.id)))
                     return (
                         <div key={idx} className="chat-room" onClick={()=>navigate(`/product/chat/${room.chatRoomId}`)}
                             style={room.lastChat.read || room.lastChat.sender.id === user.user.id ? {background: '#f8f8f8'} : {}}>
-                            <img className="chat-user-img" style={{width: '80px', height: '80px'}} src = {selectedUser.profileImageUrl.indexOf('http') !==-1 ? `${selectedUser.profileImageUrl}`:`${serverIP.ip}${selectedUser.profileImageUrl}`} alt=''/>
+                            {
+                                room.product
+                                ? 
+                                <img className="chat-room-img" 
+                                    style={{borderRadius: '5px'}}
+                                    src = {`${serverIP.ip}/uploads/product/${room.product.id}/${room.product.images[0].filename}`} alt=''
+                                />
+                                :
+                                <img className="chat-room-img" 
+                                    src = {selectedUser.profileImageUrl.indexOf('http') !==-1 ? `${selectedUser.profileImageUrl}`:`${serverIP.ip}${selectedUser.profileImageUrl}`} alt=''
+                                />
+                            }
                             <div style={{display: 'flex', flexDirection: 'column', paddingLeft: '3%', width: '85%'}}>
                                 <div>
-                                    <span><b>{selectedUser.username}</b></span>
+                                    <span style={{color: room?.product?.sellerNo.id === user.user.id ? '#2e704a' : ''}}><b>{room.product ? room.product.productName : selectedUser.username}</b></span>
                                     <span className='date'>{getTime(room.lastChat.sendTime)}</span><br/>
                                 </div>
                                 <div style={{

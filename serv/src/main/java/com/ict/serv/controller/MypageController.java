@@ -238,7 +238,9 @@ public class MypageController {
                     }
                 }
             }
-
+            if ((profileImage == null || profileImage.isEmpty()) && user.getUploadedProfileUrl() != null) {
+                userInfo.setUploadedProfileUrl(user.getUploadedProfileUrl());
+            }
             userInfo.setAddress(user.getAddress());
             userInfo.setZipcode(user.getZipcode());
             userInfo.setAddressDetail(user.getAddressDetail());
