@@ -133,7 +133,6 @@
     font-weight: bold;
   }
   .notice-filter {
-    display: flex;
     margin-bottom: 15px;
     gap: 10px;
 }

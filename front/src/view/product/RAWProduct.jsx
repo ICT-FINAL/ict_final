@@ -43,10 +43,7 @@ function RAWProduct() {
     const moveInfo = (id) => {
         axios.get(`${serverIP.ip}/product/getInfo?productId=${id}`)
         .then(res =>{
-            axios.get(`${serverIP.ip}/review/productReviewList?productId=${id}`)
-            .then(list=>{
-                navigate('/product/info', { state: { product: res.data, reviewCount: list.data.length } })
-            });
+            navigate('/product/info', { state: { product: res.data } })
         })
         .catch(err => console.log(err));
     }

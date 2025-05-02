@@ -150,13 +150,13 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
             // 좋아요를 추가 처리
             updatedLikes = [...review.likes, { user: { id: user.user.id, username: user.user.username } }];
             
+            
             // UI 먼저 업데이트 (좋아요 추가)
             setReviewList(prevReviewList => 
                 prevReviewList.map(r => r.id === reviewId ? { ...r, likes: updatedLikes } : r)
             );
-    
             await axios.post(`${serverIP.ip}/review/like`, null, {
-                params: { reviewId, userId },
+                params: { reviewId, userId:userId.user.id },
                 headers: { Authorization: `Bearer ${user.token}` }
             });
     

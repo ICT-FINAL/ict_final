@@ -152,7 +152,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("정지된 사용자입니다.");
         }
         String token = jwtProvider.createToken(user.getUserid());
-
+        logService.userJoinSave(user);
         HttpSession session = request.getSession();
         session.setAttribute("JWT", token);
 

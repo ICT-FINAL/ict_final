@@ -251,11 +251,16 @@
 .product-form-container {
     padding: 30px;
     max-width: 800px;
-    min-width: 600px;
     margin: 0 auto;
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 768px) {
+    .product-form-container {
+        min-width: 600px;
+    }
 }
 
 .product-form-title {
@@ -620,19 +625,6 @@
 
 /* 검색 끝 */
 
-
-.product-info-container {
-    width: 80%;
-    margin: auto;
-    
-    max-width: 1200px;
-    
-    min-width: 800px;
-    
-    display: grid;
-    grid-template-columns: 4.5fr 5.5fr;
-}
-
 .product-info-left {
     display: flex;
     flex-direction: column;
@@ -685,8 +677,7 @@
 }
 
 .product-info-right>ul{
-    padding:0;
-    padding-left: 50px;
+    padding:0 20px;
     list-style-type: none;
 }
 
@@ -704,10 +695,6 @@
     text-align: right;
     color:rgb(212, 212, 15);
 }
-.product-info-name{
-    width:80%;
-}
-
 .product-wish {
     display: flex;
     align-items: center;
@@ -800,6 +787,23 @@
 .product-buy-button:hover, .product-basket-button:hover{
     background-color: #fff;
     color: #222;
+}
+
+@media (min-width: 768px) {
+    .product-info-container {
+        width: 80%;
+        margin: auto;
+        max-width: 1200px;
+        min-width: 800px;
+        display: grid;
+        grid-template-columns: 4.5fr 5.5fr;
+    }
+    .product-info-right>ul{
+        padding-left: 50px;
+    }
+    .auction-bottom-right>ul>li {
+        min-width: 400px;
+    }
 }
 
 .search-selectbox-style {
@@ -927,6 +931,9 @@
     }
     #auction-title-br {
         display: block;
+    }
+    .CKEditor-container-product {
+        width: 320px;
     }
 }
 
@@ -1106,18 +1113,15 @@
     text-align: center;
 }
 
-.auction-bottom{
-    display: flex;
-}
-
 .auction-bottom-right{
-    width:50%;
     border-left: 1px solid #ddd;
 }
 .auction-bottom-right>ul{
     list-style-type: none;
     display: flex;
     flex-direction: column;
+    margin-left: 0;
+    padding-left: 0;
 }
 .auction-bottom-right>ul>li{
     display: flex;
@@ -1128,7 +1132,6 @@
     padding-bottom:25px;
     margin:auto;
     margin-bottom: 20px;
-    min-width: 400px;
     max-width: 400px;
     border-radius: 5px;
 }
