@@ -281,7 +281,7 @@ function UserInfo() {
     return (
         <div className="profile-container" style={loc.state !== null ? { paddingTop: '140px' } : {}}>
             <div className="profile-top">
-                {userinfo.imgUrl && <img src={userinfo.imgUrl.indexOf('http') !== -1 ? `${userinfo.imgUrl}` : `${serverIP.ip}${userinfo.imgUrl}`} alt='' width={140} height={140} style={{borderRadius: '50%', alignSelf: 'center'}}/>}
+                {userinfo.imgUrl && <img src={userinfo.imgUrl.indexOf('http') !== -1 ? `${userinfo.imgUrl}` : `${serverIP.ip}${userinfo.imgUrl}`} alt='' width={140} height={140} style={{borderRadius: '50%', objectFit: 'cover', alignSelf: 'center'}}/>}
                 <div className="profile-info">
                     <div style={{ fontWeight: 'bold', fontSize: '1.2em' }}>
                         <div style={{display: 'flex', justifyContent: 'space-between', height: '100px'}}>
@@ -298,7 +298,7 @@ function UserInfo() {
                                     <button id="profile-edit-btn" onClick={()=> navigate('/mypage/edit')} style={{background: '#8CC7A5'}}>프로필 수정</button>
                                 </div>
                                 :
-                                <div>
+                                <div style={{textAlign: 'center'}}>
                                     <button id="userinfo-chatting" onClick={openChatting} style={{marginRight: '10px', background: '#8CC7A5'}}>채팅하기</button>
                                     <button id={followState ? "unfollow-btn" : "follow-btn"} onClick={followUser}>
                                         {followState ? '팔로잉' : '팔로우'}
@@ -333,7 +333,7 @@ function UserInfo() {
                             <div style={{ padding: '20px', textAlign: 'center' }}>작성된 방명록이 없습니다.</div>
                         }
                         {
-                            user && loc.state !== null &&
+                            user && loc.state !== null && user.user.id !== loc.state &&
                             <div className="guestbook-write-box">
                                 <textarea id="guestbook-write" className="guestbook-write" placeholder="방명록을 남겨 주세요."
                                     rows={5} style={{ height: '50px', lineHeight: '1.2' }} />

@@ -4,7 +4,10 @@
     margin: 0 auto;
     position: relative;
 }
-
+#recommend-title {
+    text-align: center;
+    font-size: 32px;
+}
 .recommend-sort {
     margin: 0;
     padding: 0;
@@ -38,7 +41,7 @@
 
 #refresh-btn {
     position: absolute;
-    top: 195px;
+    top: 208px;
     right: 20px;
     width: 40px;
     height: 40px;
@@ -182,4 +185,27 @@
 }
 .info-0 div, .info-5 div {
     justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .recommend-container {
+        width: 95%;
+        margin: 0 auto;
+    }
+    .recommend-sort {
+        flex-wrap: wrap;
+    }
+    .recommend-sort li {
+        padding: 3px 5px;
+        font-size: 10pt;
+    }
+    #recommend-title {
+        font-size: 22px;
+    }
+    #refresh-btn {
+        top: 270px;
+        width: 30px;
+        height: 30px;
+        font-size: 20px;
+    }
 }

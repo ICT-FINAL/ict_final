@@ -16,24 +16,29 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, String> {
 
     @Query("SELECT r FROM ChatRoom r " +
             "WHERE (r.participantA = :user OR r.participantB = :user) " +
-            "AND r.state = :state " +
+            "AND r.state IN :states " +
             "AND r.product.id IS NULL " +
             "ORDER BY r.lastChat.sendTime DESC")
     List<ChatRoom> findChatRoomsWithoutProduct(@Param("user") User user,
-                                               @Param("state") ChatState state);
+                                               @Param("states") List<ChatState> states);
 
     @Query("SELECT r FROM ChatRoom r " +
             "WHERE (r.participantA = :user OR r.participantB = :user) " +
-            "AND r.state = :state " +
+            "AND r.state IN :state " +
             "AND r.product.id IS NOT NULL " +
             "ORDER BY r.lastChat.sendTime DESC")
     List<ChatRoom> findChatRoomsWithProduct(@Param("user") User user,
-                                            @Param("state") ChatState state);
+                                            @Param("state") List<ChatState> states);
 
     @Modifying
     @Transactional
     @Query("UPDATE ChatRoom c SET c.state = 'LEFT' WHERE c.chatRoomId = :roomId")
     void updateChatRoomStateToLeft(@Param("roomId") String roomId);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE ChatRoom c SET c.firstLeftUser = :userNo WHERE c.chatRoomId = :roomId")
+    void updateFirstLeftUser(@Param("roomId") String roomId, Long userNo);
 
     @Modifying
     @Transactional

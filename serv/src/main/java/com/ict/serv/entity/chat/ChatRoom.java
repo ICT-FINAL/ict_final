@@ -36,6 +36,9 @@ public class ChatRoom {
     @JoinColumn(name="participant_b")
     private User participantB;
 
+    @Column(name = "first_left_user")
+    private Long firstLeftUser;
+
     private LocalDateTime createdAt;
 
     @OneToOne

@@ -83,6 +83,7 @@ import SellerCancelModal from '../modal/SellerCancelModal';
 import ProductCheck from './product/ProductCheck';
 import AuctionCheck from './auction/AuctionCheck';
 import ProductEdit from './product/ProductEdit';
+import ChatFileModal from '../modal/ChatFileModal';
 
 function Body() {
   const modal = useSelector((state) => state.modal);
@@ -179,15 +180,17 @@ function Body() {
     let clicked = false;
   },[]);
 
-  useEffect(()=>{
-    if (user) {
+  useEffect(() => {
+    if (!user) return;
+  
+    const fetchUnreadCount = () => {
       axios.get(`${serverIP.ip}/chat/unreadChatCount`, {
         headers: { Authorization: `Bearer ${user.token}` }
       })
-      .then(res=>{
+      .then(res => {
         const chatElement = document.getElementById("chat");
         const existingIcon = document.getElementById("count-icon");
-
+  
         if (res.data > 0) {
           if (!existingIcon) {
             const countIcon = document.createElement("span");
@@ -203,9 +206,14 @@ function Body() {
           }
         }
       })
-      .catch(err=>console.log(err));
-    }
-  },[location.pathname]);
+      .catch(err => console.log(err));
+    };
+  
+    fetchUnreadCount(); // 초기 1회 실행
+    const intervalId = setInterval(fetchUnreadCount, 10000); // 10초마다 반복
+  
+    return () => clearInterval(intervalId); // 언마운트 시 정리
+  }, [user]);
 
   return (<>
     {modal.isOpen && modal.selected == '1' && <ModalIndex />}
@@ -227,6 +235,7 @@ function Body() {
     {modal.isOpen && modal.selected == 'refund' && <RefundModal />}
     {modal.isOpen && modal.selected == 'cancel-order' && <CancelModal />}
     {modal.isOpen && modal.selected == 'seller-cancel-order' && <SellerCancelModal />}
+    {modal.isOpen && modal.selected == 'chat-file-modal' && <ChatFileModal />}
     {interact.isOpen && <Interact />}
     {modal.isOpen && modal.selected.indexOf('delll') !== -1 && <DeleteModal />}
     <Routes>

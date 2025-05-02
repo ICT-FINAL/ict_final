@@ -4,6 +4,7 @@ import com.ict.serv.dto.UserResponseDto;
 import com.ict.serv.entity.chat.ChatDTO;
 import com.ict.serv.entity.chat.ChatMessage;
 import com.ict.serv.entity.user.User;
+import com.ict.serv.repository.chat.ChatRepository;
 import com.ict.serv.service.ChatService;
 import com.ict.serv.service.InteractService;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +22,13 @@ public class ChatWebSocketController {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatService chatService;
     private final InteractService interactService;
-
+    private final ChatRepository chatRepository;
     @MessageMapping("/chat/{roomId}")
     public void handleChat(@DestinationVariable String roomId, @Payload ChatDTO chat) {
         User user = interactService.selectUserByName(chat.getUrd().getUserid());
-        ChatMessage saved = chatService.saveChat(chat.getRoomId(), user, chat.getMessage());
-
+        ChatMessage saved = null;
+        if(!chat.getMessage().isEmpty()) saved = chatService.saveChat(chat.getRoomId(), user, chat.getMessage());
+        else saved = chatRepository.findById(chat.getId()).orElseThrow();
         ChatDTO response = new ChatDTO();
         response.setId(saved.getId());
         response.setRoomId(chat.getRoomId());
