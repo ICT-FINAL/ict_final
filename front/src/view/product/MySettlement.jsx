@@ -140,7 +140,6 @@ function MySettlement() {
                 },
                 headers: { Authorization: `Bearer ${user.token}` }
             });
-            console.log("정산 완료 상품 목록:", res.data);
             setSettledProductLists(prev => ({
                 ...prev,
                 [key]: { loading: false, error: null, products: res.data.orderList }

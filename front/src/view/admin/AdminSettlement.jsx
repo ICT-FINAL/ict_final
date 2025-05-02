@@ -37,7 +37,6 @@ function AdminSettlement() {
             setProductLists({});
             setExpandedUser(null);
             setSellers(res.data.sellers);
-            //setTotalCount(res.data.totalCount);
             setSelectedCount(res.data.selectedCount);
 
             const total = res.data.totalPage || 1;
@@ -202,7 +201,6 @@ function AdminSettlement() {
                 },
                 headers: { Authorization: `Bearer ${user.token}` }
             });
-            console.log("정산 완료 상품 목록:", res.data);
             setSettledProductLists(prev => ({
                 ...prev,
                 [user_id]: { loading: false, error: null, products: res.data.orderList }
