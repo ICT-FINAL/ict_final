@@ -93,7 +93,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
-            "AND (:productCategories IS NULL OR p.product_category IN :productCategories) " +
+            "AND (p.product_category IN :productCategories) " +
             "AND (p.state='SELL' OR p.state='SOLDOUT') " +
             "GROUP BY p.PRODUCT_ID " +
             "ORDER BY wish_count DESC",
@@ -131,7 +131,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE p.product_name LIKE %:keyword% " +
             "AND p.event_category LIKE %:eventCategory% " +
             "AND p.target_category LIKE %:targetCategory% " +
-            "AND (:productCategories IS NULL OR p.product_category IN :productCategories) " +
+            "AND (p.product_category IN :productCategories) " +
             "AND (p.state='SELL' OR p.state='SOLDOUT') " +
             "GROUP BY p.PRODUCT_ID " +
             "ORDER BY review_count DESC",
