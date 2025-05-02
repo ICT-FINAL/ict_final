@@ -177,6 +177,11 @@
     margin-top:30px;
     margin-bottom:30px;
 }
+@media (max-width: 768px) {
+    .report-box {
+        font-size: 10px;
+    }
+}
 
 .admin-user-list{
     list-style-type: none;

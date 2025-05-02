@@ -24,7 +24,6 @@
   .activity-row {
     display: flex;
     justify-content: space-around;
-    flex-wrap: wrap;
     gap: 20px;
   }
   
@@ -34,7 +33,6 @@
     padding: 15px 20px;
     border-radius: 10px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-    min-width: 180px;
   }
   
   .activity-stat-box h4 {
@@ -49,6 +47,14 @@
     color: #333;
   }
   
+  @media (min-width: 768px) {
+    .activity-stat-box {
+      min-width: 180px;
+    }
+    .activity-row {
+      flex-wrap: wrap;
+    }
+  }
   .chart-section {
     display: flex;
     gap: 40px;

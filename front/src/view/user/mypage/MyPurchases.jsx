@@ -209,7 +209,7 @@ function MyPurchases() {
                                     <strong>요청사항:</strong> {group.orders[0].request}<br />
                                 </div>
                                 }  
-                                <div>
+                                <div style={{marginTop: '10px', textAlign: 'right'}}>
                                     <span style={{ backgroundColor: getStateLabel(group.state).color }} className="order-state-label">
                                         {getStateLabel(group.state).label}
                                     </span>
