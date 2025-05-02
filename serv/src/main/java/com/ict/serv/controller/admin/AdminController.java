@@ -5,7 +5,6 @@ import com.ict.serv.entity.Authority;
 import com.ict.serv.entity.Inquiries.Inquiry;
 import com.ict.serv.entity.Inquiries.InquiryPagingVO;
 import com.ict.serv.entity.Inquiries.InquiryState;
-import com.ict.serv.entity.auction.AuctionProduct;
 import com.ict.serv.entity.coupon.Coupon;
 import com.ict.serv.entity.coupon.CouponRequestDTO;
 import com.ict.serv.entity.coupon.CouponState;
