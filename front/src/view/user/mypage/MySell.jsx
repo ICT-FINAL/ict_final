@@ -197,6 +197,8 @@ function MySell() {
     
     return (
         <div className="report-box">
+        <button onClick={excelDownload} id="excel-download-btn">엑셀 다운받기
+        </button>
         <div style={{ marginBottom: '30px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
         {["", "PAID", "BEFORE", "FINISH", "ONGOING", "CANCELED", "SELLERCANCELED", "RETURNED"].map((state) => {
             const labelMap = {
@@ -249,8 +251,6 @@ function MySell() {
             </div>
             );
         })}
-        <button onClick={excelDownload} id="excel-download-btn">엑셀 다운받기
-        </button>
         </div>
             {
                 orderList.length === 0 ?
