@@ -33,4 +33,20 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     """, nativeQuery = true)
     Long countByUserIdAndDate(@Param("userId") Long userId, @Param("year") int year, @Param("month") Integer month);
     int countByProductIn(List<Product> productList);
+
+    @Query(value = """
+    SELECT r.rate
+    FROM review r
+    JOIN product p ON r.product_id = p.product_id
+    WHERE p.seller_no = :userId
+      AND STR_TO_DATE(r.review_writedate, '%Y-%m-%d %H:%i:%s') 
+          BETWEEN STR_TO_DATE(:start, '%Y-%m-%d %H:%i:%s') 
+          AND STR_TO_DATE(:end, '%Y-%m-%d %H:%i:%s')
+      AND r.rate IS NOT NULL
+""", nativeQuery = true)
+    List<String> findRatesByUserAndPeriod(
+            @Param("userId") Long userId,
+            @Param("start") String start,
+            @Param("end") String end
+    );
 }
