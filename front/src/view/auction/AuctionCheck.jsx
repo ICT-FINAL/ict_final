@@ -40,7 +40,7 @@ function AuctionCheck() {
     };
 
     return (
-        <div style={{paddingTop:'150px', width:'50%', margin:'auto'}}>
+        <div style={{paddingTop:'150px', width: window.innerWidth <= 768 ? '90%' : '50%', margin:'auto'}}>
             <h2 style={{fontSize:'22px', marginBottom:'20px'}}>경매 약관 동의</h2>
 
             <div style={{

@@ -791,3 +791,16 @@
     gap:40px;
   }
 }
+
+@media (max-width: 768px) {
+  .review-container-style {
+    padding: 15px;
+  }
+  .myReview-box {
+    font-size: 10px;
+  }
+  .myReview-img {
+    width: 40px;
+    height: 40px;
+  }
+}

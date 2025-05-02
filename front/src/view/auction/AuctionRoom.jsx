@@ -30,9 +30,22 @@ function AuctionRoom() {
 
     const [bidHistory, setBidHistory] = useState([]);
 
+    const [auctionMenu, setAuctionMenu] = useState('detail');
+
     function formatNumberWithCommas(num) {
         return num.toLocaleString();
     }
+
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    useEffect(() => {
+    const handleResize = () => {
+        setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         const socket = new SockJS(`${serverIP.ip}/ws`);
@@ -334,38 +347,54 @@ function AuctionRoom() {
                             fontSize: '16px',
                             fontWeight: '600',
                         }}>
-                            <div style={{width:'50%', textAlign:'center', padding:'10px'}}>상세정보</div>
-                            <div style={{width:'50%', textAlign:'center', padding:'10px'}}>입찰내역</div>
+                            <div onClick={()=> setAuctionMenu('detail')} style={{width:'50%', textAlign:'center', padding:'10px'}}>상세정보</div>
+                            <div onClick={()=> setAuctionMenu('bidding')} style={{width:'50%', textAlign:'center', padding:'10px'}}>입찰내역</div>
                         </div>
                         <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
                     </div>
                     <div className='auction-bottom'>
-                        <div style={{overflow:'hidden', width:'50%'}}><div dangerouslySetInnerHTML={{ __html: roomInfo.auctionProduct.detail }} style={{ width:'calc(100% - 40px)', padding: '30px'}} /></div>
-                        <div className='auction-bottom-right'>
-                            <ul>
-                                {
-                                    bidHistory.map((item, idx) => {
-                                        return(<li>
-                                            <div className='product-profile-box'>
-                                            <img id={`mgx-${item.user.id}`} className='message-who' src={item.user.uploadedProfileUrl ? `${serverIP.ip}${item.user.uploadedProfileUrl}` : `${item.user.kakaoProfileUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
-                                            <div id={`mgx-${item.user.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{item.user.username} &gt;</div>
-                                            </div>
-                                            <div>
-                                                { item.state=='SUCCESS' && <div className='auc-stat' style={{backgroundColor:'#FFD700'}}>최종 입찰자</div>}
-                                                { item.state=='LIVE' && <div className='auc-stat' style={{backgroundColor:'#FFD700'}}>최고 입찰자</div> } 
-                                                { item.state=='DEAD' && <div style={{backgroundColor:'#9E9E9E', color:'white'}} className='auc-stat'>유찰됨</div>}
-                                                { formatDateTime(item.bidTime)} &nbsp;&nbsp;&nbsp; <span style={{fontWeight:'bold', fontSize:'19px'}}>{formatNumberWithCommas(item.price)}₩</span>
-                                            </div>
-                                        </li>)
-                                    })
-                                }
-                            </ul>
-                        </div>
+                    <div style={{ display: isMobile ? 'block' : 'flex' }}>
+                        {/* 상세정보 */}
+                        {(isMobile ? auctionMenu === 'detail' : true) && (
+                            <div style={{overflow:'hidden', width: isMobile ? '' : '50%'}}>
+                                <div dangerouslySetInnerHTML={{ __html: roomInfo.auctionProduct.detail }} style={{ padding: '30px'}} />
+                            </div>
+                        )}
+                        
+                        {/* 입찰 내역 */}
+                        {(isMobile ? auctionMenu === 'bidding' : true) && (
+                            <div className='auction-bottom-right'
+                                style={{
+                                width: isMobile ? '100%' : '50%',
+                                borderLeft: isMobile ? 'none' : '1px solid #ddd'
+                                }}
+                            >
+                                <ul>
+                                    {
+                                        bidHistory.map((item, idx) => {
+                                            return(<li>
+                                                <div className='product-profile-box'>
+                                                <img id={`mgx-${item.user.id}`} className='message-who' src={item.user.uploadedProfileUrl ? `${serverIP.ip}${item.user.uploadedProfileUrl}` : `${item.user.kakaoProfileUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
+                                                <div id={`mgx-${item.user.id}`} className='message-who' style={{ height: '40px', lineHeight: '40px', marginLeft: '5px' }}>{item.user.username} &gt;</div>
+                                                </div>
+                                                <div>
+                                                    { item.state=='SUCCESS' && <div className='auc-stat' style={{backgroundColor:'#FFD700'}}>최종 입찰자</div>}
+                                                    { item.state=='LIVE' && <div className='auc-stat' style={{backgroundColor:'#FFD700'}}>최고 입찰자</div> } 
+                                                    { item.state=='DEAD' && <div style={{backgroundColor:'#9E9E9E', color:'white'}} className='auc-stat'>유찰됨</div>}
+                                                    { formatDateTime(item.bidTime)} &nbsp;&nbsp;&nbsp; <span style={{fontWeight:'bold', fontSize:'19px'}}>{formatNumberWithCommas(item.price)}₩</span>
+                                                </div>
+                                            </li>)
+                                        })
+                                    }
+                                </ul>
+                            </div>
+                        )}
                     </div>
-                    <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
-                    </>
-                    }
-                </div>
+                    </div>
+                <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
+            </>
+            }
+        </div>
     );
 }
 

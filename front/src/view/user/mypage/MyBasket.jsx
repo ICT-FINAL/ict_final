@@ -268,6 +268,7 @@ function MyBasket() {
                             </li>
                             <li style={{ textAlign: 'center', alignSelf: 'center' }}>배송비<br />{formatNumberWithCommas(group.productShippingFee)}원</li>
                         </ul>
+                        <div id="shipping-fee-bottom" style={{ textAlign: 'center', alignSelf: 'center' }}>배송비 {formatNumberWithCommas(group.productShippingFee)}원</div>
                     </div>
                 ))
             ) : (
