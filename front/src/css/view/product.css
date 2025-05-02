@@ -904,13 +904,13 @@
     }
     .search-sort {
         flex-wrap: wrap;
+        justify-content: center;
         margin: 0;
         padding: 0;
     }
     .search-sort > li {
-        flex: 1 1 25%;
         box-sizing: border-box;
-        padding: 8px 10px;
+        padding: 10px;
         text-align: center;
     }
     .product-main-box {
