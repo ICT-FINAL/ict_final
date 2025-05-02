@@ -60,26 +60,41 @@ function convertToMajorCategories(rawStats) {
 function MyOrder() {
   const serverIP = useSelector((state) => state.serverIP);
   const user = useSelector((state) => state.auth.user);
-  const [purchaseStats, setPurchaseStats] = useState([]);
-  const [categoryStats, setCategoryStats] = useState({});
-  const [couponStats, setCouponStats] = useState({ couponCount: 0, totalDiscount: 0 });
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
-  const [month, setMonth] = useState(today.getMonth() + 1);
+  const [month, setMonth] = useState(String(today.getMonth() + 1)); // 문자열로 초기화
+  const [filteredStats, setFilteredStats] = useState([]);
+  const [yearlyStats, setYearlyStats] = useState([]);
+  const [auctionSummary, setAuctionSummary] = useState({ auctionOrderCount: 0, auctionTotalAmount: 0 });
+  const [categoryStats, setCategoryStats] = useState({});
+  const [couponStats, setCouponStats] = useState({ couponCount: 0, totalDiscount: 0 });
 
   useEffect(() => {
     if (user) {
-      const params = { year, month };
+      const baseParams = { year };
+
+      // 연도만 필터링된 전체 데이터 → 월별 차트용
+      axios.get(`${serverIP.ip}/mystats/purchase/${user.user.id}`, {
+        headers: { Authorization: `Bearer ${user.token}` },
+        params: baseParams
+      }).then(res => setYearlyStats(res.data))
+        .catch(err => console.log("연도별 구매통계 에러:", err));
+
+      // 월까지 필터링된 데이터 → 라인차트, 통계
+      const filteredParams = { ...baseParams };
+      if (month !== "") {
+        filteredParams.month = Number(month);
+      }
 
       axios.get(`${serverIP.ip}/mystats/purchase/${user.user.id}`, {
         headers: { Authorization: `Bearer ${user.token}` },
-        params
-      }).then(res => setPurchaseStats(res.data))
+        params: filteredParams
+      }).then(res => setFilteredStats(res.data))
         .catch(err => console.log("구매통계 에러:", err));
 
       axios.get(`${serverIP.ip}/mystats/purchase/category/${user.user.id}`, {
         headers: { Authorization: `Bearer ${user.token}` },
-        params
+        params: filteredParams
       }).then(res => {
         const converted = convertToMajorCategories(res.data);
         setCategoryStats(converted);
@@ -87,7 +102,7 @@ function MyOrder() {
 
       axios.get(`${serverIP.ip}/mystats/purchase/coupon/${user.user.id}`, {
         headers: { Authorization: `Bearer ${user.token}` },
-        params
+        params: filteredParams
       }).then(res => setCouponStats(res.data))
         .catch(err => {
           console.log("쿠폰 통계 에러:", err);
@@ -96,25 +111,43 @@ function MyOrder() {
     }
   }, [user, year, month]);
 
-  const totalOrderCount = purchaseStats.reduce((sum, stat) => sum + stat.orderCount, 0);
-  const totalOrderAmount = purchaseStats.reduce((sum, stat) => sum + stat.totalAmount, 0);
+  const normalOrderCount = filteredStats.reduce((sum, stat) => sum + stat.orderCount, 0);
+  const normalOrderAmount = filteredStats.reduce((sum, stat) => sum + stat.totalAmount, 0);
+  const totalOrderCount = normalOrderCount + (auctionSummary.auctionOrderCount || 0);
+  const totalOrderAmount = normalOrderAmount + (auctionSummary.auctionTotalAmount || 0);
 
   const lineChartData = {
-    labels: purchaseStats.map((item) => `${item.year}년 ${item.month}월`),
+    labels: filteredStats.map((item) => `${item.year}년 ${item.month}월`),
     datasets: [
       {
         label: "구매 건수",
-        data: purchaseStats.map((item) => item.orderCount),
+        data: filteredStats.map((item) => item.orderCount),
         borderColor: "#36A2EB",
         backgroundColor: "#36A2EB",
         yAxisID: "y",
       },
       {
         label: "구매 금액",
-        data: purchaseStats.map((item) => item.totalAmount),
+        data: filteredStats.map((item) => item.totalAmount),
         borderColor: "#FF6384",
         backgroundColor: "#FF6384",
         yAxisID: "y1",
+      },
+    ],
+  };
+
+  const monthlyAmounts = Array.from({ length: 12 }, (_, i) => {
+    const monthStat = yearlyStats.find(item => item.month === i + 1);
+    return monthStat ? monthStat.totalAmount : 0;
+  });
+
+  const barChartDataByMonth = {
+    labels: Array.from({ length: 12 }, (_, i) => `${year}년 ${i + 1}월`),
+    datasets: [
+      {
+        label: "월별 구매 금액",
+        data: monthlyAmounts,
+        backgroundColor: "#FF9F40",
       },
     ],
   };
@@ -168,13 +201,14 @@ function MyOrder() {
         <select value={year} onChange={(e) => setYear(Number(e.target.value))}>
           {yearOptions.map(y => <option key={y} value={y}>{y}년</option>)}
         </select>
-        <select value={month} onChange={(e) => setMonth(Number(e.target.value))}>
+        <select value={month} onChange={(e) => setMonth(e.target.value)}>
           <option value="">전체</option>
-          {monthOptions.map(m => <option key={m} value={m}>{m}월</option>)}
+          {monthOptions.map(m => (
+            <option key={m} value={String(m)}>{m}월</option>
+          ))}
         </select>
       </div>
 
-      {/* 통계 요약 */}
       <div className="activity-stats">
         <div className="activity-row">
           <div className="activity-stat-box">
@@ -196,7 +230,13 @@ function MyOrder() {
         </div>
       </div>
 
-      {/* 카테고리 차트 + 표 */}
+      <h3>월별 주문 금액</h3>
+      <div className="chart-section">
+        <div className="chart-box">
+          <Bar data={barChartDataByMonth} options={{ responsive: true }} />
+        </div>
+      </div>
+
       <h3>카테고리별 주문 금액</h3>
       <div className="chart-section">
         <div className="chart-box">
