@@ -348,4 +348,13 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
                                                                     @Param("keyword") String keyword,
                                                                     Pageable pageable);
 
+    @Query("""
+    SELECT o
+    FROM Orders o
+    WHERE o.user.id = :userId
+      AND o.auctionProduct IS NOT NULL
+      AND o.shippingState = com.ict.serv.entity.order.ShippingState.SETTLED
+""")
+    List<Orders> findSettledAuctionOrdersByUser(@Param("userId") Long userId);
+
 }

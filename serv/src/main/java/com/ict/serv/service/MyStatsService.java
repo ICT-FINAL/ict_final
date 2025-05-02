@@ -1,18 +1,22 @@
 package com.ict.serv.service;
 
 import com.ict.serv.entity.UserPoint;
+import com.ict.serv.entity.auction.AuctionProduct;
+import com.ict.serv.entity.order.AuctionOrder;
 import com.ict.serv.entity.order.OrderItem;
 import com.ict.serv.entity.order.Orders;
 import com.ict.serv.entity.order.ShippingState;
-import com.ict.serv.entity.sales.CouponUsageDTO;
-import com.ict.serv.entity.sales.DailySalesDTO;
-import com.ict.serv.entity.sales.PurchaseStatsDTO;
-import com.ict.serv.entity.sales.SellerSalesSummaryDTO;
+import com.ict.serv.entity.product.Product;
+import com.ict.serv.entity.review.ReviewStatsDTO;
+import com.ict.serv.entity.sales.*;
 import com.ict.serv.repository.*;
 import com.ict.serv.repository.inquiry.InquiryRepository;
 import com.ict.serv.repository.log.SearchLogRepository;
 import com.ict.serv.repository.log.UserJoinLogRepository;
+import com.ict.serv.repository.order.AuctionOrderRepository;
 import com.ict.serv.repository.order.OrderItemRepository;
+import com.ict.serv.repository.order.OrderRepository;
+import com.ict.serv.repository.product.ProductRepository;
 import com.ict.serv.repository.review.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -38,6 +42,9 @@ public class MyStatsService {
     private final MyStatsRepository myStatsRepository;
     private final CouponRepository couponRepository;
     private final OrderItemRepository orderItemRepository;
+    private final AuctionOrderRepository auctionOrderRepository;
+    private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
 
     public Long getReviewCount(Long userId, int year, Integer month) {
         return reviewRepository.countByUserIdAndDate(userId, year, month);
@@ -83,84 +90,107 @@ public class MyStatsService {
     }
 
     public List<PurchaseStatsDTO> getMonthlyPurchaseStats(Long userId, int year, Integer month) {
-        // 1. 사용자 ID로 SETTLED 상태의 주문들을 조회 (조건 1)
-        List<Orders> ordersList = myStatsRepository.findByUserIdAndShippingState(userId, ShippingState.SETTLED);
-
-        // 2. 연도-월별 통계를 누적할 맵 (키: YearMonth, 값: PurchaseStatsDTO)
         Map<YearMonth, PurchaseStatsDTO> statsMap = new LinkedHashMap<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-        // 3. 주문 목록 순회
+        // 1. 일반 주문 처리
+        List<Orders> ordersList = myStatsRepository.findByUserIdAndShippingStateIn(userId, List.of(ShippingState.SETTLED, ShippingState.FINISH));
         for (Orders order : ordersList) {
-            // 주문의 연도와 월 추출 (예: LocalDateTime orderDate가 있다고 가정)
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             LocalDateTime dateTime = LocalDateTime.parse(order.getStartDate(), formatter);
             if (dateTime.getYear() != year) continue;
             if (month != null && dateTime.getMonthValue() != month) continue;
+
             YearMonth yearMonth = YearMonth.from(dateTime);
-
-            // 해당 연도-월 키에 대한 DTO 생성 또는 가져오기
-            PurchaseStatsDTO statsDTO = statsMap.get(yearMonth);
-            if (statsDTO == null) {
-                // 처음 등장하는 Year-Month이면 새로운 DTO 생성 (주문 수 0, 금액 0으로 초기화)
-                statsDTO = new PurchaseStatsDTO(yearMonth.getYear(), yearMonth.getMonthValue(), 0, BigDecimal.ZERO);
-                statsMap.put(yearMonth, statsDTO);
-            }
-
-            // 4. 주문 수 증가 (각 주문당 1 증가, 조건 3: 같은 주문은 한 번만 센다)
+            PurchaseStatsDTO statsDTO = statsMap.computeIfAbsent(yearMonth, ym -> new PurchaseStatsDTO(ym.getYear(), ym.getMonthValue(), 0, BigDecimal.ZERO));
             statsDTO.setOrderCount(statsDTO.getOrderCount() + 1);
 
-            // 5. 해당 주문의 총 금액 계산 (주문에 속한 모든 OrderItem의 금액 합산, 조건 2)
             BigDecimal orderTotal = BigDecimal.ZERO;
             for (OrderItem item : order.getOrderItems()) {
-                // (price * (100 - discountRate) / 100 + additionalFee) * quantity 계산
-                int quantity = item.getQuantity();
-                int additionalFee = item.getAdditionalFee();
                 BigDecimal priceAfterDiscount = BigDecimal.valueOf(item.getPrice())
                         .multiply(BigDecimal.valueOf(100 - item.getDiscountRate()))
                         .divide(BigDecimal.valueOf(100));
-
                 BigDecimal totalItemPrice = priceAfterDiscount
-                        .add(BigDecimal.valueOf(additionalFee))
-                        .multiply(BigDecimal.valueOf(quantity));
+                        .add(BigDecimal.valueOf(item.getAdditionalFee()))
+                        .multiply(BigDecimal.valueOf(item.getQuantity()));
                 orderTotal = orderTotal.add(totalItemPrice);
             }
-
-            // 6. 연도-월 그룹의 총 금액에 이번 주문의 금액을 추가
             statsDTO.setTotalAmount(statsDTO.getTotalAmount().add(orderTotal));
         }
 
-        // 7. Map의 값들을 리스트로 변환하여 반환 (必要시 연도/월 순으로 정렬)
-        List<PurchaseStatsDTO> resultList = new ArrayList<>(statsMap.values());
-        // 연도, 월 오름차순 정렬 (옵션)
-        resultList.sort(Comparator.comparing(PurchaseStatsDTO::getYear)
-                .thenComparing(PurchaseStatsDTO::getMonth));
-        return resultList;
-    }
-    public Map<String, Long> getCategoryPurchaseStats(Long userId, int year, Integer month) {
-        List<Orders> orders = myStatsRepository.findByUserIdAndShippingState(userId, ShippingState.SETTLED);
-
-        Map<String, Long> categoryMap = new HashMap<>();
-
-        for (Orders order : orders) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        // 2. 경매 주문 처리
+        List<Orders> auctionOrders = orderRepository.findSettledAuctionOrdersByUser(userId);
+        for (Orders order : auctionOrders) {
             LocalDateTime dateTime = LocalDateTime.parse(order.getStartDate(), formatter);
             if (dateTime.getYear() != year) continue;
             if (month != null && dateTime.getMonthValue() != month) continue;
-            String category = order.getProduct().getProductCategory(); // 일반 상품 기준
 
+            YearMonth yearMonth = YearMonth.from(dateTime);
+            PurchaseStatsDTO statsDTO = statsMap.computeIfAbsent(yearMonth,
+                    ym -> new PurchaseStatsDTO(ym.getYear(), ym.getMonthValue(), 0, BigDecimal.ZERO));
+            statsDTO.setOrderCount(statsDTO.getOrderCount() + 1);
+
+            Optional<AuctionOrder> auctionOrderOpt = auctionOrderRepository.findByAuctionProductId(
+                    order.getAuctionProduct().getId()
+            );
+            if (auctionOrderOpt.isPresent()) {
+                statsDTO.setTotalAmount(statsDTO.getTotalAmount().add(BigDecimal.valueOf(auctionOrderOpt.get().getTotalPrice())));
+            }
+        }
+
+        List<PurchaseStatsDTO> resultList = new ArrayList<>(statsMap.values());
+        resultList.sort(Comparator.comparing(PurchaseStatsDTO::getYear).thenComparing(PurchaseStatsDTO::getMonth));
+        return resultList;
+    }
+    public Map<String, Long> getCategoryPurchaseStats(Long userId, int year, Integer month) {
+        Map<String, Long> categoryMap = new HashMap<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        // ✅ 1. 일반 상품 Orders 처리
+        List<Orders> orders = myStatsRepository.findByUserIdAndShippingStateIn(
+                userId, List.of(ShippingState.SETTLED, ShippingState.FINISH)
+        );
+
+        for (Orders order : orders) {
+            LocalDateTime dateTime = LocalDateTime.parse(order.getStartDate(), formatter);
+            if (dateTime.getYear() != year) continue;
+            if (month != null && dateTime.getMonthValue() != month) continue;
+
+            Product product = order.getProduct();
+            if (product == null) continue; // 경매 상품은 패스
+
+            String category = product.getProductCategory();
             long orderTotal = 0;
 
             for (OrderItem item : order.getOrderItems()) {
                 long itemPrice = item.getPrice();
                 int discountRate = item.getDiscountRate();
-                long afterDiscount = itemPrice * (100 - discountRate) / 100;
-                afterDiscount += item.getAdditionalFee();
+                long afterDiscount = itemPrice * (100 - discountRate) / 100 + item.getAdditionalFee();
                 orderTotal += afterDiscount * item.getQuantity();
             }
 
             orderTotal += order.getShippingFee(); // 배송비 포함
-
             categoryMap.merge(category, orderTotal, Long::sum);
+        }
+
+        // ✅ 2. 경매 상품 Orders 처리 (Orders 기준)
+        List<Orders> auctionOrders = orderRepository.findSettledAuctionOrdersByUser(userId);
+
+        for (Orders order : auctionOrders) {
+            LocalDateTime dateTime = LocalDateTime.parse(order.getStartDate(), formatter);
+            if (dateTime.getYear() != year) continue;
+            if (month != null && dateTime.getMonthValue() != month) continue;
+
+            AuctionProduct auctionProduct = order.getAuctionProduct();
+            if (auctionProduct == null) continue;
+
+            String category = auctionProduct.getProductCategory();
+
+            Optional<AuctionOrder> auctionOrderOpt = auctionOrderRepository.findById(order.getId());
+            if (auctionOrderOpt.isEmpty()) continue;
+
+            long totalPrice = auctionOrderOpt.get().getTotalPrice();
+
+            categoryMap.merge(category, totalPrice, Long::sum);
         }
 
         return categoryMap;
@@ -193,4 +223,28 @@ public class MyStatsService {
                 .map(row -> new DailySalesDTO((String) row[0], ((Number) row[1]).longValue()))
                 .collect(Collectors.toList());
     }
+    public long getRegisteredProductCount(Long sellerId) {
+        return productRepository.countActiveProductsBySeller(sellerId);
+    }
+    public ReviewStatsDTO getFilteredReviewStats(Long userId, String start, String end) {
+        List<String> rateStrings = reviewRepository.findRatesByUserAndPeriod(userId, start, end);
+
+        List<Double> rates = rateStrings.stream()
+                .map(rate -> {
+                    try {
+                        String clean = rate.trim().replaceAll("[^\\d.]", "");
+                        return Double.parseDouble(clean);
+                    } catch (NumberFormatException e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .toList();
+
+        long count = rates.size();
+        double avg = count > 0 ? rates.stream().mapToDouble(Double::doubleValue).average().orElse(0.0) : 0.0;
+
+        return new ReviewStatsDTO(count, avg);
+    }
+
 }

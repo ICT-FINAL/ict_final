@@ -46,6 +46,7 @@ function MyActivity() {
         params: params
       })
       .then(res => {
+        console.log("활동 통계:", res.data);
         setStats(res.data);
       })
       .catch(err => {
@@ -150,13 +151,17 @@ function MyActivity() {
   </div>
 </div>
 <div className="activity-section">
-        <h3>포인트 적립 추이</h3>
+        <h3>누적포인트 적립 차트</h3>
         <Line
           data={{
             labels: stats.userPointHistory.map(p => p.lastSpinDate),
             datasets: [{
               label: "포인트",
-              data: stats.userPointHistory.map(p => p.point),
+              data: stats.userPointHistory.reduce((acc, curr) => {
+                const last = acc.length > 0 ? acc[acc.length - 1] : 0;
+                acc.push(last + curr.point);
+                return acc;
+              }, []),
               borderColor: "#36A2EB",
               fill: false,
               tension: 0.3,
@@ -170,3 +175,4 @@ function MyActivity() {
 }
 
 export default MyActivity;
+
