@@ -154,9 +154,8 @@ const ProductReview = forwardRef(({ getAverageStar, averageStar, reviewWrite, se
             setReviewList(prevReviewList => 
                 prevReviewList.map(r => r.id === reviewId ? { ...r, likes: updatedLikes } : r)
             );
-    
             await axios.post(`${serverIP.ip}/review/like`, null, {
-                params: { reviewId, userId },
+                params: { reviewId, userId:userId.user.id },
                 headers: { Authorization: `Bearer ${user.token}` }
             });
     
