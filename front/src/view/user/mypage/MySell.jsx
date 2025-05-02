@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { setModal } from "../../../store/modalSlice";
 
 import axios from "axios";
+import * as XLSX from "xlsx/xlsx.mjs";
 
 function MySell() {
     const loc = useLocation();
@@ -116,6 +117,77 @@ function MySell() {
         return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
     }
 
+    const excelDownload = ()=>{
+        const fileName = "판매내역";
+        const excelData = [];
+
+        orderList.map(record=>{
+            console.log(record.shippingState);
+            let shippingState;
+            switch (record.shippingState) {
+                case "PAID":
+                    shippingState = "결제 완료";
+                    break;
+                case "FINISH":
+                    shippingState = "구매 확정";
+                    break;
+                case "SETTLED":
+                    shippingState = "정산 완료";
+                    break;
+                case "BEFORE":
+                    shippingState = "배송 준비 중";
+                    break;
+                case "ONGOING":
+                    shippingState = "배송 중";
+                    break;
+                case "CANCELED":
+                    shippingState = "주문 취소";
+                    break;
+                case "SELLERCANCELED":
+                    shippingState = "배송 취소";
+                    break;
+                case "RETURNED":
+                    shippingState = "환불됨";
+                    break;
+                default:
+                    shippingState = "알 수 없음";
+                    break;
+            }
+            excelData.push({
+                주문번호: record.orderNum,
+                수령인: record.address.recipientName,
+                연락처: record.address.tel,
+                주소: record.address.address,
+                상세주소: record.address.addressDetail,
+                우편번호: record.address.zipcode,
+                상태: shippingState
+            })
+            if (record.orderItems) {
+                if (record.orderItems.length === 0) {
+                    excelData.push({
+                        상품명: record.auctionProduct.productName
+                    })
+                }
+                for(const item of record.orderItems) {
+                    excelData.push({
+                        상품명: item.productName,
+                        옵션명: item.optionName,
+                        옵션카테고리: item.optionCategoryName,
+                        수량: item.quantity,
+                    })
+                }
+            }
+        })
+        // sheet 생성
+        const sheet = XLSX.utils.json_to_sheet(excelData);
+        // workbook 생성
+        const workbook = XLSX.utils.book_new();
+
+        //생성된 workbook에 sheet를 추가 (워크북, 시트, 시트명)
+        XLSX.utils.book_append_sheet(workbook, sheet, "판매내역");
+        XLSX.writeFile(workbook, fileName ? `${fileName}.xlsx` : 'noname.xlsx');
+    }
+
     const shippingCounts = orderList.reduce((acc, order) => {
         const state = order.shippingState;
         acc[state] = (acc[state] || 0) + 1;
@@ -177,7 +249,8 @@ function MySell() {
             );
         })}
         </div>
-
+        <button onClick={excelDownload} id="excel-download-btn">엑셀 다운받기
+        </button>
             {
                 orderList.length === 0 ?
                     <div className="no-list">검색 결과가 없습니다.</div> :
