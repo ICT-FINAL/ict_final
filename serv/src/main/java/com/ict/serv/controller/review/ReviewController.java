@@ -165,7 +165,7 @@ public class ReviewController {
     }
 
     // 리뷰 좋아요
-    @PostMapping("/like")
+    @GetMapping("/like")
     public ResponseEntity<Map<String, Object>> like(@RequestParam("reviewId") Long reviewId, @RequestParam("userId") Long userId) {
         User user = new User();
         user.setId(userId);
@@ -176,6 +176,12 @@ public class ReviewController {
         ReviewLike reviewLike = new ReviewLike();
         reviewLike.setUser(user);
         reviewLike.setReview(review);
+
+        System.out.println("==================================================================");
+
+        System.out.println(reviewLike.toString());
+
+        System.out.println("==================================================================");
 
         // 좋아요 저장
         ReviewLike result = service.likeInsert(reviewLike);
