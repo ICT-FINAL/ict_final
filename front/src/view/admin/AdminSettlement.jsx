@@ -197,8 +197,8 @@ function AdminSettlement() {
                 params: {
                     user_id,
                     shippingState: "SETTLED",
-                    year: settledYear === "전체" ? "" : settledYear,
-                    month: settledMonth === "전체" ? "" : settledMonth
+                    settledYear: settledYear === "전체" ? "" : settledYear,
+                    settledMonth: settledMonth === "전체" ? "" : settledMonth
                 },
                 headers: { Authorization: `Bearer ${user.token}` }
             });

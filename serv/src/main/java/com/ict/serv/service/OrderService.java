@@ -79,7 +79,7 @@ public class OrderService {
     }
 
     public List<Orders> getOrderByProduct(Long id) {
-        return order_repo.findAllByProductIdOrderByIdDesc(id);
+        return order_repo.findAllByProductIdAndShippingStateNotOrderByIdDesc(id, ShippingState.SETTLED);
     }
     public List<Orders> getOrderByProductAndState(Long id, ShippingState state) {
         return order_repo.findAllByProductIdAndShippingStateOrderByIdDesc(id,state);
@@ -246,7 +246,7 @@ public class OrderService {
     }
 
     public List<Orders> getOrderByAuctionProduct(AuctionProduct auctionProduct) {
-        return order_repo.findAllByAuctionProductOrderByIdDesc(auctionProduct);
+        return order_repo.findAllByAuctionProductAndShippingStateNotOrderByIdDesc(auctionProduct, ShippingState.SETTLED);
     }
 
     public List<Orders> getOrderByAuctionProductAndState(AuctionProduct auctionProduct, ShippingState shippingState) {
