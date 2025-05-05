@@ -153,37 +153,38 @@ function MySell() {
                     shippingState = "알 수 없음";
                     break;
             }
-            excelData.push({
-                주문번호: record.orderNum,
-                수령인: record.address.recipientName,
-                연락처: record.address.tel,
-                주소: record.address.address,
-                상세주소: record.address.addressDetail,
-                우편번호: record.address.zipcode,
-                상태: shippingState
-            })
-            if (record.orderItems) {
                 if (record.orderItems.length === 0) {
                     excelData.push({
+                        주문번호: record.orderNum,
+                        수령인: record.address.recipientName,
+                        연락처: record.address.tel,
+                        주소: record.address.address,
+                        상세주소: record.address.addressDetail,
+                        우편번호: record.address.zipcode,
+                        상태: shippingState,
                         상품명: record.auctionProduct.productName
                     })
                 }
-                for(const item of record.orderItems) {
-                    excelData.push({
-                        상품명: item.productName,
-                        옵션명: item.optionName,
-                        옵션카테고리: item.optionCategoryName,
-                        수량: item.quantity,
-                    })
-                }
-            }
+                else
+                    for(const item of record.orderItems) {
+                        excelData.push({
+                            주문번호: record.orderNum,
+                            수령인: record.address.recipientName,
+                            연락처: record.address.tel,
+                            주소: record.address.address,
+                            상세주소: record.address.addressDetail,
+                            우편번호: record.address.zipcode,
+                            상태: shippingState,
+                            상품명: item.productName,
+                            옵션명: item.optionName,
+                            옵션카테고리: item.optionCategoryName,
+                            수량: item.quantity,
+                        })
+                    }
         })
-        // sheet 생성
         const sheet = XLSX.utils.json_to_sheet(excelData);
-        // workbook 생성
         const workbook = XLSX.utils.book_new();
 
-        //생성된 workbook에 sheet를 추가 (워크북, 시트, 시트명)
         XLSX.utils.book_append_sheet(workbook, sheet, "판매내역");
         XLSX.writeFile(workbook, fileName ? `${fileName}.xlsx` : 'noname.xlsx');
     }
@@ -196,6 +197,8 @@ function MySell() {
     
     return (
         <div className="report-box">
+        <button onClick={excelDownload} id="excel-download-btn">엑셀 다운받기
+        </button>
         <div style={{ marginBottom: '30px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
         {["", "PAID", "BEFORE", "FINISH", "ONGOING", "CANCELED", "SELLERCANCELED", "RETURNED"].map((state) => {
             const labelMap = {
@@ -249,8 +252,6 @@ function MySell() {
             );
         })}
         </div>
-        <button onClick={excelDownload} id="excel-download-btn">엑셀 다운받기
-        </button>
             {
                 orderList.length === 0 ?
                     <div className="no-list">검색 결과가 없습니다.</div> :

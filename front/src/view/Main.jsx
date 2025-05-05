@@ -49,11 +49,12 @@ function Main() {
                     const end = new Date(event.endDate);
                     return start <= now && now <= end;
                 })
-                    .map(event => ({
-                        ...event,
-                        src: `${serverIP.ip}/uploads/event/${event.id}/${event.filename}`
-                    }));
-                setEvent_list(ongoing);
+                .slice(0, 10)
+                .map(event => ({
+                    ...event,
+                    src: `${serverIP.ip}/uploads/event/${event.id}/${event.filename}`
+                }));
+            setEvent_list(ongoing);
             })
             .catch(err => console.log(err))
     }, [])
