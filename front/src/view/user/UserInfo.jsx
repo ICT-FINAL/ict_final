@@ -344,7 +344,7 @@ function UserInfo() {
                             guestbookList.map(item => {
                                 return (
                                     <div key={item.id} className="guestbook-item">
-                                        <img id={`mgx-${item.writer.id}`} className='message-who' src={item.writer.uploadedProfileUrl ? `${serverIP.ip}${item.writer.uploadedProfileUrl}` : `${serverIP.ip}${item.writer.profileImageUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
+                                        <img id={`mgx-${item.writer.id}`} className='message-who' src={item.writer.uploadedProfileUrl ? `${serverIP.ip}${item.writer.uploadedProfileUrl}` : `${item.writer.kakaoProfileUrl.indexOf('http')===-1 ? `${serverIP.ip}${item.writer.kakaoProfileUrl}`:item.writer.kakaoProfileUrl }`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
                                         <div id={`mgx-${item.writer.id}`}
                                             className='message-who'
                                             style={{
