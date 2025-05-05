@@ -28,6 +28,7 @@
   }
   
   .activity-stat-box {
+    width: 110px;
     text-align: center;
     background-color: #f9f9f9;
     padding: 15px 20px;
@@ -37,7 +38,7 @@
   
   .activity-stat-box h4 {
     margin-bottom: 8px;
-    font-size: 16px;
+    font-size: 11px;
     color: #444;
   }
   
@@ -51,8 +52,23 @@
     .activity-stat-box {
       min-width: 180px;
     }
+    .activity-stat-box h4 {
+      font-size: 16px;
+    }
     .activity-row {
       flex-wrap: wrap;
+    }
+  }
+  @media (max-width: 768px) {
+    .activity-stat-box p {
+      font-size: 12px;
+    }
+    .activity-row.purchases {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .activity-row.purchases > .activity-stat-box {
+      margin: 0 auto;
     }
   }
   .chart-section {

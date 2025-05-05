@@ -210,7 +210,7 @@ function MyOrder() {
       </div>
 
       <div className="activity-stats">
-        <div className="activity-row">
+        <div className="activity-row purchases">
           <div className="activity-stat-box">
             <h4>총 주문 건수</h4>
             <p>{totalOrderCount}건</p>

@@ -66,7 +66,7 @@ function Main() {
         slidesToShow: 1,
         slidesToScroll: 1,
         centerMode: event_list.length > 1,
-        centerPadding: event_list.length > 1 ? "20%" : "0",
+        centerPadding: event_list.length > 1 && window.innerWidth >= 768 ? "20%" : "0",
         autoplay: event_list.length > 1,
         autoplaySpeed: 5000,
         appendDots: (dots) => (

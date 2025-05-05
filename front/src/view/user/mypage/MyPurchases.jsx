@@ -184,7 +184,7 @@ function MyPurchases() {
     };
 
     return (
-        <div className="report-box">
+        <div className="order-history-box">
             <select onChange={(e) => setSearchOption(e.target.value)} style={{ width: '120px', borderRadius: '10px', padding: '5px 10px', border: '1px solid #ddd'}}>
                 <option value="">전체</option>
                 <option value="PAID">결제 완료</option>

@@ -352,22 +352,6 @@ input.tel {
     }
 }
 
-/* 개인정보 수정 반응형 */
-@media screen and (max-width: 768px) {
-    #info-edit-id, #info-edit-email{
-        width: 90% !important;
-    }
-
-    .new-pwd-style{
-        margin-right: 20px;
-    }
-
-    #currentUserPw, #modUserPw, #modUserPwCheck{
-        width: 92% !important;
-    }
-    
-}
-
 #profile-img {
     position: absolute;
     width: 100px;
@@ -445,12 +429,31 @@ input.tel {
     100% { transform: rotate(360deg); }
 }
 
+/* 개인정보 수정 반응형 */
+@media screen and (max-width: 768px) {
+    #info-edit-id, #info-edit-email{
+        width: 90% !important;
+    }
+
+    .new-pwd-style{
+        margin-right: 20px;
+    }
+
+    #currentUserPw, #modUserPw, #modUserPwCheck{
+        width: 92% !important;
+    }
+    #profile-img {
+        top: 50px;
+        left: 0px;
+    }
+}
 
 /* ========== Mypage Profile ========== */
 .profile-top, .profile-menu {
     border: 1px solid #ccc;
     padding: 30px;
     margin: 20px auto;
+    font-size: 10pt;
 }
 .profile-top{
     max-width: 750px;
@@ -459,10 +462,7 @@ input.tel {
 }
 .profile-info {
     width: 100%;
-    padding: 0 10px;
-}
-.profile-info div {
-    margin: 5px;
+    padding: 0;
 }
 .profile-follow {
     display: flex;
@@ -471,9 +471,13 @@ input.tel {
     border: 1px solid #ccc;
     border-radius: 10px;
 }
+#profile-info-text {
+    margin: 5px auto 15px;
+}
+
 #follow-btn, #unfollow-btn, #userinfo-chatting, #profile-edit-btn {
     display: inline;
-    height: 35px;
+    height: 40px;
     padding: 0 20px;
     background-color: #52a575;
     border: none;
@@ -491,7 +495,7 @@ input.tel {
 .profile-menu {
     display: flex;
     justify-content:center;
-    padding: 10px 30px;
+    padding: 10px;
     margin-bottom: 0;
     
 }
@@ -510,7 +514,7 @@ input.tel {
 .guestbook-item {
     position: relative;
     max-width: 800px;
-    margin: 30px auto;
+    margin: 30px 10px;
     padding: 20px;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
     border-radius: 20px;
@@ -622,9 +626,19 @@ input.tel {
     .profile-top, .profile-menu {
         min-width: 500px;
         display: flex;
+        font-size: 13pt;
     }
     .profile-bottom {
         min-width: 500px;
+    }
+    .profile-info {
+        padding-left: 20px;
+    }
+    .profile-info div {
+        margin: 5px;
+    }
+    .guestbook-item {
+        margin: 30px;
     }
 }
 
