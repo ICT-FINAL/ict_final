@@ -301,34 +301,36 @@ function MyInfoEdit() {
                     <input type='text' name="addressDetail" value={user.addressDetail || ''} onChange={changeUser}/><br/>
 
                     {/* uploadedProfilePreview 미리보기 이미지 */}
-                    <label>프로필 사진</label>
-                    <img id="profile-img" src={
-                                                // user.uploadedProfilePreview
-                                                // ? user.uploadedProfilePreview
-                                                // : user.kakaoProfileUrl
-                                                // ? user.kakaoProfileUrl.startsWith("http")
-                                                //     ? user.kakaoProfileUrl
-                                                //     : `${serverIP.ip}${user.kakaoProfileUrl}`
-                                                // : user.uploadedProfileUrl
-                                                // ? `${serverIP.ip}${user.uploadedProfileUrl}`
-                                                // : ''
+                    <div style={{position: "relative"}}>
+                        <label>프로필 사진</label>
+                        <img id="profile-img" src={
+                                                    // user.uploadedProfilePreview
+                                                    // ? user.uploadedProfilePreview
+                                                    // : user.kakaoProfileUrl
+                                                    // ? user.kakaoProfileUrl.startsWith("http")
+                                                    //     ? user.kakaoProfileUrl
+                                                    //     : `${serverIP.ip}${user.kakaoProfileUrl}`
+                                                    // : user.uploadedProfileUrl
+                                                    // ? `${serverIP.ip}${user.uploadedProfileUrl}`
+                                                    // : ''
 
-                                                user.uploadedProfilePreview
-                                                ? user.uploadedProfilePreview
-                                                : user.uploadedProfileUrl
-                                                ? `${serverIP.ip}${user.uploadedProfileUrl}`
-                                                : user.kakaoProfileUrl
-                                                ? user.kakaoProfileUrl.startsWith("http")
-                                                ? user.kakaoProfileUrl
-                                                : `${serverIP.ip}${user.kakaoProfileUrl}`
-                                                : ''
-                                            } 
-                                            alt="프로필 이미지" 
-                                            referrerPolicy="no-referrer" 
-                                            onClick={() => document.getElementById('profile-image-file').click()} 
-                    />
-                    <input type="file" id="profile-image-file" style={{display: "none"}} accept="image/*" onChange={handleImageChange} /><br/>
-                    <label htmlFor="profile-image-file" id="profile-image-btn">사진첨부</label><br/>
+                                                    user.uploadedProfilePreview
+                                                    ? user.uploadedProfilePreview
+                                                    : user.uploadedProfileUrl
+                                                    ? `${serverIP.ip}${user.uploadedProfileUrl}`
+                                                    : user.kakaoProfileUrl
+                                                    ? user.kakaoProfileUrl.startsWith("http")
+                                                    ? user.kakaoProfileUrl
+                                                    : `${serverIP.ip}${user.kakaoProfileUrl}`
+                                                    : ''
+                                                } 
+                                                alt="프로필 이미지" 
+                                                referrerPolicy="no-referrer" 
+                                                onClick={() => document.getElementById('profile-image-file').click()} 
+                        />
+                        <input type="file" id="profile-image-file" style={{display: "none"}} accept="image/*" onChange={handleImageChange} /><br/>
+                        <label htmlFor="profile-image-file" id="profile-image-btn">사진첨부</label><br/>
+                    </div>
 
                     {/* 소개 */}
                     <div className="info-box-style">

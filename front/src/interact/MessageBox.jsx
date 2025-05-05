@@ -271,7 +271,7 @@ function MessageBox() {
                     boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
                     marginTop: '10px',
                     marginBottom: '10px',
-                    width: '540px'
+                    width: window.innerWidth >= 768 ? '540px' : ''
                   }}>
 
                     <span style={{

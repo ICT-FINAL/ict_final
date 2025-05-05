@@ -1,8 +1,12 @@
 .notice-container {
-    padding: 30px;
     max-width: 1000px;
     margin: 0 auto;
     font-family: 'Noto Sans KR', sans-serif;
+  }
+  @media (min-width: 768px) {
+    .notice-container {
+      padding: 30px;
+    }
   }
   
   .notice-search {

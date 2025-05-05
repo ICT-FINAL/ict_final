@@ -75,7 +75,7 @@ function AuctionBid() {
 
     return (
         <div style={{ paddingTop: '200px' }}>
-            <div style={{ width: '500px', border: '1px solid gray', height: '300px', margin: 'auto', padding: '0 20px' }}>
+            <div style={{ border: '1px solid gray', margin: '10px', marginBottom: '25px', padding: '0 20px' }}>
                 <h3>경매 이용 약관</h3>
                 <p style={{whiteSpace:'pre-wrap'}}>{`* 최고 응찰금액이 동일한 경우 먼저 접수된 응찰이 우선합니다.
 ㅁ 본인은 홈페이지를 통하여 진행방식 및 유의사항을 읽고 이해하였습니다.
@@ -85,7 +85,7 @@ function AuctionBid() {
 ㅁ 낙찰자는 지정된 기일에 낙찰금액을 납부하여야 합니다. 
 ㅁ 낙찰 취소 시 낙찰가의 30%에 해당하는 금액을 낙찰철회비(위약금)으로\n     납부하여야 합니다.`}</p>
             </div>
-            <div style={{ width: '300px', height: '150px', margin: '30px auto', textAlign: 'center' }}>
+            <div style={{ textAlign: 'center' }}>
                 보증금: {formatNumber(roomInfo.deposit)} 원
                 <br/><br/>
                 <select

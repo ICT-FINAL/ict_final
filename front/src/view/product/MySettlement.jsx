@@ -178,7 +178,7 @@ function MySettlement() {
     return (
         <div style={{ paddingLeft: "10px" }}>
             <div className="report-box">
-                <div className="report-search">
+                <div className="settlement-search">
                     <div>
                         <strong></strong><br />
                     </div>

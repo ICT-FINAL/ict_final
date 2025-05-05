@@ -121,7 +121,7 @@ function MyChatting() {
                                     width: '100%'
                                 }}>
                                     <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', width: '90%' }}>
-                                        {room.lastChat.message}
+                                        {room.lastChat.message ? room.lastChat.message : "(사진)"}
                                     </span>
                                     {
                                         !room.lastChat.read && room.lastChat.sender.id !== user.user.id &&
