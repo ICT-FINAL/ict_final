@@ -21,7 +21,7 @@ public class EventService {
     }
 
     public List<Event> getAllEvent() {
-        return repo.findAllByOrderByStartDateDesc();
+        return repo.findAllByOrderByStartDateAsc();
     }
 
     public Melon saveMelon(Melon melon) {

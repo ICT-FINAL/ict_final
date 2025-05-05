@@ -107,7 +107,7 @@ function MySettlement() {
             setExpandedSettled(null);
             setSettledSellers(res.data.sellers);
             setSettledSelectedCount(res.data.selectedCount);
-
+            console.log(res.data);
             const total = res.data.totalPage || 1;
             setSettledTotalPage(prev => ({ ...prev, readable: total }));
             const pages = Array.from({ length: total }, (_, i) => i + 1);
