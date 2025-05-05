@@ -31,36 +31,7 @@
     gap: 20px;
     margin-bottom: 40px;
   }
-  .activity-row {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-  }
-  
-  .activity-stat-box {
-    text-align: center;
-    background: #f9f9f9;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  }
-  
-  .activity-stat-box h4 {
-    margin-bottom: 10px;
-    font-size: 16px;
-  }
-  
-  .activity-stat-box p {
-    font-size: 20px;
-    font-weight: bold;
-    color: #8CC7A5;
-  }
-  
-  @media (min-width: 768px) {
-    .activity-stat-box {
-      width: 180px;
-    }
-  }
+    
   .activity-section {
     margin-bottom: 50px;
   }
@@ -81,7 +52,6 @@
     margin: auto;
   }
   .triple-container {
-    display: flex;
     align-items: flex-start;
     gap: 40px;
     margin-top: 20px;
@@ -117,3 +87,9 @@
   .keyword-list li {
     margin-bottom: 8px;
   }
+
+@media (min-width: 768px) {
+  .triple-container {
+    display: flex;
+  }
+}

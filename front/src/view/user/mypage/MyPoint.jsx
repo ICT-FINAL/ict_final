@@ -60,7 +60,7 @@ function MyPoint(){
     };
 
     return(<div className="report-box">
-            <ul className='mypage-point-list' style={{fontWeight:'bold', borderBottom:'1px solid #ddd'}}>
+            <ul className='mypage-point-list' style={{fontWeight:'bold', borderBottom:'1px solid #ddd', fontSize: '16px'}}>
                 <li>
                     지급 구분
                 </li>
@@ -76,7 +76,7 @@ function MyPoint(){
                 <div className='no-list'>포인트 내역이 없습니다.</div>:
                 
                 pointList.map(item => {
-                    return (<ul className='mypage-point-list'>
+                    return (<ul className='mypage-point-list' style={{fontSize: '16px'}}>
                         <li>
                             {item.type === 'ROULETTE' && (
                                 <span style={{

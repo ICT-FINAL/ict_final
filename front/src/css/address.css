@@ -223,3 +223,9 @@
 .mypage-address-list > li:nth-child(7) {
     width: 5%;
 }
+
+@media (max-width: 768px) {
+    .mypage-address-list {
+        font-size: 10px;
+    }
+}
