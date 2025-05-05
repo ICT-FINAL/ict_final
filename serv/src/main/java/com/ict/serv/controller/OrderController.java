@@ -177,9 +177,7 @@ public class OrderController {
         address.setId(Long.valueOf(request.getAddrId()));
 
         AuctionRoom auctionRoom = auctionService.getAuctionRoom(auctionService.getAuctionRoomByProduct(auctionService.getAuctionProduct(request.getProductId()))).get();
-        System.out.println(auctionRoom.getState());
-        if (auctionRoom.getState() == AuctionState.CLOSED) return null;
-
+        if (auctionRoom.getState() == AuctionState.CLOSED && !Objects.equals(auctionRoom.getHighestBidderId(), user.getId())) return null;
         // OrderGroup 객체 생성
         OrderGroup orderGroup = new OrderGroup();
         orderGroup.setUser(user);
