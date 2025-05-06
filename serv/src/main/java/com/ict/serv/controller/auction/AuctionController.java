@@ -167,7 +167,6 @@ public class AuctionController {
         List<String> categories = new ArrayList<>(Arrays.asList(cats));
         pvo.setTotalRecord(service.searchCountAll(pvo,categories));
         List<AuctionProduct> productList = service.searchAll(pvo,categories);
-        System.out.println(productList.size()+"!!!!");
         List<AuctionResponseDTO> auctionList = new ArrayList<>();
         for(AuctionProduct product : productList) {
             List<AuctionRoom> rooms = service.findAuctionRoomByAuctionProduct(product);
