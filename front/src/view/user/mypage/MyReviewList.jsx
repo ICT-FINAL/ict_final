@@ -67,7 +67,7 @@ function MyReviewList(){
 
                 <ul className="mypage-myReview-list" style={{ fontWeight: "bold", borderBottom: "1px solid #ddd" }}>
                     <li>번호</li>
-                    <li>이름</li>
+                    <li>상품명</li>
                     <li>내용</li>
                     <li>별점</li>
                     <li>이미지</li>
@@ -78,7 +78,7 @@ function MyReviewList(){
                     myReviewList.map((review, index)=>(
                         <ul className="mypage-myReview-list" key={index}>
                             <li style={{lineHeight:'80px'}}>{index+1}</li>
-                            <li style={{lineHeight:'80px'}}>{review.user.username}</li>
+                            <li style={{lineHeight:'80px', cursor:'pointer'}} onClick={() => handleReviewClick(review.product, review.id)}>{review.product.productName}</li>
                             <li style={{lineHeight:'80px', cursor:'pointer'}} onClick={() => handleReviewClick(review.product, review.id)}>{review.reviewContent}</li>
                             <li>
                                 <div className="star-rating-wrapper" style={{ display: 'flex', alignItems: 'center', height: '80px' }}>
