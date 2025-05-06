@@ -638,7 +638,7 @@ input.tel {
         margin: 5px;
     }
     .guestbook-item {
-        margin: 30px;
+        margin: 30px auto;
     }
 }
 

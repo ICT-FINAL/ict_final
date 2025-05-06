@@ -118,7 +118,7 @@ function MySell() {
     }
 
     const excelDownload = ()=>{
-        const fileName = "판매내역";
+        const fileName = "[MIMYO] " + user.user.username + "님의 판매내역";
         const excelData = [];
 
         orderList.map(record=>{
