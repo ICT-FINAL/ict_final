@@ -1110,7 +1110,7 @@
     height: calc(100% - 50px);
 }
 
-.auction-bottom img {
+.auction-bottom-right img {
     height: 40px;
     width: 40px;
 }
@@ -1137,6 +1137,7 @@
     border: 1px solid #ddd;
     padding:10px;
     padding-left:50px;
+    padding-right:50px;
     padding-bottom:25px;
     margin:auto;
     margin-bottom: 20px;
