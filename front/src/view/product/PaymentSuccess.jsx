@@ -10,10 +10,11 @@ const PaymentSuccess = () => {
 
   const [orderId, setOrderId] = useState("");
   const [amount, setAmount] = useState("");
+  const [msg, setMsg] = useState("결제 처리 중입니다...");
+  const [success, setSuccess] = useState(true);
 
   const user = useSelector((state) => state.auth.user);
   const serverIP = useSelector((state) => state.serverIP);
-
   const location = useLocation();
 
   const basketNos = searchParams.get("basketNos")?.split(',').map(Number) || [];
@@ -24,9 +25,10 @@ const PaymentSuccess = () => {
     const amountParam = searchParams.get("amount");
     const couponId = searchParams.get("couponId");
     const iid = searchParams.get('iid');
+
     setOrderId(orderIdParam);
     setAmount(amountParam);
-  
+
     if (user) {
       fetch(`${serverIP.ip}/payment/confirm`, {
         method: "POST",
@@ -50,26 +52,28 @@ const PaymentSuccess = () => {
           return res.json();
         })
         .then((data) => {
+          setMsg("✅ 결제가 성공적으로 완료되었습니다.");
+          setSuccess(true);
+
           axios.delete(`${serverIP.ip}/basket/paid/delete`, {
             headers: { Authorization: `Bearer ${user.token}` },
             data: { basketNos }
-          })
-            .then(() => {
-            })
-            .catch((err) => console.error("삭제 오류:", err));
+          }).catch((err) => console.error("삭제 오류:", err));
         })
         .catch((err) => {
           console.error("결제 승인 실패:", err);
+          axios.get(`${serverIP.ip}/order/cancel?orderGroupId=${iid}`, {
+            headers: { Authorization: `Bearer ${user.token}` },
+          }).catch(cancelErr => console.error("결제 취소 실패:", cancelErr));
           if (err.message === "quantity_over") {
-            alert("결제 중 재고가 부족해 구매를 완료할 수 없습니다.");
+            setMsg("❌ 결제 실패: 주문 수량보다 재고가 부족합니다.");
           } else {
-            alert("결제 승인 중 오류가 발생했습니다.");
+            setMsg("❌ 결제 중 오류가 발생했습니다.");
           }
-          navigate("/product/search");
+          setSuccess(false);
         });
     }
   }, [searchParams]);
-  
 
   function formatNumberWithCommas(num) {
     return num.toLocaleString();
@@ -78,28 +82,32 @@ const PaymentSuccess = () => {
   return (
     <div className="product-payment-container" style={{ paddingTop: '250px' }}>
       <div className="product-payment-header">
-        <h2>결제가 성공적으로 완료되었습니다</h2>
+        <h2>{msg}</h2>
       </div>
 
-      <div className="product-payment-info">
-        <p className="product-payment-order-id">
-          <strong>주문번호:</strong> {orderId}
-        </p>
-        <p className="product-payment-amount">
-          <strong>결제금액:</strong> {formatNumberWithCommas(parseInt(amount, 10))}원
-        </p>
-        <p className="product-payment-thank-you">
-          '{ user && user.user.username}'님 감사합니다 😊
-        </p>
-      </div>
+      {success && (
+        <div className="product-payment-info">
+          <p className="product-payment-order-id">
+            <strong>주문번호:</strong> {orderId}
+          </p>
+          <p className="product-payment-amount">
+            <strong>결제금액:</strong> {formatNumberWithCommas(parseInt(amount, 10))}원
+          </p>
+          <p className="product-payment-thank-you">
+            '{user?.user.username}'님 감사합니다 😊
+          </p>
+        </div>
+      )}
 
       <div className="product-payment-buttons">
-        <button
-          onClick={() => navigate("/mypage/purchases")}
-          className="product-payment-btn"
-        >
-          주문 내역으로
-        </button>
+        {success && (
+          <button
+            onClick={() => navigate("/mypage/purchases")}
+            className="product-payment-btn"
+          >
+            주문 내역으로
+          </button>
+        )}
         <button
           onClick={() => navigate("/")}
           className="product-payment-btn"
