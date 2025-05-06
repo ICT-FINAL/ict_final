@@ -64,7 +64,12 @@ public class PaymentController {
                                     orderService.deleteOrders(orders);
                                 }
                                 orderService.deleteOrderGroup(orderGroup);
-                                return ResponseEntity.status(400).body("quantity_over");
+                                Map<String, String> errorBody = new HashMap<>();
+                                errorBody.put("error", "quantity_over");
+                                return ResponseEntity
+                                        .status(HttpStatus.BAD_REQUEST)
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .body(errorBody);
                             }
                         }
                     }

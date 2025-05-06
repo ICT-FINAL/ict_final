@@ -343,11 +343,7 @@ function MyInfoEdit() {
 
                     <button type="submit" id="signup-btn">수정</button>
                 </form>
-
-                {!userInfo.kakaoProfileUrl && (
-                    <div className="new-pwd-style" onClick={()=>setCurrentPage("pwdPage")} >비밀번호 재설정</div>
-                )}
-                
+                <div className="new-pwd-style" onClick={()=>setCurrentPage("pwdPage")} >비밀번호 재설정</div>
             </>
         }
 
