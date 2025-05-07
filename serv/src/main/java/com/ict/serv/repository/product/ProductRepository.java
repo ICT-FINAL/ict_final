@@ -204,5 +204,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT COUNT(p) FROM Product p WHERE p.sellerNo.id = :sellerId AND p.state = com.ict.serv.entity.product.ProductState.SELL")
     long countActiveProductsBySeller(@Param("sellerId") Long sellerId);
 
-    // List<Product> findAllByProductNameContaining(String searchWord, PageRequest of);
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.sellerNo.id = :userId AND p.startDate BETWEEN :start AND :end")
+    Long countBySellerAndDateRange(@Param("userId") Long userId,
+                                   @Param("start") String start,
+                                   @Param("end") String end);
 }

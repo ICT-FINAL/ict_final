@@ -46,7 +46,6 @@ function MyActivity() {
         params: params
       })
       .then(res => {
-        console.log("활동 통계:", res.data);
         setStats(res.data);
       })
       .catch(err => {
@@ -167,7 +166,18 @@ function MyActivity() {
               tension: 0.3,
             }]
           }}
-          options={{ responsive: true }}
+          options={{
+            responsive: true,
+            plugins: {
+              legend: { display: true },
+              datalabels: { display: false }, 
+            },
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }}
         />
       </div>
 </div>
@@ -175,4 +185,3 @@ function MyActivity() {
 }
 
 export default MyActivity;
-

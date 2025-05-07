@@ -26,9 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -179,5 +177,18 @@ public class InquiryService {
         message.setComment("고객님이 등록한 '" + inquiry.getInquirySubject() + "' 문의에 답변이 등록되었습니다.\n"
                 + "자세한 내용은 내 정보 > 문의 내역에서 확인해주세요.");
         messageRepository.save(message);
+    }
+    public List<Map<String, Object>> getDailyInquiryCount() {
+        List<Object[]> result = inquiryRepository.findDailyInquiryCount();
+
+        List<Map<String, Object>> response = new ArrayList<>();
+        for (Object[] row : result) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("date", row[0]);
+            map.put("count", row[1]);
+            response.add(map);
+        }
+
+        return response;
     }
 }

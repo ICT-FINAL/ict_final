@@ -1,13 +1,16 @@
-import { Link, Outlet } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import '../../css/view/CenterHome.css';
 function CenterHome(){
 return(
     <div className="CustomerServiceLayout-container"> 
     <div className="CenterHome-container">
         <ul className="center-menu">
-            <li><div className="center-menu3"><span><Link to="/customerservice/faq">자주묻는질문</Link></span></div></li>
-            <li><div className="center-menu2"><span><Link to="/customerservice/inquiryWrite">1:1문의하기</Link></span></div></li>
-            <li><div className="center-menu4"><span><Link to="/customerservice/Notice">공지사항</Link></span></div></li>
+            <li><div className="center-menu3"><span><NavLink
+ to="/customerservice/faq">자주묻는질문</NavLink></span></div></li>
+            <li><div className="center-menu2"><span><NavLink
+ to="/customerservice/inquiryWrite">1:1문의하기</NavLink></span></div></li>
+            <li><div className="center-menu4"><span><NavLink
+to="/customerservice/Notice">공지사항</NavLink></span></div></li>
         </ul>
     </div>
 

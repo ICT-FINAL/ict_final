@@ -4,6 +4,7 @@ import com.ict.serv.entity.review.ReviewStatsDTO;
 import com.ict.serv.entity.sales.DailySalesDTO;
 import com.ict.serv.entity.sales.PurchaseStatsDTO;
 import com.ict.serv.entity.sales.SellerSalesSummaryDTO;
+import com.ict.serv.repository.product.ProductRepository;
 import com.ict.serv.service.InteractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,7 @@ import com.ict.serv.service.MyStatsService;
 public class MyStatsController {
     private final MyStatsService myStatsService;
     private final InteractService interactService;
+    private final ProductRepository productRepository;
 
     @GetMapping("/activity/{userId}")
     public Map<String, Object> getMyActivity(
@@ -99,8 +101,13 @@ public class MyStatsController {
     }
 
     @GetMapping("/productcount/{userId}")
-    public ResponseEntity<Long> getProductCount(@PathVariable Long userId) {
-        return ResponseEntity.ok(myStatsService.getRegisteredProductCount(userId));
+    public ResponseEntity<Long> getProductCountByDate(
+            @PathVariable Long userId,
+            @RequestParam String start,
+            @RequestParam String end
+    ) {
+        Long count = productRepository.countBySellerAndDateRange(userId, start, end);
+        return ResponseEntity.ok(count);
     }
 
     @GetMapping("/review/{userId}")
