@@ -3,6 +3,7 @@ package com.ict.serv.controller.stats;
 import com.ict.serv.entity.order.OrderGroup;
 import com.ict.serv.entity.sales.CategorySalesDTO;
 import com.ict.serv.entity.sales.SalesStatsDTO;
+import com.ict.serv.service.InquiryService;
 import com.ict.serv.service.OrderService;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "*")
 public class StatsController {
     private final OrderService orderService;
+    private final InquiryService inquiryService;
     @Autowired
     private EntityManager entityManager;
 
@@ -97,5 +99,10 @@ public class StatsController {
             map.put("count", ((Long) row[1]).intValue());
             return map;
         }).collect(Collectors.toList());
+    }
+
+    @GetMapping("/inquiries/daily")
+    public List<Map<String, Object>> getDailyInquiryStats() {
+        return inquiryService.getDailyInquiryCount();
     }
 }

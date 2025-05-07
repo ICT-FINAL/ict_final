@@ -463,4 +463,6 @@ public interface OrderRepository extends JpaRepository<Orders, Long> {
                                                                         @Param("keyword") String keyword,
                                                                         @Param("userId") Long userId,
                                                                         Pageable pageable);
+
+    List<Orders> findAllByProductIdAndShippingStateInOrderByIdDesc(Long id, List<ShippingState> states);
 }

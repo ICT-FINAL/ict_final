@@ -201,7 +201,6 @@ function SalesByPeriod() {
                   <th>배송총액</th>
                   <th>쿠폰총액</th>
                   <th>환불금액</th>
-                  <th>순매출</th>
                   <th>순이익</th>
                 </tr>
               </thead>
@@ -221,7 +220,6 @@ function SalesByPeriod() {
                       <td>{item.shippingCost.toLocaleString()}원</td>
                       <td>{coupon.toLocaleString()}원</td>
                       <td>{cancel.toLocaleString()}원</td>
-                      <td>{netSales.toLocaleString()}원</td>
                       <td>{Math.round(profit).toLocaleString()}원</td>
                     </tr>
                   );
@@ -234,7 +232,6 @@ function SalesByPeriod() {
                     <td><strong>{summary.shippingCost.toLocaleString()}원</strong></td>
                     <td><strong>{summary.couponDiscount.toLocaleString()}원</strong></td>
                     <td><strong>{summary.cancelAmount.toLocaleString()}원</strong></td>
-                    <td><strong>{summary.netSales.toLocaleString()}원</strong></td>
                     <td><strong>{Math.round(summary.profit).toLocaleString()}원</strong></td>
                   </tr>
                 )}
@@ -252,7 +249,6 @@ function SalesByPeriod() {
                   <th>배송총액</th>
                   <th>쿠폰총액</th>
                   <th>환불금액</th>
-                  <th>순매출</th>
                   <th>순이익</th>
                 </tr>
               </thead>
@@ -265,7 +261,6 @@ function SalesByPeriod() {
                     <td>{item.shippingCost.toLocaleString()}원</td>
                     <td>{item.couponDiscount.toLocaleString()}원</td>
                     <td>{item.cancelAmount.toLocaleString()}원</td>
-                    <td>{item.netSales.toLocaleString()}원</td>
                     <td>{Math.round(item.profit).toLocaleString()}원</td>
                   </tr>
                 ))}
@@ -295,7 +290,6 @@ function SalesByPeriod() {
                       <td><strong>{total.shippingCost.toLocaleString()}원</strong></td>
                       <td><strong>{total.couponDiscount.toLocaleString()}원</strong></td>
                       <td><strong>{total.cancelAmount.toLocaleString()}원</strong></td>
-                      <td><strong>{total.netSales.toLocaleString()}원</strong></td>
                       <td><strong>{Math.round(total.profit).toLocaleString()}원</strong></td>
                     </tr>
                   );

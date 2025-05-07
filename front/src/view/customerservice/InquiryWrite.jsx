@@ -107,7 +107,7 @@ const InquiryWrite = () => {
                 setInquiryContent('');
                 setFiles([]);
                 alert("문의가 등록되었습니다.");
-                window.location.href = "/customerservice";
+                window.location.href = "/customerservice/faq";
         }else{
             setErrorMessage(response.data || '문의 등록실패');
             }

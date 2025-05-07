@@ -577,18 +577,18 @@ function AdminSettlement() {
                 ))}
 
                 <ul className="admin-paging">
-                    {nowPage.readable > 1 && (
-                        <a className="page-prenext" onClick={() => setNowPage(prev => ({ ...prev, readable: nowPage.readable - 1 }))}>
+                    {settledNowPage.readable > 1 && (
+                        <a className="page-prenext" onClick={() => setSettledNowPage(prev => ({ ...prev, readable: settledNowPage.readable - 1 }))}>
                             <li className="page-num">◀</li>
                         </a>
                     )}
-                    {pageNumber.readable.map(pg => (
-                        <a className="page-num" onClick={() => setNowPage(prev => ({ ...prev, readable: pg }))} key={pg}>
-                            <li className={nowPage.readable === pg ? "page-num active" : "page-num"}>{pg}</li>
+                    {settledPageNumber.readable.map(pg => (
+                        <a className="page-num" onClick={() => setSettledNowPage(prev => ({ ...prev, readable: pg }))} key={pg}>
+                            <li className={settledNowPage.readable === pg ? "page-num active" : "page-num"}>{pg}</li>
                         </a>
                     ))}
-                    {nowPage.readable < totalPage.readable && (
-                        <a className="page-prenext" onClick={() => setNowPage(prev => ({ ...prev, readable: nowPage.readable + 1 }))}>
+                    {settledNowPage.readable < settledTotalPage.readable && (
+                        <a className="page-prenext" onClick={() => setSettledNowPage(prev => ({ ...prev, readable: settledNowPage.readable + 1 }))}>
                             <li className="page-num">▶</li>
                         </a>
                     )}

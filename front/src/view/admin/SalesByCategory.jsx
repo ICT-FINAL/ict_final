@@ -66,11 +66,7 @@ function SalesByCategory() {
     plugins: {
       legend: { display: false },
       datalabels: {
-        anchor: "end",
-        align: "top",
-        formatter: Math.round,
-        color: "#333",
-        font: { weight: "bold" },
+        display: false,
       },
     },
     maintainAspectRatio: false,
