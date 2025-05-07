@@ -68,7 +68,8 @@ function MySales() {
       .catch(() => setDailyStats([]));
 
     axios.get(`${serverIP.ip}/mystats/productcount/${user.user.id}`, {
-      headers: { Authorization: `Bearer ${user.token}` }
+      headers: { Authorization: `Bearer ${user.token}` },
+      params: { start, end }
     }).then(res => setProductCount(res.data))
       .catch(() => setProductCount(0));
 
@@ -109,7 +110,19 @@ function MySales() {
       }
     ],
   };
-
+  const dailyChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: { display: true },
+      tooltip: { enabled: false },
+      datalabels: {
+        display: false
+      }
+    },
+    scales: {
+      y: { beginAtZero: true }
+    }
+  };
   // ✅ 월별 차트는 연도 전체 데이터를 기준으로 계산
   const monthlyAmounts = Array.from({ length: 12 }, (_, i) => {
     const monthNum = i + 1;
@@ -175,7 +188,7 @@ function MySales() {
 
       <div className="chart-section" style={{ marginTop: '30px' }}>
         <h3>📈 일별 판매 매출</h3>
-        <Line data={dailyChartData} />
+        <Line data={dailyChartData} options={dailyChartOptions} />
       </div>
 
       <div className="chart-section" style={{ marginTop: '30px' }}>

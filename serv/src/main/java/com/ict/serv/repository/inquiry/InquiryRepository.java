@@ -25,4 +25,10 @@ public interface InquiryRepository extends JpaRepository<Inquiry, Long>, JpaSpec
           AND (:month IS NULL OR FUNCTION('MONTH', i.inquiryWritedate) = :month)
     """)
     Long countByUserIdAndDate(@Param("userId") Long userId, @Param("year") int year, @Param("month") Integer month);
+
+    @Query("SELECT FUNCTION('DATE_FORMAT', i.inquiryWritedate, '%Y-%m-%d') AS date, COUNT(i) " +
+            "FROM Inquiry i " +
+            "GROUP BY date " +
+            "ORDER BY date ASC")
+    List<Object[]> findDailyInquiryCount();
 }
