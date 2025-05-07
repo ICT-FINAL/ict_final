@@ -256,8 +256,9 @@ public class OrderService {
     public int getOrderCountBySeller(User user) {
         List<Product> productList = productRepository.findAllBySellerNo(user);
         List<Orders> ordersList = new ArrayList<>();
+        List<ShippingState> states = Arrays.asList(ShippingState.FINISH, ShippingState.SETTLED);
         for(Product product:productList){
-            List<Orders> inputOrderList = order_repo.findAllByProductIdAndShippingStateOrderByIdDesc(product.getId(), ShippingState.FINISH);
+            List<Orders> inputOrderList = order_repo.findAllByProductIdAndShippingStateInOrderByIdDesc(product.getId(), states);
             ordersList.addAll(inputOrderList);
         }
         return ordersList.size();
