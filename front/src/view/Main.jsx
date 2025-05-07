@@ -49,11 +49,12 @@ function Main() {
                     const end = new Date(event.endDate);
                     return start <= now && now <= end;
                 })
-                    .map(event => ({
-                        ...event,
-                        src: `${serverIP.ip}/uploads/event/${event.id}/${event.filename}`
-                    }));
-                setEvent_list(ongoing);
+                .slice(0, 10)
+                .map(event => ({
+                    ...event,
+                    src: `${serverIP.ip}/uploads/event/${event.id}/${event.filename}`
+                }));
+            setEvent_list(ongoing);
             })
             .catch(err => console.log(err))
     }, [])
@@ -65,7 +66,7 @@ function Main() {
         slidesToShow: 1,
         slidesToScroll: 1,
         centerMode: event_list.length > 1,
-        centerPadding: event_list.length > 1 ? "20%" : "0",
+        centerPadding: event_list.length > 1 && window.innerWidth >= 768 ? "20%" : "0",
         autoplay: event_list.length > 1,
         autoplaySpeed: 5000,
         appendDots: (dots) => (

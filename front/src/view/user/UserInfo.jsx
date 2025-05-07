@@ -307,7 +307,7 @@ function UserInfo() {
                             }
                         </div>
                     </div>
-                    <div style={{margin: '5px', marginBottom:'15px', padding: '5px', fontSize: '11pt'}}>{userinfo.infoText}</div>
+                    <div id="profile-info-text" style={{fontSize: '11pt'}}>{userinfo.infoText}</div>
                     <div className="profile-follow">
                         <div onClick={userNo === loginNo ? () => navigate('/mypage/follow?tab=follower') : undefined}
                             style={userNo === loginNo ? { cursor: 'pointer' } : {}}
@@ -344,7 +344,7 @@ function UserInfo() {
                             guestbookList.map(item => {
                                 return (
                                     <div key={item.id} className="guestbook-item">
-                                        <img id={`mgx-${item.writer.id}`} className='message-who' src={item.writer.uploadedProfileUrl ? `${serverIP.ip}${item.writer.uploadedProfileUrl}` : `${serverIP.ip}${item.writer.profileImageUrl}`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
+                                        <img id={`mgx-${item.writer.id}`} className='message-who' src={item.writer.uploadedProfileUrl ? `${serverIP.ip}${item.writer.uploadedProfileUrl}` : `${item.writer.kakaoProfileUrl.indexOf('http')===-1 ? `${serverIP.ip}${item.writer.kakaoProfileUrl}`:item.writer.kakaoProfileUrl }`} alt='' width={40} height={40} style={{ borderRadius: '100%', backgroundColor: 'white', border: '1px solid gray' }} />
                                         <div id={`mgx-${item.writer.id}`}
                                             className='message-who'
                                             style={{
@@ -412,7 +412,7 @@ function UserInfo() {
                             (products.length === 0 || loginNo !== userNo && products.filter(product => product.state === 'SELL').length === 0) ?
                             <div style={{ padding: '20px', textAlign: 'center' }}>등록된 작품이 없습니다.</div>
                             :
-                            <div className="product-grid" style={loginNo === userNo ? {width: '90%'} : {}} >
+                            <div className={loginNo !== userNo ? "product-grid" : "user-product-grid"}>
                             {products.map((product, index) => (
                                 (loginNo === userNo || product.state === 'SELL') &&
                                 <div

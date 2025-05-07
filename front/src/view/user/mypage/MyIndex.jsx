@@ -24,6 +24,7 @@ import MySales from "./MySales";
 import MyCoupon from "./MyCoupon";
 import MyPoint from "./MyPoint";
 import UserDelete from "./UserDelete";
+import MySettlement from "../../product/MySettlement";
 
 function MyIndex(){
     const location = useLocation();
@@ -56,6 +57,7 @@ useEffect(() => {
             follow: { f_name: "나의 활동", l_name: "팔로우 목록" },
             purchases: { f_name: "거래 내역", l_name: "주문 내역" },
             sales: { f_name: "거래 내역", l_name: "판매 내역" },
+            settles: { f_name: "거래 내역", l_name: "정산 내역" },
             basket: { f_name: "보관함", l_name: "장바구니" },
             coupons: { f_name: "보관함", l_name: "쿠폰함" },
             points: { f_name: "보관함", l_name: "적립 내역" },
@@ -113,6 +115,7 @@ useEffect(() => {
                     { path.l_name == '채팅 내역' && <MyChatting/> }
                     { path.l_name == '팔로우 목록' && <MyFollow/> }
                     { path.l_name == '판매 내역' && <MySell/> }
+                    { path.l_name == '정산 내역' && <MySettlement/> }
                     { path.l_name == '리뷰 관리' && <MyReviewList/> }
                     { path.l_name == '구매 입찰 내역' && <MyBid/> }
                     { path.l_name == '활동 통계' && <MyActivity/> }

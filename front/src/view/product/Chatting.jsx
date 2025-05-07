@@ -302,7 +302,7 @@ function Chatting() {
                     src={`${serverIP.ip}${modalImage[currentIndex]}`}
                     alt={`img-${currentIndex}`}
                     style={{
-                    maxWidth: '600px',
+                    maxWidth: '300px',
                     maxHeight: '80vh',
                     borderRadius: '12px',
                     objectFit: 'contain',

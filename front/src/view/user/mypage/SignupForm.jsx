@@ -419,22 +419,24 @@ function SignupForm() {
                 <label>상세주소</label>
                 <input type='text' name="addressDetail" value={user.addressDetail} onChange={changeUser}/><br/>
 
-                <label>프로필 사진</label>
-                {user.uploadedProfilePreview ? (
-                <img
-                    id="profile-img"
-                    src={user.uploadedProfilePreview}
-                    alt="프로필 이미지"
-                    referrerPolicy="no-referrer"
-                />
-                ) : (
-                <img id="profile-img" className="no-image" style={{width:'100px',height:'100px', border:'1px solid #ddd'}}/>
-                )}
-                <input type="file" id="profile-image-file" style={{display: "none"}} accept="image/*" onChange={handleImageChange} /><br/>
-                <label htmlFor="profile-image-file" id="profile-image-btn">사진첨부</label>
+                <div style={{position: "relative"}}>
+                    <label>프로필 사진</label>
+                    {user.uploadedProfilePreview ? (
+                    <img
+                        id="profile-img"
+                        src={user.uploadedProfilePreview}
+                        alt="프로필 이미지"
+                        referrerPolicy="no-referrer"
+                    />
+                    ) : (
+                    <img id="profile-img" className="no-image" style={{width:'100px',height:'100px', border:'1px solid #ddd'}}/>
+                    )}
+                    <input type="file" id="profile-image-file" style={{display: "none"}} accept="image/*" onChange={handleImageChange} /><br/>
+                    <label htmlFor="profile-image-file" id="profile-image-btn">사진첨부</label>
+                </div>
 
                 {/* 소개 */}
-                <div style={{ display: "flex", alignItems: "center", marginTop: "50px" }}>
+                <div className="info-box-style">
                     <label style={{ textAlign: "left" }}>소개</label>
                     <textarea name="infoText" maxLength={200} value={intro} onChange={handleChange} style={{height: "18vh", padding: "10px", fontFamily:'inherit'}} />
                 </div>

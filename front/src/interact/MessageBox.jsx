@@ -146,7 +146,7 @@ function MessageBox() {
   };
 
   const modalStyle = {
-    position: 'fixed', width: '600px', height: '550px', backgroundColor: '#fff',
+    position: 'fixed', width: window.innerWidth <= 768? '350px' : '600px', height: '550px', backgroundColor: '#fff',
     zIndex: 10001, opacity: modalOpen ? 1 : 0, transform: modalTransform,
     borderRadius: '12px', boxShadow: '0px 4px 15px rgba(0, 0, 0, 0.2)',
     padding: '20px', transition: 'opacity 0.3s ease, transform 0.3s ease'
@@ -271,7 +271,7 @@ function MessageBox() {
                     boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
                     marginTop: '10px',
                     marginBottom: '10px',
-                    width: '540px'
+                    width: window.innerWidth >= 768 ? '540px' : ''
                   }}>
 
                     <span style={{

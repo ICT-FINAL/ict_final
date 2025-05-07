@@ -249,13 +249,19 @@
 /* 메인 페이지 끝 */
 
 .product-form-container {
-    padding: 30px;
     max-width: 800px;
-    min-width: 600px;
     margin: 0 auto;
+    padding: 10px;
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 768px) {
+    .product-form-container {
+        min-width: 600px;
+        padding: 30px;
+    }
 }
 
 .product-form-title {
@@ -411,12 +417,11 @@
     padding-top:120px;
 }
 
-.product-grid {
+.product-grid, .user-product-grid {
     padding:40px;
 	backdrop-filter: blur(1px);
 	background-color:transparent;
 	display:grid;
-	width:80%;
 	grid-template-columns:repeat(4, 1fr);
 	margin:auto;
 	margin-bottom:100px;
@@ -425,6 +430,9 @@
 	border-radius:10px;
 }
 
+.product-grid {
+	width:80%;
+}
 .product-card {
     transition: all 0.7s;
 	width:90%;
@@ -575,7 +583,7 @@
 }
 
 @media (max-width: 1380px) {
-    .product-grid {
+    .product-grid, .user-product-grid {
         grid-template-columns: repeat(4, 1fr);
     }
     
@@ -585,7 +593,7 @@
 }
 
 @media (max-width: 1100px) {
-    .product-grid {
+    .product-grid, .user-product-grid {
         grid-template-columns: repeat(3, 1fr);
     }
 
@@ -595,7 +603,7 @@
 }
 
 @media (max-width: 800px) {
-    .product-grid {
+    .product-grid, .user-product-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 
@@ -605,7 +613,7 @@
 }
 
 @media (max-width: 540px) {
-    .product-grid {
+    .product-grid, .user-product-grid {
         grid-template-columns: repeat(1, 1fr);
     }
 
@@ -620,24 +628,10 @@
 
 /* 검색 끝 */
 
-
-.product-info-container {
-    width: 80%;
-    margin: auto;
-    
-    max-width: 1200px;
-    
-    min-width: 800px;
-    
-    display: grid;
-    grid-template-columns: 4.5fr 5.5fr;
-}
-
 .product-info-left {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
 }
 
 #product-big-img {
@@ -685,8 +679,7 @@
 }
 
 .product-info-right>ul{
-    padding:0;
-    padding-left: 50px;
+    padding:0 20px;
     list-style-type: none;
 }
 
@@ -704,10 +697,6 @@
     text-align: right;
     color:rgb(212, 212, 15);
 }
-.product-info-name{
-    width:80%;
-}
-
 .product-wish {
     display: flex;
     align-items: center;
@@ -800,6 +789,23 @@
 .product-buy-button:hover, .product-basket-button:hover{
     background-color: #fff;
     color: #222;
+}
+
+@media (min-width: 768px) {
+    .product-info-container {
+        width: 80%;
+        margin: auto;
+        max-width: 1200px;
+        min-width: 800px;
+        display: grid;
+        grid-template-columns: 4.5fr 5.5fr;
+    }
+    .product-info-right>ul{
+        padding-left: 50px;
+    }
+    .auction-bottom-right>ul>li {
+        min-width: 400px;
+    }
 }
 
 .search-selectbox-style {
@@ -927,6 +933,9 @@
     }
     #auction-title-br {
         display: block;
+    }
+    .CKEditor-container-product {
+        width: 320px;
     }
 }
 
@@ -1095,9 +1104,14 @@
     padding: 15px;
 }
 
-.product-bottom-left img {
+.product-bottom-left img{
     width: calc(100% - 50px);
     height: calc(100% - 50px);
+}
+
+.auction-bottom-right img {
+    height: 40px;
+    width: 40px;
 }
 
 /* 배송 모달 */
@@ -1106,18 +1120,15 @@
     text-align: center;
 }
 
-.auction-bottom{
-    display: flex;
-}
-
 .auction-bottom-right{
-    width:50%;
     border-left: 1px solid #ddd;
 }
 .auction-bottom-right>ul{
     list-style-type: none;
     display: flex;
     flex-direction: column;
+    margin-left: 0;
+    padding-left: 0;
 }
 .auction-bottom-right>ul>li{
     display: flex;
@@ -1125,12 +1136,13 @@
     border: 1px solid #ddd;
     padding:10px;
     padding-left:50px;
+    padding-right:50px;
     padding-bottom:25px;
     margin:auto;
     margin-bottom: 20px;
-    min-width: 400px;
     max-width: 400px;
     border-radius: 5px;
+    min-width: 340px;
 }
 .auction-bottom-right>ul>li>div{
     margin-top:20px;

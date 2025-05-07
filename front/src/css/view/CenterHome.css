@@ -65,3 +65,15 @@
     max-width: 1200px;
     padding: 40px 20px;
 }
+
+@media (min-width: 768px) {
+    .center-menu {
+        gap: 100px;
+    }
+    .faq-category-list {
+        gap : 20px;
+    }
+    .notice-filter {
+        display: flex;
+    }
+}

@@ -183,8 +183,8 @@ const DailyCheck = () => {
         <div className="roulette-container">
           <canvas
             ref={canvasRef}
-            width={500}
-            height={500}
+            width={window.innerWidth >= 768 ? 500 : 400}
+            height={window.innerWidth >= 768 ? 500 : 400}
             className="roulette-canvas"
           />
           <div className="roulette-needle"></div>

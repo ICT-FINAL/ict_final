@@ -168,7 +168,6 @@
     padding-top: 120px;
 }
 .terms {
-    min-width: 600px;
     padding: 10px 0;
 }
 .terms h4 {
@@ -232,9 +231,127 @@
 .sign-up-form input[name=email] {
     width: calc(65% - 96px);
 }
+
+#signup-btn {
+    display: block;
+    width: 600px;
+    height: 40px;
+    margin: auto;
+    margin-top: 60px;
+    color: #fff;
+    background-color: #222;
+    border: none;
+    border-radius: 10px;
+    font-size: 12pt;
+    cursor: pointer;
+}
+#signup-btn:hover, #postcode:hover, #profile-image-btn:hover, #duplicate-check-btn:hover,
+#email-verification-btn:hover, #verification-btn:hover {
+    background-color: #fff;
+    color: #222;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+}
+
+.info-box-style{
+    display: flex; 
+    align-items: center;
+    margin-top: 50px;
+}
+
+
 input.tel {
     width: 110px;
 }
+
+.new-pwd-style{
+    text-align: right;
+    font-size: 14px; 
+    margin-top: 10px; 
+    cursor: pointer;
+}
+
+/* 회원가입 반응형 */
+@media screen and (max-width: 768px) {
+    .sign-up-container{
+        width: 95%;
+    }
+
+    .sign-up-form {
+        width: 90%;
+    }
+
+    .sign-up-form label,
+    .sign-up-form input,
+    .sign-up-form textarea {
+        width: 100%;
+    }
+
+    .form-alert {
+        margin-left: 0px !important;
+    }
+
+    .sign-up-form input[name=userid],
+    .sign-up-form input[name=zipcode],
+    .sign-up-form input[name=email]{
+        width: 60% !important;
+    }
+    
+    .sign-up-form input[name=username],
+    .sign-up-form input[name=userpw],
+    .sign-up-form input[name=userpwCheck],
+    .sign-up-form input[name=address],
+    .sign-up-form input[name=addressDetail]
+    {
+        width: 90%;
+    }
+
+    #verification-code{
+        margin: 5px !important;
+    }
+
+    .sign-up-form input[name=tel1],
+    .sign-up-form input[name=tel2],
+    .sign-up-form input[name=tel3]{
+        width: 24%; 
+
+    }
+
+    #duplicate-check-btn, #postcode, #email-verification-btn{
+        width: 24%;
+        height: 40px !important; 
+    }
+    
+
+    #profile-image-btn{
+        margin: 0 !important;
+        width: 30% !important;
+        height: 35px !important;
+        display: flex;
+        justify-content: center;  /* 좌우 가운데 정렬 */
+        align-items: center;      /* 위아래 가운데 정렬 */
+        text-align: center;       /* 텍스트 여러 줄일 경우 중앙 정렬 */
+    }
+
+    .info-box-style {
+        margin-top: 70px;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 5px;
+        width: 90%;
+    }
+
+    #signup-btn{
+        width: 95%;
+        padding: 0;
+    }
+
+    .form-alert{
+        padding-left: 5px;
+        font-size: 11px !important;
+    }
+}
+
 #profile-img {
     position: absolute;
     width: 100px;
@@ -268,26 +385,6 @@ input.tel {
     padding: 0 5px;
     text-align: center;
     font-weight: 400;
-}
-#signup-btn {
-    display: block;
-    width: 600px;
-    height: 40px;
-    margin: auto;
-    margin-top: 60px;
-    color: #fff;
-    background-color: #222;
-    border: none;
-    border-radius: 10px;
-    font-size: 12pt;
-    cursor: pointer;
-}
-#signup-btn:hover, #postcode:hover, #profile-image-btn:hover, #duplicate-check-btn:hover,
-#email-verification-btn:hover, #verification-btn:hover {
-    background-color: #fff;
-    color: #222;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
-    transition: all 0.2s;
 }
 
 .already-container {
@@ -332,12 +429,31 @@ input.tel {
     100% { transform: rotate(360deg); }
 }
 
+/* 개인정보 수정 반응형 */
+@media screen and (max-width: 768px) {
+    #info-edit-id, #info-edit-email{
+        width: 90% !important;
+    }
+
+    .new-pwd-style{
+        margin-right: 20px;
+    }
+
+    #currentUserPw, #modUserPw, #modUserPwCheck{
+        width: 92% !important;
+    }
+    #profile-img {
+        top: 50px;
+        left: 0px;
+    }
+}
 
 /* ========== Mypage Profile ========== */
 .profile-top, .profile-menu {
     border: 1px solid #ccc;
     padding: 30px;
     margin: 20px auto;
+    font-size: 10pt;
 }
 .profile-top{
     max-width: 750px;
@@ -346,10 +462,7 @@ input.tel {
 }
 .profile-info {
     width: 100%;
-    padding: 0 10px;
-}
-.profile-info div {
-    margin: 5px;
+    padding: 0;
 }
 .profile-follow {
     display: flex;
@@ -358,9 +471,13 @@ input.tel {
     border: 1px solid #ccc;
     border-radius: 10px;
 }
+#profile-info-text {
+    margin: 5px auto 15px;
+}
+
 #follow-btn, #unfollow-btn, #userinfo-chatting, #profile-edit-btn {
     display: inline;
-    height: 35px;
+    height: 40px;
     padding: 0 20px;
     background-color: #52a575;
     border: none;
@@ -378,7 +495,7 @@ input.tel {
 .profile-menu {
     display: flex;
     justify-content:center;
-    padding: 10px 30px;
+    padding: 10px;
     margin-bottom: 0;
     
 }
@@ -397,7 +514,7 @@ input.tel {
 .guestbook-item {
     position: relative;
     max-width: 800px;
-    margin: 30px auto;
+    margin: 30px 10px;
     padding: 20px;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
     border-radius: 20px;
@@ -504,27 +621,33 @@ input.tel {
     justify-content: center;
     align-items: center;
 }
-.spinner {
-    width: 70px;
-    height: 70px;
-    border: 10px solid #ddd;
-    border-top-color: #777;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
 
 @media (min-width: 768px) {
     .profile-top, .profile-menu {
         min-width: 500px;
         display: flex;
+        font-size: 13pt;
     }
     .profile-bottom {
         min-width: 500px;
+    }
+    .profile-info {
+        padding-left: 20px;
+    }
+    .profile-info div {
+        margin: 5px;
+    }
+    .guestbook-item {
+        margin: 30px auto;
+    }
+}
+
+/* 우편번호 - 반응형 */
+@media screen and (max-width: 768px) {
+    .daumpost{
+        width: 95% !important;
+    }
+    .postmodal{
+        width:98% !important;
     }
 }

@@ -209,15 +209,26 @@ function MyBasket() {
     return (
         <div style={{ paddingLeft: "10px" }}>
             <div className="basket-sel-all">
-                <input type="checkbox" checked={allChecked} onChange={handleAllCheck} /> 🛒 전체 선택
+            <label style={{ cursor: 'pointer' }}>
+            <input
+                type="checkbox"
+                id="check-all"
+                checked={allChecked}
+                onChange={handleAllCheck}
+                style={{ cursor: 'pointer', marginRight: '5px' }}
+            />
+            🛒 전체 선택
+            </label>
                 <button id="selected-delete-btn" type="button" onClick={handleDeleteSelected}>선택 삭제</button>
                 <hr />
             </div>
             {Object.keys(groupedItems).length > 0 ? (
                 Object.values(groupedItems).map((group, index) => (
                     <div key={index} className="basket-body">
+                        <label style={{ cursor: 'pointer', display: 'block', marginBottom: '5px' }}>
                         <input
                             type="checkbox"
+                            id={`check-seller-${group.sellerNo}`}
                             checked={group.items.every(item => checkedItems[item.basketNo])}
                             onChange={(e) => {
                                 const newChecked = { ...checkedItems };
@@ -230,7 +241,11 @@ function MyBasket() {
                                 });
                                 setCheckedItems(newChecked);
                             }}
-                        /> <b>{group.sellerName}</b>님의 상품
+                            style={{ cursor: 'pointer', marginRight: '5px' }}
+                        />
+                        <b>{group.sellerName}</b>님의 상품
+                        </label>
+
 
                         <ul className="basket-list">
                             <li>
@@ -252,13 +267,16 @@ function MyBasket() {
                                 <div>
                                     {group.items.map((item, idx) => (
                                         <div key={idx}>
+                                            <label style={{ cursor: 'pointer', display: 'block' }}>
                                             <input
                                                 type="checkbox"
+                                                id={`check-${item.basketNo}`}
                                                 checked={checkedItems[item.basketNo] || false}
                                                 onChange={() => handleItemCheck(item.basketNo)}
+                                                style={{ cursor: 'pointer', marginRight: '5px' }}
                                             />
-                                            <span>옵션: {item.optionName} / {item.categoryName} - 추가금액 +{formatNumberWithCommas(item.additionalPrice)}원</span><br />
-                                            <span>수량: {item.quantity}</span>
+                                            옵션: {item.optionName} / {item.categoryName} - 추가금액 +{formatNumberWithCommas(item.additionalPrice)}원
+                                            </label><span>수량: {item.quantity}</span>
                                             <button id="order-modify-btn"
                                                 onClick={() => dispatch(setModal({ isOpen: true, selected: 'basket-box', selectedItem: item }))}
                                             >수정</button>
@@ -268,6 +286,7 @@ function MyBasket() {
                             </li>
                             <li style={{ textAlign: 'center', alignSelf: 'center' }}>배송비<br />{formatNumberWithCommas(group.productShippingFee)}원</li>
                         </ul>
+                        <div id="shipping-fee-bottom" style={{ textAlign: 'center', alignSelf: 'center' }}>배송비 {formatNumberWithCommas(group.productShippingFee)}원</div>
                     </div>
                 ))
             ) : (

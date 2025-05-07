@@ -347,6 +347,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
+    padding: 10px;
 }
 
 .event-item {
@@ -710,7 +711,6 @@
 .event-info-container {
     padding: 40px;
     max-width: 800px;
-    min-width: 600px;
     margin: 0 auto;
     background: #ffffff;
     border-radius: 16px;
@@ -780,5 +780,11 @@
     width: fit-content;
     margin: 0 auto 16px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+@media (min-width: 768px) {
+    .event-info-container {
+        min-width: 600px;
+    }
 }
 /* info 끝 */

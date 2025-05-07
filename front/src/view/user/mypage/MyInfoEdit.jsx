@@ -270,14 +270,14 @@ function MyInfoEdit() {
                 <div id="modal-background" style={modalBackStyle}></div>
                 <form className="sign-up-form" onSubmit={myInfoEdit}>
                     <label>아이디</label>
-                    <input type="text" name="userid" value={user.userid || ''} style={{width:'calc(65%)', backgroundColor:'#ddd'}} disabled/>
+                    <input id="info-edit-id" type="text" name="userid" value={user.userid || ''} style={{width:'calc(65%)', backgroundColor:'#ddd'}} disabled/>
 
                     <label>이름</label>
                     <input type="text" name="username" value={user.username || ''} onChange={changeUser}/><br/>
                     {alert.username.content && <><span className="form-alert">{alert.username.content}</span><br/></>}
 
                     <label>이메일</label>
-                    <input type="text" name="email" value={user.email || ''} style={{width:'calc(65%)', backgroundColor:'#ddd'}} autoComplete="useremail" disabled/><br/>
+                    <input id="info-edit-email" type="text" name="email" value={user.email || ''} style={{width:'calc(65%)', backgroundColor:'#ddd'}} autoComplete="useremail" disabled/><br/>
 
                     {!userInfo.kakaoProfileUrl && (
                         <>
@@ -301,37 +301,39 @@ function MyInfoEdit() {
                     <input type='text' name="addressDetail" value={user.addressDetail || ''} onChange={changeUser}/><br/>
 
                     {/* uploadedProfilePreview 미리보기 이미지 */}
-                    <label>프로필 사진</label>
-                    <img id="profile-img" src={
-                                                // user.uploadedProfilePreview
-                                                // ? user.uploadedProfilePreview
-                                                // : user.kakaoProfileUrl
-                                                // ? user.kakaoProfileUrl.startsWith("http")
-                                                //     ? user.kakaoProfileUrl
-                                                //     : `${serverIP.ip}${user.kakaoProfileUrl}`
-                                                // : user.uploadedProfileUrl
-                                                // ? `${serverIP.ip}${user.uploadedProfileUrl}`
-                                                // : ''
+                    <div style={{position: "relative"}}>
+                        <label>프로필 사진</label>
+                        <img id="profile-img" src={
+                                                    // user.uploadedProfilePreview
+                                                    // ? user.uploadedProfilePreview
+                                                    // : user.kakaoProfileUrl
+                                                    // ? user.kakaoProfileUrl.startsWith("http")
+                                                    //     ? user.kakaoProfileUrl
+                                                    //     : `${serverIP.ip}${user.kakaoProfileUrl}`
+                                                    // : user.uploadedProfileUrl
+                                                    // ? `${serverIP.ip}${user.uploadedProfileUrl}`
+                                                    // : ''
 
-                                                user.uploadedProfilePreview
-                                                ? user.uploadedProfilePreview
-                                                : user.uploadedProfileUrl
-                                                ? `${serverIP.ip}${user.uploadedProfileUrl}`
-                                                : user.kakaoProfileUrl
-                                                ? user.kakaoProfileUrl.startsWith("http")
-                                                ? user.kakaoProfileUrl
-                                                : `${serverIP.ip}${user.kakaoProfileUrl}`
-                                                : ''
-                                            } 
-                                            alt="프로필 이미지" 
-                                            referrerPolicy="no-referrer" 
-                                            onClick={() => document.getElementById('profile-image-file').click()} 
-                    />
-                    <input type="file" id="profile-image-file" style={{display: "none"}} accept="image/*" onChange={handleImageChange} /><br/>
-                    <label htmlFor="profile-image-file" id="profile-image-btn">사진첨부</label><br/>
+                                                    user.uploadedProfilePreview
+                                                    ? user.uploadedProfilePreview
+                                                    : user.uploadedProfileUrl
+                                                    ? `${serverIP.ip}${user.uploadedProfileUrl}`
+                                                    : user.kakaoProfileUrl
+                                                    ? user.kakaoProfileUrl.startsWith("http")
+                                                    ? user.kakaoProfileUrl
+                                                    : `${serverIP.ip}${user.kakaoProfileUrl}`
+                                                    : ''
+                                                } 
+                                                alt="프로필 이미지" 
+                                                referrerPolicy="no-referrer" 
+                                                onClick={() => document.getElementById('profile-image-file').click()} 
+                        />
+                        <input type="file" id="profile-image-file" style={{display: "none"}} accept="image/*" onChange={handleImageChange} /><br/>
+                        <label htmlFor="profile-image-file" id="profile-image-btn">사진첨부</label><br/>
+                    </div>
 
                     {/* 소개 */}
-                    <div style={{ display: "flex", alignItems: "center", marginTop: "50px" }}>
+                    <div className="info-box-style">
                         <label style={{ textAlign: "left" }}>소개</label>
                         <textarea name="infoText" maxLength={200} value={intro} onChange={handleChange} style={{height: "18vh", padding: "10px", fontFamily:'inherit'}} />
                     </div>
@@ -341,11 +343,7 @@ function MyInfoEdit() {
 
                     <button type="submit" id="signup-btn">수정</button>
                 </form>
-
-                {!userInfo.kakaoProfileUrl && (
-                    <div style={{textAlign:'right', fontSize:'14px', marginTop:'10px', cursor:'pointer'}} onClick={()=>setCurrentPage("pwdPage")} >비밀번호 재설정</div>
-                )}
-                
+                <div className="new-pwd-style" onClick={()=>setCurrentPage("pwdPage")} >비밀번호 재설정</div>
             </>
         }
 

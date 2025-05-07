@@ -37,7 +37,6 @@ function AdminSettlement() {
             setProductLists({});
             setExpandedUser(null);
             setSellers(res.data.sellers);
-            //setTotalCount(res.data.totalCount);
             setSelectedCount(res.data.selectedCount);
 
             const total = res.data.totalPage || 1;
@@ -197,12 +196,11 @@ function AdminSettlement() {
                 params: {
                     user_id,
                     shippingState: "SETTLED",
-                    year: settledYear === "전체" ? "" : settledYear,
-                    month: settledMonth === "전체" ? "" : settledMonth
+                    settledYear: settledYear === "전체" ? "" : settledYear,
+                    settledMonth: settledMonth === "전체" ? "" : settledMonth
                 },
                 headers: { Authorization: `Bearer ${user.token}` }
             });
-            console.log("정산 완료 상품 목록:", res.data);
             setSettledProductLists(prev => ({
                 ...prev,
                 [user_id]: { loading: false, error: null, products: res.data.orderList }
@@ -579,18 +577,18 @@ function AdminSettlement() {
                 ))}
 
                 <ul className="admin-paging">
-                    {nowPage.readable > 1 && (
-                        <a className="page-prenext" onClick={() => setNowPage(prev => ({ ...prev, readable: nowPage.readable - 1 }))}>
+                    {settledNowPage.readable > 1 && (
+                        <a className="page-prenext" onClick={() => setSettledNowPage(prev => ({ ...prev, readable: settledNowPage.readable - 1 }))}>
                             <li className="page-num">◀</li>
                         </a>
                     )}
-                    {pageNumber.readable.map(pg => (
-                        <a className="page-num" onClick={() => setNowPage(prev => ({ ...prev, readable: pg }))} key={pg}>
-                            <li className={nowPage.readable === pg ? "page-num active" : "page-num"}>{pg}</li>
+                    {settledPageNumber.readable.map(pg => (
+                        <a className="page-num" onClick={() => setSettledNowPage(prev => ({ ...prev, readable: pg }))} key={pg}>
+                            <li className={settledNowPage.readable === pg ? "page-num active" : "page-num"}>{pg}</li>
                         </a>
                     ))}
-                    {nowPage.readable < totalPage.readable && (
-                        <a className="page-prenext" onClick={() => setNowPage(prev => ({ ...prev, readable: nowPage.readable + 1 }))}>
+                    {settledNowPage.readable < settledTotalPage.readable && (
+                        <a className="page-prenext" onClick={() => setSettledNowPage(prev => ({ ...prev, readable: settledNowPage.readable + 1 }))}>
                             <li className="page-num">▶</li>
                         </a>
                     )}

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { setModal } from "../../../store/modalSlice";
 
 import axios from "axios";
+import * as XLSX from "xlsx/xlsx.mjs";
 
 function MySell() {
     const loc = useLocation();
@@ -116,19 +117,141 @@ function MySell() {
         return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
     }
 
+    const excelDownload = ()=>{
+        const fileName = "[MIMYO] " + user.user.username + "님의 판매내역";
+        const excelData = [];
+
+        orderList.map(record=>{
+            console.log(record.shippingState);
+            let shippingState;
+            switch (record.shippingState) {
+                case "PAID":
+                    shippingState = "결제 완료";
+                    break;
+                case "FINISH":
+                    shippingState = "구매 확정";
+                    break;
+                case "SETTLED":
+                    shippingState = "정산 완료";
+                    break;
+                case "BEFORE":
+                    shippingState = "배송 준비 중";
+                    break;
+                case "ONGOING":
+                    shippingState = "배송 중";
+                    break;
+                case "CANCELED":
+                    shippingState = "주문 취소";
+                    break;
+                case "SELLERCANCELED":
+                    shippingState = "배송 취소";
+                    break;
+                case "RETURNED":
+                    shippingState = "환불됨";
+                    break;
+                default:
+                    shippingState = "알 수 없음";
+                    break;
+            }
+                if (record.orderItems.length === 0) {
+                    excelData.push({
+                        주문번호: record.orderNum,
+                        수령인: record.address.recipientName,
+                        연락처: record.address.tel,
+                        주소: record.address.address,
+                        상세주소: record.address.addressDetail,
+                        우편번호: record.address.zipcode,
+                        상태: shippingState,
+                        상품명: record.auctionProduct.productName
+                    })
+                }
+                else
+                    for(const item of record.orderItems) {
+                        excelData.push({
+                            주문번호: record.orderNum,
+                            수령인: record.address.recipientName,
+                            연락처: record.address.tel,
+                            주소: record.address.address,
+                            상세주소: record.address.addressDetail,
+                            우편번호: record.address.zipcode,
+                            상태: shippingState,
+                            상품명: item.productName,
+                            옵션명: item.optionName,
+                            옵션카테고리: item.optionCategoryName,
+                            수량: item.quantity,
+                        })
+                    }
+        })
+        const sheet = XLSX.utils.json_to_sheet(excelData);
+        const workbook = XLSX.utils.book_new();
+
+        XLSX.utils.book_append_sheet(workbook, sheet, "판매내역");
+        XLSX.writeFile(workbook, fileName ? `${fileName}.xlsx` : 'noname.xlsx');
+    }
+
+    const shippingCounts = orderList.reduce((acc, order) => {
+        const state = order.shippingState;
+        acc[state] = (acc[state] || 0) + 1;
+        return acc;
+    }, {});
+    
     return (
-        <div className="report-box">
-            <select onChange={(e) => setShippingOption(e.target.value)} style={{ width: '120px', borderRadius: '10px', padding: '5px 10px', border: '1px solid #ddd', marginBottom:'30px'}}>
-                <option value="">전체</option>
-                <option value="PAID">결제 완료</option>
-                <option value="FINISH">구매 확정</option>
-                <option value="SETTLED">정산 완료</option>
-                <option value="BEFORE">배송 준비 중</option>
-                <option value="ONGOING">배송 중</option>
-                <option value="CANCELED">주문 취소</option>
-                <option value="SELLERCANCELED">배송 취소</option>
-                <option value="RETURNED">환불됨</option>
-            </select>
+        <div className="order-history-box">
+        <button onClick={excelDownload} id="excel-download-btn">엑셀 다운받기
+        </button>
+        <div style={{ marginBottom: '30px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        {["", "PAID", "BEFORE", "FINISH", "ONGOING", "CANCELED", "SELLERCANCELED", "RETURNED"].map((state) => {
+            const labelMap = {
+            "": "전체",
+            "PAID": "결제 완료",
+            "BEFORE": "배송 준비 중",
+            "FINISH": "구매 확정",
+            "ONGOING": "배송 중",
+            "CANCELED": "주문 취소",
+            "SELLERCANCELED": "배송 취소",
+            "RETURNED": "환불됨"
+            };
+
+            const showBadge = ["PAID", "BEFORE"].includes(state) && shippingCounts[state] > 0;
+
+            return (
+            <div key={state} style={{ position: 'relative' }}>
+                <button
+                onClick={() => setShippingOption(state)}
+                style={{
+                    padding: '6px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #ccc',
+                    backgroundColor: shippingOption === state ? '#8CC7A5' : 'white',
+                    color: shippingOption === state ? 'white' : '#333',
+                    fontWeight: shippingOption === state ? 'bold' : 'normal',
+                    cursor: 'pointer',
+                    position: 'relative'
+                }}
+                >
+                {labelMap[state]}
+                </button>
+                {showBadge && (
+                <div style={{
+                    position: 'absolute',
+                    top: '-6px',
+                    right: '-6px',
+                    backgroundColor: 'red',
+                    color: 'white',
+                    borderRadius: '50%',
+                    padding: '2px 6px',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    width: '10px',
+                    textAlign: 'center'
+                }}>
+                    {shippingCounts[state]}
+                </div>
+                )}
+            </div>
+            );
+        })}
+        </div>
             {
                 orderList.length === 0 ?
                     <div className="no-list">검색 결과가 없습니다.</div> :
@@ -218,11 +341,6 @@ function MySell() {
                                                 {order.shippingState === 'FINISH'  && (
                                                     <span style={{ color: '#28a745', fontWeight: '600' }}>
                                                     ✅ 구매 확정
-                                                    </span>
-                                                )}
-                                                {order.shippingState === 'SETTLED'  && (
-                                                    <span style={{ color: '#28a745', fontWeight: '600' }}>
-                                                    ✅ 정산 완료
                                                     </span>
                                                 )}
                                                 {order.shippingState === 'CANCELED' && (

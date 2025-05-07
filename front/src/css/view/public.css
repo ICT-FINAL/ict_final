@@ -275,6 +275,7 @@ body{
     opacity: 1;
 }
 
+
 .dots_custom {
     display: flex;
     justify-content: center;
@@ -487,33 +488,27 @@ body{
 
 
 /* 로딩 스피너 */
-.recommend-spinner {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+.spinner, .recommend-spinner {
     border: 4px solid #f3f3f3;
     border-top: 4px solid #1b1b1b;
     border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    animation: spin 1s linear infinite;
-}
-
-.spinner {
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #1b1b1b;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    height: 30px;
     animation: spin 1s linear infinite;
     margin: 10px auto;
   }
+
+  .recommend-spinner {
+    position: absolute;
+    top: 50%;
+    left: calc(50% - 15px);
+}
   
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
 
   /* 로딩 스피너 끝 */
 

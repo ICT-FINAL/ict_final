@@ -27,20 +27,32 @@ function ProductInfo() {
     const [isSubOptionRegistered, setIsSubOptionRegistered] = useState(false);
     const [totalQuantity, setTotalQuantity] = useState(0);
     const [reviewWrite, setReviewWrite] = useState(false);
-
+    const [reviewCount, setReviewCount] = useState(0);
+    
     const dispatch = useDispatch();
-
+    
     const reviewRef = useRef(null);
     const downProduct = () =>{
         const isConfirmed = window.confirm("정말로 상품을 내리시겠습니까?\n내린 상품은 관리자에게 문의하여 재등록 가능합니다.");
         if (!isConfirmed) return;
         if(user)
             axios.get(`${serverIP.ip}/product/downProduct?id=${loc.state.product.id}`, {
-                headers:{Authorization:`Bearer ${user.token}`}
-            })
-            .then(navigate('/product/search'))
-            .catch(err => console.log(err));
+        headers:{Authorization:`Bearer ${user.token}`}
+    })
+    .then(navigate('/product/search'))
+    .catch(err => console.log(err));
     }
+
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    useEffect(() => {
+    const handleResize = () => {
+        setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         const headers = user?.token
@@ -56,6 +68,16 @@ function ProductInfo() {
         .catch(err => console.log(err));
         getWish();
     }, []);
+
+    // 리뷰 개수 구하기
+    useEffect(()=>{
+        const prod = loc.state.product ? loc.state.product : loc.state
+        axios.get(`${serverIP.ip}/review/productReviewList?productId=${prod.id}`)
+        .then(res=>{
+            setReviewCount(res.data.length);
+        })
+        .catch(err => console.log(err));
+    },[]);
 
     // 평균 별점 구하기 
     const [averageStar, setAverageStar] = useState(null);
@@ -372,7 +394,7 @@ function ProductInfo() {
         <>
             <div style={{ paddingTop: "140px" }}>
 
-                <div className="product-info-container" style={{minWidth:'1000px'}}>
+                <div className="product-info-container">
                     <div className="product-info-left">
                         <img
                             id="product-big-img"
@@ -458,7 +480,7 @@ function ProductInfo() {
                                 ) : null}
                             </li>
                             <li style={{ display: 'flex', marginTop: '20px', fontSize: '25px', lineHeight: '30px' }}>
-                                <div className='product-info-name'>
+                                <div className='product-info-name' style={user && user.user.id !== loc.state.product.sellerNo.id ? {width: '80%'} : {width: '100%'}}>
                                     {loc.state.product.productName}
                                 </div>
                                 {user && user.user.id !== loc.state.product.sellerNo.id &&
@@ -667,7 +689,7 @@ function ProductInfo() {
                 </div>
 
                 {/* start : 상세정보, 리뷰 */}
-                <div style={{ paddingTop: "10%", width: '100%', margin: '0 auto', minWidth: '1000px' }}>
+                <div className="product-info-menu" style={{ paddingTop: "10%", width: '100%', margin: '0 auto' }}>
                     <div>
                         <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
                         <div style={{
@@ -675,38 +697,62 @@ function ProductInfo() {
                             fontSize: '16px',
                             fontWeight: '600'
                         }}>
-                            <div className="product-div">상세정보</div>
-                            <div className="product-div">리뷰 ({loc.state.product.reviewCount ? loc.state.product.reviewCount : loc.state.reviewCount})</div>
+                            <div onClick={()=> setChangeMenu('detail')} className="product-div">상세정보</div>
+                            <div onClick={()=> setChangeMenu('review')} className="product-div">리뷰({reviewCount})</div>
                         </div>
                         <hr style={{ border: 'none', height: '1px', backgroundColor: '#ccc', margin: '0px' }} />
                     </div>
 
-                    <div style={{display: 'flex'}}>
-                        {loc.state.product.detail ? (
-                            <div className="product-bottom-left" dangerouslySetInnerHTML={{ __html: loc.state.product.detail }} style={{ padding: '15px', width: '50%'}} />
-                        ) : (
-                            <p>등록된 상세 정보가 없습니다.</p>
-                        )}
-                        <div className="bell-icon" onClick={() => { openMessage('report', loc.state.product) }}
-                            style={{
-                                position: 'fixed',
-                                right: '20px',
-                                bottom: '20px',
-                                zIndex: 100,
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                backgroundColor: 'white',
-                                padding: '8px',
-                                borderRadius: '5px',
-                                border: '1px solid #ccc',
-                            }}
-                        >
-                            <FaBell />
-                            <span>상품신고</span>
-                        </div>
-                        <div style={{width: '50%', borderLeft: '1px solid #ddd'}}><ProductReview ref={reviewRef} getAverageStar={getAverageStar} averageStar={averageStar} reviewWrite={reviewWrite} setReviewWrite={setReviewWrite}/></div>
+                    <div style={{ display: isMobile ? 'block' : 'flex' }}>
+                    {/* 상세정보 */}
+                    {(isMobile ? changeMenu === 'detail' : true) && (
+                        <div
+                        className="product-bottom-left"
+                        dangerouslySetInnerHTML={{ __html: loc.state.product.detail }}
+                        style={{
+                            padding: '15px',
+                            width: isMobile ? '' : '50%',
+                            display: loc.state.product.detail ? 'block' : 'none'
+                        }}
+                        />
+                    )}
 
+                    {/* 리뷰 */}
+                    {(isMobile ? changeMenu === 'review' : true) && (
+                        <div
+                        style={{
+                            width: isMobile ? '100%' : '50%',
+                            borderLeft: isMobile ? 'none' : '1px solid #ddd'
+                        }}
+                        >
+                        <ProductReview
+                            ref={reviewRef}
+                            getAverageStar={getAverageStar}
+                            averageStar={averageStar}
+                            reviewWrite={reviewWrite}
+                            setReviewWrite={setReviewWrite}
+                        />
+                        </div>
+                    )}
+                    </div>
+
+                    <div className="bell-icon" onClick={() => { openMessage('report', loc.state.product) }}
+                        style={{
+                            position: 'fixed',
+                            right: '20px',
+                            bottom: '20px',
+                            zIndex: 100,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            backgroundColor: 'white',
+                            padding: '8px',
+                            borderRadius: '5px',
+                            border: '1px solid #ccc',
+                        }}
+                    >
+                        <FaBell />
+                        <span>상품신고</span>
                     </div>
                 </div>
                 {/* end : 상세정보, 리뷰 */}

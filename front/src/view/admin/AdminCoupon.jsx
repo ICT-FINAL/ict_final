@@ -28,6 +28,7 @@ function AdminCoupon() {
                     if (res.data === "no_user") alert("해당 사용자가 없습니다.");
                     else {
                         alert("쿠폰 지급 성공!");
+                        window.location.reload();
                     }
                 })
                 .catch(err => {
