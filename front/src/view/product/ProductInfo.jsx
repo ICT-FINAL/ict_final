@@ -369,7 +369,9 @@ function ProductInfo() {
     // changMenu 상태 추가 (상세정보, 리뷰 등등 탭에 들어갈 메뉴들)
     const [changeMenu, setChangeMenu] = useState("detail");
     useEffect(() => {
-        if (loc.state.changeMenu !== undefined && loc.state.changeMenu === 'review') {
+        const isRefreshed = performance?.navigation?.type === 1 || performance.getEntriesByType("navigation")[0]?.type === 'reload';
+
+        if (!isRefreshed && loc.state.changeMenu !== undefined && loc.state.changeMenu === 'review') {
             setReviewWrite(true);
             setChangeMenu('review');
 
@@ -712,7 +714,8 @@ function ProductInfo() {
                         style={{
                             padding: '15px',
                             width: isMobile ? '' : '50%',
-                            display: loc.state.product.detail ? 'block' : 'none'
+                            display: loc.state.product.detail ? 'block' : 'none',
+                            overflow:'hidden'
                         }}
                         />
                     )}

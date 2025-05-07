@@ -348,7 +348,7 @@ function AuctionIndex() {
                                                 src={`${serverIP.ip}/uploads/auction/product/${auction.auctionProduct.id}/${auction.auctionProduct.images[0].filename}`}
                                             />
                                             <br />
-                                            <span style={{ fontSize: '16px', color: '#333' }}>
+                                            <span style={{ fontSize: '16px', color: '#333', overflow:'hidden', whiteSpace:'nowrap', textAlign:'ellipsis', display:'inline-block',width:'180px' }}>
                                                 {auction.auctionProduct.productName}
                                             </span>
                                             <br />
