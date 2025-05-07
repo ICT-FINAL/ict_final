@@ -40,7 +40,7 @@ public class AuctionService {
         String roomId = UUID.randomUUID().toString();
 
         int rawIncrement = (req.getFirstPrice() + req.getBuyNowPrice()) / 20;
-        int minBidIncrement = ((rawIncrement + 99) / 100) * 100;
+        int minBidIncrement = ((rawIncrement + 99) / 100) * 20;
 
         AuctionRoom room = AuctionRoom.builder()
                 .roomId(roomId)

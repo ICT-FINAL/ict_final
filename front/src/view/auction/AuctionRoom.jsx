@@ -63,6 +63,7 @@ function AuctionRoom() {
                         bidTime: new Date().toISOString() //추후 정렬용
                     }]);*/
                     getRoomInfo();
+                    fetchPreviousBids();
                 });
 
                 stompClient.subscribe(`/topic/auction/${roomId}/end`, (message) => {
@@ -81,31 +82,32 @@ function AuctionRoom() {
     }, [roomId, serverIP, user]);
 
     useEffect(() => {
-        const fetchPreviousBids = async () => {
-            if(user)
-            try {
-                const res = await axios.get(`${serverIP.ip}/auction/bids/${roomId}`, {
-                    headers: { Authorization: `Bearer ${user.token}` }
-                });
-                const formattedBids = res.data.map(bid => ({
-                    state:bid.state,
-                    user: bid.user,
-                    price: bid.price,
-                    bidTime: new Date(bid.bidTime).toISOString(), // 정렬 용도
-                    room:bid.room,
-                    id:bid.id
-                }));
-                const sortedBids = formattedBids.sort(
-                    (a, b) => new Date(b.bidTime) - new Date(a.bidTime)
-                );
-
-                setBidHistory(sortedBids);
-            } catch (err) {
-                console.error('입찰 내역 불러오기 실패', err);
-            }
-        };
         fetchPreviousBids();
     }, [roomId]);
+
+    const fetchPreviousBids = async () => {
+        if(user)
+        try {
+            const res = await axios.get(`${serverIP.ip}/auction/bids/${roomId}`, {
+                headers: { Authorization: `Bearer ${user.token}` }
+            });
+            const formattedBids = res.data.map(bid => ({
+                state:bid.state,
+                user: bid.user,
+                price: bid.price,
+                bidTime: new Date(bid.bidTime).toISOString(), // 정렬 용도
+                room:bid.room,
+                id:bid.id
+            }));
+            const sortedBids = formattedBids.sort(
+                (a, b) => new Date(b.bidTime) - new Date(a.bidTime)
+            );
+
+            setBidHistory(sortedBids);
+        } catch (err) {
+            console.error('입찰 내역 불러오기 실패', err);
+        }
+    };
 
     const getRoomInfo =()=>{
         axios.get(`${serverIP.ip}/auction/getAuctionItem/${roomId}`
