@@ -31,6 +31,10 @@ function MySell() {
         getBoardList();
     }, [loc, shippingOption]);
 
+    useEffect(()=>{
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    },[nowPage]);
+
     useEffect(() => {
         setTotalPage(Math.ceil(orderList.length / pageSize));
     }, [orderList]);
@@ -41,9 +45,12 @@ function MySell() {
                 headers: { Authorization: `Bearer ${user.token}` }
             })
             .then(res => {
-                setOrderList(res.data.orderList);
-                setTotalRecord(res.data.orderList.length);
-                setFileList(res.data.filenameList);
+                const merged = res.data.orderList.map((order, i) => ({
+                    ...order,
+                    filename: res.data.filenameList[i] || ''
+                }));
+                setOrderList(merged); // filename 포함된 orderList
+                setTotalRecord(merged.length);
             })
             .catch(err => console.log(err));
     };
@@ -122,7 +129,6 @@ function MySell() {
         const excelData = [];
 
         orderList.map(record=>{
-            console.log(record.shippingState);
             let shippingState;
             switch (record.shippingState) {
                 case "PAID":
@@ -272,11 +278,13 @@ function MySell() {
                                     { order.auctionProduct == null ?
                                     <>
                                     <div className='order-wrapper'>
-                                    { fileList[idx] &&
-                                    <div style={{textAlign:'center'}}>
-                                        <img  onClick={()=>moveInfo(order.productId)} style={{width:'200px', height:'200px', borderRadius:'10px', cursor:'pointer'}} src={`${serverIP.ip}/uploads/product/${order.productId}/${fileList[idx]}`}/>
-                                    </div>
-                                    }
+                                        <div style={{ textAlign: 'center' }}>
+                                            <img
+                                            src={`${serverIP.ip}/uploads/product/${order.productId}/${order.filename}`}
+                                            onClick={() => moveInfo(order.productId)}
+                                            style={{ width: '200px', height: '200px', borderRadius: '10px', cursor: 'pointer' }}
+                                            />
+                                        </div>
                                     <div>
                                     {order.orderItems.map((oi) => {
                                         const itemTotal = (oi.price * (100 - oi.discountRate) / 100 + oi.additionalFee) * oi.quantity;
@@ -296,11 +304,12 @@ function MySell() {
                                     </div>
                                     </>:<>
                                     <div className='order-wrapper'>
-                                         { fileList[idx] &&
                                         <div style={{textAlign:'center'}}>
-                                            <img style={{width:`200px`, height:`200px`, borderRadius:'10px', cursor:'pointer'}} onClick={()=>moveAuctionInfo(order.auctionProduct)} src={`${serverIP.ip}/uploads/auction/product/${order.auctionProduct.id}/${fileList[idx]}`}/>
-                                        </div>
-                                        }
+                                            <img
+                                            src={`${serverIP.ip}/uploads/auction/product/${order.auctionProduct.id}/${order.filename}`}
+                                            onClick={() => moveAuctionInfo(order.auctionProduct)}
+                                            style={{ width: '200px', height: '200px', borderRadius: '10px', cursor: 'pointer' }}
+                                            /></div>
                                         <div>
                                             <div className="order-item" style={{cursor:'pointer'}} onClick={()=>moveAuctionInfo(order.auctionProduct)} >
                                                 <div className="product-details">
