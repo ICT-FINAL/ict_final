@@ -192,6 +192,20 @@ public class AuctionController {
         map.put("bidList", service.searchAuctionBid(user,pvo));
         return map;
     }
+
+    @GetMapping("/getSellBidList")
+    public Map getSellBidList(@AuthenticationPrincipal UserDetails userDetails, BidPagingVO pvo) {
+        pvo.setOnePageRecord(5);
+        User user = inter_service.selectUserByName(userDetails.getUsername());
+
+        System.out.println(service.totalAuctionSellBidCount(user,pvo));
+        pvo.setTotalRecord(service.totalAuctionSellBidCount(user,pvo));
+        Map map = new HashMap();
+        map.put("pvo", pvo);
+        map.put("bidList", service.searchAuctionSellBid(user,pvo));
+        return map;
+    }
+
     @GetMapping("/getRoomId")
     public String getRoomId(Long productId) {
         return service.getAuctionRoomByProduct(service.getAuctionProduct(productId));
