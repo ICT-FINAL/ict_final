@@ -156,6 +156,12 @@
       font-weight: 600;
       color: #555;
       }
+      
+      .faq-modal-input textarea {
+        height: 300px;
+        resize: vertical;
+      } 
+
       .faq-modal-input input,
       .faq-modal-input textarea,
       .faq-modal-input select {

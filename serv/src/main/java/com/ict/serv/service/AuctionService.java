@@ -220,9 +220,19 @@ public class AuctionService {
         return bidRepository.countIdByUserAndState(user, pvo.getState());
     }
 
+    public int totalAuctionSellBidCount(User user, BidPagingVO pvo) {
+        if(pvo.getState() == null) return bidRepository.countAllBidsBySeller(user.getId());
+        return bidRepository.countBidsBySellerAndState(user.getId(), pvo.getState().name());
+    }
+
     public List<AuctionBid> searchAuctionBid(User user, BidPagingVO pvo) {
         if(pvo.getState() == null) return bidRepository.findAllByUserOrderByIdDesc(user,PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
         return bidRepository.findAllByUserAndStateOrderByIdDesc(user, pvo.getState(),PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+    }
+
+    public List<AuctionBid> searchAuctionSellBid(User user, BidPagingVO pvo) {
+        if(pvo.getState() == null) return bidRepository.findSellByUserOrderByIdDesc(user.getId(),PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
+        return bidRepository.findSellByUserAndStateOrderByIdDesc(user.getId(), pvo.getState().name(),PageRequest.of(pvo.getNowPage()-1, pvo.getOnePageRecord()));
     }
 
     public List<AuctionBid> findAuctionBidByRoomAndState(AuctionRoom room, BidState state) {

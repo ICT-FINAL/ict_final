@@ -25,6 +25,7 @@ import MyCoupon from "./MyCoupon";
 import MyPoint from "./MyPoint";
 import UserDelete from "./UserDelete";
 import MySettlement from "../../product/MySettlement";
+import MySellBid from "./MySellBid";
 
 function MyIndex(){
     const location = useLocation();
@@ -67,6 +68,7 @@ useEffect(() => {
             order: { f_name: "통계", l_name: "구매 통계" },
             salesstat: { f_name: "통계", l_name: "판매 통계" },
             deleteAccount: { f_name: "회원 탈퇴", l_name: "회원 탈퇴" },
+            sellbid : { f_name: "거래 내역", l_name: "판매 입찰 내역" },
         };
 
         if (pathMap[page]) {
@@ -124,6 +126,7 @@ useEffect(() => {
                     { path.l_name == '쿠폰함' && <MyCoupon/> }
                     { path.l_name == '적립 내역' && <MyPoint/> }
                     { path.l_name == '회원 탈퇴' && <UserDelete/>}
+                    { path.l_name == '판매 입찰 내역' && <MySellBid/>}
                 </div>
             </div>
         </>
